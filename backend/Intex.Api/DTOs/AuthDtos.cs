@@ -1,0 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace Intex.Api.DTOs;
+
+public record LoginRequest(
+    [Required, EmailAddress] string Email,
+    [Required, MinLength(12)] string Password);
+
+public record RegisterRequest(
+    [Required, EmailAddress] string Email,
+    [Required, MinLength(12)] string Password,
+    [Required, StringLength(200, MinimumLength = 2)] string FullName,
+    [Required, StringLength(20)] string Role,
+    int? SupporterId);
+
+public record AuthResponse(string Token, DateTime ExpiresAtUtc, UserProfileDto User);
+
+public record UserProfileDto(Guid Id, string Email, string FullName, string[] Roles, int? SupporterId);

@@ -1,0 +1,12 @@
+.env
+backend/Intex.Api/bin/
+backend/Intex.Api/obj/
+backend/Intex.Api.Tests/bin/
+backend/Intex.Api.Tests/obj/
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+.qa-shots/
+*.png
+*.jpg
+*.jpeg
