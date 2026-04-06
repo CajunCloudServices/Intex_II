@@ -1,0 +1,54 @@
+services:
+  harborlight_nexus_db:
+    image: postgres:17
+    container_name: harborlight_nexus_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    expose:
+      - "5432"
+    volumes:
+      - harborlight_nexus_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  harborlight_nexus_api:
+    build:
+      context: ./backend/Intex.Api
+    container_name: harborlight_nexus_api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS}
+      PUBLIC_API_HOSTNAME: ${PUBLIC_API_HOSTNAME}
+      ConnectionStrings__DefaultConnection: Host=harborlight_nexus_db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      Jwt__Key: ${JWT_KEY}
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Cors__AllowedOrigins__0: ${CORS_ALLOWED_ORIGIN_1}
+    expose:
+      - "8080"
+    depends_on:
+      harborlight_nexus_db:
+        condition: service_healthy
+
+  harborlight_nexus_web:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    container_name: harborlight_nexus_web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${APP_HOST_PORT}:80"
+    depends_on:
+      - harborlight_nexus_api
+
+volumes:
+  harborlight_nexus_postgres_data:
+    name: harborlight_nexus_postgres_data
