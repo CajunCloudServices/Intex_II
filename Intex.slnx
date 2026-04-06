@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/backend/">
+    <Project Path="backend/Intex.Api/Intex.Api.csproj" />
+    <Project Path="backend/Intex.Api.Tests/Intex.Api.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,39 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-intex}
+      POSTGRES_USER: ${POSTGRES_USER:-intex}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-intex_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend/Intex.Api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: ${CONNECTIONSTRINGS__DEFAULTCONNECTION:-Host=postgres;Port=5432;Database=intex;Username=intex;Password=intex_dev_password}
+      Jwt__Issuer: Intex.Api
+      Jwt__Audience: Intex.Frontend
+      Jwt__Key: ${JWT__KEY:-ChangeThisDevelopmentJwtKey12345!}
+      Cors__AllowedOrigins__0: http://localhost:5173
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  postgres-data:
