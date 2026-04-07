@@ -22,7 +22,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext) : Control
             query = query.Where(x => x.ResidentId == residentId.Value);
         }
 
-        return Ok(await query.OrderByDescending(x => x.VisitDate).ToListAsync());
+        return Ok(await query.ToListAsync());
     }
 
     [HttpGet("{id:int}")]
@@ -110,6 +110,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext) : Control
     private IQueryable<HomeVisitationResponse> BuildQuery() =>
         dbContext.HomeVisitations
             .Include(x => x.Resident)
+            .OrderByDescending(x => x.VisitDate)
             .Select(x => new HomeVisitationResponse(
                 x.Id,
                 x.ResidentId,

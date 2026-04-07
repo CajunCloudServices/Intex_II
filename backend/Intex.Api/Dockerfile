@@ -1,11 +1,19 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS restore
+WORKDIR /src
+
+COPY Intex.Api.csproj ./
+RUN dotnet restore Intex.Api.csproj
+
+FROM restore AS publish
+COPY . ./
+RUN dotnet publish Intex.Api.csproj -c Release -o /out --no-restore
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
-COPY . ./
-RUN dotnet restore
-RUN dotnet publish -c Release -o /out
+COPY --from=publish /out ./
 
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
-CMD ["dotnet", "/out/Intex.Api.dll"]
+ENTRYPOINT ["dotnet", "Intex.Api.dll"]
