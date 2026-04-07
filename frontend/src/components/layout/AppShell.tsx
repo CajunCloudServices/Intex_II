@@ -17,6 +17,7 @@ const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions' }];
 const publicLinks = [
   { to: '/', label: 'Home' },
   { to: '/impact', label: 'Impact' },
+  { to: '/donate', label: 'Donate' },
   { to: '/privacy', label: 'Privacy' },
 ];
 
@@ -49,13 +50,13 @@ export function AppShell() {
         <div className="topbar-inner">
           <div className="header-stack">
             <div className="brand-mark">HarborLight Nexus</div>
-            <div className="brand-subtitle">Nonprofit operations starter platform</div>
+            <div className="brand-subtitle">Safe housing &amp; healing for young survivors</div>
           </div>
 
           <div className="topbar-actions">
             <nav className="topbar-nav topbar-nav-desktop">
               {headerLinks.map((link) => (
-                <NavLink key={link.to} to={link.to}>
+                <NavLink key={link.to} to={link.to} end={link.to === '/'}>
                   {link.label}
                 </NavLink>
               ))}
@@ -89,7 +90,7 @@ export function AppShell() {
             ) : null}
             <nav className="topbar-mobile-nav">
               {headerLinks.map((link) => (
-                <NavLink key={link.to} to={link.to}>
+                <NavLink key={link.to} to={link.to} end={link.to === '/'}>
                   {link.label}
                 </NavLink>
               ))}
@@ -149,6 +150,33 @@ export function AppShell() {
           <Outlet />
         </main>
       </div>
+
+      <footer className="site-footer" role="contentinfo">
+        <div className="site-footer-inner">
+          <div className="site-footer-brand">
+            <div className="brand-mark">HarborLight Nexus</div>
+            <p className="site-footer-tagline">A refuge-inspired nonprofit program for survivors.</p>
+          </div>
+          <div className="site-footer-grid">
+            <nav className="site-footer-nav" aria-label="Footer navigation">
+              <NavLink to="/" end>
+                Home
+              </NavLink>
+              <NavLink to="/impact">Impact</NavLink>
+              <NavLink to="/donate">Donate</NavLink>
+              <NavLink to="/privacy">Privacy</NavLink>
+              <NavLink to="/login">Login</NavLink>
+            </nav>
+            <div className="site-footer-meta">
+              <p>
+                <span className="site-footer-label">Contact (placeholder):</span>{' '}
+                <a href="mailto:hello@harborlight.example.org">hello@harborlight.example.org</a>
+              </p>
+              <p className="site-footer-note">Replace with your organization&apos;s real contact information.</p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
