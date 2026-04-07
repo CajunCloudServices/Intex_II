@@ -9,8 +9,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from data_loader import load_table
+
 HERE = Path(__file__).resolve().parent
-CSV = HERE / "lighthouse_csv_v7"
 PKL = HERE / "p4_counseling_model.pkl"
 OUT = HERE / "counseling-dashboard-data.json"
 
@@ -47,9 +48,9 @@ PRED_FEATURES = [
 
 
 def main() -> None:
-    process = pd.read_csv(CSV / "process_recordings.csv", parse_dates=["session_date"])
-    residents = pd.read_csv(CSV / "residents.csv")
-    incidents = pd.read_csv(CSV / "incident_reports.csv", parse_dates=["incident_date"])
+    process = load_table("process_recordings")
+    residents = load_table("residents")
+    incidents = load_table("incident_reports")
 
     process["emotion_start_num"] = process["emotional_state_observed"].map(EMOTION_MAP)
     process["emotion_end_num"] = process["emotional_state_end"].map(EMOTION_MAP)
