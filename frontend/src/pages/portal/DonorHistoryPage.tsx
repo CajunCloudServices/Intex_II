@@ -59,12 +59,12 @@ export function DonorHistoryPage() {
         <div>
           <span className="eyebrow">Donor portal</span>
           <h1>My contributions</h1>
-          <p>Your seeded donor account can see its own donation history and referral allocations here.</p>
+          <p>Review your giving history, campaign records, and the program areas your contributions support.</p>
         </div>
       </div>
 
       <section className="page-grid three">
-        <MetricCard label="Lifetime giving" value={formatMoney(totalGiven)} detail="Total across the seeded donor record." accent />
+        <MetricCard label="Lifetime giving" value={formatMoney(totalGiven)} detail="Total recorded across your available donation history." accent />
         <MetricCard label="Contribution count" value={String(donations.length)} detail="Visible donor history rows." />
         <MetricCard label="Recurring gifts" value={String(recurringCount)} detail="Monthly commitments flagged in the data." />
       </section>

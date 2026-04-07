@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { api } from '../../api';
 import { useAuth } from '../../hooks/useAuth';
 import { SectionCard } from '../../components/ui/Cards';
 import { ErrorState } from '../../components/ui/PageState';
@@ -9,13 +10,28 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('admin@intex.local');
-  const [password, setPassword] = useState('Admin!234567');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showDemoAccess, setShowDemoAccess] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
 
   const redirectTo = (location.state as { from?: string } | undefined)?.from;
+
+  useEffect(() => {
+    const loadProviders = async () => {
+      try {
+        const providers = await api.authProviders();
+        setGoogleEnabled(providers.googleEnabled);
+      } catch {
+        setGoogleEnabled(false);
+      }
+    };
+
+    void loadProviders();
+  }, []);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -27,7 +43,7 @@ export function LoginPage() {
       const defaultRoute = account.roles.includes('Donor') && account.roles.length === 1 ? '/portal/donor-history' : '/portal/admin';
       navigate(redirectTo ?? defaultRoute, { replace: true });
     } catch {
-      setError('Login failed. Use one of the seeded dev accounts from the README.');
+      setError('Login failed. Check your email and password, then try again.');
     } finally {
       setSubmitting(false);
     }
@@ -40,7 +56,7 @@ export function LoginPage() {
           <div>
             <span className="eyebrow">Secure access</span>
             <h1>Sign in</h1>
-            <p>JWT-backed API authentication for Admin, Staff, and Donor roles.</p>
+            <p>Authorized staff and donors can sign in here to review operations, care records, and giving history.</p>
           </div>
         </div>
 
@@ -75,32 +91,56 @@ export function LoginPage() {
           <button className="primary-button" disabled={submitting} type="submit">
             {submitting ? 'Signing in...' : 'Sign in'}
           </button>
+
+          {googleEnabled ? (
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => {
+                window.location.href = api.googleLoginUrl(redirectTo ?? '/portal');
+              }}
+            >
+              Continue with Google
+            </button>
+          ) : null}
         </form>
       </section>
 
-      <SectionCard title="Seeded dev accounts" subtitle="Use these cards to fill the form quickly during demos">
-        <div className="credential-grid">
-          {[
-            ['Admin', 'admin@intex.local', 'Admin!234567'],
-            ['Staff', 'staff@intex.local', 'Staff!234567'],
-            ['Donor', 'donor@intex.local', 'Donor!234567'],
-          ].map(([label, valueEmail, valuePassword]) => (
-            <button
-              key={label}
-              className="credential-card"
-              onClick={() => {
-                setEmail(valueEmail);
-                setPassword(valuePassword);
-                setError(null);
-              }}
-              type="button"
-            >
-              <strong>{label}</strong>
-              <span>{valueEmail}</span>
-              <span>{valuePassword}</span>
-            </button>
-          ))}
-        </div>
+      <SectionCard
+        title="Review access accounts"
+        subtitle="Open only when you need the prepared evaluation accounts."
+        actions={
+          <button className="ghost-button" onClick={() => setShowDemoAccess((value) => !value)} type="button">
+            {showDemoAccess ? 'Hide accounts' : 'Show accounts'}
+          </button>
+        }
+      >
+        {showDemoAccess ? (
+          <div className="credential-grid">
+            {[
+              ['Admin', 'admin@intex.local', 'Admin!234567'],
+              ['Staff', 'staff@intex.local', 'Staff!234567'],
+              ['Donor', 'donor@intex.local', 'Donor!234567'],
+            ].map(([label, valueEmail, valuePassword]) => (
+              <button
+                key={label}
+                className="credential-card"
+                onClick={() => {
+                  setEmail(valueEmail);
+                  setPassword(valuePassword);
+                  setError(null);
+                }}
+                type="button"
+              >
+                <strong>{label}</strong>
+                <span>{valueEmail}</span>
+                <span>{valuePassword}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="home-muted">Prepared reviewer accounts are available when needed, but they stay hidden during normal use.</p>
+        )}
       </SectionCard>
     </div>
   );

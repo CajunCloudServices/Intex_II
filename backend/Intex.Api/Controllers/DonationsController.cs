@@ -3,6 +3,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DonationsController(ApplicationDbContext dbContext) : ControllerBase
+public class DonationsController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.StaffOrAdmin)]
@@ -79,6 +80,7 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
 
         dbContext.Donations.Add(donation);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(Donation), donation.Id, $"Created {donation.DonationType} donation for supporter #{donation.SupporterId}.", User);
 
         var createdDonation = await QueryDonations().FirstAsync(x => x.Id == donation.Id);
         return CreatedAtAction(nameof(GetById), new { id = donation.Id }, MapDonation(createdDonation));
@@ -120,6 +122,7 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
         }).ToList();
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(Donation), donation.Id, $"Updated {donation.DonationType} donation for supporter #{donation.SupporterId}.", User);
         var updatedDonation = await QueryDonations().FirstAsync(x => x.Id == id);
         return Ok(MapDonation(updatedDonation));
     }
@@ -139,8 +142,10 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
             return NotFound();
         }
 
+        var summary = $"Deleted {donation.DonationType} donation for supporter #{donation.SupporterId}.";
         dbContext.Donations.Remove(donation);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(Donation), id, summary, User);
         return NoContent();
     }
 

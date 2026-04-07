@@ -8,10 +8,25 @@ export interface UserProfile {
   supporterId?: number | null;
 }
 
+export interface AuditEvent {
+  id: number;
+  actionType: string;
+  entityType: string;
+  entityId: number;
+  actorUserId?: string | null;
+  actorEmail: string;
+  createdAtUtc: string;
+  summary: string;
+}
+
 export interface AuthResponse {
   token: string;
   expiresAtUtc: string;
   user: UserProfile;
+}
+
+export interface AuthProvidersResponse {
+  googleEnabled: boolean;
 }
 
 export interface PublicImpactMetric {
@@ -34,6 +49,9 @@ export interface DashboardSummary {
   openInterventionPlans: number;
   homeVisitsThisMonth: number;
   socialPostsThisMonth: number;
+  highRiskResidents: number;
+  visitsNeedingFollowUp: number;
+  openIncidents: number;
   recentDonations: {
     donationId: number;
     supporterName: string;
@@ -41,11 +59,26 @@ export interface DashboardSummary {
     donationDate: string;
     donationType: string;
   }[];
+  upcomingCaseConferences: UpcomingCaseConference[];
+  progressSummary: {
+    progressNoted: number;
+    concernsFlagged: number;
+    referralsMade: number;
+  };
   safehouseUtilization: {
     safehouseName: string;
     currentOccupancy: number;
     capacityGirls: number;
   }[];
+}
+
+export interface UpcomingCaseConference {
+  id: number;
+  residentId: number;
+  residentCode: string;
+  conferenceDate: string;
+  leadWorker: string;
+  status: string;
 }
 
 export interface Supporter {
@@ -177,6 +210,20 @@ export interface HomeVisitation {
   visitOutcome: string;
 }
 
+export interface CaseConference {
+  id: number;
+  residentId: number;
+  residentCode: string;
+  conferenceDate: string;
+  leadWorker: string;
+  attendees: string;
+  purpose: string;
+  decisionsMade: string;
+  followUpActions: string;
+  nextReviewDate?: string | null;
+  status: string;
+}
+
 export interface Safehouse {
   id: number;
   code: string;
@@ -210,6 +257,95 @@ export interface IncidentReport {
   resolutionDate?: string | null;
   reportedBy: string;
   followUpRequired: boolean;
+}
+
+export interface DonationTrendPoint {
+  periodLabel: string;
+  totalAmount: number;
+  donationCount: number;
+}
+
+export interface ContributionMix {
+  donationType: string;
+  totalAmount: number;
+  donationCount: number;
+}
+
+export interface CampaignSummary {
+  campaignName: string;
+  totalAmount: number;
+  donationCount: number;
+}
+
+export interface ChannelSummary {
+  channelSource: string;
+  totalAmount: number;
+  donationCount: number;
+}
+
+export interface DonationTrends {
+  monthlyTotals: DonationTrendPoint[];
+  recurringDonationCount: number;
+  oneTimeDonationCount: number;
+  contributionMix: ContributionMix[];
+  campaignSummaries: CampaignSummary[];
+  channelSummaries: ChannelSummary[];
+}
+
+export interface BreakdownItem {
+  label: string;
+  count: number;
+}
+
+export interface ResidentOutcomeSummary {
+  interventionPlanStatuses: BreakdownItem[];
+  riskDistribution: BreakdownItem[];
+  followUpBurden: {
+    visitsNeedingFollowUp: number;
+    openIncidents: number;
+    highRiskResidents: number;
+  };
+  processRecordingSummary: {
+    progressNoted: number;
+    concernsFlagged: number;
+    referralsMade: number;
+  };
+  reintegrationStatuses: BreakdownItem[];
+}
+
+export interface SafehousePerformanceSummary {
+  safehouses: {
+    safehouseId: number;
+    safehouseName: string;
+    currentOccupancy: number;
+    capacityGirls: number;
+    residentCount: number;
+    incidentCount: number;
+    donationAllocationTotal: number;
+  }[];
+}
+
+export interface ReintegrationSummary {
+  reintegrationStatuses: BreakdownItem[];
+  reintegrationTypes: BreakdownItem[];
+  residentsClosed: number;
+  residentsActive: number;
+}
+
+export interface OutreachPerformanceSummary {
+  platformSummaries: {
+    platform: string;
+    averageEngagementRate: number;
+    totalDonationReferrals: number;
+    estimatedDonationValuePhp: number;
+  }[];
+  recentPosts: {
+    platform: string;
+    postType: string;
+    engagementRate: number;
+    donationReferrals: number;
+    estimatedDonationValuePhp: number;
+  }[];
 }
 
 export interface SupporterRequest {
@@ -320,6 +456,18 @@ export interface HomeVisitationRequest {
   followUpNeeded: boolean;
   followUpNotes?: string | null;
   visitOutcome: string;
+}
+
+export interface CaseConferenceRequest {
+  residentId: number;
+  conferenceDate: string;
+  leadWorker: string;
+  attendees: string;
+  purpose: string;
+  decisionsMade: string;
+  followUpActions: string;
+  nextReviewDate?: string | null;
+  status: string;
 }
 
 export interface SafehouseRequest {

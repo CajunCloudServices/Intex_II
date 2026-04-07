@@ -12,16 +12,22 @@ const page = await donorContext.newPage();
 
 try {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
-  await page.getByRole('heading', { name: 'Build the nonprofit app on a clean full-stack baseline.' }).waitFor();
+  await page.getByRole('heading', { name: 'Providing safe homes and healing for survivors' }).waitFor();
+  await page.getByRole('button', { name: 'Accept optional preference cookie' }).click();
+  await page.getByRole('button', { name: 'Standard theme' }).click();
+  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
 
   await page.goto(`${baseUrl}/impact`, { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: 'Impact overview' }).waitFor();
 
   await page.goto(`${baseUrl}/privacy`, { waitUntil: 'networkidle' });
-  await page.getByRole('heading', { name: 'Privacy policy starter' }).waitFor();
+  await page.getByRole('heading', { name: 'Privacy policy' }).waitFor();
 
   await page.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
-  await page.getByRole('button', { name: /Donor/ }).click();
+  await page.getByLabel('Email').fill('donor@intex.local');
+  await page.getByLabel('Password').fill('Donor!234567');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.waitForURL('**/portal/donor-history');
   await page.getByRole('heading', { name: 'My contributions' }).waitFor();
@@ -29,14 +35,20 @@ try {
   if ((await page.getByText('Admin Dashboard').count()) !== 0) {
     throw new Error('Donor navigation exposed a staff/admin link.');
   }
+  if ((await page.getByText('Audit History').count()) !== 0) {
+    throw new Error('Donor navigation exposed an admin-only audit link.');
+  }
 
   const adminContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const adminPage = await adminContext.newPage();
   await adminPage.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
-  await adminPage.getByRole('button', { name: /Admin/ }).click();
+  await adminPage.getByLabel('Email').fill('admin@intex.local');
+  await adminPage.getByLabel('Password').fill('Admin!234567');
   await adminPage.getByRole('button', { name: 'Sign in' }).click();
   await adminPage.waitForURL('**/portal/admin');
   await adminPage.getByRole('heading', { name: 'Admin dashboard' }).waitFor();
+
+  await adminPage.getByRole('heading', { name: 'Upcoming case conferences' }).waitFor();
 
   await adminPage.goto(`${baseUrl}/portal/donors`, { waitUntil: 'networkidle' });
   await adminPage.getByRole('heading', { name: 'Donors & contributions' }).waitFor();
@@ -75,6 +87,17 @@ try {
   await supporterRow(adminPage, updatedName).getByRole('button', { name: 'Delete' }).evaluate((node) => node.click());
   await adminPage.getByText('Supporter deleted.').waitFor();
   await supporterRow(adminPage, updatedName).waitFor({ state: 'detached' });
+
+  await adminPage.goto(`${baseUrl}/portal/home-visitations`, { waitUntil: 'networkidle' });
+  await adminPage.getByRole('heading', { name: 'Home visitations & case conferences' }).waitFor();
+  await adminPage.getByRole('heading', { name: 'Case conference history' }).waitFor();
+
+  await adminPage.goto(`${baseUrl}/portal/reports`, { waitUntil: 'networkidle' });
+  await adminPage.getByRole('heading', { name: 'Reports & analytics' }).waitFor();
+  await adminPage.getByRole('heading', { name: 'Donation trends' }).waitFor();
+
+  await adminPage.goto(`${baseUrl}/portal/audit-history`, { waitUntil: 'networkidle' });
+  await adminPage.getByRole('heading', { name: 'Audit history' }).waitFor();
 
   console.log('Smoke test passed.');
 } finally {

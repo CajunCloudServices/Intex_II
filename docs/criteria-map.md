@@ -6,6 +6,8 @@ This file maps the big INTEX requirements to the main places in the codebase.
 
 - API startup, auth, CORS, security headers, migrations:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs`
+- ASP.NET Identity user model:
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/ApplicationUser.cs`
 - Entity and database model:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/ApplicationDbContext.cs`
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Entities/`
@@ -15,6 +17,12 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/ICsvRelationalSeeder.cs`
 - JWT creation:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Services/JwtTokenService.cs`
+- Production cloud deployment:
+  - `/Users/lajicpajam/School/Intex II/docker-compose.production.yml`
+  - `/Users/lajicpajam/School/Intex II/.github/workflows/deploy.yml`
+- Secret/env wiring:
+  - `/Users/lajicpajam/School/Intex II/.env.example`
+  - `/Users/lajicpajam/School/Intex II/.gitignore`
 
 ## Role-based auth
 
@@ -44,6 +52,9 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Controllers/DashboardController.cs`
 - Public impact:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Controllers/PublicImpactController.cs`
+- Audit history:
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Controllers/AuditLogController.cs`
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Services/AuditLogService.cs`
 
 ## Frontend foundation
 
@@ -70,6 +81,9 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/frontend/src/pages/public/LoginPage.tsx`
 - Privacy:
   - `/Users/lajicpajam/School/Intex II/frontend/src/pages/public/PrivacyPolicyPage.tsx`
+- Cookie consent and browser preference:
+  - `/Users/lajicpajam/School/Intex II/frontend/src/components/ui/CookieConsentBanner.tsx`
+  - `/Users/lajicpajam/School/Intex II/frontend/src/lib/browserPreferences.ts`
 
 ## Portal pages
 
@@ -85,6 +99,8 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/frontend/src/pages/portal/HomeVisitationsPage.tsx`
 - Reports and analytics:
   - `/Users/lajicpajam/School/Intex II/frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
+- Audit history:
+  - `/Users/lajicpajam/School/Intex II/frontend/src/pages/portal/AuditHistoryPage.tsx`
 - Donor-only page:
   - `/Users/lajicpajam/School/Intex II/frontend/src/pages/portal/DonorHistoryPage.tsx`
 

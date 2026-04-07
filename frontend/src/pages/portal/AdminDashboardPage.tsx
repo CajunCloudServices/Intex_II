@@ -42,7 +42,7 @@ export function AdminDashboardPage() {
         <div>
           <span className="eyebrow">Staff command center</span>
           <h1>Admin dashboard</h1>
-          <p>Live summary metrics from residents, donations, safehouses, home visits, and outreach tables.</p>
+          <p>Track daily operations across residents, safehouses, giving activity, and upcoming case decisions.</p>
         </div>
       </div>
 
@@ -57,6 +57,12 @@ export function AdminDashboardPage() {
             <MetricCard label="Safehouses" value={String(summary.safehouseCount)} detail="Configured operating locations." />
             <MetricCard label="Donations this month" value={formatMoney(summary.donationsThisMonth)} detail="Monetary total from current-month records." />
             <MetricCard label="Open plans" value={String(summary.openInterventionPlans)} detail="Intervention plans still in progress." />
+          </section>
+
+          <section className="page-grid three">
+            <MetricCard label="High-risk residents" value={String(summary.highRiskResidents)} detail="Residents currently flagged high or critical risk." accent />
+            <MetricCard label="Visits needing follow-up" value={String(summary.visitsNeedingFollowUp)} detail="Home or field visits that still need action." />
+            <MetricCard label="Open incidents" value={String(summary.openIncidents)} detail="Incident reports that remain unresolved." />
           </section>
 
           <section className="page-grid two">
@@ -88,14 +94,31 @@ export function AdminDashboardPage() {
             </SectionCard>
           </section>
 
-          <SectionCard title="Dashboard notes" subtitle="Helpful for demos and student walkthroughs">
-            <ul className="simple-list">
-              <li>Last refreshed: {lastUpdated ? formatDateTime(lastUpdated) : 'Just now'}</li>
-              <li>This view is powered by the summary endpoint, so it stays fast.</li>
-              <li>Any delete action elsewhere in the app should still require explicit confirmation.</li>
-            </ul>
-          </SectionCard>
-        </>
+          <section className="page-grid two">
+            <SectionCard title="Upcoming case conferences" subtitle="Scheduled resident reviews that need attention soon">
+              <DataTable
+                columns={['Resident', 'Conference date', 'Lead worker', 'Status']}
+                rows={summary.upcomingCaseConferences.map((conference) => [
+                  conference.residentCode,
+                  conference.conferenceDate,
+                  conference.leadWorker,
+                  conference.status,
+                ])}
+                emptyMessage="No upcoming case conferences are scheduled."
+                caption="Upcoming case conferences"
+              />
+            </SectionCard>
+
+            <SectionCard title="Progress summary" subtitle="Operational signals from counseling and follow-up workflows">
+              <ul className="simple-list">
+                <li>Last refreshed: {lastUpdated ? formatDateTime(lastUpdated) : 'Just now'}</li>
+                <li>{summary.progressSummary.progressNoted} process recordings flagged measurable progress.</li>
+                <li>{summary.progressSummary.concernsFlagged} process recordings flagged concerns for follow-up.</li>
+                <li>{summary.progressSummary.referralsMade} sessions resulted in a referral or escalation.</li>
+              </ul>
+            </SectionCard>
+          </section>
+      </>
       ) : (
         <EmptyState title="No dashboard data" message="The summary endpoint returned no data yet." />
       )}

@@ -20,6 +20,8 @@ public class AppSeeder(
 
     public async Task SeedAsync()
     {
+        // Roles must exist before user creation, because the seeded accounts are assigned
+        // immediately after the domain rows are inserted.
         foreach (var roleName in RoleNames.All)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
@@ -265,6 +267,32 @@ public class AppSeeder(
                 FollowUpNeeded = true,
                 FollowUpNotes = "Confirm school transport and caregiver orientation.",
                 VisitOutcome = "Favorable"
+            });
+
+        dbContext.CaseConferences.AddRange(
+            new CaseConference
+            {
+                ResidentId = residents[0].Id,
+                ConferenceDate = new DateOnly(2026, 4, 18),
+                LeadWorker = "Ana Santos",
+                Attendees = "Ana Santos, house parent, school liaison",
+                Purpose = "Review transition readiness and align school support.",
+                DecisionsMade = "Proceed with a supervised weekend family visit and maintain weekly counseling.",
+                FollowUpActions = "Confirm transport, caregiver orientation, and post-visit debrief.",
+                NextReviewDate = new DateOnly(2026, 5, 2),
+                Status = "Scheduled"
+            },
+            new CaseConference
+            {
+                ResidentId = residents[1].Id,
+                ConferenceDate = new DateOnly(2026, 4, 11),
+                LeadWorker = "Maria Reyes",
+                Attendees = "Maria Reyes, education lead, safehouse supervisor",
+                Purpose = "Review literacy progress and behavior support response.",
+                DecisionsMade = "Increase tutoring frequency and add a peer-support check-in twice weekly.",
+                FollowUpActions = "Update intervention plan milestones and monitor classroom behavior for 30 days.",
+                NextReviewDate = new DateOnly(2026, 5, 9),
+                Status = "Completed"
             });
 
         dbContext.IncidentReports.AddRange(
@@ -577,6 +605,8 @@ public class AppSeeder(
             donorSupporterId = fallbackDonor.Id;
         }
 
+        // These seeded users are for local/demo verification. Production deployments should
+        // replace them with real admin-managed accounts and stronger secrets.
         var users = new[]
         {
             new SeedUser("admin@intex.local", "Admin!234567", "Avery Admin", RoleNames.Admin, null),

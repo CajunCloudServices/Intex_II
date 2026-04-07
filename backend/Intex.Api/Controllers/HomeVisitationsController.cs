@@ -2,6 +2,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/home-visitations")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
-public class HomeVisitationsController(ApplicationDbContext dbContext) : ControllerBase
+public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<HomeVisitationResponse>>> GetAll([FromQuery] int? residentId)
@@ -55,6 +56,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext) : Control
 
         dbContext.HomeVisitations.Add(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(HomeVisitation), entity.Id, $"Created home visitation for resident #{entity.ResidentId}.", User);
 
         return CreatedAtAction(nameof(GetById), new { id = entity.Id }, await BuildQuery().FirstAsync(x => x.Id == entity.Id));
     }
@@ -84,6 +86,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext) : Control
         entity.VisitOutcome = request.VisitOutcome;
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(HomeVisitation), entity.Id, $"Updated home visitation for resident #{entity.ResidentId}.", User);
         return Ok(await BuildQuery().FirstAsync(x => x.Id == id));
     }
 
@@ -102,8 +105,10 @@ public class HomeVisitationsController(ApplicationDbContext dbContext) : Control
             return NotFound();
         }
 
+        var summary = $"Deleted home visitation for resident #{entity.ResidentId}.";
         dbContext.HomeVisitations.Remove(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(HomeVisitation), id, summary, User);
         return NoContent();
     }
 

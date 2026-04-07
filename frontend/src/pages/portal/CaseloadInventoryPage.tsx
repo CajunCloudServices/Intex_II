@@ -66,6 +66,7 @@ export function CaseloadInventoryPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [safehouseFilter, setSafehouseFilter] = useState('All');
+  const [caseCategoryFilter, setCaseCategoryFilter] = useState('All');
   const [riskFilter, setRiskFilter] = useState('All');
   const [selectedResidentId, setSelectedResidentId] = useState<number | null>(null);
   const [editingResidentId, setEditingResidentId] = useState<number | null>(null);
@@ -101,6 +102,7 @@ export function CaseloadInventoryPage() {
   const selectedResident = residents.find((resident) => resident.id === selectedResidentId) ?? residents[0] ?? null;
   const normalizedSearch = normalizeText(deferredSearch);
   const safehouseNames = Array.from(new Set(residents.map((resident) => resident.safehouseName))).sort();
+  const caseCategories = Array.from(new Set(residents.map((resident) => resident.caseCategory))).sort();
   const filteredResidents = residents.filter((resident) => {
     const matchesSearch =
       !normalizedSearch ||
@@ -110,8 +112,9 @@ export function CaseloadInventoryPage() {
       normalizeText(resident.caseCategory).includes(normalizedSearch);
     const matchesStatus = statusFilter === 'All' || resident.caseStatus === statusFilter;
     const matchesSafehouse = safehouseFilter === 'All' || resident.safehouseName === safehouseFilter;
+    const matchesCategory = caseCategoryFilter === 'All' || resident.caseCategory === caseCategoryFilter;
     const matchesRisk = riskFilter === 'All' || resident.currentRiskLevel === riskFilter;
-    return matchesSearch && matchesStatus && matchesSafehouse && matchesRisk;
+    return matchesSearch && matchesStatus && matchesSafehouse && matchesCategory && matchesRisk;
   });
 
   const activeCount = residents.filter((resident) => resident.caseStatus === 'Active').length;
@@ -180,7 +183,7 @@ export function CaseloadInventoryPage() {
         <div>
           <span className="eyebrow">Case management</span>
           <h1>Caseload inventory</h1>
-          <p>Manage resident records, risk signals, and one starter intervention plan directly in the portal.</p>
+          <p>Manage resident records, family context, risk signals, and intervention planning from one case-management view.</p>
         </div>
       </div>
 
@@ -207,6 +210,7 @@ export function CaseloadInventoryPage() {
                   <input className="inline-search" placeholder="Search residents..." value={search} onChange={(e) => setSearch(e.target.value)} />
                   <select className="inline-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option>All</option><option>Active</option><option>Closed</option><option>Transferred</option></select>
                   <select className="inline-select" value={safehouseFilter} onChange={(e) => setSafehouseFilter(e.target.value)}><option>All</option>{safehouseNames.map((name) => <option key={name}>{name}</option>)}</select>
+                  <select className="inline-select" value={caseCategoryFilter} onChange={(e) => setCaseCategoryFilter(e.target.value)}><option>All</option>{caseCategories.map((category) => <option key={category}>{category}</option>)}</select>
                   <select className="inline-select" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)}><option>All</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
                 </div>
               }
@@ -286,7 +290,7 @@ export function CaseloadInventoryPage() {
               )}
             </SectionCard>
 
-            <DetailPanel title={selectedResident?.caseControlNumber ?? 'Resident details'} subtitle="Use the detail panel during demos to explain the case record structure.">
+            <DetailPanel title={selectedResident?.caseControlNumber ?? 'Resident details'} subtitle="Review demographics, referral context, risk, and the current intervention direction for this resident.">
               {selectedResident ? (
                 <DetailList
                   items={[
@@ -296,7 +300,10 @@ export function CaseloadInventoryPage() {
                     { label: 'Social worker', value: selectedResident.assignedSocialWorker },
                     { label: 'Referral source', value: selectedResident.referralSource },
                     { label: 'Admitted', value: formatDate(selectedResident.dateOfAdmission) },
-                    { label: 'Starter plan', value: selectedResident.interventionPlans[0]?.planDescription ?? 'No plan recorded' },
+                    { label: 'Reintegration', value: selectedResident.reintegrationStatus ?? 'Not yet set' },
+                    { label: '4Ps beneficiary', value: selectedResident.familyIs4Ps ? 'Yes' : 'No' },
+                    { label: 'Special needs', value: selectedResident.hasSpecialNeeds ? (selectedResident.specialNeedsDiagnosis ?? 'Yes') : 'No' },
+                    { label: 'Intervention plan', value: selectedResident.interventionPlans[0]?.planDescription ?? 'No plan recorded' },
                   ]}
                 />
               ) : (
@@ -308,7 +315,7 @@ export function CaseloadInventoryPage() {
           {isAdmin ? (
             <SectionCard
               title={editingResidentId ? 'Edit resident' : 'Create resident'}
-              subtitle="This starter keeps one intervention plan in the form so the structure stays understandable."
+              subtitle="Keep the current intervention direction visible while maintaining a focused resident intake and update workflow."
               actions={editingResidentId ? <button className="ghost-button" onClick={resetResidentForm} type="button">Cancel edit</button> : null}
             >
               <form className="stack-form" onSubmit={handleSubmit}>
