@@ -166,6 +166,19 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
             context.Response.Redirect(context.RedirectUri);
             return Task.CompletedTask;
         };
+        options.Events.OnAuthorizationCodeReceived = context =>
+        {
+            if (!string.IsNullOrWhiteSpace(publicApiHostname) &&
+                Uri.TryCreate(publicApiHostname, UriKind.Absolute, out var publicApiUri))
+            {
+                context.TokenEndpointRequest.RedirectUri = new UriBuilder(publicApiUri)
+                {
+                    Path = options.CallbackPath
+                }.Uri.ToString();
+            }
+
+            return Task.CompletedTask;
+        };
         options.Events.OnRemoteFailure = context =>
         {
             var returnUrl = "/portal";
