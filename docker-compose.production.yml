@@ -22,6 +22,8 @@ services:
       context: ./backend/Intex.Api
     container_name: harborlight_nexus_api
     restart: unless-stopped
+    volumes:
+      - harborlight_nexus_dataprotection_keys:/root/.aspnet/DataProtection-Keys
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_URLS: ${ASPNETCORE_URLS}
@@ -55,3 +57,5 @@ services:
 volumes:
   harborlight_nexus_postgres_data:
     name: harborlight_nexus_postgres_data
+  harborlight_nexus_dataprotection_keys:
+    name: harborlight_nexus_dataprotection_keys

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
@@ -75,6 +76,8 @@ var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 var publicApiHostname = builder.Configuration["PUBLIC_API_HOSTNAME"];
+var frontendBaseUrl = builder.Configuration["Frontend:BaseUrl"] ??
+    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()?.FirstOrDefault();
 var defaultFrontendOrigins = new[]
 {
     "http://localhost:4173",
@@ -112,6 +115,32 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
 {
     authenticationBuilder.AddGoogle(options =>
     {
+        static string NormalizeReturnUrl(string? returnUrl)
+        {
+            if (string.IsNullOrWhiteSpace(returnUrl) || !returnUrl.StartsWith('/') || returnUrl.StartsWith("//"))
+            {
+                return "/portal";
+            }
+
+            return returnUrl;
+        }
+
+        string BuildFrontendGoogleCallbackUrl(string? returnUrl, string? error)
+        {
+            var resolvedFrontendBaseUrl = frontendBaseUrl ?? publicApiHostname ?? string.Empty;
+            var sanitizedReturnUrl = NormalizeReturnUrl(returnUrl);
+            var values = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                values.Add($"error={Uri.EscapeDataString(error)}");
+            }
+
+            values.Add($"returnUrl={Uri.EscapeDataString(sanitizedReturnUrl)}");
+
+            return $"{resolvedFrontendBaseUrl.TrimEnd('/')}/login/google/callback#{string.Join('&', values)}";
+        }
+
         options.SignInScheme = IdentityConstants.ExternalScheme;
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
@@ -135,6 +164,19 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
             }
 
             context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
+        options.Events.OnRemoteFailure = context =>
+        {
+            var returnUrl = "/portal";
+            if (!string.IsNullOrWhiteSpace(context.Properties?.RedirectUri) &&
+                Uri.TryCreate(context.Properties.RedirectUri, UriKind.Absolute, out var redirectUri))
+            {
+                returnUrl = NormalizeReturnUrl(QueryHelpers.ParseQuery(redirectUri.Query)["returnUrl"].ToString());
+            }
+
+            context.Response.Redirect(BuildFrontendGoogleCallbackUrl(returnUrl, context.Failure?.Message ?? "Google sign-in could not be completed."));
+            context.HandleResponse();
             return Task.CompletedTask;
         };
     });
