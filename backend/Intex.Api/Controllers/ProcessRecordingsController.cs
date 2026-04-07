@@ -22,7 +22,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext) : Contr
             query = query.Where(x => x.ResidentId == residentId.Value);
         }
 
-        return Ok(await query.OrderByDescending(x => x.SessionDate).ToListAsync());
+        return Ok(await query.ToListAsync());
     }
 
     [HttpGet("{id:int}")]
@@ -112,6 +112,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext) : Contr
     private IQueryable<ProcessRecordingResponse> BuildQuery() =>
         dbContext.ProcessRecordings
             .Include(x => x.Resident)
+            .OrderByDescending(x => x.SessionDate)
             .Select(x => new ProcessRecordingResponse(
                 x.Id,
                 x.ResidentId,

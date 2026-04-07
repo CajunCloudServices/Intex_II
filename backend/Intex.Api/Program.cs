@@ -8,6 +8,7 @@ using Intex.Api.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -94,9 +95,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy =>
     {
         var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-        if (configuredOrigins is { Length: > 0 })
+        var validConfiguredOrigins = configuredOrigins?
+            .Where(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
+                (uri.AbsolutePath == "/" || string.IsNullOrEmpty(uri.AbsolutePath)))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (validConfiguredOrigins is { Length: > 0 })
         {
-            policy.WithOrigins(configuredOrigins)
+            policy.WithOrigins(validConfiguredOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod();
             return;
@@ -115,6 +123,11 @@ builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<AppSeeder>();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.Use(async (context, next) =>
 {
