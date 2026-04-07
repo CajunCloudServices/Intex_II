@@ -50,7 +50,7 @@ export function AppShell() {
         <div className="topbar-inner">
           <div className="header-stack">
             <div className="brand-mark">HarborLight Nexus</div>
-            <div className="brand-subtitle">Safe housing &amp; healing for young survivors</div>
+            <div className="brand-subtitle">Safe homes, donor care, and healing support</div>
           </div>
 
           <div className="topbar-actions">
