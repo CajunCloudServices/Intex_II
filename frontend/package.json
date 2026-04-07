@@ -4,9 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "sync-ml-dashboards": "node scripts/sync-ml-dashboards.mjs",
     "dev": "vite",
-    "prebuild": "npm run sync-ml-dashboards",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
