@@ -17,6 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<MlInferenceOptions>(builder.Configuration.GetSection(MlInferenceOptions.SectionName));
+builder.Services.Configure<SeedOptions>(builder.Configuration.GetSection(SeedOptions.SectionName));
 
 var useInMemoryDatabase = builder.Environment.IsEnvironment("Test") ||
     string.Equals(builder.Configuration["Database:Provider"], "InMemory", StringComparison.OrdinalIgnoreCase);
@@ -123,6 +124,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IReintegrationFeatureBuilder, ReintegrationFeatureBuilder>();
+builder.Services.AddScoped<ICsvRelationalSeeder, CsvRelationalSeeder>();
 builder.Services.AddHttpClient<IMlInferenceClient, MlInferenceClient>((serviceProvider, client) =>
 {
     var options = serviceProvider.GetRequiredService<IOptions<MlInferenceOptions>>().Value;

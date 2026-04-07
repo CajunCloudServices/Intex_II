@@ -11,6 +11,8 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Entities/`
 - Seed users and seed data:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/AppSeeder.cs`
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/CsvRelationalSeeder.cs`
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/ICsvRelationalSeeder.cs`
 - JWT creation:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Services/JwtTokenService.cs`
 
@@ -94,6 +96,8 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api.Tests/`
 - Frontend smoke coverage:
   - `/Users/lajicpajam/School/Intex II/frontend/scripts/smoke.mjs`
+- CSV relational seeding tests:
+  - `backend/Intex.Api.Tests/CsvRelationalSeederTests.cs`
 
 ## ML data and inference integration
 
@@ -116,3 +120,6 @@ This file maps the big INTEX requirements to the main places in the codebase.
 - ML contracts and ops docs:
   - `docs/ml-feature-contracts.md`
   - `docs/ml-ops-runbook.md`
+- Seed config and options:
+  - `backend/Intex.Api/Models/Options/SeedOptions.cs`
+  - `backend/Intex.Api/appsettings.json`

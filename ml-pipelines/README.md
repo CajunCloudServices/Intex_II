@@ -35,6 +35,23 @@ python ml-pipelines/import_csv_snapshot.py \
   --schema ml_snapshot
 ```
 
+## Relational app seeding (authoritative path)
+
+The backend now supports startup relational seeding directly into the application schema from this folder:
+
+- Source CSV directory: `ml-pipelines/lighthouse_csv_v7`
+- Startup seeder:
+  - `backend/Intex.Api/Data/Seed/AppSeeder.cs`
+  - `backend/Intex.Api/Data/Seed/CsvRelationalSeeder.cs`
+
+`appsettings.json` controls seeding behavior:
+
+- `Seed:Mode` = `Csv` or `Fixture`
+- `Seed:ImportCsvOnStartup` = `true`/`false`
+- `Seed:CsvPath` = path to CSV folder (relative to backend content root or absolute)
+
+When `Seed:Mode=Csv` and tables are empty, all 17 CSVs are imported in FK-safe dependency order.
+
 ## Notebook execution validation
 
 All four notebooks were executed end-to-end from a clean kernel after loader standardization to validate:

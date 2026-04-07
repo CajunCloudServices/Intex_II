@@ -1,16 +1,23 @@
 using System.Text.Json;
 using Intex.Api.Authorization;
 using Intex.Api.Entities;
+using Intex.Api.Models.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Intex.Api.Data.Seed;
 
 public class AppSeeder(
     ApplicationDbContext dbContext,
     RoleManager<IdentityRole<Guid>> roleManager,
-    UserManager<ApplicationUser> userManager)
+    UserManager<ApplicationUser> userManager,
+    ICsvRelationalSeeder csvRelationalSeeder,
+    IOptions<SeedOptions> seedOptions,
+    ILogger<AppSeeder> logger)
 {
+    private readonly SeedOptions options = seedOptions.Value;
+
     public async Task SeedAsync()
     {
         foreach (var roleName in RoleNames.All)
@@ -23,7 +30,33 @@ public class AppSeeder(
 
         if (!await dbContext.Safehouses.AnyAsync())
         {
-            await SeedDomainDataAsync();
+            var preferCsv = string.Equals(options.Mode, "Csv", StringComparison.OrdinalIgnoreCase);
+            if (preferCsv && options.ImportCsvOnStartup)
+            {
+                var importResult = await csvRelationalSeeder.SeedAsync();
+                if (!importResult.Success)
+                {
+                    logger.LogWarning(
+                        "CSV relational seed failed with {ErrorCount} errors; falling back to fixture seed.",
+                        importResult.Errors.Count);
+                    foreach (var error in importResult.Errors.Take(25))
+                    {
+                        logger.LogWarning("CSV seed error: {Error}", error);
+                    }
+
+                    await SeedDomainDataAsync();
+                }
+                else
+                {
+                    logger.LogInformation(
+                        "CSV relational seed completed. Imported counts: {Counts}",
+                        string.Join(", ", importResult.ImportedCounts.Select(x => $"{x.Key}={x.Value}")));
+                }
+            }
+            else
+            {
+                await SeedDomainDataAsync();
+            }
         }
 
         await SeedUsersAsync();
@@ -518,12 +551,37 @@ public class AppSeeder(
 
     private async Task SeedUsersAsync()
     {
+        var donorSupporterId = await dbContext.Supporters
+            .Where(x => x.Email == "donor@intex.local")
+            .Select(x => (int?)x.Id)
+            .FirstOrDefaultAsync();
+
+        if (!donorSupporterId.HasValue)
+        {
+            var fallbackDonor = new Supporter
+            {
+                SupporterType = "MonetaryDonor",
+                DisplayName = "Jordan Lee",
+                FirstName = "Jordan",
+                LastName = "Lee",
+                RelationshipType = "International",
+                Region = "Luzon",
+                Country = "Philippines",
+                Email = "donor@intex.local",
+                Status = "Active",
+                AcquisitionChannel = "SystemSeed",
+                CreatedAtUtc = DateTime.UtcNow
+            };
+            dbContext.Supporters.Add(fallbackDonor);
+            await dbContext.SaveChangesAsync();
+            donorSupporterId = fallbackDonor.Id;
+        }
+
         var users = new[]
         {
             new SeedUser("admin@intex.local", "Admin!234567", "Avery Admin", RoleNames.Admin, null),
             new SeedUser("staff@intex.local", "Staff!234567", "Skyler Staff", RoleNames.Staff, null),
-            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor,
-                await dbContext.Supporters.Where(x => x.Email == "donor@intex.local").Select(x => (int?)x.Id).FirstAsync())
+            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor, donorSupporterId)
         };
 
         foreach (var seedUser in users)
