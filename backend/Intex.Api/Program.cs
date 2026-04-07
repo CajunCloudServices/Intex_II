@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.WebUtilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +74,7 @@ if (isProductionLike &&
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key));
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+var publicApiHostname = builder.Configuration["PUBLIC_API_HOSTNAME"];
 var defaultFrontendOrigins = new[]
 {
     "http://localhost:4173",
@@ -113,6 +115,30 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
         options.SignInScheme = IdentityConstants.ExternalScheme;
         options.ClientId = googleClientId;
         options.ClientSecret = googleClientSecret;
+        options.Events.OnRedirectToAuthorizationEndpoint = context =>
+        {
+            if (!string.IsNullOrWhiteSpace(publicApiHostname) &&
+                Uri.TryCreate(publicApiHostname, UriKind.Absolute, out var publicApiUri))
+            {
+                var absoluteCallback = new UriBuilder(publicApiUri)
+                {
+                    Path = options.CallbackPath
+                }.Uri.ToString();
+
+                var rewrittenRedirect = QueryHelpers.AddQueryString(
+                    context.RedirectUri.Split('?')[0],
+                    QueryHelpers.ParseQuery(new Uri(context.RedirectUri).Query)
+                        .ToDictionary(
+                            pair => pair.Key,
+                            pair => pair.Key == "redirect_uri" ? absoluteCallback : pair.Value.ToString()));
+
+                context.Response.Redirect(rewrittenRedirect);
+                return Task.CompletedTask;
+            }
+
+            context.Response.Redirect(context.RedirectUri);
+            return Task.CompletedTask;
+        };
     });
 }
 
