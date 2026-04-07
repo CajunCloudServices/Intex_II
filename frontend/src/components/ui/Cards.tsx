@@ -46,3 +46,17 @@ export function SectionCard({
     </section>
   );
 }
+
+export function FloatingCard({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`section-card floating-card${className ? ` ${className}` : ''}`}>
+      {children}
+    </div>
+  );
+}

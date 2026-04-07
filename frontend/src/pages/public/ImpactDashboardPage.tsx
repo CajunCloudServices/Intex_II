@@ -108,8 +108,8 @@ export function ImpactDashboardPage() {
             <div className="chart-list">
               {recentWins.map((snapshot) => (
                 <div key={snapshot.id}>
-                  <p style={{ margin: 0, fontWeight: 700 }}>{snapshot.headline}</p>
-                  <p className="muted-inline" style={{ margin: '0.25rem 0 0.75rem' }}>
+                  <p className="win-headline">{snapshot.headline}</p>
+                  <p className="win-subtext muted-inline">
                     {formatDate(snapshot.snapshotDate)} - {snapshot.summaryText}
                   </p>
                 </div>

@@ -61,8 +61,8 @@ export function LoginPage() {
         </div>
 
         <form className="stack-form" onSubmit={handleSubmit}>
-          <label>
-            <span>Email</span>
+          <label className="field-shell">
+            <span className="field-label">Email</span>
             <input
               autoComplete="email"
               inputMode="email"
@@ -71,8 +71,8 @@ export function LoginPage() {
             />
           </label>
 
-          <label>
-            <span>Password</span>
+          <label className="field-shell">
+            <span className="field-label">Password</span>
             <div className="password-field">
               <input
                 autoComplete="current-password"

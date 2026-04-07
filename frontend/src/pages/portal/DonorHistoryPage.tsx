@@ -246,18 +246,18 @@ export function DonorHistoryPage() {
                 />
                 {selected.allocations.length > 0 ? (
                   <div>
-                    <p style={{ margin: '0.75rem 0 0.5rem', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.68)' }}>Impact allocation</p>
-                    <ul style={{ margin: 0, paddingLeft: '1rem', display: 'grid', gap: '0.4rem' }}>
+                    <p className="detail-inner-label">Impact allocation</p>
+                    <ul className="detail-inner-list">
                       {selected.allocations.map((a) => (
-                        <li key={a.id} style={{ color: 'white', fontSize: '0.95rem' }}>
+                        <li key={a.id}>
                           {a.safehouseName} — {a.programArea} ({formatMoney(a.amountAllocated)})
                         </li>
                       ))}
                     </ul>
                   </div>
                 ) : null}
-                <div style={{ marginTop: '0.75rem' }}>
-                  <button className="ghost-button" onClick={() => window.print()} type="button" style={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}>
+                <div className="detail-panel-actions">
+                  <button className="ghost-button" onClick={() => window.print()} type="button">
                     Print receipt
                   </button>
                 </div>

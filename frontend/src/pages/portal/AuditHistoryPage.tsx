@@ -6,6 +6,7 @@ import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { ErrorState, LoadingState } from '../../components/ui/PageState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDateTime, normalizeText } from '../../lib/format';
 
@@ -115,7 +116,7 @@ export function AuditHistoryPage() {
               columns={['When', 'Action', 'Entity', 'Actor', 'Summary']}
               rows={filteredEvents.map((event) => [
                 formatDateTime(event.createdAtUtc),
-                event.actionType,
+                <StatusBadge key={`action-${event.id}`} value={event.actionType} />,
                 event.entityType,
                 event.actorEmail,
                 <>

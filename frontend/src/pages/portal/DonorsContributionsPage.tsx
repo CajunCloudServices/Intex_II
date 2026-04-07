@@ -14,6 +14,7 @@ import {
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
 import {
@@ -370,7 +371,7 @@ export function DonorsContributionsPage() {
                       {supporter.displayName}
                     </button>,
                     supporter.supporterType,
-                    supporter.status,
+                    <StatusBadge key={`supporter-status-${supporter.id}`} value={supporter.status} />,
                     supporter.email,
                     <div className="table-actions" key={`actions-${supporter.id}`}>
                       <button className="ghost-button" onClick={() => setSelectedSupporterId(supporter.id)} type="button">View</button>

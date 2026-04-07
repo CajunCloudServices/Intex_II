@@ -4,6 +4,7 @@ import type { DashboardSummary, DonationTrends, SafehousePerformanceSummary, Soc
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDateTime, formatMoney } from '../../lib/format';
 
@@ -138,7 +139,7 @@ export function AdminDashboardPage() {
                   conference.residentCode,
                   conference.conferenceDate,
                   conference.leadWorker,
-                  conference.status,
+                  <StatusBadge key={`conf-status-${conference.residentCode}`} value={conference.status} />,
                 ])}
                 emptyMessage="No upcoming case conferences are scheduled."
                 caption="Upcoming case conferences"

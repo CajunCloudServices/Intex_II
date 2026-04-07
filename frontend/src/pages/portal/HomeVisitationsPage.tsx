@@ -8,6 +8,7 @@ import { CheckboxField, FormGrid, FormSection } from '../../components/ui/FormPr
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
 
@@ -295,9 +296,9 @@ export function HomeVisitationsPage() {
                       {visit.residentCode}
                     </button>,
                     formatDate(visit.visitDate),
-                    visit.visitType,
+                    <StatusBadge key={`visit-type-${visit.id}`} value={visit.visitType} />,
                     visit.socialWorker,
-                    visit.familyCooperationLevel,
+                    <StatusBadge key={`visit-coop-${visit.id}`} value={visit.familyCooperationLevel} />,
                     <div className="table-actions" key={`visit-actions-${visit.id}`}>
                       <button className="ghost-button" onClick={() => setSelectedVisitId(visit.id)} type="button">View</button>
                       {isAdmin ? (
@@ -389,7 +390,7 @@ export function HomeVisitationsPage() {
                     </button>,
                     formatDate(conference.conferenceDate),
                     conference.leadWorker,
-                    conference.status,
+                    <StatusBadge key={`conf-status-${conference.id}`} value={conference.status} />,
                     <div className="table-actions" key={`conference-actions-${conference.id}`}>
                       <button className="ghost-button" onClick={() => setSelectedConferenceId(conference.id)} type="button">View</button>
                       {isAdmin ? (

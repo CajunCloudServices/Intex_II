@@ -20,6 +20,7 @@ import { CheckboxField, FormGrid, FormSection } from '../../components/ui/FormPr
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
 
@@ -338,12 +339,12 @@ export function ReportsAnalyticsPage() {
               />
               {safehousePerformance?.monthlyTrends && safehousePerformance.monthlyTrends.length > 0 ? (
                 <div>
-                  <p className="muted-inline" style={{ margin: '0.5rem 0' }}>Monthly health score trend</p>
+                  <p className="chart-section-label">Monthly health score trend</p>
                   {safehousePerformance.monthlyTrends.map((row) => {
                     const maxHealth = Math.max(...row.monthlyTrend.map((p) => p.avgHealthScore), 1);
                     return (
-                      <div key={row.safehouseId} style={{ marginBottom: '1rem' }}>
-                        <p className="muted-inline" style={{ margin: '0 0 0.4rem', fontWeight: 600 }}>{row.safehouseName}</p>
+                      <div key={row.safehouseId} className="chart-safehouse-block">
+                        <p className="chart-safehouse-label">{row.safehouseName}</p>
                         <div className="chart-list">
                           {row.monthlyTrend.map((point) => (
                             <div className="chart-row" key={point.monthStart}>
@@ -479,7 +480,7 @@ export function ReportsAnalyticsPage() {
                 columns={['Safehouse', 'Status', 'Occupancy', 'Actions']}
                 rows={filteredSafehouses.map((safehouse) => [
                   safehouse.name,
-                  safehouse.status,
+                  <StatusBadge key={`sh-status-${safehouse.id}`} value={safehouse.status} />,
                   `${safehouse.currentOccupancy}/${safehouse.capacityGirls}`,
                   <div className="table-actions" key={`safehouse-actions-${safehouse.id}`}>
                     {isAdmin ? (
@@ -530,7 +531,7 @@ export function ReportsAnalyticsPage() {
                   </button>,
                   incident.safehouseName,
                   incident.incidentType,
-                  incident.severity,
+                  <StatusBadge key={`incident-sev-${incident.id}`} value={incident.severity} />,
                   <div className="table-actions" key={`incident-actions-${incident.id}`}>
                     <button className="ghost-button" onClick={() => setSelectedIncidentId(incident.id)} type="button">View</button>
                     {isAdmin ? (

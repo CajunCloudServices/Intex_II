@@ -8,6 +8,7 @@ import { CheckboxField, FormGrid, FormSection } from '../../components/ui/FormPr
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
 
@@ -198,8 +199,8 @@ export function ProcessRecordingPage() {
                     </button>,
                     formatDate(recording.sessionDate),
                     recording.socialWorker,
-                    recording.emotionalStateObserved,
-                    recording.emotionalStateEnd,
+                    <StatusBadge key={`state-obs-${recording.id}`} value={recording.emotionalStateObserved} />,
+                    <StatusBadge key={`state-end-${recording.id}`} value={recording.emotionalStateEnd} />,
                     <div className="table-actions" key={`recording-actions-${recording.id}`}>
                       <button className="ghost-button" onClick={() => setSelectedRecordingId(recording.id)} type="button">View</button>
                       {isAdmin ? (

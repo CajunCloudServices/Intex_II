@@ -1994,3 +1994,439 @@ body {
 .site-footer-nav a.active {
   color: var(--tl-gold-dark);
 }
+
+/* ===================================================================
+   TANGLAW REVAMP — FINAL SWEEP
+   Covers all remaining hardcoded legacy blue-teal color values that
+   the earlier final cascade block did not reach.
+   =================================================================== */
+
+/* Brand mark — Noto Serif, no uppercase */
+.brand-mark {
+  text-transform: none;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+  font-weight: 800;
+}
+
+/* Root legacy background/color overrides */
+:root,
+:root[data-theme='calm'] {
+  background: var(--tl-surface);
+  color: var(--tl-text);
+}
+
+:root[data-theme='calm'] body {
+  background: var(--tl-surface);
+}
+
+/* Topbar — token-based border and background */
+.topbar {
+  background: color-mix(in srgb, var(--tl-surface) 88%, #ffffff 12%);
+  border-bottom-color: color-mix(in srgb, var(--tl-outline) 35%, transparent);
+}
+
+/* Sidebar — full token-based restyle */
+.sidebar {
+  background: var(--tl-surface-low);
+  border-right-color: color-mix(in srgb, var(--tl-outline) 30%, transparent);
+}
+
+@media (max-width: 980px) {
+  .sidebar {
+    background: var(--tl-surface-low);
+  }
+}
+
+/* Sidebar mobile backdrop */
+.sidebar-backdrop {
+  background: rgba(27, 28, 26, 0.3);
+}
+
+/* Mobile nav items */
+.topbar-mobile-nav a,
+.topbar-mobile-nav .text-button {
+  background: var(--tl-surface-mid);
+  color: var(--tl-text-muted);
+}
+
+.topbar-mobile-nav a:hover,
+.topbar-mobile-nav .text-button:hover {
+  background: var(--tl-surface-high);
+  color: var(--tl-text);
+}
+
+/* Mobile menu / ghost buttons */
+.mobile-menu-button,
+.ghost-button {
+  color: var(--tl-text);
+  border-color: color-mix(in srgb, var(--tl-outline) 45%, transparent);
+  background: var(--tl-surface-card);
+}
+
+/* Sidebar heading uses gold-dark for the eyebrow label */
+.sidebar-heading,
+.eyebrow {
+  color: var(--tl-gold-dark);
+}
+
+/* Hero aside card — warm semi-transparent card on gold hero */
+.hero-aside-card {
+  background: color-mix(in srgb, var(--tl-surface-card) 80%, transparent);
+  border-color: color-mix(in srgb, var(--tl-outline) 30%, transparent);
+}
+
+.hero-aside-card p {
+  color: color-mix(in srgb, var(--tl-text-on-gold) 80%, transparent);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+.hero-aside-card figcaption {
+  color: color-mix(in srgb, var(--tl-text-on-gold) 68%, transparent);
+}
+
+/* CTA band — warm surface gradient, not blue-teal */
+.cta-band {
+  background: linear-gradient(180deg, var(--tl-surface-high), var(--tl-surface-low));
+  border-color: color-mix(in srgb, var(--tl-outline) 28%, transparent);
+  border-radius: 32px;
+  box-shadow: var(--tl-ambient-shadow);
+}
+
+.cta-band h2 {
+  color: var(--tl-text);
+  font-family: var(--tl-font-display);
+}
+
+.cta-band > p {
+  color: var(--tl-text-muted);
+}
+
+/* Home section text — warm charcoal, not blue-teal */
+.home-section-intro h2 {
+  color: var(--tl-text);
+  font-family: var(--tl-font-display);
+}
+
+.home-subheading {
+  color: var(--tl-text);
+  font-family: var(--tl-font-display);
+  font-size: 1rem;
+}
+
+.home-section-lead,
+.home-muted,
+.muted-inline {
+  color: var(--tl-text-muted);
+}
+
+/* Site footer — warm token-based colors */
+.site-footer {
+  background: color-mix(in srgb, var(--tl-surface) 86%, #ffffff 14%);
+  border-top-color: color-mix(in srgb, var(--tl-outline) 35%, transparent);
+}
+
+.site-footer-tagline {
+  color: var(--tl-text-muted);
+}
+
+.site-footer-label {
+  color: var(--tl-text);
+  font-weight: 600;
+}
+
+.site-footer-note {
+  color: var(--tl-text-muted);
+}
+
+.site-footer-nav a {
+  color: var(--tl-text-muted);
+}
+
+/* Status badges — design-system palette */
+.status-badge {
+  background: var(--tl-surface-high);
+  color: var(--tl-text-muted);
+}
+
+.status-donor {
+  background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
+  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+}
+
+.status-admin,
+.status-staff {
+  background: color-mix(in srgb, #ffffff 65%, var(--tl-secondary) 35%);
+  color: var(--tl-text-on-gold);
+}
+
+/* Primary button — gold */
+.primary-button {
+  background: var(--tl-gold);
+  color: var(--tl-text-on-gold);
+}
+
+:root[data-theme='calm'] .primary-button {
+  background: var(--tl-gold);
+  color: var(--tl-text-on-gold);
+}
+
+/* Secondary button — warm surface */
+.secondary-button {
+  background: var(--tl-surface-highest);
+  color: var(--tl-text);
+}
+
+/* Chart bars — gold gradient instead of teal */
+.chart-bar {
+  background: var(--tl-surface-high);
+}
+
+.chart-bar > div {
+  background: linear-gradient(90deg, var(--tl-gold-dark), var(--tl-gold));
+}
+
+/* Form errors and required markers — danger red */
+.field-required-marker,
+.field-error {
+  color: var(--tl-danger);
+}
+
+/* Form section containers */
+.form-section {
+  background: var(--tl-surface-low);
+  border-color: color-mix(in srgb, var(--tl-outline) 35%, transparent);
+}
+
+/* Credential demo cards (login page) */
+.credential-card {
+  background: var(--tl-surface-card);
+  border-color: color-mix(in srgb, var(--tl-outline) 30%, transparent);
+  border-radius: var(--tl-radius-lg);
+}
+
+/* Dismiss link */
+.dismiss-link {
+  color: var(--tl-text-muted);
+}
+
+/* Data table mobile label pseudo-element */
+.data-table caption {
+  color: var(--tl-text-muted);
+}
+
+.data-table td::before {
+  color: var(--tl-text-muted);
+}
+
+/* Mobile table row border */
+.data-table tr {
+  border-bottom-color: color-mix(in srgb, var(--tl-outline) 25%, transparent);
+}
+
+/* Loading spinner — gold accent */
+.state-spinner {
+  border-color: color-mix(in srgb, var(--tl-outline) 30%, transparent);
+  border-top-color: var(--tl-gold);
+}
+
+/* Error/empty state panels */
+.error-banner,
+.empty-state {
+  background: var(--tl-surface-card);
+  border-color: color-mix(in srgb, var(--tl-outline) 30%, transparent);
+}
+
+/* Danger button */
+.danger-button {
+  border-color: color-mix(in srgb, var(--tl-danger) 30%, transparent);
+  color: var(--tl-danger);
+}
+
+/* Focus ring — gold-dark teal */
+:focus-visible {
+  outline-color: var(--tl-gold-dark);
+}
+
+/* Sidebar nav active item — gold left border accent */
+.sidebar-nav a.active {
+  background: var(--tl-surface-high);
+  color: var(--tl-text);
+  border-left: 3px solid var(--tl-gold);
+  padding-left: calc(0.8rem - 3px);
+  transform: translateX(2px);
+}
+
+/* Hero heading — display size */
+.hero h1 {
+  font-family: var(--tl-font-display);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0.35rem 0 0;
+  color: var(--tl-text-on-gold);
+}
+
+/* Hero hero-copy p — muted text on gold bg */
+.hero-copy p {
+  color: color-mix(in srgb, var(--tl-text-on-gold) 75%, transparent);
+  line-height: 1.6;
+}
+
+/* Case/resident status badge variants */
+.status-active {
+  background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
+  color: color-mix(in srgb, var(--tl-success) 85%, #10342d 15%);
+}
+
+.status-closed {
+  background: var(--tl-surface-high);
+  color: var(--tl-text-muted);
+}
+
+.status-transferred {
+  background: color-mix(in srgb, #ffffff 65%, var(--tl-secondary) 35%);
+  color: var(--tl-text-on-gold);
+}
+
+.status-high,
+.status-critical {
+  background: color-mix(in srgb, #ffffff 70%, var(--tl-danger) 30%);
+  color: var(--tl-danger);
+}
+
+.status-medium {
+  background: color-mix(in srgb, #ffffff 65%, var(--tl-secondary) 35%);
+  color: var(--tl-gold-dark);
+}
+
+.status-low {
+  background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
+  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+}
+
+.status-inactive {
+  background: var(--tl-surface-highest);
+  color: var(--tl-text-muted);
+}
+
+.status-scheduled {
+  background: color-mix(in srgb, #ffffff 65%, var(--tl-secondary) 35%);
+  color: var(--tl-gold-dark);
+}
+
+.status-completed {
+  background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
+  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+}
+
+.status-deferred {
+  background: var(--tl-surface-high);
+  color: var(--tl-text-muted);
+}
+
+.status-create {
+  background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
+  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+}
+
+.status-update {
+  background: color-mix(in srgb, #ffffff 65%, var(--tl-secondary) 35%);
+  color: var(--tl-gold-dark);
+}
+
+.status-delete {
+  background: color-mix(in srgb, #ffffff 70%, var(--tl-danger) 30%);
+  color: var(--tl-danger);
+}
+
+.status-open {
+  background: color-mix(in srgb, #ffffff 65%, var(--tl-secondary) 35%);
+  color: var(--tl-gold-dark);
+}
+
+.status-resolved,
+.status-reintegrated {
+  background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
+  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+}
+
+/* Detail panel inner label / list utility (used inline-style replacements) */
+.detail-inner-label {
+  margin: 0.75rem 0 0.5rem;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 600;
+}
+
+.detail-inner-list {
+  margin: 0;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.detail-inner-list li {
+  color: white;
+  font-size: 0.95rem;
+}
+
+.detail-panel-actions {
+  margin-top: 0.75rem;
+}
+
+.detail-panel-actions .ghost-button {
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.detail-panel-actions .ghost-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Editorial media — token-based border and shadow */
+.editorial-media {
+  border-color: color-mix(in srgb, var(--tl-outline) 30%, transparent);
+  box-shadow: var(--tl-soft-shadow);
+  background: var(--tl-surface-card);
+}
+
+/* Chart safehouse label row */
+.chart-safehouse-block {
+  margin-bottom: 1rem;
+}
+
+.chart-safehouse-label {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+  color: var(--tl-text-muted);
+}
+
+.chart-section-label {
+  margin: 0.5rem 0;
+  color: var(--tl-text-muted);
+}
+
+/* Impact dashboard win list */
+.win-headline {
+  margin: 0;
+  font-weight: 700;
+  font-family: var(--tl-font-display);
+  color: var(--tl-text);
+}
+
+.win-subtext {
+  margin: 0.25rem 0 0.75rem;
+}
+
+/* Floating card — white bg, very subtle border, ambient shadow */
+.floating-card {
+  background: var(--tl-surface-card);
+  border-color: color-mix(in srgb, var(--tl-outline) 15%, transparent);
+  box-shadow: var(--tl-ambient-shadow);
+}

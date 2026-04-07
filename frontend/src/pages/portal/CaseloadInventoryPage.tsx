@@ -13,6 +13,7 @@ import {
   ValidatedTextareaField,
 } from '../../components/ui/FormPrimitives';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
@@ -292,8 +293,8 @@ export function CaseloadInventoryPage() {
                   rows={filteredResidents.map((resident) => [
                     <button className="table-link-button" key={`case-${resident.id}`} onClick={() => setSelectedResidentId(resident.id)} type="button">{resident.caseControlNumber}</button>,
                     resident.safehouseName,
-                    resident.caseStatus,
-                    resident.currentRiskLevel,
+                    <StatusBadge key={`status-${resident.id}`} value={resident.caseStatus} />,
+                    <StatusBadge key={`risk-${resident.id}`} value={resident.currentRiskLevel} />,
                     resident.assignedSocialWorker,
                     <div className="table-actions" key={`actions-${resident.id}`}>
                       <button className="ghost-button" onClick={() => setSelectedResidentId(resident.id)} type="button">View</button>
