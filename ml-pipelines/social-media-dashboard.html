@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Social posts &amp; gifts — Lighthouse</title>
+  <link rel="stylesheet" href="ml-dashboard-shell.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        Lighthouse Admin
+        <span>Marketing · data insights</span>
+      </div>
+      <div>
+        <div class="nav-label">Insight reports</div>
+        <nav class="nav-tabs" aria-label="Insight reports">
+          <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
+          <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
+          <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
+          <a class="nav-tab active" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+        </nav>
+      </div>
+      <p class="hint">
+        Pipeline: <code>social-media-conversion.ipynb</code>. Data:
+        <code>python3 generate_social_dashboard_data.py</code>.
+      </p>
+    </aside>
+    <main>
+      <h1 class="page-title">Social posts → gift size</h1>
+      <p class="page-sub">
+        Story-first summaries; open below for every post, coefficients, and technical detail.
+      </p>
+
+      <div id="load-state" class="loading">Loading…</div>
+      <div id="error-state" class="error-box" style="display: none"></div>
+      <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
+
+        <details class="data-fold">
+          <summary>
+            Tables &amp; full coefficient lists
+            <span class="fold-hint">Posts · simple statistics · what the tool weighted</span>
+          </summary>
+          <div class="fold-inner">
+        <div class="kpi-row" id="kpis"></div>
+
+        <div class="panel">
+          <div class="tabs-inline" role="tablist">
+            <button type="button" class="active" data-tab="pred">Posts &amp; estimates</button>
+            <button type="button" data-tab="ols">Clear patterns (statistics)</button>
+            <button type="button" data-tab="fi">What the tool focused on</button>
+          </div>
+          <div id="tab-pred" class="tab-panel active">
+            <div class="panel-head">
+              <h2>Posts</h2>
+              <div class="toolbar">
+                <input type="search" id="search" placeholder="Platform, topic, type…" />
+              </div>
+            </div>
+            <div class="table-wrap" style="max-height:55vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-sort="post_id">ID</th>
+                    <th data-sort="created_at">Date</th>
+                    <th data-sort="platform">Platform</th>
+                    <th data-sort="post_type">Type</th>
+                    <th data-sort="content_topic">Topic</th>
+                    <th data-sort="actual_donation_php">Gift (recorded)</th>
+                    <th data-sort="predicted_donation_php">Estimated gift</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-ols" class="tab-panel">
+            <p class="page-sub" style="margin-top:0">Each row is a factor that reliably moves the estimated gift in a simple model (confidence p &lt; 0.10).</p>
+            <div class="coef-table-wrap">
+              <table>
+                <thead><tr><th class="no-sort">Factor</th><th class="no-sort">Direction &amp; size</th><th class="no-sort">Confidence</th></tr></thead>
+                <tbody id="ols-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-fi" class="tab-panel">
+            <div class="coef-table-wrap">
+              <table>
+                <thead><tr><th class="no-sort">Factor</th><th class="no-sort">How much the tool used it</th></tr></thead>
+                <tbody id="fi-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+          </div>
+        </details>
+      </div>
+    </main>
+  </div>
+  <script src="ml-dashboard-insights.js"></script>
+  <script>
+    (function () {
+      let data = null;
+      let sortKey = "created_at";
+      let sortDir = -1;
+
+      function escapeHtml(s) {
+        if (!s) return "";
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function fmtPhp(x) {
+        return "₱" + x.toLocaleString(undefined, { maximumFractionDigits: 0 });
+      }
+      function cmp(a, b) {
+        const av = a[sortKey], bv = b[sortKey];
+        if (typeof av === "number" && typeof bv === "number")
+          return sortDir * (av - bv);
+        return sortDir * String(av || "").localeCompare(String(bv || ""));
+      }
+
+      function render() {
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        let rows = data.posts.filter((r) => {
+          if (!q) return true;
+          return [r.platform, r.post_type, r.content_topic, r.sentiment_tone, String(r.post_id)]
+            .join(" ").toLowerCase().includes(q);
+        });
+        rows = rows.sort(cmp);
+        document.getElementById("tbody").innerHTML = rows.map((r) => `
+          <tr>
+            <td>${r.post_id}</td>
+            <td>${r.created_at}</td>
+            <td>${escapeHtml(r.platform)}</td>
+            <td>${escapeHtml(r.post_type)}</td>
+            <td>${escapeHtml(r.content_topic)}</td>
+            <td>${fmtPhp(r.actual_donation_php)}</td>
+            <td>${fmtPhp(r.predicted_donation_php)}</td>
+          </tr>
+        `).join("");
+      }
+
+      document.querySelectorAll(".tabs-inline button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tabs-inline button").forEach((b) => b.classList.remove("active"));
+          document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+        });
+      });
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sort;
+          if (sortKey === k) sortDir *= -1;
+          else {
+            sortKey = k;
+            sortDir = k === "platform" || k === "post_type" ? 1 : -1;
+          }
+          render();
+        });
+      });
+      document.getElementById("search").addEventListener("input", render);
+
+      fetch("social-dashboard-data.json")
+        .then((r) => { if (!r.ok) throw 0; return r.json(); })
+        .then((json) => {
+          data = json;
+          const p = json.portfolio;
+          document.getElementById("kpis").innerHTML = `
+            <div class="kpi"><div class="label">Posts analyzed</div><div class="value">${p.n_posts}</div></div>
+            <div class="kpi"><div class="label">How well estimates fit</div><div class="value">${p.test_r2_log.toFixed(3)}</div><div class="sub">1 = perfect (log scale)</div></div>
+            <div class="kpi"><div class="label">Typical error (log scale)</div><div class="value">${p.test_rmse_log.toFixed(3)}</div><div class="sub">smaller is better</div></div>
+            <div class="kpi"><div class="label">Average gift</div><div class="value">${fmtPhp(p.mean_actual_php)}</div></div>
+          `;
+          document.getElementById("ols-body").innerHTML = json.ols_significant_coefficients.map((c) => `
+            <tr>
+              <td>${escapeHtml(c.feature)}</td>
+              <td class="${c.coefficient >= 0 ? "coef-pos" : "coef-neg"}">${c.coefficient.toFixed(4)}</td>
+              <td>${c.p_value.toFixed(4)}</td>
+            </tr>
+          `).join("");
+          document.getElementById("fi-body").innerHTML = json.gradient_boosting_importances.map((c) => `
+            <tr><td>${escapeHtml(c.feature)}</td><td>${c.importance.toFixed(4)}</td></tr>
+          `).join("");
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          if (typeof renderInsightStory === "function" && json.insights) {
+            renderInsightStory(document.getElementById("insight-root"), json.insights);
+          }
+          render();
+        })
+        .catch(() => {
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("error-state").style.display = "block";
+          document.getElementById("error-state").innerHTML =
+            "Missing <code>social-dashboard-data.json</code>. Run <code>python3 generate_social_dashboard_data.py</code>.";
+        });
+    })();
+  </script>
+</body>
+</html>

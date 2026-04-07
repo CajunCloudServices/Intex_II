@@ -3,302 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Counseling Effectiveness — Supervisor Console</title>
-  <style>
-    :root {
-      --bg: #0f1419;
-      --surface: #1a2332;
-      --surface2: #243044;
-      --border: #2d3a4f;
-      --text: #e8edf4;
-      --muted: #8b9cb3;
-      --accent: #3d8bfd;
-      --accent-dim: #2563c9;
-      --positive: #34c759;
-      --warn: #ffb020;
-      --danger: #ff5c5c;
-      --radius: 10px;
-      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      line-height: 1.45;
-    }
-    .app {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      min-height: 100vh;
-    }
-    @media (max-width: 960px) {
-      .app { grid-template-columns: 1fr; }
-      .sidebar { position: sticky; top: 0; z-index: 10; }
-    }
-    .sidebar {
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 1.25rem 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-    .brand {
-      font-weight: 700;
-      font-size: 1rem;
-      letter-spacing: 0.02em;
-      color: var(--text);
-    }
-    .brand span {
-      display: block;
-      font-weight: 500;
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 0.25rem;
-    }
-    .nav-label {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin-bottom: 0.5rem;
-    }
-    .nav-item {
-      padding: 0.5rem 0.65rem;
-      border-radius: 6px;
-      background: var(--accent-dim);
-      color: #fff;
-      font-size: 0.875rem;
-    }
-    .hint {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: auto;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
-      line-height: 1.5;
-    }
-    .hint code {
-      background: var(--surface2);
-      padding: 0.1rem 0.35rem;
-      border-radius: 4px;
-      font-size: 0.7rem;
-    }
-    main {
-      padding: 1.5rem 1.75rem 2.5rem;
-      overflow-x: auto;
-    }
-    .page-title {
-      margin: 0 0 0.25rem;
-      font-size: 1.5rem;
-      font-weight: 650;
-    }
-    .page-sub {
-      margin: 0 0 1.5rem;
-      color: var(--muted);
-      font-size: 0.9rem;
-      max-width: 52rem;
-    }
-    .kpi-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .kpi {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.1rem;
-    }
-    .kpi .label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-    }
-    .kpi .value {
-      font-size: 1.45rem;
-      font-weight: 700;
-      margin-top: 0.35rem;
-      font-variant-numeric: tabular-nums;
-    }
-    .kpi .sub {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 0.25rem;
-    }
-    .panel {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1rem 1.1rem;
-      margin-bottom: 1rem;
-    }
-    .panel-head {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 0.85rem;
-    }
-    .panel-head h2 {
-      margin: 0;
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-    .toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      align-items: center;
-      margin-left: auto;
-    }
-    input[type="search"], select {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 6px;
-      padding: 0.45rem 0.65rem;
-      font-size: 0.85rem;
-      min-width: 160px;
-    }
-    input[type="checkbox"] { accent-color: var(--accent); }
-    .split {
-      display: grid;
-      grid-template-columns: 1fr minmax(300px, 420px);
-      gap: 1rem;
-      align-items: start;
-    }
-    @media (max-width: 1100px) {
-      .split { grid-template-columns: 1fr; }
-    }
-    .table-wrap {
-      overflow: auto;
-      max-height: min(52vh, 520px);
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.8rem;
-    }
-    th, td {
-      text-align: left;
-      padding: 0.55rem 0.65rem;
-      border-bottom: 1px solid var(--border);
-    }
-    th {
-      position: sticky;
-      top: 0;
-      background: var(--surface2);
-      font-weight: 600;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      cursor: pointer;
-      user-select: none;
-      white-space: nowrap;
-    }
-    th:hover { color: var(--text); }
-    tbody tr { cursor: pointer; }
-    tbody tr:hover { background: rgba(61, 139, 253, 0.08); }
-    tbody tr.selected { background: rgba(61, 139, 253, 0.18); }
-    .badge {
-      display: inline-block;
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-    .badge-risk-low { background: #1e3d2f; color: #6ee7a8; }
-    .badge-risk-med { background: #3d3518; color: #fcd34d; }
-    .badge-risk-high { background: #3d1e1e; color: #fca5a5; }
-    .badge-risk-critical { background: #4a1528; color: #f9a8d4; }
-    .badge-alert { background: #4a2810; color: var(--warn); }
-    .badge-ok { background: #1e3d2f; color: var(--positive); }
-    .prob-bar {
-      height: 6px;
-      border-radius: 3px;
-      background: var(--surface2);
-      overflow: hidden;
-      min-width: 48px;
-    }
-    .prob-bar > i {
-      display: block;
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent-dim), var(--accent));
-      border-radius: 3px;
-    }
-    .detail-card h3 {
-      margin: 0 0 0.5rem;
-      font-size: 1.05rem;
-    }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem 1rem;
-      font-size: 0.8rem;
-      margin-bottom: 1rem;
-    }
-    .meta-grid dt { color: var(--muted); margin: 0; }
-    .meta-grid dd { margin: 0 0 0.35rem; font-weight: 500; }
-    .session-table-wrap {
-      max-height: min(40vh, 360px);
-      overflow: auto;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-    }
-    .error-box {
-      background: #3d1e1e;
-      border: 1px solid var(--danger);
-      color: #fecaca;
-      padding: 1rem 1.25rem;
-      border-radius: var(--radius);
-      max-width: 40rem;
-    }
-    .error-box code { color: #fff; }
-    .loading { color: var(--muted); padding: 2rem; }
-  </style>
+  <title>Counseling sessions — Lighthouse</title>
+  <link rel="stylesheet" href="ml-dashboard-shell.css" />
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
         Lighthouse Admin
-        <span>Case management · ML insights</span>
+        <span>Case management · data insights</span>
       </div>
       <div>
-        <div class="nav-label">Modules</div>
-        <div class="nav-item">Counseling effectiveness</div>
+        <div class="nav-label">Insight reports</div>
+        <nav class="nav-tabs" aria-label="Insight reports">
+          <a class="nav-tab active" href="counseling-admin-dashboard.html">Counseling sessions</a>
+          <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
+          <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
+          <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+        </nav>
       </div>
       <p class="hint">
-        Data and scores come from the same pipeline as
-        <code>counseling-effectiveness.ipynb</code> (Gradient Boosting
-        concern model). Regenerate with
-        <code>python3 generate_counseling_dashboard_data.py</code>.
-        Preview this page with a local server, e.g.
-        <code>python3 -m http.server 8765</code>
-        then open
-        <code>/counseling-admin-dashboard.html</code>.
+        Pipeline: <code>counseling-effectiveness.ipynb</code> + <code>p4_counseling_model.pkl</code>.
+        Regenerate: <code>python3 generate_counseling_dashboard_data.py</code> or
+        <code>python3 generate_all_dashboard_data.py</code>.
+        Preview: <code>python3 -m http.server 8765</code> → this file.
       </p>
     </aside>
     <main>
-      <h1 class="page-title">Counseling effectiveness</h1>
+      <h1 class="page-title">Counseling sessions</h1>
       <p class="page-sub">
-        Supervisor view: portfolio outcomes, per-resident counseling history,
-        and model-estimated probability that a session would surface a flagged
-        concern (for proactive follow-up).
+        Big picture first: which sessions the tool flags, what the records show about risk—open the section below when you need spreadsheets and detail.
       </p>
 
       <div id="load-state" class="loading">Loading dashboard data…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
+
+        <details class="data-fold">
+          <summary>
+            Row-level data
+            <span class="fold-hint">Residents &amp; sessions · sort, search, drill-in</span>
+          </summary>
+          <div class="fold-inner">
         <div class="kpi-row" id="kpis"></div>
 
         <div class="split">
@@ -306,10 +53,21 @@
             <div class="panel-head">
               <h2>Residents</h2>
               <div class="toolbar">
-                <input type="search" id="search" placeholder="Search case ID, category…" />
+                <label style="font-size:0.75rem;color:var(--muted);display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+                  Sort
+                  <select id="sort-preset" title="1 = lowest risk, 4 = highest">
+                    <option value="concern_desc">Highest concern score first</option>
+                    <option value="risk_desc">Case risk · highest first</option>
+                    <option value="risk_asc">Case risk · lowest first</option>
+                    <option value="sessions_desc">Most sessions first</option>
+                    <option value="mood_desc">Biggest mood improvement first</option>
+                    <option value="alerts_desc">Most alerts first</option>
+                  </select>
+                </label>
+                <input type="search" id="search" placeholder="Search case, category…" />
                 <label style="font-size:0.8rem;color:var(--muted);display:flex;align-items:center;gap:0.35rem;">
                   <input type="checkbox" id="filter-alerts" />
-                  High alert risk only
+                  Only show 35%+ concern scores
                 </label>
               </div>
             </div>
@@ -320,11 +78,14 @@
                     <th data-sort="resident_id">ID</th>
                     <th data-sort="case_control_no">Case</th>
                     <th data-sort="case_category">Category</th>
-                    <th data-sort="initial_risk_level">Risk</th>
+                    <th data-sort="initial_risk_rank" title="1 = low … 4 = critical">
+                      Risk
+                      <span class="th-sub">1–4 · tap to sort</span>
+                    </th>
                     <th data-sort="session_count">Sessions</th>
-                    <th data-sort="mean_emotion_shift">Avg Δ mood</th>
-                    <th data-sort="max_concern_probability">Max P(concern)</th>
-                    <th data-sort="alert_recommended_count">Alerts</th>
+                    <th data-sort="mean_emotion_shift">Avg mood change</th>
+                    <th data-sort="max_concern_probability">Highest concern score</th>
+                    <th data-sort="alert_recommended_count">Alert count</th>
                   </tr>
                 </thead>
                 <tbody id="resident-body"></tbody>
@@ -335,21 +96,19 @@
           <div class="panel detail-card" id="detail-panel">
             <h3 id="detail-title">Select a resident</h3>
             <p class="page-sub" style="margin:0 0 1rem;font-size:0.85rem" id="detail-placeholder">
-              Click a row in the table to see individual session history, emotional
-              trajectory, and model scores aligned with the notebook pipeline.
+              Click a resident for session-by-session scores and notes.
             </p>
             <dl class="meta-grid" id="detail-meta" style="display: none"></dl>
-            <h4 style="margin:0 0 0.5rem;font-size:0.85rem;color:var(--muted)" id="sessions-heading" style="display:none">Recent sessions</h4>
             <div class="session-table-wrap" id="session-wrap" style="display: none">
               <table>
                 <thead>
                   <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Start → End</th>
-                    <th>Δ</th>
-                    <th>P(concern)</th>
-                    <th>Flagged</th>
+                    <th class="no-sort">Date</th>
+                    <th class="no-sort">Type</th>
+                    <th class="no-sort">Mood start → end</th>
+                    <th class="no-sort">Shift</th>
+                    <th class="no-sort">Concern score</th>
+                    <th class="no-sort">Concern noted?</th>
                   </tr>
                 </thead>
                 <tbody id="session-body"></tbody>
@@ -357,10 +116,13 @@
             </div>
           </div>
         </div>
+          </div>
+        </details>
       </div>
     </main>
   </div>
 
+  <script src="ml-dashboard-insights.js"></script>
   <script>
     (function () {
       const loadState = document.getElementById("load-state");
@@ -370,6 +132,7 @@
       const residentBody = document.getElementById("resident-body");
       const search = document.getElementById("search");
       const filterAlerts = document.getElementById("filter-alerts");
+      const sortPreset = document.getElementById("sort-preset");
       const detailTitle = document.getElementById("detail-title");
       const detailPlaceholder = document.getElementById("detail-placeholder");
       const detailMeta = document.getElementById("detail-meta");
@@ -380,6 +143,7 @@
       let sortKey = "max_concern_probability";
       let sortDir = -1;
       let selectedId = null;
+      let presetLock = false;
 
       function riskClass(level) {
         const l = (level || "").toLowerCase();
@@ -400,12 +164,47 @@
         errorState.innerHTML = msg;
       }
 
+      function applyPreset(val) {
+        presetLock = true;
+        switch (val) {
+          case "concern_desc":
+            sortKey = "max_concern_probability";
+            sortDir = -1;
+            break;
+          case "risk_desc":
+            sortKey = "initial_risk_rank";
+            sortDir = -1;
+            break;
+          case "risk_asc":
+            sortKey = "initial_risk_rank";
+            sortDir = 1;
+            break;
+          case "sessions_desc":
+            sortKey = "session_count";
+            sortDir = -1;
+            break;
+          case "mood_desc":
+            sortKey = "mean_emotion_shift";
+            sortDir = -1;
+            break;
+          case "alerts_desc":
+            sortKey = "alert_recommended_count";
+            sortDir = -1;
+            break;
+          default:
+            break;
+        }
+        sortPreset.value = val;
+        presetLock = false;
+        renderTable();
+      }
+
       function renderKpis(p) {
         kpis.innerHTML = `
-          <div class="kpi"><div class="label">Sessions scored</div><div class="value">${p.sessions_scored.toLocaleString()}</div><div class="sub">of ${p.total_sessions.toLocaleString()} total</div></div>
-          <div class="kpi"><div class="label">Progress noted</div><div class="value">${fmtPct(p.progress_rate)}</div><div class="sub">sessions with progress</div></div>
-          <div class="kpi"><div class="label">Concerns flagged</div><div class="value">${fmtPct(p.concern_rate)}</div><div class="sub">actual supervisor flags</div></div>
-          <div class="kpi"><div class="label">Mean mood shift</div><div class="value">${p.mean_emotion_shift.toFixed(2)}</div><div class="sub">end − start (ordinal scale)</div></div>
+          <div class="kpi"><div class="label">Sessions with scores</div><div class="value">${p.sessions_scored.toLocaleString()}</div><div class="sub">of ${p.total_sessions.toLocaleString()} total</div></div>
+          <div class="kpi"><div class="label">Progress documented</div><div class="value">${fmtPct(p.progress_rate)}</div><div class="sub">share of sessions</div></div>
+          <div class="kpi"><div class="label">Concerns filed in records</div><div class="value">${fmtPct(p.concern_rate)}</div><div class="sub">share of sessions</div></div>
+          <div class="kpi"><div class="label">Average mood shift</div><div class="value">${p.mean_emotion_shift.toFixed(2)}</div><div class="sub">higher = seemed better at end</div></div>
         `;
       }
 
@@ -428,33 +227,51 @@
         });
       }
 
+      function cmp(a, b, key, dir) {
+        const av = a[key];
+        const bv = b[key];
+        const ar = Number(av);
+        const br = Number(bv);
+        if (!Number.isNaN(ar) && !Number.isNaN(br) && String(av) !== String(bv)) {
+          const na = av === null || av === undefined || av === "";
+          const nb = bv === null || bv === undefined || bv === "";
+          if (na && nb) return 0;
+          if (na) return 1;
+          if (nb) return -1;
+          return dir * (ar - br);
+        }
+        if (typeof av === "string" && typeof bv === "string") {
+          return dir * av.localeCompare(bv);
+        }
+        return dir * ((av > bv) - (av < bv));
+      }
+
       function renderTable() {
-        const rows = filteredResidents().sort((a, b) => {
-          const av = a[sortKey];
-          const bv = b[sortKey];
-          if (typeof av === "string") return sortDir * String(av).localeCompare(String(bv));
-          return sortDir * ((av > bv) - (av < bv));
-        });
+        const rows = filteredResidents().sort((a, b) => cmp(a, b, sortKey, sortDir));
         residentBody.innerHTML = rows
-          .map(
-            (r) => `
-          <tr data-id="${r.resident_id}" class="${selectedId === r.resident_id ? "selected" : ""}">
+          .map((r) => {
+            const rk = r.initial_risk_rank != null ? r.initial_risk_rank : 0;
+            return `
+          <tr data-id="${r.resident_id}" class="interactive ${selectedId === r.resident_id ? "selected" : ""}">
             <td>${r.resident_id}</td>
             <td>${escapeHtml(r.case_control_no || "—")}</td>
             <td>${escapeHtml(r.case_category || "—")}</td>
-            <td><span class="badge ${riskClass(r.initial_risk_level)}">${escapeHtml(r.initial_risk_level || "—")}</span></td>
+            <td>
+              <span class="badge ${riskClass(r.initial_risk_level)}">${escapeHtml(r.initial_risk_level || "—")}</span>
+              <span class="risk-rank-num" title="Severity rank for sorting">${rk ? "(" + rk + ")" : "—"}</span>
+            </td>
             <td>${r.session_count}</td>
             <td>${r.mean_emotion_shift >= 0 ? "+" : ""}${r.mean_emotion_shift.toFixed(2)}</td>
             <td>
               <div style="display:flex;align-items:center;gap:0.5rem">
                 <span style="min-width:2.8rem">${fmtPct(r.max_concern_probability)}</span>
-                <div class="prob-bar" title="max session P(concern)"><i style="width:${Math.min(100, r.max_concern_probability * 100)}%"></i></div>
+                <div class="prob-bar" title="Highest session concern score for this resident"><i style="width:${Math.min(100, r.max_concern_probability * 100)}%"></i></div>
               </div>
             </td>
             <td>${r.alert_recommended_count > 0 ? `<span class="badge badge-alert">${r.alert_recommended_count}</span>` : `<span class="badge badge-ok">0</span>`}</td>
           </tr>
-        `
-          )
+        `;
+          })
           .join("");
 
         residentBody.querySelectorAll("tr").forEach((tr) => {
@@ -480,18 +297,18 @@
         detailMeta.style.display = "grid";
         sessionWrap.style.display = "block";
         detailTitle.textContent = `Resident ${r.resident_id} · ${r.case_control_no || "Case"}`;
-
+        const irk = r.initial_risk_rank != null ? r.initial_risk_rank : "—";
         detailMeta.innerHTML = `
           <dt>Case category</dt><dd>${escapeHtml(r.case_category || "—")}</dd>
           <dt>Status</dt><dd>${escapeHtml(r.case_status || "—")}</dd>
-          <dt>Initial risk</dt><dd><span class="badge ${riskClass(r.initial_risk_level)}">${escapeHtml(r.initial_risk_level || "—")}</span></dd>
+          <dt>Initial risk</dt><dd><span class="badge ${riskClass(r.initial_risk_level)}">${escapeHtml(r.initial_risk_level || "—")}</span> <span class="risk-rank-num">rank ${irk}</span></dd>
           <dt>Current risk</dt><dd>${escapeHtml(r.current_risk_level || "—")}</dd>
           <dt>Age</dt><dd>${escapeHtml(r.present_age || "—")}</dd>
           <dt>Assigned SW</dt><dd>${escapeHtml(r.assigned_social_worker || "—")}</dd>
           <dt>Total sessions</dt><dd>${r.session_count}</dd>
-          <dt>Concerns flagged (actual)</dt><dd>${r.concern_sessions}</dd>
-          <dt>Supervisor alerts (model ≥ ${(data.portfolio.alert_threshold * 100).toFixed(0)}%)</dt><dd>${r.alert_recommended_count}</dd>
-          <dt>Mean P(concern)</dt><dd>${fmtPct(r.mean_concern_probability)}</dd>
+          <dt>Concerns on file</dt><dd>${r.concern_sessions}</dd>
+          <dt>Automated alerts (score ≥ ${(data.portfolio.alert_threshold * 100).toFixed(0)}%)</dt><dd>${r.alert_recommended_count}</dd>
+          <dt>Average concern score</dt><dd>${fmtPct(r.mean_concern_probability)}</dd>
           <dt>Last session</dt><dd>${r.last_session_date}</dd>
         `;
 
@@ -509,7 +326,7 @@
             <td>${s.emotion_shift >= 0 ? "+" : ""}${s.emotion_shift.toFixed(0)}</td>
             <td>
               <span style="font-variant-numeric:tabular-nums">${fmtPct(s.concern_probability)}</span>
-              ${s.supervisor_alert ? '<span class="badge badge-alert" style="margin-left:0.35rem">Alert</span>' : ""}
+              ${s.supervisor_alert ? '<span class="badge badge-alert" style="margin-left:0.35rem">Flagged for review</span>' : ""}
             </td>
             <td>${s.concerns_flagged ? '<span class="badge badge-alert">Yes</span>' : '<span class="badge badge-ok">No</span>'}</td>
           </tr>
@@ -518,17 +335,36 @@
           .join("");
       }
 
+      function presetForCurrentSort() {
+        const m = [
+          ["max_concern_probability", -1, "concern_desc"],
+          ["initial_risk_rank", -1, "risk_desc"],
+          ["initial_risk_rank", 1, "risk_asc"],
+          ["session_count", -1, "sessions_desc"],
+          ["mean_emotion_shift", -1, "mood_desc"],
+          ["alert_recommended_count", -1, "alerts_desc"],
+        ];
+        const hit = m.find((x) => x[0] === sortKey && x[1] === sortDir);
+        return hit ? hit[2] : "";
+      }
+
       document.querySelectorAll("th[data-sort]").forEach((th) => {
         th.addEventListener("click", () => {
           const k = th.dataset.sort;
           if (sortKey === k) sortDir *= -1;
           else {
             sortKey = k;
-            sortDir = k === "case_control_no" || k === "case_category" ? 1 : -1;
+            sortDir =
+              k === "case_control_no" || k === "case_category" || k === "resident_id" ? 1 : -1;
+            if (k === "initial_risk_rank") sortDir = -1;
           }
+          const p = presetForCurrentSort();
+          if (!presetLock) sortPreset.value = p || sortPreset.value;
           renderTable();
         });
       });
+
+      sortPreset.addEventListener("change", () => applyPreset(sortPreset.value));
 
       search.addEventListener("input", () => renderTable());
       filterAlerts.addEventListener("change", () => renderTable());
@@ -542,16 +378,19 @@
           data = json;
           loadState.style.display = "none";
           dashboard.style.display = "block";
+          if (typeof renderInsightStory === "function" && data.insights) {
+            renderInsightStory(document.getElementById("insight-root"), data.insights);
+          }
           renderKpis(data.portfolio);
-          renderTable();
+          applyPreset("concern_desc");
         })
         .catch(() => {
           showError(
             `<strong>Could not load <code>counseling-dashboard-data.json</code>.</strong><br/><br/>
-            Browsers block <code>file://</code> fetches. From this folder run:<br/>
+            Use a local server from this folder:<br/>
             <code>python3 -m http.server 8765</code><br/>
-            Then visit <code>http://localhost:8765/counseling-admin-dashboard.html</code><br/><br/>
-            Also run <code>python3 generate_counseling_dashboard_data.py</code> if the JSON is missing.`
+            Then open <code>http://localhost:8765/counseling-admin-dashboard.html</code><br/><br/>
+            Generate data: <code>python3 generate_counseling_dashboard_data.py</code>`
           );
         });
     })();

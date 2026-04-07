@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reintegration outlook — Lighthouse</title>
+  <link rel="stylesheet" href="ml-dashboard-shell.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        Lighthouse Admin
+        <span>Residents · data insights</span>
+      </div>
+      <div>
+        <div class="nav-label">Insight reports</div>
+        <nav class="nav-tabs" aria-label="Insight reports">
+          <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
+          <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
+          <a class="nav-tab active" href="reintegration-dashboard.html">Reintegration outlook</a>
+          <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+        </nav>
+      </div>
+      <p class="hint">
+        Pipeline: <code>reintegration-readiness.ipynb</code>. Data:
+        <code>python3 generate_reintegration_dashboard_data.py</code>.
+      </p>
+    </aside>
+    <main>
+      <h1 class="page-title">Reintegration outlook</h1>
+      <p class="page-sub">
+        Summary scores and plain-language patterns first; open below for resident-by-resident tables.
+      </p>
+
+      <div id="load-state" class="loading">Loading…</div>
+      <div id="error-state" class="error-box" style="display: none"></div>
+      <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
+
+        <details class="data-fold">
+          <summary>
+            Detailed tables
+            <span class="fold-hint">Residents · statistics · cross-checks</span>
+          </summary>
+          <div class="fold-inner">
+        <div class="kpi-row" id="kpis"></div>
+
+        <div class="panel">
+          <div class="tabs-inline" role="tablist">
+            <button type="button" class="active" data-tab="pred">Residents &amp; outlook scores</button>
+            <button type="button" data-tab="causal">Factors that track with outcomes</button>
+            <button type="button" data-tab="fi">What the tool focused on</button>
+            <button type="button" data-tab="cv">Cross-check (technical)</button>
+          </div>
+          <div id="tab-pred" class="tab-panel active">
+            <div class="panel-head">
+              <h2>Residents</h2>
+              <div class="toolbar">
+                <label style="font-size:0.75rem;color:var(--muted);display:flex;align-items:center;gap:0.4rem;">
+                  Sort
+                  <select id="sort-preset">
+                    <option value="prob_desc">Highest outlook score first</option>
+                    <option value="risk_desc">Initial risk · Critical→Low</option>
+                    <option value="risk_asc">Initial risk · Low→Critical</option>
+                  </select>
+                </label>
+                <input type="search" id="search" placeholder="Search case, category…" />
+              </div>
+            </div>
+            <div class="table-wrap" style="max-height:55vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-sort="resident_id">ID</th>
+                    <th data-sort="case_control_no">Case</th>
+                    <th data-sort="case_category">Category</th>
+                    <th data-sort="initial_risk_rank" title="1=Low … 4=Critical">
+                      Risk
+                      <span class="th-sub">1–4</span>
+                    </th>
+                    <th data-sort="trajectory_probability">Outlook score</th>
+                    <th data-sort="positive_trajectory_actual">Doing well? (records)</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-causal" class="tab-panel">
+            <p class="page-sub" style="margin-top:0">Scaled so you can compare factors. Positive = tends to show up alongside better outcomes in this dataset.</p>
+            <div class="coef-table-wrap">
+              <table>
+                <thead><tr><th class="no-sort">Factor</th><th class="no-sort">Strength</th></tr></thead>
+                <tbody id="causal-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-fi" class="tab-panel">
+            <div class="coef-table-wrap">
+              <table>
+                <thead><tr><th class="no-sort">Factor</th><th class="no-sort">How much the tool used it</th></tr></thead>
+                <tbody id="fi-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-cv" class="tab-panel">
+            <div class="coef-table-wrap">
+              <table>
+                <thead><tr><th class="no-sort">Approach</th><th class="no-sort">Ranking quality</th><th class="no-sort">Balance score</th><th class="no-sort">Plain accuracy</th></tr></thead>
+                <tbody id="cv-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+          </div>
+        </details>
+      </div>
+    </main>
+  </div>
+  <script src="ml-dashboard-insights.js"></script>
+  <script>
+    (function () {
+      let data = null;
+      let sortKey = "trajectory_probability";
+      let sortDir = -1;
+
+      function fmtPct(x) { return (100 * x).toFixed(1) + "%"; }
+      function escapeHtml(s) {
+        if (!s) return "";
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function riskClass(level) {
+        const l = (level || "").toLowerCase();
+        if (l === "low") return "badge-risk-low";
+        if (l === "medium") return "badge-risk-med";
+        if (l === "high") return "badge-risk-high";
+        if (l === "critical") return "badge-risk-critical";
+        return "";
+      }
+      function cmp(a, b) {
+        const av = a[sortKey], bv = b[sortKey];
+        if (typeof av === "boolean" && typeof bv === "boolean")
+          return sortDir * ((av === bv) ? 0 : av ? 1 : -1);
+        if (typeof av === "number" && typeof bv === "number")
+          return sortDir * (av - bv);
+        return sortDir * String(av || "").localeCompare(String(bv || ""));
+      }
+      function applyPreset(v) {
+        if (v === "prob_desc") { sortKey = "trajectory_probability"; sortDir = -1; }
+        if (v === "risk_desc") { sortKey = "initial_risk_rank"; sortDir = -1; }
+        if (v === "risk_asc") { sortKey = "initial_risk_rank"; sortDir = 1; }
+        document.getElementById("sort-preset").value = v;
+        render();
+      }
+
+      function render() {
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        let rows = data.residents.filter((r) => {
+          if (!q) return true;
+          return [r.case_control_no, r.case_category, String(r.resident_id), r.initial_risk_level]
+            .join(" ").toLowerCase().includes(q);
+        });
+        rows = rows.sort(cmp);
+        document.getElementById("tbody").innerHTML = rows.map((r) => {
+          const rk = r.initial_risk_rank || 0;
+          return `
+          <tr>
+            <td>${r.resident_id}</td>
+            <td>${escapeHtml(r.case_control_no)}</td>
+            <td>${escapeHtml(r.case_category)}</td>
+            <td>
+              <span class="badge ${riskClass(r.initial_risk_level)}">${escapeHtml(r.initial_risk_level)}</span>
+              <span class="risk-rank-num">${rk ? "(" + rk + ")" : "—"}</span>
+            </td>
+            <td>${fmtPct(r.trajectory_probability)}</td>
+            <td>${r.positive_trajectory_actual ? '<span class="badge badge-ok">Yes</span>' : '<span class="badge badge-alert">No</span>'}</td>
+          </tr>
+        `;
+        }).join("");
+      }
+
+      document.querySelectorAll(".tabs-inline button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tabs-inline button").forEach((b) => b.classList.remove("active"));
+          document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+        });
+      });
+      document.getElementById("sort-preset").addEventListener("change", (e) => applyPreset(e.target.value));
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sort;
+          if (sortKey === k) sortDir *= -1;
+          else {
+            sortKey = k;
+            sortDir = k === "case_control_no" || k === "case_category" || k === "resident_id" ? 1 : -1;
+            if (k === "initial_risk_rank") sortDir = -1;
+          }
+          render();
+        });
+      });
+      document.getElementById("search").addEventListener("input", render);
+
+      fetch("reintegration-dashboard-data.json")
+        .then((r) => { if (!r.ok) throw 0; return r.json(); })
+        .then((json) => {
+          data = json;
+          const p = json.portfolio;
+          document.getElementById("kpis").innerHTML = `
+            <div class="kpi"><div class="label">Residents</div><div class="value">${p.n_residents}</div></div>
+            <div class="kpi"><div class="label">Doing well (records)</div><div class="value">${fmtPct(p.positive_trajectory_rate)}</div></div>
+            <div class="kpi"><div class="label">Outlook score accuracy (test)</div><div class="value">${p.test_roc_auc_rf.toFixed(3)}</div><div class="sub">1 = perfect ranking</div></div>
+          `;
+          document.getElementById("causal-body").innerHTML = json.causal_ridge_logistic_coefficients.map((c) => `
+            <tr><td>${escapeHtml(c.feature)}</td><td class="${c.coefficient >= 0 ? "coef-pos" : "coef-neg"}">${c.coefficient.toFixed(4)}</td></tr>
+          `).join("");
+          document.getElementById("fi-body").innerHTML = json.random_forest_importances.map((c) => `
+            <tr><td>${escapeHtml(c.feature)}</td><td>${c.importance.toFixed(4)}</td></tr>
+          `).join("");
+          const cv = p.cv_by_model;
+          document.getElementById("cv-body").innerHTML = Object.keys(cv).map((name) => {
+            const x = cv[name];
+            return `<tr><td>${escapeHtml(name)}</td><td>${x["ROC-AUC"].toFixed(4)}</td><td>${x["F1"].toFixed(4)}</td><td>${x["Accuracy"].toFixed(4)}</td></tr>`;
+          }).join("");
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          if (typeof renderInsightStory === "function" && json.insights) {
+            renderInsightStory(document.getElementById("insight-root"), json.insights);
+          }
+          applyPreset("prob_desc");
+        })
+        .catch(() => {
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("error-state").style.display = "block";
+          document.getElementById("error-state").innerHTML =
+            "Missing <code>reintegration-dashboard-data.json</code>. Run <code>python3 generate_reintegration_dashboard_data.py</code>.";
+        });
+    })();
+  </script>
+</body>
+</html>

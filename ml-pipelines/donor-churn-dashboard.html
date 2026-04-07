@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Donor lapse risk — Lighthouse</title>
+  <link rel="stylesheet" href="ml-dashboard-shell.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        Lighthouse Admin
+        <span>Fundraising · data insights</span>
+      </div>
+      <div>
+        <div class="nav-label">Insight reports</div>
+        <nav class="nav-tabs" aria-label="Insight reports">
+          <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
+          <a class="nav-tab active" href="donor-churn-dashboard.html">Donor lapse risk</a>
+          <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
+          <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+        </nav>
+      </div>
+      <p class="hint">
+        Pipeline: <code>donor-churn-prediction.ipynb</code>. Data:
+        <code>python3 generate_donor_dashboard_data.py</code>.
+      </p>
+    </aside>
+    <main>
+      <h1 class="page-title">Donor lapse risk</h1>
+      <p class="page-sub">
+        Plain-language readouts first; open the section below for donor lists and technical tables.
+      </p>
+
+      <div id="load-state" class="loading">Loading…</div>
+      <div id="error-state" class="error-box" style="display: none"></div>
+      <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
+
+        <details class="data-fold">
+          <summary>
+            Tables &amp; coefficient dumps
+            <span class="fold-hint">Supporter list · statistics · what the tool weighted · segments</span>
+          </summary>
+          <div class="fold-inner">
+        <div class="kpi-row" id="kpis"></div>
+
+        <div class="panel">
+          <div class="tabs-inline" role="tablist">
+            <button type="button" class="active" data-tab="pred">Supporters &amp; lapse scores</button>
+            <button type="button" data-tab="causal">What tends to pair with lapse</button>
+            <button type="button" data-tab="fi">What the tool focused on</button>
+            <button type="button" data-tab="seg">By channel &amp; type</button>
+          </div>
+          <div id="tab-pred" class="tab-panel active">
+            <div class="panel-head">
+              <h2>Supporters</h2>
+              <div class="toolbar">
+                <input type="search" id="search" placeholder="Search name, channel…" />
+                <label style="font-size:0.8rem;color:var(--muted);display:flex;gap:0.35rem;align-items:center;">
+                  <input type="checkbox" id="active-only" checked />
+                  Active (retained) only
+                </label>
+              </div>
+            </div>
+            <div class="table-wrap" style="max-height:55vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-sort="supporter_id">ID</th>
+                    <th data-sort="display_name">Name</th>
+                    <th data-sort="supporter_type">Type</th>
+                    <th data-sort="acquisition_channel">Channel</th>
+                    <th data-sort="churn_probability">Lapse risk</th>
+                    <th data-sort="total_value">LTV</th>
+                    <th data-sort="recency">Recency</th>
+                    <th data-sort="is_churned">Lapsed?</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-causal" class="tab-panel">
+            <p class="page-sub" style="margin-top:0">Simple statistical read (~60 people). Bigger numbers = stronger link with lapse in the data—not proof you can “fix” lapse by changing one field.</p>
+            <div class="coef-table-wrap">
+              <table>
+                <thead>
+                  <tr><th class="no-sort">Factor</th><th class="no-sort">Strength (scaled)</th></tr>
+                </thead>
+                <tbody id="causal-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-fi" class="tab-panel">
+            <div class="coef-table-wrap">
+              <table>
+                <thead>
+                  <tr><th class="no-sort">Factor</th><th class="no-sort">How much the tool used it</th></tr>
+                </thead>
+                <tbody id="fi-body"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="tab-seg" class="tab-panel">
+            <div class="split" style="grid-template-columns:1fr 1fr">
+              <div>
+                <h2 style="font-size:0.9rem;margin:0 0 0.5rem">By acquisition channel</h2>
+                <div class="coef-table-wrap" style="max-height:220px">
+                  <table><thead><tr><th class="no-sort">Channel</th><th class="no-sort">Churn rate</th><th class="no-sort">n</th></tr></thead>
+                  <tbody id="seg-ch"></tbody></table>
+                </div>
+              </div>
+              <div>
+                <h2 style="font-size:0.9rem;margin:0 0 0.5rem">By supporter type</h2>
+                <div class="coef-table-wrap" style="max-height:220px">
+                  <table><thead><tr><th class="no-sort">Type</th><th class="no-sort">Churn rate</th><th class="no-sort">n</th></tr></thead>
+                  <tbody id="seg-ty"></tbody></table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+          </div>
+        </details>
+      </div>
+    </main>
+  </div>
+  <script src="ml-dashboard-insights.js"></script>
+  <script>
+    (function () {
+      let data = null;
+      let sortKey = "churn_probability";
+      let sortDir = -1;
+
+      function fmtPct(x) { return (100 * x).toFixed(1) + "%"; }
+      function escapeHtml(s) {
+        if (!s) return "";
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function cmp(a, b) {
+        const av = a[sortKey], bv = b[sortKey];
+        if (typeof av === "boolean" && typeof bv === "boolean")
+          return sortDir * ((av === bv) ? 0 : av ? 1 : -1);
+        if (typeof av === "number" && typeof bv === "number")
+          return sortDir * (av - bv);
+        return sortDir * String(av || "").localeCompare(String(bv || ""));
+      }
+
+      function render() {
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        const activeOnly = document.getElementById("active-only").checked;
+        let rows = data.supporters.filter((r) => {
+          if (activeOnly && !r.is_active) return false;
+          if (!q) return true;
+          return [r.display_name, r.supporter_type, r.acquisition_channel, String(r.supporter_id)]
+            .join(" ").toLowerCase().includes(q);
+        });
+        rows = rows.sort(cmp);
+        document.getElementById("tbody").innerHTML = rows.map((r) => `
+          <tr>
+            <td>${r.supporter_id}</td>
+            <td>${escapeHtml(r.display_name)}</td>
+            <td>${escapeHtml(r.supporter_type)}</td>
+            <td>${escapeHtml(r.acquisition_channel)}</td>
+            <td>${fmtPct(r.churn_probability)}</td>
+            <td>${r.total_value.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+            <td>${r.recency.toFixed(0)}d</td>
+            <td>${r.is_churned ? '<span class="badge badge-alert">Yes</span>' : '<span class="badge badge-ok">No</span>'}</td>
+          </tr>
+        `).join("");
+      }
+
+      document.querySelectorAll(".tabs-inline button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".tabs-inline button").forEach((b) => b.classList.remove("active"));
+          document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+        });
+      });
+
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sort;
+          if (sortKey === k) sortDir *= -1;
+          else { sortKey = k; sortDir = k === "display_name" || k === "supporter_type" ? 1 : -1; }
+          render();
+        });
+      });
+      document.getElementById("search").addEventListener("input", render);
+      document.getElementById("active-only").addEventListener("change", render);
+
+      fetch("donor-dashboard-data.json")
+        .then((r) => { if (!r.ok) throw 0; return r.json(); })
+        .then((json) => {
+          data = json;
+          const p = json.portfolio;
+          document.getElementById("kpis").innerHTML = `
+            <div class="kpi"><div class="label">Supporters in file</div><div class="value">${p.n_supporters}</div></div>
+            <div class="kpi"><div class="label">Already lapsed (records)</div><div class="value">${fmtPct(p.churn_rate)}</div></div>
+            <div class="kpi"><div class="label">Still active</div><div class="value">${p.n_active_retained}</div></div>
+            <div class="kpi"><div class="label">Score accuracy (test)</div><div class="value">${p.test_roc_auc_rf.toFixed(3)}</div><div class="sub">1 = perfect ranking</div></div>
+          `;
+          document.getElementById("causal-body").innerHTML = json.causal_logistic_coefficients.slice(0, 40).map((c) => `
+            <tr><td>${escapeHtml(c.feature)}</td><td class="${c.coefficient >= 0 ? "coef-pos" : "coef-neg"}">${c.coefficient.toFixed(4)}</td></tr>
+          `).join("");
+          document.getElementById("fi-body").innerHTML = json.random_forest_importances.map((c) => `
+            <tr><td>${escapeHtml(c.feature)}</td><td>${c.importance.toFixed(4)}</td></tr>
+          `).join("");
+          document.getElementById("seg-ch").innerHTML = json.churn_by_channel.map((r) => `
+            <tr><td>${escapeHtml(r.channel)}</td><td>${fmtPct(r.churn_rate)}</td><td>${r.n}</td></tr>
+          `).join("");
+          document.getElementById("seg-ty").innerHTML = json.churn_by_supporter_type.map((r) => `
+            <tr><td>${escapeHtml(r.supporter_type)}</td><td>${fmtPct(r.churn_rate)}</td><td>${r.n}</td></tr>
+          `).join("");
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          if (typeof renderInsightStory === "function" && json.insights) {
+            renderInsightStory(document.getElementById("insight-root"), json.insights);
+          }
+          render();
+        })
+        .catch(() => {
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("error-state").style.display = "block";
+          document.getElementById("error-state").innerHTML =
+            "Missing <code>donor-dashboard-data.json</code>. Run <code>python3 generate_donor_dashboard_data.py</code> and serve this folder over HTTP.";
+        });
+    })();
+  </script>
+</body>
+</html>

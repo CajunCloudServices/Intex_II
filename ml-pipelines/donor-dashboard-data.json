@@ -1,0 +1,1126 @@
+{
+  "generated_note": "Donor churn \u2014 donor-churn-prediction.ipynb (RF + ridge logistic causal)",
+  "insights": {
+    "eyebrow": "DONOR LAPSE RISK \u00b7 COMPUTER SCORE + STATISTICAL READ",
+    "headline": "1 supporters who still look \u201cactive\u201d score at 50% or higher on lapsing\u2014those are people to thank, call, or visit before they drift away.",
+    "lede": "In this file, about 45% of supporters are already marked as lapsed. On a hidden test sample, the lapse score separated who lapsed vs who stayed better than guessing (quality index 0.91 on a 0\u20131 scale where 0.5 is random and 1.0 is perfect ranking). The cards pair \u201cwho the computer worries about\u201d with \u201cwhat tends to show up alongside lapse in a simple read of the data.\u201d",
+    "prediction_cards": [
+      {
+        "label": "Active supporters with a 50%+ lapse score",
+        "value": "1",
+        "hint": "Still marked active but the tool thinks lapse is as likely as not"
+      },
+      {
+        "label": "Single strongest clue in the lapse scorer",
+        "value": "recency",
+        "hint": "The automated tool leaned on this measure most often when sorting people"
+      },
+      {
+        "label": "Quality of the lapse ranking (test sample)",
+        "value": "0.91",
+        "hint": "Runs from 0.5 (random) to 1.0 (perfect). Higher means the score lines up better with who actually lapsed."
+      }
+    ],
+    "cause_cards": [
+      {
+        "title": "Channel with the most lapse: Church",
+        "body": "About 50% lapsed among 6 people from that channel. The calmest channel in this export is SocialMedia at 38%."
+      },
+      {
+        "title": "When \u00abrecency\u00bb is higher, lapse looks less likely",
+        "body": "In a simple statistical model, that factor lines up with staying (direction +1.72). It does not prove that changing it will fix lapse."
+      },
+      {
+        "title": "When \u00abtotal value\u00bb is higher, lapse looks more likely",
+        "body": "The same kind of model links this factor with drifting away (direction -0.21). Again: pattern in the data, not a guarantee of cause."
+      }
+    ],
+    "model_drivers": [
+      {
+        "feature": "recency",
+        "importance": 0.31786687685403464,
+        "share_top5_pct": 42
+      },
+      {
+        "feature": "total value",
+        "importance": 0.2134484299192714,
+        "share_top5_pct": 28
+      },
+      {
+        "feature": "tenure days",
+        "importance": 0.07889790004358344,
+        "share_top5_pct": 11
+      },
+      {
+        "feature": "frequency",
+        "importance": 0.0706070596230154,
+        "share_top5_pct": 9
+      },
+      {
+        "feature": "n monetary",
+        "importance": 0.06893060832297283,
+        "share_top5_pct": 9
+      }
+    ],
+    "calls_to_action": [
+      "Reach out: Finn Price \u2014 lapse risk score 82%",
+      "Reach out: Lena Nash \u2014 lapse risk score 44%",
+      "Reach out: Nora Singh \u2014 lapse risk score 29%"
+    ]
+  },
+  "portfolio": {
+    "n_supporters": 60,
+    "churn_rate": 0.45,
+    "n_scored": 59,
+    "n_active_retained": 32,
+    "test_roc_auc_rf": 0.9142857142857144
+  },
+  "causal_logistic_coefficients": [
+    {
+      "feature": "recency",
+      "coefficient": 1.715379381695966
+    },
+    {
+      "feature": "supporter_type_SkillsContributor",
+      "coefficient": 0.7435519605719921
+    },
+    {
+      "feature": "n_campaigns",
+      "coefficient": 0.2499229767654521
+    },
+    {
+      "feature": "total_value",
+      "coefficient": -0.21334922852059127
+    },
+    {
+      "feature": "acquisition_channel_WordOfMouth",
+      "coefficient": -0.21197176872635218
+    },
+    {
+      "feature": "supporter_type_MonetaryDonor",
+      "coefficient": -0.18938943286020785
+    },
+    {
+      "feature": "n_inkind",
+      "coefficient": -0.18915720002583727
+    },
+    {
+      "feature": "acquisition_channel_Website",
+      "coefficient": -0.17744405133547853
+    },
+    {
+      "feature": "n_monetary",
+      "coefficient": -0.14778067832342096
+    },
+    {
+      "feature": "tenure_days",
+      "coefficient": -0.12652292968855824
+    },
+    {
+      "feature": "supporter_type_Volunteer",
+      "coefficient": -0.1263987029348814
+    },
+    {
+      "feature": "n_time",
+      "coefficient": 0.12436294863043033
+    },
+    {
+      "feature": "frequency",
+      "coefficient": -0.10888972038836227
+    },
+    {
+      "feature": "acquisition_channel_Event",
+      "coefficient": 0.07869108061734727
+    },
+    {
+      "feature": "supporter_type_PartnerOrganization",
+      "coefficient": 0.07575763316196882
+    },
+    {
+      "feature": "acquisition_channel_SocialMedia",
+      "coefficient": 0.05414938021704125
+    },
+    {
+      "feature": "supporter_type_SocialMediaAdvocate",
+      "coefficient": -0.020310377650382454
+    },
+    {
+      "feature": "acquisition_channel_PartnerReferral",
+      "coefficient": 0.015147936405660999
+    },
+    {
+      "feature": "pct_recurring",
+      "coefficient": 0.006822754862513269
+    }
+  ],
+  "random_forest_importances": [
+    {
+      "feature": "recency",
+      "importance": 0.31786687685403464
+    },
+    {
+      "feature": "total_value",
+      "importance": 0.2134484299192714
+    },
+    {
+      "feature": "tenure_days",
+      "importance": 0.07889790004358344
+    },
+    {
+      "feature": "frequency",
+      "importance": 0.0706070596230154
+    },
+    {
+      "feature": "n_monetary",
+      "importance": 0.06893060832297283
+    },
+    {
+      "feature": "n_inkind",
+      "importance": 0.0652036530335839
+    },
+    {
+      "feature": "n_time",
+      "importance": 0.054975802566213205
+    },
+    {
+      "feature": "n_campaigns",
+      "importance": 0.03954071995278842
+    },
+    {
+      "feature": "pct_recurring",
+      "importance": 0.01706412787249926
+    },
+    {
+      "feature": "supporter_type_SkillsContributor",
+      "importance": 0.01697567308508542
+    },
+    {
+      "feature": "supporter_type_MonetaryDonor",
+      "importance": 0.010942301889522943
+    },
+    {
+      "feature": "acquisition_channel_SocialMedia",
+      "importance": 0.0103858264047736
+    },
+    {
+      "feature": "acquisition_channel_WordOfMouth",
+      "importance": 0.007635090117686942
+    },
+    {
+      "feature": "acquisition_channel_Event",
+      "importance": 0.006476015831903152
+    },
+    {
+      "feature": "supporter_type_Volunteer",
+      "importance": 0.006095893601022288
+    },
+    {
+      "feature": "acquisition_channel_PartnerReferral",
+      "importance": 0.00429731958645381
+    },
+    {
+      "feature": "supporter_type_SocialMediaAdvocate",
+      "importance": 0.004177989069052001
+    },
+    {
+      "feature": "supporter_type_PartnerOrganization",
+      "importance": 0.003297515313608094
+    },
+    {
+      "feature": "acquisition_channel_Website",
+      "importance": 0.003181196912929302
+    }
+  ],
+  "churn_by_channel": [
+    {
+      "channel": "Church",
+      "churn_rate": 0.5,
+      "n": 6
+    },
+    {
+      "channel": "Event",
+      "churn_rate": 0.5,
+      "n": 8
+    },
+    {
+      "channel": "PartnerReferral",
+      "churn_rate": 0.5,
+      "n": 6
+    },
+    {
+      "channel": "SocialMedia",
+      "churn_rate": 0.38461538461538464,
+      "n": 13
+    },
+    {
+      "channel": "Website",
+      "churn_rate": 0.46153846153846156,
+      "n": 13
+    },
+    {
+      "channel": "WordOfMouth",
+      "churn_rate": 0.42857142857142855,
+      "n": 14
+    }
+  ],
+  "churn_by_supporter_type": [
+    {
+      "supporter_type": "InKindDonor",
+      "churn_rate": 0.4666666666666667,
+      "n": 15
+    },
+    {
+      "supporter_type": "MonetaryDonor",
+      "churn_rate": 0.29411764705882354,
+      "n": 17
+    },
+    {
+      "supporter_type": "PartnerOrganization",
+      "churn_rate": 0.5,
+      "n": 4
+    },
+    {
+      "supporter_type": "SkillsContributor",
+      "churn_rate": 0.8333333333333334,
+      "n": 6
+    },
+    {
+      "supporter_type": "SocialMediaAdvocate",
+      "churn_rate": 0.5,
+      "n": 10
+    },
+    {
+      "supporter_type": "Volunteer",
+      "churn_rate": 0.375,
+      "n": 8
+    }
+  ],
+  "supporters": [
+    {
+      "supporter_id": 17,
+      "display_name": "Hana Quinn",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 1406.67,
+      "frequency": 4,
+      "recency": 292.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.99,
+      "is_active": false
+    },
+    {
+      "supporter_id": 41,
+      "display_name": "Cleo Owens",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 2166.7000000000003,
+      "frequency": 4,
+      "recency": 343.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.9753333333333333,
+      "is_active": false
+    },
+    {
+      "supporter_id": 23,
+      "display_name": "Ria White",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 636.53,
+      "frequency": 3,
+      "recency": 281.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.9683333333333333,
+      "is_active": false
+    },
+    {
+      "supporter_id": 37,
+      "display_name": "Rae Klein",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 1992.44,
+      "frequency": 5,
+      "recency": 354.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.9665780885780886,
+      "is_active": false
+    },
+    {
+      "supporter_id": 14,
+      "display_name": "Owen Nguyen",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 27.12,
+      "frequency": 1,
+      "recency": 738.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.955,
+      "is_active": false
+    },
+    {
+      "supporter_id": 39,
+      "display_name": "Ben Morris",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Event",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 1943.22,
+      "frequency": 5,
+      "recency": 200.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.9450899933399932,
+      "is_active": false
+    },
+    {
+      "supporter_id": 15,
+      "display_name": "Zoe Ortiz",
+      "supporter_type": "SkillsContributor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 925.66,
+      "frequency": 2,
+      "recency": 473.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.9442121212121212,
+      "is_active": false
+    },
+    {
+      "supporter_id": 34,
+      "display_name": "Mia Hill",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "Church",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 2428.81,
+      "frequency": 7,
+      "recency": 239.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.9342447552447553,
+      "is_active": false
+    },
+    {
+      "supporter_id": 55,
+      "display_name": "Kian Farah",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 12074.79,
+      "frequency": 6,
+      "recency": 199.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.9155194805194804,
+      "is_active": false
+    },
+    {
+      "supporter_id": 58,
+      "display_name": "Rico Iglesias",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 870.43,
+      "frequency": 3,
+      "recency": 715.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.9087121212121212,
+      "is_active": false
+    },
+    {
+      "supporter_id": 53,
+      "display_name": "Dina DelosReyes",
+      "supporter_type": "Volunteer",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 2271.2799999999997,
+      "frequency": 2,
+      "recency": 418.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.8960454545454546,
+      "is_active": false
+    },
+    {
+      "supporter_id": 2,
+      "display_name": "Aria Brown",
+      "supporter_type": "Volunteer",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 3877.36,
+      "frequency": 4,
+      "recency": 238.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.8642490842490842,
+      "is_active": false
+    },
+    {
+      "supporter_id": 46,
+      "display_name": "Faith Alliance",
+      "supporter_type": "PartnerOrganization",
+      "acquisition_channel": "Event",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 2048.05,
+      "frequency": 5,
+      "recency": 121.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.8539114219114219,
+      "is_active": false
+    },
+    {
+      "supporter_id": 33,
+      "display_name": "Tara Green",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "PartnerReferral",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 3794.98,
+      "frequency": 7,
+      "recency": 275.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.850288406038406,
+      "is_active": false
+    },
+    {
+      "supporter_id": 59,
+      "display_name": "Lea Jain",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 1368.02,
+      "frequency": 4,
+      "recency": 91.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.8431666666666666,
+      "is_active": false
+    },
+    {
+      "supporter_id": 60,
+      "display_name": "Tess Khan",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Website",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 3976.01,
+      "frequency": 6,
+      "recency": 217.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.8366010101010102,
+      "is_active": false
+    },
+    {
+      "supporter_id": 42,
+      "display_name": "Finn Price",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 2146.77,
+      "frequency": 5,
+      "recency": 1.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.8230909090909091,
+      "is_active": true
+    },
+    {
+      "supporter_id": 20,
+      "display_name": "Ezra Taylor",
+      "supporter_type": "Volunteer",
+      "acquisition_channel": "PartnerReferral",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 14240.29,
+      "frequency": 17,
+      "recency": 235.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.8146666666666667,
+      "is_active": false
+    },
+    {
+      "supporter_id": 36,
+      "display_name": "Lara Johnson",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": true,
+      "total_value": 4060.64,
+      "frequency": 6,
+      "recency": 565.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.808899517149517,
+      "is_active": false
+    },
+    {
+      "supporter_id": 50,
+      "display_name": "Bright Foundation",
+      "supporter_type": "PartnerOrganization",
+      "acquisition_channel": "Event",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 3201.4,
+      "frequency": 4,
+      "recency": 177.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.7935695415695414,
+      "is_active": false
+    },
+    {
+      "supporter_id": 57,
+      "display_name": "Paz Hale",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 1731.4299999999998,
+      "frequency": 2,
+      "recency": 26.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.7725454545454545,
+      "is_active": false
+    },
+    {
+      "supporter_id": 56,
+      "display_name": "Lyle Gomez",
+      "supporter_type": "SkillsContributor",
+      "acquisition_channel": "Church",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 1581.93,
+      "frequency": 4,
+      "recency": -4.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.7433333333333333,
+      "is_active": false
+    },
+    {
+      "supporter_id": 52,
+      "display_name": "Cole Cruz",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Church",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 4305.91,
+      "frequency": 6,
+      "recency": 471.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.7299343434343435,
+      "is_active": false
+    },
+    {
+      "supporter_id": 49,
+      "display_name": "Faye Yu",
+      "supporter_type": "SkillsContributor",
+      "acquisition_channel": "Website",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 1952.98,
+      "frequency": 4,
+      "recency": -21.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.7225,
+      "is_active": false
+    },
+    {
+      "supporter_id": 51,
+      "display_name": "Mira Bello",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 2653.68,
+      "frequency": 6,
+      "recency": -57.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.7178290043290042,
+      "is_active": false
+    },
+    {
+      "supporter_id": 54,
+      "display_name": "Sara Escobar",
+      "supporter_type": "SkillsContributor",
+      "acquisition_channel": "Event",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 11932.35,
+      "frequency": 23,
+      "recency": 39.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.6469166666666666,
+      "is_active": false
+    },
+    {
+      "supporter_id": 47,
+      "display_name": "Kaya Ward",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 7264.21,
+      "frequency": 6,
+      "recency": 86.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.6054791874791875,
+      "is_active": false
+    },
+    {
+      "supporter_id": 48,
+      "display_name": "Ian Xu",
+      "supporter_type": "SkillsContributor",
+      "acquisition_channel": "PartnerReferral",
+      "status": "Inactive",
+      "is_churned": true,
+      "total_value": 2257.2799999999997,
+      "frequency": 4,
+      "recency": 42.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.5659285714285714,
+      "is_active": false
+    },
+    {
+      "supporter_id": 40,
+      "display_name": "Lena Nash",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 1646.05,
+      "frequency": 2,
+      "recency": 163.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.4353787878787878,
+      "is_active": true
+    },
+    {
+      "supporter_id": 19,
+      "display_name": "Nora Singh",
+      "supporter_type": "Volunteer",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 3765.27,
+      "frequency": 8,
+      "recency": 50.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.28941874791874794,
+      "is_active": true
+    },
+    {
+      "supporter_id": 29,
+      "display_name": "Seth Clark",
+      "supporter_type": "Volunteer",
+      "acquisition_channel": "Event",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 4837.3099999999995,
+      "frequency": 6,
+      "recency": 85.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.288763986013986,
+      "is_active": true
+    },
+    {
+      "supporter_id": 30,
+      "display_name": "Rina Davis",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 4713.84,
+      "frequency": 2,
+      "recency": 156.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.2279343434343434,
+      "is_active": true
+    },
+    {
+      "supporter_id": 5,
+      "display_name": "Emma Evans",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 4751.17,
+      "frequency": 5,
+      "recency": 91.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.21310101010101004,
+      "is_active": true
+    },
+    {
+      "supporter_id": 43,
+      "display_name": "Hugo Ross",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 3280.16,
+      "frequency": 6,
+      "recency": 70.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.20766910866910865,
+      "is_active": true
+    },
+    {
+      "supporter_id": 16,
+      "display_name": "Iris Patel",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 2668.23,
+      "frequency": 5,
+      "recency": 59.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.17834523809523808,
+      "is_active": true
+    },
+    {
+      "supporter_id": 13,
+      "display_name": "Hope Group",
+      "supporter_type": "PartnerOrganization",
+      "acquisition_channel": "PartnerReferral",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 3256.82,
+      "frequency": 7,
+      "recency": 0.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.17363339438339437,
+      "is_active": true
+    },
+    {
+      "supporter_id": 21,
+      "display_name": "June Usman",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "PartnerReferral",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 2955.69,
+      "frequency": 7,
+      "recency": 2.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.17108144633144634,
+      "is_active": true
+    },
+    {
+      "supporter_id": 26,
+      "display_name": "Margo Zhang",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 7109.62,
+      "frequency": 12,
+      "recency": -54.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.16192424242424241,
+      "is_active": true
+    },
+    {
+      "supporter_id": 9,
+      "display_name": "Sophia Ibrahim",
+      "supporter_type": "Volunteer",
+      "acquisition_channel": "PartnerReferral",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 10315.75,
+      "frequency": 9,
+      "recency": -33.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.15818156843156841,
+      "is_active": true
+    },
+    {
+      "supporter_id": 3,
+      "display_name": "Noah Chen",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 12448.13,
+      "frequency": 16,
+      "recency": 110.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.15341666666666667,
+      "is_active": true
+    },
+    {
+      "supporter_id": 12,
+      "display_name": "Ella Lopez",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 5002.38,
+      "frequency": 7,
+      "recency": 80.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.13372863247863248,
+      "is_active": true
+    },
+    {
+      "supporter_id": 22,
+      "display_name": "Nico Vasquez",
+      "supporter_type": "SkillsContributor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 4326.73,
+      "frequency": 5,
+      "recency": -41.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.1275,
+      "is_active": true
+    },
+    {
+      "supporter_id": 24,
+      "display_name": "Sean Xu",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 4168.88,
+      "frequency": 9,
+      "recency": 79.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.12307442557442558,
+      "is_active": true
+    },
+    {
+      "supporter_id": 11,
+      "display_name": "Maya Kim",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 4395.62,
+      "frequency": 4,
+      "recency": 16.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.12288095238095237,
+      "is_active": true
+    },
+    {
+      "supporter_id": 18,
+      "display_name": "Theo Reed",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 3419.5799999999995,
+      "frequency": 5,
+      "recency": -19.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.11565259740259741,
+      "is_active": true
+    },
+    {
+      "supporter_id": 27,
+      "display_name": "Jules Abe",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 4653.04,
+      "frequency": 6,
+      "recency": -48.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.11160714285714286,
+      "is_active": true
+    },
+    {
+      "supporter_id": 25,
+      "display_name": "Tina Young",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "Church",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 11540.99,
+      "frequency": 17,
+      "recency": -44.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.10200000000000001,
+      "is_active": true
+    },
+    {
+      "supporter_id": 6,
+      "display_name": "Olivia Ford",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 9574.27,
+      "frequency": 9,
+      "recency": 39.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.1005952380952381,
+      "is_active": true
+    },
+    {
+      "supporter_id": 10,
+      "display_name": "Lucas Jones",
+      "supporter_type": "Volunteer",
+      "acquisition_channel": "Event",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 3458.54,
+      "frequency": 6,
+      "recency": 53.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.09917857142857142,
+      "is_active": true
+    },
+    {
+      "supporter_id": 31,
+      "display_name": "Jon Edwards",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "Website",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 10003.36,
+      "frequency": 20,
+      "recency": -41.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.0861025641025641,
+      "is_active": true
+    },
+    {
+      "supporter_id": 1,
+      "display_name": "Mila Alvarez",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 9000.029999999999,
+      "frequency": 12,
+      "recency": -49.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.07830006105006106,
+      "is_active": true
+    },
+    {
+      "supporter_id": 4,
+      "display_name": "Liam Diaz",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "Church",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 9934.619999999999,
+      "frequency": 11,
+      "recency": -59.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.071,
+      "is_active": true
+    },
+    {
+      "supporter_id": 44,
+      "display_name": "Vera Stone",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 6064.91,
+      "frequency": 7,
+      "recency": 15.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.06971212121212121,
+      "is_active": true
+    },
+    {
+      "supporter_id": 32,
+      "display_name": "Luz Fisher",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Event",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 5685.9,
+      "frequency": 8,
+      "recency": -17.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.05826767676767677,
+      "is_active": true
+    },
+    {
+      "supporter_id": 8,
+      "display_name": "Isla Hernandez",
+      "supporter_type": "InKindDonor",
+      "acquisition_channel": "Church",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 9064.84,
+      "frequency": 13,
+      "recency": 10.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.05760101010101011,
+      "is_active": true
+    },
+    {
+      "supporter_id": 38,
+      "display_name": "Faith Partners",
+      "supporter_type": "PartnerOrganization",
+      "acquisition_channel": "WordOfMouth",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 6792.7,
+      "frequency": 9,
+      "recency": -11.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.050256410256410255,
+      "is_active": true
+    },
+    {
+      "supporter_id": 7,
+      "display_name": "Ethan Garcia",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "Event",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 6003.96,
+      "frequency": 11,
+      "recency": 4.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.033673992673992674,
+      "is_active": true
+    },
+    {
+      "supporter_id": 45,
+      "display_name": "Noel Turner",
+      "supporter_type": "MonetaryDonor",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 11184.74,
+      "frequency": 11,
+      "recency": 35.0,
+      "pct_recurring": 1.0,
+      "churn_probability": 0.031619047619047616,
+      "is_active": true
+    },
+    {
+      "supporter_id": 35,
+      "display_name": "Jose Inoue",
+      "supporter_type": "SocialMediaAdvocate",
+      "acquisition_channel": "SocialMedia",
+      "status": "Active",
+      "is_churned": false,
+      "total_value": 8547.74,
+      "frequency": 10,
+      "recency": 11.0,
+      "pct_recurring": 0.0,
+      "churn_probability": 0.025555555555555554,
+      "is_active": true
+    }
+  ]
+}

@@ -1,0 +1,902 @@
+{
+  "generated_note": "Reintegration readiness \u2014 reintegration-readiness.ipynb",
+  "insights": {
+    "eyebrow": "CASE OUTLOOK SCORE \u00b7 POSITIVE PATH VS STRUGGLE",
+    "headline": "When a resident ends up on a positive path, the computer\u2019s \u201chope score\u201d averages 92%\u2014when they don\u2019t, it averages 32%. That is a 60\u2011point gap, which means the tool is not guessing randomly.",
+    "lede": "About 82% of residents in this export met our \u201cpositive trajectory\u201d definition. On held-back test cases, the outlook score separated residents who improved from those who struggled better than guessing (quality index 0.50 from 0\u20131, where 0.5 is random and 1.0 is a perfect ranking). The cards spell out that gap in plain English; the statistics below highlight factors that tend to travel with better or harder outcomes.",
+    "prediction_cards": [
+      {
+        "label": "Gap between \u201cdoing well\u201d and \u201cstill struggling\u201d",
+        "value": "+60 points",
+        "hint": "Average outlook score for residents who improved vs those who did not"
+      },
+      {
+        "label": "Strongest clue in the automated outlook score",
+        "value": "Change in health scores over time",
+        "hint": "The tool leaned on this measure most when deciding how hopeful to be"
+      },
+      {
+        "label": "Stability check on other slices of the data",
+        "value": "0.73",
+        "hint": "Same 0.5\u20131.0 quality scale, averaged when the data is split different ways so you know it is not a one-off fluke."
+      }
+    ],
+    "cause_cards": [
+      {
+        "title": "Tends to travel with better outcomes: Risk level when the case opened",
+        "body": "In a simple statistical read, higher values line up with a better path (strength +1.39). This is association, not proof that changing one thing fixes everything."
+      },
+      {
+        "title": "Tends to travel with harder outcomes: Average health check-in score",
+        "body": "The same style of model links this factor with a tougher path (strength -0.87). Use it as a prompt to look closer, not as a verdict."
+      },
+      {
+        "title": "How to use this screen",
+        "body": "Top sections = big picture from the computer and the statistics. Open the fold below when you need names, numbers, and rows to audit."
+      }
+    ],
+    "model_drivers": [
+      {
+        "feature": "Change in health scores over time",
+        "importance": 0.06906392600937061,
+        "share_top5_pct": 23
+      },
+      {
+        "feature": "latest health score",
+        "importance": 0.06305541798020205,
+        "share_top5_pct": 21
+      },
+      {
+        "feature": "Average health check-in score",
+        "importance": 0.05840191189045297,
+        "share_top5_pct": 19
+      },
+      {
+        "feature": "n completed courses",
+        "importance": 0.05781445364360731,
+        "share_top5_pct": 19
+      },
+      {
+        "feature": "avg nutrition",
+        "importance": 0.05718850813367081,
+        "share_top5_pct": 19
+      }
+    ],
+    "calls_to_action": [
+      "Resident 28: records still show a hard path, but the outlook score is 10% \u2014 schedule a human review.",
+      "Resident 51: records still show a hard path, but the outlook score is 15% \u2014 schedule a human review.",
+      "Resident 38: records still show a hard path, but the outlook score is 18% \u2014 schedule a human review."
+    ]
+  },
+  "portfolio": {
+    "n_residents": 60,
+    "positive_trajectory_rate": 0.8166666666666667,
+    "test_roc_auc_rf": 0.5,
+    "cv_by_model": {
+      "Logistic Regression": {
+        "ROC-AUC": 0.5711111111111112,
+        "F1": 0.8439766081871346,
+        "Accuracy": 0.75
+      },
+      "Random Forest": {
+        "ROC-AUC": 0.732037037037037,
+        "F1": 0.8969696969696969,
+        "Accuracy": 0.8166666666666668
+      }
+    }
+  },
+  "causal_ridge_logistic_coefficients": [
+    {
+      "feature": "initial_risk_num",
+      "coefficient": 1.3867434528948668
+    },
+    {
+      "feature": "avg_health_score",
+      "coefficient": -0.865391893205478
+    },
+    {
+      "feature": "has_special_needs",
+      "coefficient": 0.5521436233377376
+    },
+    {
+      "feature": "n_healing_sessions",
+      "coefficient": 0.4896392162941574
+    },
+    {
+      "feature": "pct_concerns_flagged",
+      "coefficient": -0.4263385392339143
+    },
+    {
+      "feature": "sub_cat_trafficked",
+      "coefficient": -0.4042706223987034
+    },
+    {
+      "feature": "sub_cat_sexual_abuse",
+      "coefficient": -0.38962056753311236
+    },
+    {
+      "feature": "n_incidents",
+      "coefficient": -0.33224656095078614
+    },
+    {
+      "feature": "health_trend",
+      "coefficient": -0.26560353181813307
+    },
+    {
+      "feature": "avg_session_duration",
+      "coefficient": 0.24112069112118714
+    },
+    {
+      "feature": "edu_trend",
+      "coefficient": 0.2239528531290373
+    },
+    {
+      "feature": "pct_progress_noted",
+      "coefficient": -0.19625142339294463
+    },
+    {
+      "feature": "n_high_severity",
+      "coefficient": -0.1493630193145397
+    },
+    {
+      "feature": "n_sessions",
+      "coefficient": -0.1360431475029958
+    },
+    {
+      "feature": "n_psych_checkups",
+      "coefficient": 0.075602403244449
+    },
+    {
+      "feature": "avg_emotion_shift",
+      "coefficient": -0.020842907036004815
+    },
+    {
+      "feature": "avg_progress_percent",
+      "coefficient": -0.012122013254150518
+    }
+  ],
+  "random_forest_importances": [
+    {
+      "feature": "health_trend",
+      "importance": 0.06906392600937061
+    },
+    {
+      "feature": "latest_health_score",
+      "importance": 0.06305541798020205
+    },
+    {
+      "feature": "avg_health_score",
+      "importance": 0.05840191189045297
+    },
+    {
+      "feature": "n_completed_courses",
+      "importance": 0.05781445364360731
+    },
+    {
+      "feature": "avg_nutrition",
+      "importance": 0.05718850813367081
+    },
+    {
+      "feature": "n_healing_sessions",
+      "importance": 0.04878395598020102
+    },
+    {
+      "feature": "avg_bmi",
+      "importance": 0.04579357648200812
+    },
+    {
+      "feature": "n_caring_sessions",
+      "importance": 0.045595015853890405
+    },
+    {
+      "feature": "avg_sleep",
+      "importance": 0.042592787955466706
+    },
+    {
+      "feature": "n_sessions",
+      "importance": 0.04170137308682777
+    },
+    {
+      "feature": "pct_concerns_flagged",
+      "importance": 0.04078842868744171
+    },
+    {
+      "feature": "n_legal_sessions",
+      "importance": 0.038589652417965616
+    },
+    {
+      "feature": "n_medical_checkups",
+      "importance": 0.03236883234709451
+    },
+    {
+      "feature": "avg_session_duration",
+      "importance": 0.03012581058522529
+    },
+    {
+      "feature": "avg_attendance_rate",
+      "importance": 0.02448778351233656
+    },
+    {
+      "feature": "pct_referral_made",
+      "importance": 0.024403237736305452
+    },
+    {
+      "feature": "n_teaching_sessions",
+      "importance": 0.022116707866897303
+    },
+    {
+      "feature": "avg_emotion_shift",
+      "importance": 0.021857027674233222
+    },
+    {
+      "feature": "avg_energy",
+      "importance": 0.020283112923292136
+    },
+    {
+      "feature": "edu_trend",
+      "importance": 0.01979287920645927
+    }
+  ],
+  "residents": [
+    {
+      "resident_id": 11,
+      "case_control_no": "C5929",
+      "case_category": "Surrendered",
+      "case_status": "Closed",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 1.0
+    },
+    {
+      "resident_id": 30,
+      "case_control_no": "C6888",
+      "case_category": "Abandoned",
+      "case_status": "Transferred",
+      "initial_risk_level": "Critical",
+      "initial_risk_rank": 4,
+      "current_risk_level": "Critical",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.99
+    },
+    {
+      "resident_id": 22,
+      "case_control_no": "C6533",
+      "case_category": "Abandoned",
+      "case_status": "Transferred",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.99
+    },
+    {
+      "resident_id": 19,
+      "case_control_no": "C6002",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.98
+    },
+    {
+      "resident_id": 10,
+      "case_control_no": "C1817",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.98
+    },
+    {
+      "resident_id": 12,
+      "case_control_no": "C5767",
+      "case_category": "Abandoned",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "High",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.98
+    },
+    {
+      "resident_id": 21,
+      "case_control_no": "C9025",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.97
+    },
+    {
+      "resident_id": 14,
+      "case_control_no": "C8844",
+      "case_category": "Foundling",
+      "case_status": "Active",
+      "initial_risk_level": "Critical",
+      "initial_risk_rank": 4,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.97
+    },
+    {
+      "resident_id": 6,
+      "case_control_no": "C7286",
+      "case_category": "Foundling",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.97
+    },
+    {
+      "resident_id": 18,
+      "case_control_no": "C6335",
+      "case_category": "Neglected",
+      "case_status": "Closed",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 58,
+      "case_control_no": "C5053",
+      "case_category": "Abandoned",
+      "case_status": "Closed",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 23,
+      "case_control_no": "C5996",
+      "case_category": "Foundling",
+      "case_status": "Closed",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 53,
+      "case_control_no": "C3067",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 4,
+      "case_control_no": "C3116",
+      "case_category": "Neglected",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 41,
+      "case_control_no": "C3233",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "High",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 29,
+      "case_control_no": "C1839",
+      "case_category": "Abandoned",
+      "case_status": "Transferred",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 9,
+      "case_control_no": "C3706",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.96
+    },
+    {
+      "resident_id": 54,
+      "case_control_no": "C2616",
+      "case_category": "Neglected",
+      "case_status": "Transferred",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 17,
+      "case_control_no": "C3951",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Critical",
+      "initial_risk_rank": 4,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 32,
+      "case_control_no": "C3013",
+      "case_category": "Foundling",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 27,
+      "case_control_no": "C6505",
+      "case_category": "Neglected",
+      "case_status": "Transferred",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 33,
+      "case_control_no": "C9903",
+      "case_category": "Foundling",
+      "case_status": "Transferred",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 59,
+      "case_control_no": "C7358",
+      "case_category": "Neglected",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 5,
+      "case_control_no": "C9132",
+      "case_category": "Surrendered",
+      "case_status": "Transferred",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 45,
+      "case_control_no": "C0794",
+      "case_category": "Abandoned",
+      "case_status": "Transferred",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.95
+    },
+    {
+      "resident_id": 52,
+      "case_control_no": "C5829",
+      "case_category": "Abandoned",
+      "case_status": "Closed",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.94
+    },
+    {
+      "resident_id": 31,
+      "case_control_no": "C0798",
+      "case_category": "Abandoned",
+      "case_status": "Closed",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.94
+    },
+    {
+      "resident_id": 25,
+      "case_control_no": "C5141",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "High",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.94
+    },
+    {
+      "resident_id": 16,
+      "case_control_no": "C3534",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.94
+    },
+    {
+      "resident_id": 3,
+      "case_control_no": "C3946",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.94
+    },
+    {
+      "resident_id": 35,
+      "case_control_no": "C7521",
+      "case_category": "Surrendered",
+      "case_status": "Transferred",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.93
+    },
+    {
+      "resident_id": 37,
+      "case_control_no": "C5189",
+      "case_category": "Foundling",
+      "case_status": "Closed",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.93
+    },
+    {
+      "resident_id": 26,
+      "case_control_no": "C3506",
+      "case_category": "Abandoned",
+      "case_status": "Closed",
+      "initial_risk_level": "Critical",
+      "initial_risk_rank": 4,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.92
+    },
+    {
+      "resident_id": 55,
+      "case_control_no": "C2908",
+      "case_category": "Abandoned",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.92
+    },
+    {
+      "resident_id": 36,
+      "case_control_no": "C6526",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.92
+    },
+    {
+      "resident_id": 49,
+      "case_control_no": "C0909",
+      "case_category": "Abandoned",
+      "case_status": "Active",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.91
+    },
+    {
+      "resident_id": 13,
+      "case_control_no": "C9796",
+      "case_category": "Surrendered",
+      "case_status": "Closed",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.91
+    },
+    {
+      "resident_id": 43,
+      "case_control_no": "C7232",
+      "case_category": "Neglected",
+      "case_status": "Closed",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.91
+    },
+    {
+      "resident_id": 60,
+      "case_control_no": "C4328",
+      "case_category": "Abandoned",
+      "case_status": "Transferred",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.89
+    },
+    {
+      "resident_id": 20,
+      "case_control_no": "C2853",
+      "case_category": "Neglected",
+      "case_status": "Closed",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.89
+    },
+    {
+      "resident_id": 34,
+      "case_control_no": "C8001",
+      "case_category": "Abandoned",
+      "case_status": "Closed",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.89
+    },
+    {
+      "resident_id": 7,
+      "case_control_no": "C6898",
+      "case_category": "Foundling",
+      "case_status": "Active",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.88
+    },
+    {
+      "resident_id": 46,
+      "case_control_no": "C3752",
+      "case_category": "Foundling",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.88
+    },
+    {
+      "resident_id": 2,
+      "case_control_no": "C2530",
+      "case_category": "Surrendered",
+      "case_status": "Closed",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.87
+    },
+    {
+      "resident_id": 56,
+      "case_control_no": "C3620",
+      "case_category": "Surrendered",
+      "case_status": "Closed",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.85
+    },
+    {
+      "resident_id": 1,
+      "case_control_no": "C0043",
+      "case_category": "Neglected",
+      "case_status": "Active",
+      "initial_risk_level": "Critical",
+      "initial_risk_rank": 4,
+      "current_risk_level": "High",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.84
+    },
+    {
+      "resident_id": 47,
+      "case_control_no": "C4943",
+      "case_category": "Abandoned",
+      "case_status": "Closed",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.83
+    },
+    {
+      "resident_id": 24,
+      "case_control_no": "C5428",
+      "case_category": "Foundling",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.78
+    },
+    {
+      "resident_id": 50,
+      "case_control_no": "C7484",
+      "case_category": "Neglected",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.77
+    },
+    {
+      "resident_id": 44,
+      "case_control_no": "C2175",
+      "case_category": "Foundling",
+      "case_status": "Closed",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": true,
+      "trajectory_probability": 0.63
+    },
+    {
+      "resident_id": 40,
+      "case_control_no": "C7587",
+      "case_category": "Abandoned",
+      "case_status": "Active",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.53
+    },
+    {
+      "resident_id": 57,
+      "case_control_no": "C4279",
+      "case_category": "Abandoned",
+      "case_status": "Active",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.35
+    },
+    {
+      "resident_id": 42,
+      "case_control_no": "C8805",
+      "case_category": "Abandoned",
+      "case_status": "Active",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.31
+    },
+    {
+      "resident_id": 48,
+      "case_control_no": "C6402",
+      "case_category": "Surrendered",
+      "case_status": "Active",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.29
+    },
+    {
+      "resident_id": 8,
+      "case_control_no": "C3744",
+      "case_category": "Foundling",
+      "case_status": "Active",
+      "initial_risk_level": "High",
+      "initial_risk_rank": 3,
+      "current_risk_level": "High",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.29
+    },
+    {
+      "resident_id": 15,
+      "case_control_no": "C0855",
+      "case_category": "Surrendered",
+      "case_status": "Transferred",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.22
+    },
+    {
+      "resident_id": 39,
+      "case_control_no": "C2281",
+      "case_category": "Surrendered",
+      "case_status": "Closed",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.19
+    },
+    {
+      "resident_id": 38,
+      "case_control_no": "C3204",
+      "case_category": "Neglected",
+      "case_status": "Active",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.18
+    },
+    {
+      "resident_id": 51,
+      "case_control_no": "C6103",
+      "case_category": "Surrendered",
+      "case_status": "Closed",
+      "initial_risk_level": "Low",
+      "initial_risk_rank": 1,
+      "current_risk_level": "Low",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.15
+    },
+    {
+      "resident_id": 28,
+      "case_control_no": "C5401",
+      "case_category": "Abandoned",
+      "case_status": "Closed",
+      "initial_risk_level": "Medium",
+      "initial_risk_rank": 2,
+      "current_risk_level": "Medium",
+      "positive_trajectory_actual": false,
+      "trajectory_probability": 0.1
+    }
+  ]
+}
