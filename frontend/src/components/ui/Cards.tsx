@@ -22,11 +22,13 @@ export function MetricCard({
 
 export function SectionCard({
   title,
+  titleId,
   subtitle,
   actions,
   children,
 }: {
   title: string;
+  titleId?: string;
   subtitle?: string;
   actions?: ReactNode;
   children: ReactNode;
@@ -35,7 +37,7 @@ export function SectionCard({
     <section className="section-card">
       <div className="section-card-header">
         <div>
-          <h2>{title}</h2>
+          <h2 id={titleId}>{title}</h2>
           {subtitle ? <p>{subtitle}</p> : null}
         </div>
         {actions ? <div className="section-card-actions">{actions}</div> : null}

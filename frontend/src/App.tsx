@@ -10,6 +10,7 @@ import { DonorHistoryPage } from './pages/portal/DonorHistoryPage';
 import { HomeVisitationsPage } from './pages/portal/HomeVisitationsPage';
 import { ProcessRecordingPage } from './pages/portal/ProcessRecordingPage';
 import { ReportsAnalyticsPage } from './pages/portal/ReportsAnalyticsPage';
+import { DonatePage } from './pages/public/DonatePage';
 import { HomePage } from './pages/public/HomePage';
 import { ImpactDashboardPage } from './pages/public/ImpactDashboardPage';
 import { LoginPage } from './pages/public/LoginPage';
@@ -34,6 +35,7 @@ function App() {
         <Route path="/" element={<AppShell />}>
           <Route index element={<HomePage />} />
           <Route path="impact" element={<ImpactDashboardPage />} />
+          <Route path="donate" element={<DonatePage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="privacy" element={<PrivacyPolicyPage />} />
 
