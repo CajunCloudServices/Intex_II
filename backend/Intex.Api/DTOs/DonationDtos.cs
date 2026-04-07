@@ -47,3 +47,33 @@ public record DonationResponse(
     string? CampaignName,
     string? Notes,
     List<DonationAllocationResponse> Allocations);
+
+public record DonorImpactSummaryResponse(
+    decimal TotalDonated,
+    int DonationCount,
+    int RecurringDonationCount,
+    decimal AverageDonationAmount);
+
+public record DonorAllocationBreakdownItemResponse(
+    int SafehouseId,
+    string SafehouseName,
+    string ProgramArea,
+    decimal TotalAllocated,
+    int AllocationCount,
+    decimal SharePercent);
+
+public record DonorAllocationBreakdownResponse(
+    decimal TotalAllocated,
+    IReadOnlyList<DonorAllocationBreakdownItemResponse> Items);
+
+public record DonationImpactPredictionOutcomeResponse(
+    string ProgramArea,
+    decimal AllocatedAmount,
+    string OutcomeUnit,
+    decimal UnitCost,
+    decimal EstimatedUnits);
+
+public record DonationImpactPredictionResponse(
+    decimal Amount,
+    IReadOnlyList<DonationImpactPredictionOutcomeResponse> Outcomes,
+    string Assumptions);

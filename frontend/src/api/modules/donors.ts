@@ -1,7 +1,10 @@
 import { apiRequest } from '../client';
 import type {
   Donation,
+  DonationImpactPrediction,
   DonationRequest,
+  DonorAllocationBreakdown,
+  DonorImpactSummary,
   Supporter,
   SupporterRequest,
 } from '../types';
@@ -59,6 +62,21 @@ export const donorApi = {
 
   donorHistory: (token: string) =>
     apiRequest<Donation[]>('/donations/my-history', {
+      token,
+    }),
+
+  donorImpactSummary: (token: string) =>
+    apiRequest<DonorImpactSummary>('/donations/my-impact-summary', {
+      token,
+    }),
+
+  donorAllocationBreakdown: (token: string) =>
+    apiRequest<DonorAllocationBreakdown>('/donations/my-allocation-breakdown', {
+      token,
+    }),
+
+  donorImpactPrediction: (token: string, amount: number) =>
+    apiRequest<DonationImpactPrediction>(`/donations/predict-impact?amount=${encodeURIComponent(String(amount))}`, {
       token,
     }),
 };

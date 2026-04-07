@@ -23,6 +23,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<MlInferenceOptions>(builder.Configuration.GetSection(MlInferenceOptions.SectionName));
 builder.Services.Configure<SeedOptions>(builder.Configuration.GetSection(SeedOptions.SectionName));
+builder.Services.Configure<DonationImpactOptions>(builder.Configuration.GetSection(DonationImpactOptions.SectionName));
 
 // The API can run against Postgres for normal app usage or an in-memory database for tests
 // and quick local verification. Keeping that choice in one place makes the rest of the app

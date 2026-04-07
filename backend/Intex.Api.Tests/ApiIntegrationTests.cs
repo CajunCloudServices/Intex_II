@@ -185,6 +185,71 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task DonorImpactSummary_IsScopedToAuthenticatedDonor()
+    {
+        await LoginAsDonorAsync();
+        var donor1SummaryResponse = await _client.GetAsync("/api/donations/my-impact-summary");
+        Assert.True(donor1SummaryResponse.IsSuccessStatusCode, await donor1SummaryResponse.Content.ReadAsStringAsync());
+        var donor1Summary = await donor1SummaryResponse.Content.ReadFromJsonAsync<DonorImpactSummaryResponse>();
+        var donor1HistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        var donor1History = await donor1HistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(donor1Summary);
+        Assert.NotNull(donor1History);
+
+        await LoginAsDonor2Async();
+        var donor2SummaryResponse = await _client.GetAsync("/api/donations/my-impact-summary");
+        Assert.True(donor2SummaryResponse.IsSuccessStatusCode, await donor2SummaryResponse.Content.ReadAsStringAsync());
+        var donor2Summary = await donor2SummaryResponse.Content.ReadFromJsonAsync<DonorImpactSummaryResponse>();
+        var donor2HistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        var donor2History = await donor2HistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(donor2Summary);
+        Assert.NotNull(donor2History);
+
+        var donor1TotalFromHistory = donor1History!.Sum(d => d.Amount ?? d.EstimatedValue);
+        var donor2TotalFromHistory = donor2History!.Sum(d => d.Amount ?? d.EstimatedValue);
+
+        Assert.Equal(donor1TotalFromHistory, donor1Summary!.TotalDonated);
+        Assert.Equal(donor2TotalFromHistory, donor2Summary!.TotalDonated);
+        Assert.Equal(donor1History.Count, donor1Summary.DonationCount);
+        Assert.Equal(donor2History.Count, donor2Summary.DonationCount);
+    }
+
+    [Fact]
+    public async Task DonorImpactPrediction_ReturnsDeterministicOutcomeRows()
+    {
+        await LoginAsDonorAsync();
+
+        var response = await _client.GetAsync("/api/donations/predict-impact?amount=5000");
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var payload = await response.Content.ReadFromJsonAsync<DonationImpactPredictionResponse>();
+        Assert.NotNull(payload);
+        Assert.Equal(5000m, payload!.Amount);
+        Assert.NotEmpty(payload.Outcomes);
+        Assert.All(payload.Outcomes, outcome =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(outcome.ProgramArea));
+            Assert.True(outcome.AllocatedAmount >= 0);
+            Assert.True(outcome.UnitCost > 0);
+            Assert.True(outcome.EstimatedUnits >= 0);
+        });
+        Assert.False(string.IsNullOrWhiteSpace(payload.Assumptions));
+    }
+
+    [Fact]
+    public async Task StaffCannotAccessDonorOnlyImpactEndpoints()
+    {
+        await LoginAsStaffAsync();
+
+        var summary = await _client.GetAsync("/api/donations/my-impact-summary");
+        var breakdown = await _client.GetAsync("/api/donations/my-allocation-breakdown");
+        var prediction = await _client.GetAsync("/api/donations/predict-impact?amount=1000");
+
+        Assert.Equal(HttpStatusCode.Forbidden, summary.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, breakdown.StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, prediction.StatusCode);
+    }
+
+    [Fact]
     public async Task DonorCannotSeeOtherDonorsHistory()
     {
         // donor2@intex.local has one distinct donation (SupporterId = donor2's supporter row).

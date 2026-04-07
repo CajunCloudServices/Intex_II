@@ -3,7 +3,7 @@ import { api } from '../../api';
 import type { PublicImpactSnapshot } from '../../api/types';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
-import { formatDate } from '../../lib/format';
+import { formatDate, formatMoney } from '../../lib/format';
 import impactOverviewImage from '../../assets/generated/impact-overview.webp';
 
 export function ImpactDashboardPage() {
@@ -33,6 +33,19 @@ export function ImpactDashboardPage() {
 
   const latest = snapshots[0];
   const selectedSnapshot = snapshots[selectedIndex] ?? latest;
+  const recentWins = snapshots.slice(0, 3);
+
+  const donationTrend = snapshots
+    .map((snapshot) => {
+      const metric = snapshot.metrics.find((item) => item.label.toLowerCase().includes('donation'));
+      const value = Number((metric?.value ?? '0').replace(/[^\d.]/g, ''));
+      return {
+        label: formatDate(snapshot.snapshotDate),
+        value: Number.isFinite(value) ? value : 0,
+      };
+    })
+    .reverse();
+  const maxDonationTrend = Math.max(...donationTrend.map((point) => point.value), 1);
 
   return (
     <div className="page-shell">
@@ -90,6 +103,33 @@ export function ImpactDashboardPage() {
               />
             ))}
           </section>
+
+          <SectionCard title="Recent wins" subtitle="Latest published OKR highlights">
+            <div className="chart-list">
+              {recentWins.map((snapshot) => (
+                <div key={snapshot.id}>
+                  <p style={{ margin: 0, fontWeight: 700 }}>{snapshot.headline}</p>
+                  <p className="muted-inline" style={{ margin: '0.25rem 0 0.75rem' }}>
+                    {formatDate(snapshot.snapshotDate)} - {snapshot.summaryText}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
+
+          <SectionCard title="Monthly donations trend" subtitle="High-level OKR momentum from published impact snapshots">
+            <div className="chart-list">
+              {donationTrend.map((point) => (
+                <div className="chart-row" key={point.label}>
+                  <span>{point.label}</span>
+                  <div className="chart-bar">
+                    <div style={{ width: `${Math.max((point.value / maxDonationTrend) * 100, 8)}%` }} />
+                  </div>
+                  <strong>{formatMoney(point.value)}</strong>
+                </div>
+              ))}
+            </div>
+          </SectionCard>
 
           <SectionCard title={selectedSnapshot.headline} subtitle={formatDate(selectedSnapshot.snapshotDate)}>
             <p>{selectedSnapshot.summaryText}</p>
