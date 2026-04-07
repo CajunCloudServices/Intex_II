@@ -1,5 +1,5 @@
 using System.Text;
-using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Intex.Api;
 
@@ -13,12 +13,13 @@ sealed class GoogleTokenRedirectUriHandler(string publicCallbackUri) : Delegatin
             request.RequestUri.AbsoluteUri.Contains("googleapis.com/token", StringComparison.OrdinalIgnoreCase))
         {
             var payload = await request.Content.ReadAsStringAsync(cancellationToken);
-            payload = Regex.Replace(
-                payload,
-                @"redirect_uri=[^&]+",
-                $"redirect_uri={Uri.EscapeDataString(publicCallbackUri)}");
+            var parameters = QueryHelpers.ParseQuery($"?{payload}")
+                .ToDictionary(
+                    pair => pair.Key,
+                    pair => pair.Key == "redirect_uri" ? publicCallbackUri : pair.Value.ToString(),
+                    StringComparer.Ordinal);
 
-            request.Content = new StringContent(payload, Encoding.UTF8, "application/x-www-form-urlencoded");
+            request.Content = new FormUrlEncodedContent(parameters);
         }
 
         return await base.SendAsync(request, cancellationToken);
