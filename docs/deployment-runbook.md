@@ -1,6 +1,6 @@
 # Deployment Runbook
 
-This document describes the current production deployment shape used by HarborLight Nexus.
+This document describes the current production deployment shape used by Tanglaw Project.
 
 ## Current Shape
 

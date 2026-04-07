@@ -8,7 +8,7 @@ export function PrivacyPolicyPage() {
           <div>
             <span className="eyebrow">Privacy</span>
             <h1>Privacy policy</h1>
-            <p>How HarborLight Nexus collects, uses, and safeguards supporter, staff, and resident-related information.</p>
+            <p>How Tanglaw Project collects, uses, and safeguards supporter, staff, and resident-related information.</p>
           </div>
         </div>
 
@@ -21,7 +21,7 @@ export function PrivacyPolicyPage() {
         </figure>
 
         <p>
-          HarborLight Nexus processes supporter, donation, resident-care, and outreach data to operate nonprofit services,
+          Tanglaw Project processes supporter, donation, resident-care, and outreach data to operate nonprofit services,
           communicate impact, and manage internal case workflows. We collect only the information needed to provide safe services,
           administer donations, and maintain secure internal records.
         </p>
@@ -54,14 +54,14 @@ export function PrivacyPolicyPage() {
 
         <h2>Cookies, browser storage, and portal sessions</h2>
         <p>
-          The site stores a consent preference in a browser-accessible cookie. If you accept optional settings, HarborLight Nexus may also store a
+          The site stores a consent preference in a browser-accessible cookie. If you accept optional settings, Tanglaw Project may also store a
           browser-accessible theme preference cookie so React can remember your display choice. For authenticated users, the current application also stores
           a session token in browser storage to keep the portal signed in. These values support site operation and are not used for third-party ad tracking.
         </p>
 
         <h2>Public reporting and resident privacy</h2>
         <p>
-          HarborLight Nexus publishes anonymized impact snapshots to help donors understand how resources are used. These
+          Tanglaw Project publishes anonymized impact snapshots to help donors understand how resources are used. These
           summaries are designed to protect the privacy and safety of minors, survivors, staff, and partner organizations.
         </p>
 

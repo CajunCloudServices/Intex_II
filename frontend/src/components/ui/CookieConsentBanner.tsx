@@ -17,7 +17,7 @@ export function CookieConsentBanner() {
       <div>
         <strong>Cookie settings</strong>
         <p>
-          This notice is functional, not cosmetic. HarborLight Nexus always stores the minimum browser data needed to keep the secure portal signed in, and
+          This notice is functional, not cosmetic. Tanglaw Project always stores the minimum browser data needed to keep the secure portal signed in, and
           it can optionally store a browser-accessible theme preference cookie if you accept non-essential settings.
         </p>
       </div>

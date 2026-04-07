@@ -1,6 +1,6 @@
 # Auth And Session Model
 
-This is the maintainer-facing summary of how authentication works in HarborLight Nexus.
+This is the maintainer-facing summary of how authentication works in Tanglaw Project.
 
 ## Backend Auth Model
 
@@ -26,7 +26,7 @@ This is intentionally simple and readable for the student team. It is not preten
 - Google sign-in is optional and backend-configured
 - the login page calls `GET /api/auth/providers`
 - the button only appears if the backend reports `googleEnabled: true`
-- current behavior links a Google identity only to an existing HarborLight account matched by email
+- current behavior links a Google identity only to an existing Tanglaw Project account matched by email
 - this avoids accidental self-provisioning that would bypass the app's role-assignment flow
 
 ## Important Files

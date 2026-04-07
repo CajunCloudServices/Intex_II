@@ -162,7 +162,7 @@ public class AuthController(
                 await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
                 return Redirect(BuildFrontendGoogleCallbackUrl(
                     returnUrl,
-                    error: "No existing HarborLight account matches this Google email. Sign in with email and password first or ask an administrator to provision the account."));
+                    error: "No existing Tanglaw Project account matches this Google email. Sign in with email and password first or ask an administrator to provision the account."));
             }
 
             var addLoginResult = await userManager.AddLoginAsync(

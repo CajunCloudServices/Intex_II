@@ -1,4 +1,4 @@
-name: Deploy HarborLight Nexus
+name: Deploy Tanglaw Project
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: harborlight-prod-deploy
+  group: tanglaw-project-prod-deploy
   cancel-in-progress: false
 
 jobs:

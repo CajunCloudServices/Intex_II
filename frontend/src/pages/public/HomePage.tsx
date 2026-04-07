@@ -9,7 +9,7 @@ export function HomePage() {
     <div className="page-shell home-landing">
       <section className="hero hero--home" aria-labelledby="hero-heading">
         <div className="hero-copy">
-          <span className="eyebrow">HarborLight Sanctuary</span>
+          <span className="eyebrow">Tanglaw Project</span>
           <h1 id="hero-heading">Providing safe homes and healing for survivors</h1>
           <p>
             We support girls escaping abuse and trafficking by offering safety, compassionate care, and a path
@@ -87,7 +87,7 @@ export function HomePage() {
           subtitle="Recovery is supported by routine, safety, and room to breathe"
         >
           <p>
-            HarborLight homes are designed to feel calm and lived in. Residents move between counseling,
+            Tanglaw Project homes are designed to feel calm and lived in. Residents move between counseling,
             study time, meals, and quiet rest in spaces that emphasize stability rather than crisis.
           </p>
           <p>
@@ -139,7 +139,7 @@ export function HomePage() {
           subtitle="Care includes the ordinary moments that make a place feel safe"
         >
           <p>
-            Shared meals, evening routines, and supportive check-ins are part of how HarborLight creates a sense
+            Shared meals, evening routines, and supportive check-ins are part of how Tanglaw Project creates a sense
             of home. Recovery is not just clinical care. It is also consistency, warmth, and the ability to
             participate in daily life without fear.
           </p>
@@ -198,11 +198,11 @@ export function HomePage() {
       <div id="about" className="home-section" role="region" aria-labelledby="about-heading">
         <SectionCard
           titleId="about-heading"
-          title="About HarborLight"
+          title="About Tanglaw Project"
           subtitle="People, place, and how we work"
         >
           <p>
-            HarborLight Sanctuary is led by a nonprofit board and an experienced program director. We operate
+            Tanglaw Project is led by a nonprofit board and an experienced program director. We operate
             primarily in the Mountain West and partner with licensed therapists, schools, and local agencies so
             care stays coordinated and accountable.
           </p>
@@ -212,7 +212,7 @@ export function HomePage() {
           </p>
           <p className="home-muted">
             <Link to="/impact">View the public impact dashboard</Link> for recent snapshots, or{' '}
-            <a href="mailto:hello@harborlight.example.org">contact us</a> to learn about partnership opportunities.
+            <a href="mailto:hello@tanglawproject.example.org">contact us</a> to learn about partnership opportunities.
           </p>
         </SectionCard>
       </div>

@@ -692,7 +692,7 @@ public class AppSeeder(
                 PostType = "EventPromo",
                 MediaType = "Photo",
                 Caption = "Join us for our February fundraising evening.",
-                Hashtags = "#HarborLightEvent,#HopeForGirls",
+                Hashtags = "#TanglawProjectEvent,#HopeForGirls",
                 HasCallToAction = true,
                 CallToActionType = "RegisterNow",
                 ContentTopic = "Events",

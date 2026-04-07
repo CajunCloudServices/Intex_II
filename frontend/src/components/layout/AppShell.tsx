@@ -73,7 +73,7 @@ export function AppShell() {
       <header className="topbar">
         <div className="topbar-inner">
           <div className="header-stack">
-            <div className="brand-mark">HarborLight Nexus</div>
+            <div className="brand-mark">Tanglaw Project</div>
             <div className="brand-subtitle">Safe housing &amp; healing for young survivors</div>
           </div>
 
@@ -188,7 +188,7 @@ export function AppShell() {
       <footer className="site-footer" role="contentinfo">
         <div className="site-footer-inner">
           <div className="site-footer-brand">
-            <div className="brand-mark">HarborLight Nexus</div>
+            <div className="brand-mark">Tanglaw Project</div>
             <p className="site-footer-tagline">A refuge-inspired nonprofit program for survivors.</p>
           </div>
           <div className="site-footer-grid">
@@ -204,7 +204,7 @@ export function AppShell() {
             <div className="site-footer-meta">
               <p>
                 <span className="site-footer-label">Contact:</span>{' '}
-                <a href="mailto:hello@harborlight.example.org">hello@harborlight.example.org</a>
+                <a href="mailto:hello@tanglawproject.example.org">hello@tanglawproject.example.org</a>
               </p>
               <p className="site-footer-note">For partnership inquiries, safeguarding questions, or donor support.</p>
             </div>

@@ -1,4 +1,4 @@
-# HarborLight Nexus
+# Tanglaw Project
 
 Production-minded INTEX architecture for a nonprofit operations platform covering donors, resident/case management, outreach analytics, and security/privacy controls.
 
@@ -274,7 +274,7 @@ The app is now wired for Google sign-in through the backend. Google sign-in is o
 
 Important behavior:
 
-- Google sign-in is for existing HarborLight accounts only.
+- Google sign-in is for existing Tanglaw Project accounts only.
 - If a Google email matches an existing local account, the Google login is linked to that account.
 - If no existing local account matches, sign-in is rejected instead of silently creating a new user.
 

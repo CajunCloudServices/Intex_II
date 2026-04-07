@@ -1,6 +1,6 @@
-# HarborLight Nexus Frontend
+# Tanglaw Project Frontend
 
-This is the React + TypeScript + Vite client for HarborLight Nexus. It is intentionally simple, readable, and easy to extend.
+This is the React + TypeScript + Vite client for Tanglaw Project. It is intentionally simple, readable, and easy to extend.
 
 ## What This Frontend Does
 
