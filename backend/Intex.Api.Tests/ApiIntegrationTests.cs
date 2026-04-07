@@ -70,6 +70,66 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task DashboardSummary_ReturnsUpcomingCaseConferencesAndProgressSummary()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.GetAsync("/api/dashboard/summary");
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var summary = await response.Content.ReadFromJsonAsync<DashboardSummaryResponse>();
+
+        Assert.NotNull(summary);
+        Assert.NotNull(summary!.UpcomingCaseConferences);
+        Assert.NotEmpty(summary.UpcomingCaseConferences);
+        Assert.True(summary.ProgressSummary.ProgressNoted >= 0);
+    }
+
+    [Fact]
+    public async Task AdminCanCreateAndDeleteCaseConference()
+    {
+        await LoginAsAdminAsync();
+
+        var createResponse = await _client.PostAsJsonAsync("/api/case-conferences", new
+        {
+            residentId = 1,
+            conferenceDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(7)),
+            leadWorker = "Smoke Worker",
+            attendees = "Smoke Worker, supervisor",
+            purpose = "Smoke test conference",
+            decisionsMade = "Review conference handling",
+            followUpActions = "Verify conference CRUD",
+            nextReviewDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(14)),
+            status = "Scheduled"
+        });
+
+        Assert.True(createResponse.IsSuccessStatusCode, await createResponse.Content.ReadAsStringAsync());
+        var created = await createResponse.Content.ReadFromJsonAsync<CaseConferenceResponse>();
+        Assert.NotNull(created);
+
+        var deleteResponse = await _client.DeleteAsync($"/api/case-conferences/{created!.Id}?confirm=true");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task ReportsEndpoints_ReturnNonEmptyPayloads()
+    {
+        await LoginAsAdminAsync();
+
+        var donationTrends = await _client.GetAsync("/api/reports/donation-trends");
+        var residentOutcomes = await _client.GetAsync("/api/reports/resident-outcomes");
+        var safehousePerformance = await _client.GetAsync("/api/reports/safehouse-performance");
+        var reintegration = await _client.GetAsync("/api/reports/reintegration-summary");
+        var outreach = await _client.GetAsync("/api/reports/outreach-performance");
+
+        Assert.True(donationTrends.IsSuccessStatusCode, await donationTrends.Content.ReadAsStringAsync());
+        Assert.True(residentOutcomes.IsSuccessStatusCode, await residentOutcomes.Content.ReadAsStringAsync());
+        Assert.True(safehousePerformance.IsSuccessStatusCode, await safehousePerformance.Content.ReadAsStringAsync());
+        Assert.True(reintegration.IsSuccessStatusCode, await reintegration.Content.ReadAsStringAsync());
+        Assert.True(outreach.IsSuccessStatusCode, await outreach.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
     public async Task DonorCannotOpenStaffPortalEndpoints()
     {
         await LoginAsDonorAsync();

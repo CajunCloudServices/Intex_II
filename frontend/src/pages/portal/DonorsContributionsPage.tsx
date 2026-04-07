@@ -234,7 +234,7 @@ export function DonorsContributionsPage() {
         <div>
           <span className="eyebrow">Fundraising operations</span>
           <h1>Donors & contributions</h1>
-          <p>Manage supporters, contribution entries, and the primary safehouse allocation from one screen.</p>
+          <p>Manage supporters, all contribution types, and donation allocations across safehouses and program areas.</p>
         </div>
       </div>
 
@@ -323,13 +323,14 @@ export function DonorsContributionsPage() {
               )}
             </SectionCard>
 
-            <DetailPanel title={selectedSupporter?.displayName ?? 'Supporter details'} subtitle="Use the table actions to inspect or edit a specific record.">
+            <DetailPanel title={selectedSupporter?.displayName ?? 'Supporter details'} subtitle="Review the supporter profile, relationship status, and overall giving history.">
               {selectedSupporter ? (
                 <DetailList
                   items={[
                     { label: 'Type', value: selectedSupporter.supporterType },
                     { label: 'Email', value: selectedSupporter.email },
                     { label: 'Region', value: `${selectedSupporter.region}, ${selectedSupporter.country}` },
+                    { label: 'Acquisition channel', value: selectedSupporter.acquisitionChannel },
                     { label: 'Status', value: selectedSupporter.status },
                     { label: 'Donations', value: `${selectedSupporter.donationCount} records` },
                     { label: 'Lifetime giving', value: formatMoney(selectedSupporter.lifetimeGiving) },
@@ -372,7 +373,7 @@ export function DonorsContributionsPage() {
           ) : null}
 
           <section className="page-grid two dashboard-split">
-            <SectionCard title="Donations" subtitle="Each row includes the main allocation your team can expand later.">
+            <SectionCard title="Donations" subtitle="Review monetary, in-kind, time, skills, and advocacy contributions along with their allocations.">
               {filteredDonations.length === 0 ? (
                 <EmptyState title="No matching donations" message="Try a different search term." />
               ) : (
@@ -428,7 +429,7 @@ export function DonorsContributionsPage() {
               )}
             </SectionCard>
 
-            <DetailPanel title={selectedDonation ? `${selectedDonation.supporterName} donation` : 'Donation details'} subtitle="Select a donation row to inspect the full contribution.">
+            <DetailPanel title={selectedDonation ? `${selectedDonation.supporterName} donation` : 'Donation details'} subtitle="Inspect the contribution type, campaign context, and how the gift was allocated across the program.">
               {selectedDonation ? (
                 <DetailList
                   items={[
@@ -437,7 +438,9 @@ export function DonorsContributionsPage() {
                     { label: 'Amount', value: formatMoney(selectedDonation.amount ?? selectedDonation.estimatedValue) },
                     { label: 'Campaign', value: selectedDonation.campaignName ?? 'Direct support' },
                     { label: 'Channel', value: selectedDonation.channelSource },
-                    { label: 'Allocation', value: selectedDonation.allocations.map((allocation) => `${allocation.safehouseName} (${allocation.programArea})`).join(', ') || 'No allocation' },
+                    { label: 'Impact unit', value: selectedDonation.impactUnit },
+                    { label: 'Recurring', value: selectedDonation.isRecurring ? 'Yes' : 'No' },
+                    { label: 'Allocation', value: selectedDonation.allocations.map((allocation) => `${allocation.safehouseName} (${allocation.programArea}) - ${formatMoney(allocation.amountAllocated)}`).join(', ') || 'No allocation' },
                   ]}
                 />
               ) : (

@@ -39,7 +39,7 @@ export function ImpactDashboardPage() {
         <div>
           <span className="eyebrow">Public dashboard</span>
           <h1>Impact overview</h1>
-          <p>Anonymous, donor-facing reporting pulled from the backend starter API.</p>
+          <p>Anonymous, donor-facing reporting that summarizes how services, capacity, and support are progressing over time.</p>
         </div>
       </div>
 

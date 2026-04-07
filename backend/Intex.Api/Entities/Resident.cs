@@ -38,4 +38,5 @@ public class Resident
     public ICollection<HomeVisitation> HomeVisitations { get; set; } = new List<HomeVisitation>();
     public ICollection<InterventionPlan> InterventionPlans { get; set; } = new List<InterventionPlan>();
     public ICollection<IncidentReport> IncidentReports { get; set; } = new List<IncidentReport>();
+    public ICollection<CaseConference> CaseConferences { get; set; } = new List<CaseConference>();
 }

@@ -115,6 +115,27 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task CaseConferenceCreate_WithMissingCoreFields_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/case-conferences", new
+        {
+            residentId = 0,
+            conferenceDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            leadWorker = "",
+            attendees = "",
+            purpose = "",
+            decisionsMade = "",
+            followUpActions = "",
+            nextReviewDate = (DateOnly?)null,
+            status = ""
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private async Task LoginAsAdminAsync()
     {
         var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!234567"));

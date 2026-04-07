@@ -18,8 +18,8 @@ export function CookieConsentBanner() {
       <div>
         <strong>Cookie settings</strong>
         <p>
-          This starter currently stores an auth token and UI consent preferences in the browser for local development.
-          Replace this with your production consent categories before launch.
+          HarborLight Nexus stores a consent preference and, when you sign in, a session token needed to keep the secure portal active.
+          Choose whether to allow only essential storage or accept the current site settings.
         </p>
       </div>
       <div className="cookie-actions">

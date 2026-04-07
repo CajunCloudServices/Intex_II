@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<Resident> Residents => Set<Resident>();
     public DbSet<ProcessRecording> ProcessRecordings => Set<ProcessRecording>();
     public DbSet<HomeVisitation> HomeVisitations => Set<HomeVisitation>();
+    public DbSet<CaseConference> CaseConferences => Set<CaseConference>();
     public DbSet<InterventionPlan> InterventionPlans => Set<InterventionPlan>();
     public DbSet<IncidentReport> IncidentReports => Set<IncidentReport>();
     public DbSet<SocialMediaPost> SocialMediaPosts => Set<SocialMediaPost>();
@@ -62,6 +63,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             entity.Property(x => x.TargetValue).HasPrecision(8, 2);
         });
 
+        builder.Entity<CaseConference>(entity =>
+        {
+            entity.Property(x => x.LeadWorker).HasMaxLength(120);
+            entity.Property(x => x.Status).HasMaxLength(40);
+        });
+
         builder.Entity<SocialMediaPost>(entity =>
         {
             entity.Property(x => x.BoostBudgetPhp).HasPrecision(12, 2);
@@ -102,6 +109,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
         builder.Entity<HomeVisitation>()
             .HasOne(x => x.Resident)
             .WithMany(x => x.HomeVisitations)
+            .HasForeignKey(x => x.ResidentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CaseConference>()
+            .HasOne(x => x.Resident)
+            .WithMany(x => x.CaseConferences)
             .HasForeignKey(x => x.ResidentId)
             .OnDelete(DeleteBehavior.Cascade);
 

@@ -1,19 +1,26 @@
 import { apiRequest } from './client';
 import type {
   AuthResponse,
+  CaseConference,
+  CaseConferenceRequest,
   DashboardSummary,
   Donation,
   DonationRequest,
+  DonationTrends,
   HomeVisitation,
   HomeVisitationRequest,
   IncidentReport,
   IncidentReportRequest,
+  OutreachPerformanceSummary,
   ProcessRecording,
   ProcessRecordingRequest,
   PublicImpactSnapshot,
   Resident,
+  ResidentOutcomeSummary,
   ResidentRequest,
+  ReintegrationSummary,
   Safehouse,
+  SafehousePerformanceSummary,
   SafehouseRequest,
   Supporter,
   SupporterRequest,
@@ -41,6 +48,31 @@ export const api = {
 
   dashboardAnalytics: (token: string) =>
     apiRequest<Record<string, unknown>>('/dashboard/analytics', {
+      token,
+    }),
+
+  caseConferences: (token: string) =>
+    apiRequest<CaseConference[]>('/case-conferences', {
+      token,
+    }),
+
+  createCaseConference: (token: string, payload: CaseConferenceRequest) =>
+    apiRequest<CaseConference>('/case-conferences', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(payload),
+    }),
+
+  updateCaseConference: (token: string, id: number, payload: CaseConferenceRequest) =>
+    apiRequest<CaseConference>(`/case-conferences/${id}`, {
+      method: 'PUT',
+      token,
+      body: JSON.stringify(payload),
+    }),
+
+  deleteCaseConference: (token: string, id: number) =>
+    apiRequest<void>(`/case-conferences/${id}?confirm=true`, {
+      method: 'DELETE',
       token,
     }),
 
@@ -221,6 +253,31 @@ export const api = {
   deleteIncident: (token: string, id: number) =>
     apiRequest<void>(`/incidents/${id}?confirm=true`, {
       method: 'DELETE',
+      token,
+    }),
+
+  donationTrends: (token: string) =>
+    apiRequest<DonationTrends>('/reports/donation-trends', {
+      token,
+    }),
+
+  residentOutcomes: (token: string) =>
+    apiRequest<ResidentOutcomeSummary>('/reports/resident-outcomes', {
+      token,
+    }),
+
+  safehousePerformance: (token: string) =>
+    apiRequest<SafehousePerformanceSummary>('/reports/safehouse-performance', {
+      token,
+    }),
+
+  reintegrationSummary: (token: string) =>
+    apiRequest<ReintegrationSummary>('/reports/reintegration-summary', {
+      token,
+    }),
+
+  outreachPerformance: (token: string) =>
+    apiRequest<OutreachPerformanceSummary>('/reports/outreach-performance', {
       token,
     }),
 };

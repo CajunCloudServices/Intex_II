@@ -9,11 +9,12 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [email, setEmail] = useState('admin@intex.local');
-  const [password, setPassword] = useState('Admin!234567');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showDemoAccess, setShowDemoAccess] = useState(false);
 
   const redirectTo = (location.state as { from?: string } | undefined)?.from;
 
@@ -27,7 +28,7 @@ export function LoginPage() {
       const defaultRoute = account.roles.includes('Donor') && account.roles.length === 1 ? '/portal/donor-history' : '/portal/admin';
       navigate(redirectTo ?? defaultRoute, { replace: true });
     } catch {
-      setError('Login failed. Use one of the seeded dev accounts from the README.');
+      setError('Login failed. Check your email and password, then try again.');
     } finally {
       setSubmitting(false);
     }
@@ -40,7 +41,7 @@ export function LoginPage() {
           <div>
             <span className="eyebrow">Secure access</span>
             <h1>Sign in</h1>
-            <p>JWT-backed API authentication for Admin, Staff, and Donor roles.</p>
+            <p>Authorized staff and donors can sign in here to review operations, care records, and giving history.</p>
           </div>
         </div>
 
@@ -78,29 +79,41 @@ export function LoginPage() {
         </form>
       </section>
 
-      <SectionCard title="Seeded dev accounts" subtitle="Use these cards to fill the form quickly during demos">
-        <div className="credential-grid">
-          {[
-            ['Admin', 'admin@intex.local', 'Admin!234567'],
-            ['Staff', 'staff@intex.local', 'Staff!234567'],
-            ['Donor', 'donor@intex.local', 'Donor!234567'],
-          ].map(([label, valueEmail, valuePassword]) => (
-            <button
-              key={label}
-              className="credential-card"
-              onClick={() => {
-                setEmail(valueEmail);
-                setPassword(valuePassword);
-                setError(null);
-              }}
-              type="button"
-            >
-              <strong>{label}</strong>
-              <span>{valueEmail}</span>
-              <span>{valuePassword}</span>
-            </button>
-          ))}
-        </div>
+      <SectionCard
+        title="Demo access"
+        subtitle="Open only if you need the seeded grading accounts."
+        actions={
+          <button className="ghost-button" onClick={() => setShowDemoAccess((value) => !value)} type="button">
+            {showDemoAccess ? 'Hide accounts' : 'Show accounts'}
+          </button>
+        }
+      >
+        {showDemoAccess ? (
+          <div className="credential-grid">
+            {[
+              ['Admin', 'admin@intex.local', 'Admin!234567'],
+              ['Staff', 'staff@intex.local', 'Staff!234567'],
+              ['Donor', 'donor@intex.local', 'Donor!234567'],
+            ].map(([label, valueEmail, valuePassword]) => (
+              <button
+                key={label}
+                className="credential-card"
+                onClick={() => {
+                  setEmail(valueEmail);
+                  setPassword(valuePassword);
+                  setError(null);
+                }}
+                type="button"
+              >
+                <strong>{label}</strong>
+                <span>{valueEmail}</span>
+                <span>{valuePassword}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <p className="home-muted">The demo accounts remain available for grading, but they are hidden during normal use.</p>
+        )}
       </SectionCard>
     </div>
   );

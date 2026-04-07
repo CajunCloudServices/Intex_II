@@ -141,7 +141,7 @@ export function ProcessRecordingPage() {
         <div>
           <span className="eyebrow">Clinical notes</span>
           <h1>Process recordings</h1>
-          <p>Chronological counseling documentation starter view with emotional-state and follow-up fields.</p>
+          <p>Document counseling sessions chronologically so staff can follow each resident&apos;s healing journey over time.</p>
         </div>
       </div>
 
@@ -240,7 +240,7 @@ export function ProcessRecordingPage() {
               )}
             </SectionCard>
 
-            <DetailPanel title={selectedRecording ? `${selectedRecording.residentCode} session` : 'Session details'} subtitle="Use the detail panel during demos to show the narrative side of case documentation.">
+            <DetailPanel title={selectedRecording ? `${selectedRecording.residentCode} session` : 'Session details'} subtitle="Use the detail panel to show how emotional state, interventions, and follow-up evolve across the healing journey.">
               {selectedRecording ? (
                 <DetailList
                   items={[
@@ -264,7 +264,7 @@ export function ProcessRecordingPage() {
           {isAdmin ? (
             <SectionCard
               title={editingRecordingId ? 'Edit process recording' : 'Create process recording'}
-              subtitle="Plain-language fields keep the starter structure easy for your team to follow."
+              subtitle="Capture the full counseling narrative with enough structure to review progress over time."
               actions={editingRecordingId ? <button className="ghost-button" onClick={resetForm} type="button">Cancel edit</button> : null}
             >
               <form className="stack-form" onSubmit={handleSubmit}>

@@ -5,15 +5,15 @@ export function PrivacyPolicyPage() {
         <div className="section-card-header">
           <div>
             <span className="eyebrow">Privacy</span>
-            <h1>Privacy policy starter</h1>
-            <p>Tailored starter content for the INTEX nonprofit context. Legal review still required before production use.</p>
+            <h1>Privacy policy</h1>
+            <p>How HarborLight Nexus collects, uses, and safeguards supporter, staff, and resident-related information.</p>
           </div>
         </div>
 
         <p>
           HarborLight Nexus processes supporter, donation, resident-care, and outreach data to operate nonprofit services,
-          communicate impact, and manage internal case workflows. This starter application is intended for development and
-          educational use and should be customized with your final hosting, subprocessors, retention periods, and legal contacts.
+          communicate impact, and manage internal case workflows. We collect only the information needed to provide safe services,
+          administer donations, and maintain secure internal records.
         </p>
 
         <h2>Data we may store</h2>
@@ -26,15 +26,20 @@ export function PrivacyPolicyPage() {
 
         <h2>How access is controlled</h2>
         <p>
-          Role-based access keeps staff records separate from donor-facing data, and the React app uses a JWT session token
-          for local development. Sensitive production deployments should add audit logging, field-level review, and formal
-          incident response processes.
+          Role-based access keeps staff records separate from donor-facing data. Sensitive resident records are intended for
+          authorized staff and administrators only, while public reporting is limited to anonymized and aggregated information.
         </p>
 
-        <h2>Cookie note</h2>
+        <h2>Why we use cookies and browser storage</h2>
         <p>
-          The current dev build stores a JWT token and cookie-consent preference in browser storage. Before production, replace
-          this with your finalized consent categories, retention rules, and secure session handling decisions.
+          The site stores a consent preference and, for authenticated users, a session token required to keep the portal signed in.
+          These values support basic site operation and are not used to sell personal information or run third-party ad tracking.
+        </p>
+
+        <h2>Public reporting and resident privacy</h2>
+        <p>
+          HarborLight Nexus publishes anonymized impact snapshots to help donors understand how resources are used. These
+          summaries are designed to protect the privacy and safety of minors, survivors, staff, and partner organizations.
         </p>
       </section>
     </div>
