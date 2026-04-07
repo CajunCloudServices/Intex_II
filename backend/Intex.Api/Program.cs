@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.WebUtilities;
+using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -125,12 +125,10 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
                     Path = options.CallbackPath
                 }.Uri.ToString();
 
-                var rewrittenRedirect = QueryHelpers.AddQueryString(
-                    context.RedirectUri.Split('?')[0],
-                    QueryHelpers.ParseQuery(new Uri(context.RedirectUri).Query)
-                        .ToDictionary(
-                            pair => pair.Key,
-                            pair => pair.Key == "redirect_uri" ? absoluteCallback : pair.Value.ToString()));
+                var rewrittenRedirect = Regex.Replace(
+                    context.RedirectUri,
+                    @"redirect_uri=[^&]+",
+                    $"redirect_uri={Uri.EscapeDataString(absoluteCallback)}");
 
                 context.Response.Redirect(rewrittenRedirect);
                 return Task.CompletedTask;
