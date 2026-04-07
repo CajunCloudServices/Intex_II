@@ -11,7 +11,7 @@ export function PrivacyPolicyPage() {
         </div>
 
         <p>
-          HarborLight Nexus processes supporter, donation, resident-care, and outreach data to operate nonprofit services,
+          Tanglaw Project processes supporter, donation, resident-care, and outreach data to operate nonprofit services,
           communicate impact, and manage internal case workflows. This starter application is intended for development and
           educational use and should be customized with your final hosting, subprocessors, retention periods, and legal contacts.
         </p>

@@ -25,7 +25,9 @@ export function DataTable({
             rows.map((row, index) => (
               <tr key={index}>
                 {row.map((cell, cellIndex) => (
-                  <td key={`${index}-${cellIndex}`}>{cell ?? '—'}</td>
+                  <td key={`${index}-${cellIndex}`} data-label={columns[cellIndex]}>
+                    {cell ?? '—'}
+                  </td>
                 ))}
               </tr>
             ))

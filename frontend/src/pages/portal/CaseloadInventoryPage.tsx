@@ -5,8 +5,7 @@ import type { Resident, ResidentRequest, Safehouse } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { CheckboxField, FormGrid, FormSection } from '../../components/ui/FormPrimitives';
-import { MetricCard, SectionCard } from '../../components/ui/Cards';
-import { DataTable } from '../../components/ui/DataTable';
+import { SectionCard } from '../../components/ui/Cards';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
@@ -117,6 +116,11 @@ export function CaseloadInventoryPage() {
   const activeCount = residents.filter((resident) => resident.caseStatus === 'Active').length;
   const highRiskCount = residents.filter((resident) => resident.currentRiskLevel === 'High' || resident.currentRiskLevel === 'Critical').length;
   const planCount = residents.reduce((sum, resident) => sum + resident.interventionPlans.length, 0);
+  const archivedThisWeekCount = residents.filter((resident) => {
+    if (!resident.dateClosed) return false;
+    const closedTime = new Date(resident.dateClosed).getTime();
+    return Number.isFinite(closedTime) && Date.now() - closedTime <= 7 * 24 * 60 * 60 * 1000;
+  }).length;
 
   const resetResidentForm = () => {
     setEditingResidentId(null);
@@ -175,19 +179,44 @@ export function CaseloadInventoryPage() {
   };
 
   return (
-    <div className="page-shell">
-      <div className="page-header">
+    <div className="page-shell caseload-page">
+      <div className="caseload-header">
         <div>
-          <span className="eyebrow">Case management</span>
-          <h1>Caseload inventory</h1>
+          <div className="caseload-breadcrumb">Archive / Current Quarter</div>
+          <h1>Active Caseload Archive</h1>
           <p>Manage resident records, risk signals, and one starter intervention plan directly in the portal.</p>
         </div>
+        {isAdmin ? (
+          <button
+            className="primary-button"
+            onClick={() => {
+              resetResidentForm();
+              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }}
+            type="button"
+          >
+            New Case
+          </button>
+        ) : null}
       </div>
 
-      <section className="page-grid three">
-        <MetricCard label="Active residents" value={String(activeCount)} detail="Current open caseload." accent />
-        <MetricCard label="High-risk cases" value={String(highRiskCount)} detail="Residents that need closer review." />
-        <MetricCard label="Intervention plans" value={String(planCount)} detail="Starter plan rows connected to current residents." />
+      <section className="caseload-stats" aria-label="Caseload summary">
+        <article className="caseload-stat-card">
+          <span>Total Active</span>
+          <strong>{activeCount}</strong>
+        </article>
+        <article className="caseload-stat-card">
+          <span>Urgent Action</span>
+          <strong className="caseload-stat-alert">{highRiskCount}</strong>
+        </article>
+        <article className="caseload-stat-card caseload-stat-card-highlight">
+          <span>In Progress</span>
+          <strong>{planCount}</strong>
+        </article>
+        <article className="caseload-stat-card">
+          <span>Archived This Week</span>
+          <strong>{archivedThisWeekCount}</strong>
+        </article>
       </section>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
@@ -198,93 +227,205 @@ export function CaseloadInventoryPage() {
         <ErrorState message={error} onRetry={loadResidents} />
       ) : (
         <>
-          <section className="page-grid two dashboard-split">
-            <SectionCard
-              title="Resident inventory"
-              subtitle={isAdmin ? 'Admins can update or delete cases. Staff can review and filter them.' : 'Staff can review and filter case records.'}
-              actions={
-                <div className="filter-row">
-                  <input className="inline-search" placeholder="Search residents..." value={search} onChange={(e) => setSearch(e.target.value)} />
-                  <select className="inline-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option>All</option><option>Active</option><option>Closed</option><option>Transferred</option></select>
-                  <select className="inline-select" value={safehouseFilter} onChange={(e) => setSafehouseFilter(e.target.value)}><option>All</option>{safehouseNames.map((name) => <option key={name}>{name}</option>)}</select>
-                  <select className="inline-select" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)}><option>All</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
-                </div>
-              }
-            >
+          <section className="caseload-archive-shell">
+            <div className="caseload-controls">
+              <div className="caseload-control-group">
+                <input
+                  className="inline-search"
+                  placeholder="Filter by name or case ID..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+                <select className="inline-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <option>All</option>
+                  <option>Active</option>
+                  <option>Closed</option>
+                  <option>Transferred</option>
+                </select>
+                <select className="inline-select" value={safehouseFilter} onChange={(e) => setSafehouseFilter(e.target.value)}>
+                  <option>All</option>
+                  {safehouseNames.map((name) => (
+                    <option key={name}>{name}</option>
+                  ))}
+                </select>
+                <select className="inline-select" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)}>
+                  <option>All</option>
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                  <option>Critical</option>
+                </select>
+              </div>
+              <div className="caseload-showing">
+                Showing <strong>{filteredResidents.length}</strong> of {residents.length} entries
+              </div>
+            </div>
+
+            <div className="caseload-table-shell">
               {filteredResidents.length === 0 ? (
                 <EmptyState title="No matching residents" message="Try clearing one of the filters or searching another term." />
               ) : (
-                <DataTable
-                  caption="Resident records"
-                  columns={['Case #', 'Safehouse', 'Status', 'Risk', 'Worker', 'Actions']}
-                  rows={filteredResidents.map((resident) => [
-                    <button className="table-link-button" key={`case-${resident.id}`} onClick={() => setSelectedResidentId(resident.id)} type="button">{resident.caseControlNumber}</button>,
-                    resident.safehouseName,
-                    resident.caseStatus,
-                    resident.currentRiskLevel,
-                    resident.assignedSocialWorker,
-                    <div className="table-actions" key={`actions-${resident.id}`}>
-                      <button className="ghost-button" onClick={() => setSelectedResidentId(resident.id)} type="button">View</button>
-                      {isAdmin ? (
-                        <>
-                          <button
-                            className="ghost-button"
-                            onClick={() => {
-                              setEditingResidentId(resident.id);
-                              setResidentForm({
-                                caseControlNumber: resident.caseControlNumber,
-                                internalCode: resident.internalCode,
-                                safehouseId: resident.safehouseId,
-                                caseStatus: resident.caseStatus,
-                                dateOfBirth: resident.dateOfBirth,
-                                placeOfBirth: resident.placeOfBirth,
-                                religion: resident.religion,
-                                caseCategory: resident.caseCategory,
-                                isTrafficked: resident.isTrafficked,
-                                isPhysicalAbuseCase: resident.isPhysicalAbuseCase,
-                                isSexualAbuseCase: resident.isSexualAbuseCase,
-                                hasSpecialNeeds: resident.hasSpecialNeeds,
-                                specialNeedsDiagnosis: resident.specialNeedsDiagnosis ?? '',
-                                familyIs4Ps: resident.familyIs4Ps,
-                                familySoloParent: resident.familySoloParent,
-                                familyIndigenous: resident.familyIndigenous,
-                                familyInformalSettler: resident.familyInformalSettler,
-                                dateOfAdmission: resident.dateOfAdmission,
-                                referralSource: resident.referralSource,
-                                referringAgencyPerson: resident.referringAgencyPerson ?? '',
-                                assignedSocialWorker: resident.assignedSocialWorker,
-                                initialCaseAssessment: resident.initialCaseAssessment,
-                                reintegrationType: resident.reintegrationType ?? '',
-                                reintegrationStatus: resident.reintegrationStatus ?? '',
-                                initialRiskLevel: resident.initialRiskLevel,
-                                currentRiskLevel: resident.currentRiskLevel,
-                                dateClosed: resident.dateClosed ?? '',
-                                restrictedNotes: resident.restrictedNotes ?? '',
-                                interventionPlans: resident.interventionPlans.length > 0
-                                  ? resident.interventionPlans.map((plan) => ({
-                                      planCategory: plan.planCategory,
-                                      planDescription: plan.planDescription,
-                                      servicesProvided: plan.servicesProvided,
-                                      targetValue: plan.targetValue ?? null,
-                                      targetDate: plan.targetDate,
-                                      status: plan.status,
-                                      caseConferenceDate: plan.caseConferenceDate ?? '',
-                                    }))
-                                  : createResidentForm(safehouses[0]?.id).interventionPlans,
-                              });
-                            }}
-                            type="button"
-                          >
-                            Edit
-                          </button>
-                          <button className="ghost-button danger-button" onClick={() => void deleteResident(resident.id)} type="button">Delete</button>
-                        </>
-                      ) : null}
-                    </div>,
-                  ])}
-                />
+                <div className="caseload-table-wrap">
+                  <table className="caseload-table">
+                    <thead>
+                      <tr>
+                        <th>Case Profile</th>
+                        <th>Primary Advocate</th>
+                        <th>Status Flag</th>
+                        <th>Last Activity</th>
+                        <th>Records</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredResidents.map((resident) => (
+                        <tr
+                          key={resident.id}
+                          className={selectedResidentId === resident.id ? 'is-selected' : ''}
+                          onClick={() => setSelectedResidentId(resident.id)}
+                        >
+                          <td>
+                            <div className="caseload-profile">
+                              <div className={`caseload-avatar${resident.currentRiskLevel === 'Critical' || resident.currentRiskLevel === 'High' ? ' caseload-avatar-alert' : ''}`}>
+                                {resident.caseControlNumber.slice(0, 2)}
+                              </div>
+                              <div>
+                                <button
+                                  className="table-link-button"
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setSelectedResidentId(resident.id);
+                                  }}
+                                  type="button"
+                                >
+                                  {resident.caseControlNumber}
+                                </button>
+                                <div className="caseload-profile-meta">
+                                  {resident.safehouseName} • {resident.caseCategory}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>{resident.assignedSocialWorker}</td>
+                          <td>
+                            <span
+                              className={`caseload-pill${
+                                resident.currentRiskLevel === 'Critical' || resident.currentRiskLevel === 'High'
+                                  ? ' caseload-pill-alert'
+                                  : resident.caseStatus === 'Closed'
+                                    ? ' caseload-pill-muted'
+                                    : ' caseload-pill-progress'
+                              }`}
+                            >
+                              {resident.currentRiskLevel === 'Critical' || resident.currentRiskLevel === 'High'
+                                ? 'Urgent Action'
+                                : resident.caseStatus === 'Closed'
+                                  ? 'Archived'
+                                  : 'In Progress'}
+                            </span>
+                          </td>
+                          <td>{resident.dateClosed ? formatDate(resident.dateClosed) : formatDate(resident.dateOfAdmission)}</td>
+                          <td>
+                            <div className="table-actions">
+                              <button
+                                className="ghost-button"
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setSelectedResidentId(resident.id);
+                                }}
+                                type="button"
+                              >
+                                View
+                              </button>
+                              {isAdmin ? (
+                                <>
+                                  <button
+                                    className="ghost-button"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      setEditingResidentId(resident.id);
+                                      setResidentForm({
+                                        caseControlNumber: resident.caseControlNumber,
+                                        internalCode: resident.internalCode,
+                                        safehouseId: resident.safehouseId,
+                                        caseStatus: resident.caseStatus,
+                                        dateOfBirth: resident.dateOfBirth,
+                                        placeOfBirth: resident.placeOfBirth,
+                                        religion: resident.religion,
+                                        caseCategory: resident.caseCategory,
+                                        isTrafficked: resident.isTrafficked,
+                                        isPhysicalAbuseCase: resident.isPhysicalAbuseCase,
+                                        isSexualAbuseCase: resident.isSexualAbuseCase,
+                                        hasSpecialNeeds: resident.hasSpecialNeeds,
+                                        specialNeedsDiagnosis: resident.specialNeedsDiagnosis ?? '',
+                                        familyIs4Ps: resident.familyIs4Ps,
+                                        familySoloParent: resident.familySoloParent,
+                                        familyIndigenous: resident.familyIndigenous,
+                                        familyInformalSettler: resident.familyInformalSettler,
+                                        dateOfAdmission: resident.dateOfAdmission,
+                                        referralSource: resident.referralSource,
+                                        referringAgencyPerson: resident.referringAgencyPerson ?? '',
+                                        assignedSocialWorker: resident.assignedSocialWorker,
+                                        initialCaseAssessment: resident.initialCaseAssessment,
+                                        reintegrationType: resident.reintegrationType ?? '',
+                                        reintegrationStatus: resident.reintegrationStatus ?? '',
+                                        initialRiskLevel: resident.initialRiskLevel,
+                                        currentRiskLevel: resident.currentRiskLevel,
+                                        dateClosed: resident.dateClosed ?? '',
+                                        restrictedNotes: resident.restrictedNotes ?? '',
+                                        interventionPlans:
+                                          resident.interventionPlans.length > 0
+                                            ? resident.interventionPlans.map((plan) => ({
+                                                planCategory: plan.planCategory,
+                                                planDescription: plan.planDescription,
+                                                servicesProvided: plan.servicesProvided,
+                                                targetValue: plan.targetValue ?? null,
+                                                targetDate: plan.targetDate,
+                                                status: plan.status,
+                                                caseConferenceDate: plan.caseConferenceDate ?? '',
+                                              }))
+                                            : createResidentForm(safehouses[0]?.id).interventionPlans,
+                                      });
+                                    }}
+                                    type="button"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    className="ghost-button danger-button"
+                                    onClick={(event) => {
+                                      event.stopPropagation();
+                                      void deleteResident(resident.id);
+                                    }}
+                                    type="button"
+                                  >
+                                    Delete
+                                  </button>
+                                </>
+                              ) : null}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               )}
-            </SectionCard>
+              <div className="caseload-pagination">
+                <button className="text-button" type="button">
+                  Previous
+                </button>
+                <div className="caseload-pagination-pages">
+                  <span className="is-active">1</span>
+                  <span>2</span>
+                  <span>3</span>
+                  <span>...</span>
+                  <span>9</span>
+                </div>
+                <button className="text-button" type="button">
+                  Next
+                </button>
+              </div>
+            </div>
 
             <DetailPanel title={selectedResident?.caseControlNumber ?? 'Resident details'} subtitle="Use the detail panel during demos to explain the case record structure.">
               {selectedResident ? (
