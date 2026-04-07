@@ -345,7 +345,7 @@ export function DonorsContributionsPage() {
           {isAdmin ? (
             <SectionCard
               title={editingSupporterId ? 'Edit supporter' : 'Create supporter'}
-              subtitle="This starter form keeps the shape simple so your team can extend it without learning a form library first."
+              subtitle="Maintain supporter records with a straightforward operational form that matches the current donor workflow."
               actions={editingSupporterId ? <button className="ghost-button" onClick={resetSupporterForm} type="button">Cancel edit</button> : null}
             >
               <form className="stack-form" onSubmit={handleSupporterSubmit}>
@@ -452,7 +452,7 @@ export function DonorsContributionsPage() {
           {isAdmin ? (
             <SectionCard
               title={editingDonationId ? 'Edit donation' : 'Create donation'}
-              subtitle="The starter UI uses one primary allocation row to keep the form understandable."
+              subtitle="Capture the full contribution while keeping the primary safehouse allocation visible for review."
               actions={editingDonationId ? <button className="ghost-button" onClick={resetDonationForm} type="button">Cancel edit</button> : null}
             >
               <form className="stack-form" onSubmit={handleDonationSubmit}>

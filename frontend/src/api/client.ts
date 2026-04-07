@@ -1,4 +1,20 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5080/api';
+function resolveApiBaseUrl() {
+  const configured = import.meta.env.VITE_API_URL?.trim();
+  if (configured) {
+    return configured.replace(/\/+$/, '');
+  }
+
+  // Local development is allowed to fall back to localhost so teammates can boot the repo
+  // without setting env vars first. Production should fail loudly instead of silently
+  // calling a wrong origin.
+  if (import.meta.env.DEV) {
+    return 'http://localhost:5080/api';
+  }
+
+  throw new Error('Missing VITE_API_URL. Set the frontend API base URL for this deployment.');
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiError extends Error {
   status: number;
@@ -43,6 +59,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       }
     }
 
+    // These window events let AuthContext respond in one place instead of forcing every page
+    // to duplicate session-expiry and permission-denied handling.
     if (response.status === 401) {
       window.dispatchEvent(new CustomEvent('intex:unauthorized'));
     }

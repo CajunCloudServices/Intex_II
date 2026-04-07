@@ -24,7 +24,7 @@ public class AuthController(
             return Unauthorized(new { message = "Invalid email or password." });
         }
 
-        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: false);
+        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
         if (!result.Succeeded)
         {
             return Unauthorized(new { message = "Invalid email or password." });

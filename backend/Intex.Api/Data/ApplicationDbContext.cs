@@ -11,6 +11,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     {
     }
 
+    // These DbSets define the main slices of the nonprofit domain. The frontend pages map
+    // closely to these groups, which keeps it easier for a student team to find the data
+    // source behind each screen.
     public DbSet<Safehouse> Safehouses => Set<Safehouse>();
     public DbSet<Supporter> Supporters => Set<Supporter>();
     public DbSet<Donation> Donations => Set<Donation>();
@@ -21,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<CaseConference> CaseConferences => Set<CaseConference>();
     public DbSet<InterventionPlan> InterventionPlans => Set<InterventionPlan>();
     public DbSet<IncidentReport> IncidentReports => Set<IncidentReport>();
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<SocialMediaPost> SocialMediaPosts => Set<SocialMediaPost>();
     public DbSet<PublicImpactSnapshot> PublicImpactSnapshots => Set<PublicImpactSnapshot>();
 
@@ -28,6 +32,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     {
         base.OnModelCreating(builder);
 
+        // Most of the extra configuration below falls into two categories:
+        // 1. column constraints/precision so the schema is predictable
+        // 2. delete behavior so the API does not accidentally cascade through major records
+        //    like supporters or safehouses when one related row is removed
         builder.Entity<ApplicationUser>(entity =>
         {
             entity.Property(x => x.FullName).HasMaxLength(200);
@@ -67,6 +75,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
         {
             entity.Property(x => x.LeadWorker).HasMaxLength(120);
             entity.Property(x => x.Status).HasMaxLength(40);
+        });
+
+        builder.Entity<AuditLog>(entity =>
+        {
+            entity.Property(x => x.ActionType).HasMaxLength(20);
+            entity.Property(x => x.EntityType).HasMaxLength(40);
+            entity.Property(x => x.ActorUserId).HasMaxLength(100);
+            entity.Property(x => x.ActorEmail).HasMaxLength(200);
+            entity.Property(x => x.Summary).HasMaxLength(1000);
+            entity.HasIndex(x => x.CreatedAtUtc);
+            entity.HasIndex(x => new { x.EntityType, x.EntityId });
         });
 
         builder.Entity<SocialMediaPost>(entity =>

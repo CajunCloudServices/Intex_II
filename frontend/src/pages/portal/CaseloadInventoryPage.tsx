@@ -315,7 +315,7 @@ export function CaseloadInventoryPage() {
           {isAdmin ? (
             <SectionCard
               title={editingResidentId ? 'Edit resident' : 'Create resident'}
-              subtitle="This starter keeps one intervention plan in the form so the structure stays understandable."
+              subtitle="Keep the current intervention direction visible while maintaining a focused resident intake and update workflow."
               actions={editingResidentId ? <button className="ghost-button" onClick={resetResidentForm} type="button">Cancel edit</button> : null}
             >
               <form className="stack-form" onSubmit={handleSubmit}>

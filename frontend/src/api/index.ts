@@ -1,5 +1,6 @@
 import { apiRequest } from './client';
 import type {
+  AuditEvent,
   AuthResponse,
   CaseConference,
   CaseConferenceRequest,
@@ -28,6 +29,10 @@ import type {
 } from './types';
 
 export const api = {
+  // This object is the frontend's typed map of backend routes. Pages call these helpers
+  // instead of using fetch directly so auth headers, payload shapes, and endpoint paths stay
+  // consistent across the app.
+  // Auth and public endpoints
   login: (email: string, password: string) =>
     apiRequest<AuthResponse>('/auth/login', {
       method: 'POST',
@@ -41,6 +46,12 @@ export const api = {
 
   publicImpact: () => apiRequest<PublicImpactSnapshot[]>('/public-impact'),
 
+  auditLog: (token: string) =>
+    apiRequest<AuditEvent[]>('/audit-log', {
+      token,
+    }),
+
+  // Dashboard and reporting endpoints
   dashboardSummary: (token: string) =>
     apiRequest<DashboardSummary>('/dashboard/summary', {
       token,
@@ -76,6 +87,7 @@ export const api = {
       token,
     }),
 
+  // Donor/supporter endpoints
   supporters: (token: string) =>
     apiRequest<Supporter[]>('/supporters', {
       token,
@@ -131,6 +143,7 @@ export const api = {
       token,
     }),
 
+  // Case management endpoints
   residents: (token: string) =>
     apiRequest<Resident[]>('/residents', {
       token,
@@ -206,6 +219,7 @@ export const api = {
       token,
     }),
 
+  // Safehouse and incident operations
   safehouses: (token: string) =>
     apiRequest<Safehouse[]>('/safehouses', {
       token,
@@ -256,6 +270,7 @@ export const api = {
       token,
     }),
 
+  // Aggregate analytics/report endpoints
   donationTrends: (token: string) =>
     apiRequest<DonationTrends>('/reports/donation-trends', {
       token,

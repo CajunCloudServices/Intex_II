@@ -13,6 +13,11 @@ const page = await donorContext.newPage();
 try {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: 'Providing safe homes and healing for survivors' }).waitFor();
+  await page.getByRole('button', { name: 'Accept optional preference cookie' }).click();
+  await page.getByRole('button', { name: 'Standard theme' }).click();
+  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
+  await page.reload({ waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
 
   await page.goto(`${baseUrl}/impact`, { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: 'Impact overview' }).waitFor();
@@ -29,6 +34,9 @@ try {
   await page.getByRole('link', { name: 'My Contributions' }).waitFor();
   if ((await page.getByText('Admin Dashboard').count()) !== 0) {
     throw new Error('Donor navigation exposed a staff/admin link.');
+  }
+  if ((await page.getByText('Audit History').count()) !== 0) {
+    throw new Error('Donor navigation exposed an admin-only audit link.');
   }
 
   const adminContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -87,6 +95,9 @@ try {
   await adminPage.goto(`${baseUrl}/portal/reports`, { waitUntil: 'networkidle' });
   await adminPage.getByRole('heading', { name: 'Reports & analytics' }).waitFor();
   await adminPage.getByRole('heading', { name: 'Donation trends' }).waitFor();
+
+  await adminPage.goto(`${baseUrl}/portal/audit-history`, { waitUntil: 'networkidle' });
+  await adminPage.getByRole('heading', { name: 'Audit history' }).waitFor();
 
   console.log('Smoke test passed.');
 } finally {

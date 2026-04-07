@@ -2,6 +2,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
-public class SupportersController(ApplicationDbContext dbContext) : ControllerBase
+public class SupportersController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SupporterResponse>>> GetAll([FromQuery] string? search)
@@ -103,6 +104,7 @@ public class SupportersController(ApplicationDbContext dbContext) : ControllerBa
 
         dbContext.Supporters.Add(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(Supporter), entity.Id, $"Created supporter {entity.DisplayName}.", User);
 
         return CreatedAtAction(nameof(GetById), new { id = entity.Id }, await BuildResponse(entity.Id));
     }
@@ -132,6 +134,7 @@ public class SupportersController(ApplicationDbContext dbContext) : ControllerBa
         entity.AcquisitionChannel = request.AcquisitionChannel;
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(Supporter), entity.Id, $"Updated supporter {entity.DisplayName}.", User);
         return Ok(await BuildResponse(id));
     }
 
@@ -150,8 +153,10 @@ public class SupportersController(ApplicationDbContext dbContext) : ControllerBa
             return NotFound();
         }
 
+        var summary = $"Deleted supporter {entity.DisplayName}.";
         dbContext.Supporters.Remove(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(Supporter), id, summary, User);
         return NoContent();
     }
 

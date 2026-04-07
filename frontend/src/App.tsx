@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { CookieConsentBanner } from './components/ui/CookieConsentBanner';
 import { useAuth } from './hooks/useAuth';
 import { AdminDashboardPage } from './pages/portal/AdminDashboardPage';
+import { AuditHistoryPage } from './pages/portal/AuditHistoryPage';
 import { CaseloadInventoryPage } from './pages/portal/CaseloadInventoryPage';
 import { DonorsContributionsPage } from './pages/portal/DonorsContributionsPage';
 import { DonorHistoryPage } from './pages/portal/DonorHistoryPage';
@@ -31,6 +32,8 @@ function PortalHomeRoute() {
 function App() {
   return (
     <>
+      {/* Public and portal routes share one shell, but ProtectedRoute decides which parts
+          of the tree require an authenticated user and which roles may enter. */}
       <Routes>
         <Route path="/" element={<AppShell />}>
           <Route index element={<HomePage />} />
@@ -50,6 +53,10 @@ function App() {
             <Route path="portal/process-recordings" element={<ProcessRecordingPage />} />
             <Route path="portal/home-visitations" element={<HomeVisitationsPage />} />
             <Route path="portal/reports" element={<ReportsAnalyticsPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+            <Route path="portal/audit-history" element={<AuditHistoryPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Donor']} />}>

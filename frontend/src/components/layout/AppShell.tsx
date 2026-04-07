@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { clearThemePreference, getConsentLevel, getSavedTheme, persistThemePreference, type ThemeMode } from '../../lib/browserPreferences';
 import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
 
@@ -25,6 +26,7 @@ export function AppShell() {
   const { user, logout, authMessage, clearAuthMessage } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [theme, setTheme] = useState<ThemeMode>(() => (getConsentLevel() === 'accepted' ? getSavedTheme() : 'default'));
 
   // Keep the drawer closed when navigation changes and stop the page from scrolling behind it.
   useEffect(() => {
@@ -38,14 +40,36 @@ export function AppShell() {
     };
   }, [mobileNavOpen]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme === 'calm' ? 'calm' : 'default';
+  }, [theme]);
+
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
-  const portalLinks = isDonorOnly ? donorLinks : staffLinks;
+  const portalLinks = isDonorOnly
+    ? donorLinks
+    : user?.roles.includes('Admin')
+      ? [...staffLinks, { to: '/portal/audit-history', label: 'Audit History' }]
+      : staffLinks;
   const headerLinks = user
     ? [...publicLinks, { to: '/portal', label: 'Portal' }]
     : [...publicLinks, { to: '/login', label: 'Login' }];
+  const themeLabel = theme === 'calm' ? 'Calm theme' : 'Standard theme';
+
+  const toggleTheme = () => {
+    const nextTheme: ThemeMode = theme === 'default' ? 'calm' : 'default';
+    setTheme(nextTheme);
+
+    if (getConsentLevel() === 'accepted') {
+      persistThemePreference(nextTheme);
+    } else {
+      clearThemePreference();
+    }
+  };
 
   return (
     <div className="app-shell">
+      {/* The shell stays mounted across the public site and portal so navigation, feedback,
+          and layout behavior stay consistent while only the routed page content changes. */}
       <header className="topbar">
         <div className="topbar-inner">
           <div className="header-stack">
@@ -65,6 +89,9 @@ export function AppShell() {
                   Sign out
                 </button>
               ) : null}
+              <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
+                {themeLabel}
+              </button>
             </nav>
 
             <button
@@ -99,6 +126,9 @@ export function AppShell() {
                   Sign out
                 </button>
               ) : null}
+              <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
+                {themeLabel}
+              </button>
             </nav>
           </div>
         ) : null}
@@ -111,11 +141,15 @@ export function AppShell() {
               <div className="sidebar-heading">Portal</div>
               <div className="sidebar-user">
                 <strong>{user.fullName}</strong>
+                <span>{themeLabel}</span>
                 <div className="badge-group">
                   {user.roles.map((role) => (
                     <StatusBadge key={role} value={role} />
                   ))}
                 </div>
+                <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
+                  Toggle theme
+                </button>
               </div>
 
               <nav className="sidebar-nav">
@@ -169,10 +203,10 @@ export function AppShell() {
             </nav>
             <div className="site-footer-meta">
               <p>
-                <span className="site-footer-label">Contact (placeholder):</span>{' '}
+                <span className="site-footer-label">Contact:</span>{' '}
                 <a href="mailto:hello@harborlight.example.org">hello@harborlight.example.org</a>
               </p>
-              <p className="site-footer-note">Replace with your organization&apos;s real contact information.</p>
+              <p className="site-footer-note">For partnership inquiries, safeguarding questions, or donor support.</p>
             </div>
           </div>
         </div>

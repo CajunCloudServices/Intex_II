@@ -13,6 +13,8 @@ public class AppSeeder(
 {
     public async Task SeedAsync()
     {
+        // Roles must exist before user creation, because the seeded accounts are assigned
+        // immediately after the domain rows are inserted.
         foreach (var roleName in RoleNames.All)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
@@ -381,6 +383,8 @@ public class AppSeeder(
 
     private async Task SeedUsersAsync()
     {
+        // These seeded users are for local/demo verification. Production deployments should
+        // replace them with real admin-managed accounts and stronger secrets.
         var users = new[]
         {
             new SeedUser("admin@intex.local", "Admin!234567", "Avery Admin", RoleNames.Admin, null),

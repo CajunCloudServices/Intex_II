@@ -1,8 +1,18 @@
-# HarborLight Nexus Starter
+# HarborLight Nexus
 
-Production-minded INTEX starter architecture for a nonprofit operations platform covering donors, resident/case management, outreach analytics, and security/privacy foundations.
+Production-minded INTEX architecture for a nonprofit operations platform covering donors, resident/case management, outreach analytics, and security/privacy controls.
 
 This repo is meant to be understandable for a student team. The code is intentionally kept straightforward, the folder structure is simple, and the supporting docs point to the files that implement each major requirement.
+
+## Quick Start For New Teammates
+
+If you are trying to understand the project quickly, read in this order:
+
+1. this README
+2. [docs/architecture-overview.md](/Users/lajicpajam/School/Intex II/docs/architecture-overview.md)
+3. [docs/backend-walkthrough.md](/Users/lajicpajam/School/Intex II/docs/backend-walkthrough.md)
+4. [docs/frontend-walkthrough.md](/Users/lajicpajam/School/Intex II/docs/frontend-walkthrough.md)
+5. [docs/testing-checklist.md](/Users/lajicpajam/School/Intex II/docs/testing-checklist.md)
 
 ## Tech Stack
 
@@ -43,13 +53,14 @@ This repo is meant to be understandable for a student team. The code is intentio
   - `IncidentReport`
   - `SocialMediaPost`
   - `PublicImpactSnapshot`
-- Starter REST endpoints for auth, supporters, donations, residents, process recordings, home visitations, dashboard analytics, and public impact
-- Additional starter endpoints for safehouses and incident reports
+- REST endpoints for auth, supporters, donations, residents, process recordings, home visitations, dashboard analytics, and public impact
+- Additional endpoints for safehouses and incident reports
 - Delete endpoints that require explicit confirmation via `confirm=true`
 - React Router app shell with public pages and protected portal pages
 - Donor-only contribution history page
-- Cookie consent starter banner
-- Privacy policy starter page
+- Functional cookie consent banner tied to an optional browser-accessible theme preference
+- Tailored privacy policy page
+- Admin-only audit history for sensitive mutations
 - Dockerfiles and compose stack for Postgres, backend, and frontend
 - Backend test project with integration and validation tests
 - Frontend Playwright smoke script for public navigation, donor RBAC, and admin CRUD smoke coverage
@@ -62,16 +73,16 @@ Implemented:
 - JWT auth
 - ASP.NET Identity username/password authentication
 - role-gated API access
-- stronger-than-default password policy starter
+- stronger-than-default password and account lockout settings
 - basic security headers
-- starter CSP response header
+- least-privilege production CSP response header with development-only localhost allowances
+- HSTS in non-development environments
+- audit logging for sensitive admin create, update, and delete actions
+- functional cookie consent tied to a browser-accessible theme preference
 - environment-based secret/config wiring
 
 Scaffolded but not fully production-hardened:
 
-- Final CSP tightening
-- HSTS validation in real hosted deployment
-- audit logging
 - refresh tokens / revocation
 - advanced cookie/session strategy
 - MFA / third-party auth
@@ -109,6 +120,8 @@ The production values that stay outside source control include:
 
 This project uses ASP.NET Identity for username/password authentication and then issues JWTs for the React frontend after a successful sign-in.
 
+The password rules and account lockout settings in [backend/Intex.Api/Program.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs) are intentionally stronger than the minimum defaults so the security requirement is visible in code.
+
 ### 3. Backend API and database deployed to a public cloud host
 
 - production deployment workflow: [.github/workflows/deploy.yml](/Users/lajicpajam/School/Intex II/.github/workflows/deploy.yml)
@@ -142,7 +155,13 @@ Copy from [`.env.example`](/Users/lajicpajam/School/Intex II/.env.example) or ex
 - `POSTGRES_PASSWORD`
 - `CONNECTIONSTRINGS__DEFAULTCONNECTION`
 - `JWT__KEY` (use at least a 32-byte secret for HS256)
+- `JWT__ISSUER`
+- `JWT__AUDIENCE`
+- `CORS__ALLOWEDORIGINS__0`
+- `PUBLIC_API_HOSTNAME`
 - `VITE_API_URL`
+
+See [docs/production-environment.md](/Users/lajicpajam/School/Intex II/docs/production-environment.md) for the full local-vs-production split and how to explain secret handling to a grader.
 
 ## Run Locally
 
@@ -189,6 +208,7 @@ VITE_API_URL=http://localhost:5081/api npm run dev
 - `GET /api/auth/me`
 - `GET /api/public-impact`
 - `GET /api/dashboard/summary`
+- `GET /api/audit-log`
 - `GET /api/supporters`
 - `GET /api/donations`
 - `GET /api/donations/my-history`
@@ -224,13 +244,18 @@ SMOKE_BASE_URL=http://localhost:5173 npm run smoke
 
 Helpful docs:
 
+- Architecture overview: [docs/architecture-overview.md](/Users/lajicpajam/School/Intex II/docs/architecture-overview.md)
+- Backend walkthrough: [docs/backend-walkthrough.md](/Users/lajicpajam/School/Intex II/docs/backend-walkthrough.md)
+- Frontend walkthrough: [docs/frontend-walkthrough.md](/Users/lajicpajam/School/Intex II/docs/frontend-walkthrough.md)
 - Criteria map: [docs/criteria-map.md](/Users/lajicpajam/School/Intex II/docs/criteria-map.md)
 - Manual test checklist: [docs/testing-checklist.md](/Users/lajicpajam/School/Intex II/docs/testing-checklist.md)
+- Production environment guide: [docs/production-environment.md](/Users/lajicpajam/School/Intex II/docs/production-environment.md)
+- Security verification checks: [docs/security-verification.md](/Users/lajicpajam/School/Intex II/docs/security-verification.md)
+- Video demo checklist: [docs/video-demo-checklist.md](/Users/lajicpajam/School/Intex II/docs/video-demo-checklist.md)
+- Team notes: [docs/notes.md](/Users/lajicpajam/School/Intex II/docs/notes.md)
 
 ## Next Recommended Steps
 
-- Add audit history for case and donation changes
 - Split restricted resident notes into tighter access rules if needed
 - Add richer reporting and charting
-- Decide on final deployment target and tighten CSP/HSTS for that environment
 - Add broader end-to-end smoke coverage for the remaining CRUD pages

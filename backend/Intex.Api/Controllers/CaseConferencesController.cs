@@ -2,6 +2,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/case-conferences")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
-public class CaseConferencesController(ApplicationDbContext dbContext) : ControllerBase
+public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CaseConferenceResponse>>> GetAll([FromQuery] int? residentId)
@@ -39,6 +40,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext) : Control
         var entity = MapRequest(new CaseConference(), request);
         dbContext.CaseConferences.Add(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(CaseConference), entity.Id, $"Created case conference for resident #{entity.ResidentId}.", User);
 
         return CreatedAtAction(nameof(GetById), new { id = entity.Id }, await BuildQuery().FirstAsync(x => x.Id == entity.Id));
     }
@@ -55,6 +57,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext) : Control
 
         MapRequest(entity, request);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(CaseConference), entity.Id, $"Updated case conference for resident #{entity.ResidentId}.", User);
         return Ok(await BuildQuery().FirstAsync(x => x.Id == id));
     }
 
@@ -73,8 +76,10 @@ public class CaseConferencesController(ApplicationDbContext dbContext) : Control
             return NotFound();
         }
 
+        var summary = $"Deleted case conference for resident #{entity.ResidentId}.";
         dbContext.CaseConferences.Remove(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(CaseConference), id, summary, User);
         return NoContent();
     }
 

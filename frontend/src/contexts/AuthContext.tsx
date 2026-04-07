@@ -17,6 +17,8 @@ export const AuthContext = createContext<AuthContextValue | undefined>(undefined
 const TOKEN_STORAGE_KEY = 'intex.jwt';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // The provider restores a saved JWT on refresh, fetches /auth/me once, and then keeps the
+  // rest of the app focused on business logic instead of session bookkeeping.
   const [token, setToken] = useState<string | null>(localStorage.getItem(TOKEN_STORAGE_KEY));
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);

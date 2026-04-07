@@ -136,6 +136,25 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Register_WithWeakPassword_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/auth/register", new
+        {
+            email = "weak-password-user@example.com",
+            password = "Weakpass1",
+            fullName = "Weak Password User",
+            role = "Staff",
+            supporterId = (int?)null
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await response.Content.ReadAsStringAsync();
+        Assert.Contains("password", payload, StringComparison.OrdinalIgnoreCase);
+    }
+
     private async Task LoginAsAdminAsync()
     {
         var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!234567"));

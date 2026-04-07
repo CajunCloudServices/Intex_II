@@ -13,6 +13,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root[data-theme='calm'] {
+  color: #1c3142;
+  background:
+    radial-gradient(circle at top left, rgba(177, 218, 208, 0.5), transparent 35%),
+    linear-gradient(180deg, #f7faf8 0%, #eef5f1 100%);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -21,6 +28,12 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+}
+
+:root[data-theme='calm'] body {
+  background:
+    radial-gradient(circle at top left, rgba(177, 218, 208, 0.5), transparent 35%),
+    linear-gradient(180deg, #f7faf8 0%, #eef5f1 100%);
 }
 
 a {
@@ -53,6 +66,10 @@ textarea {
   position: sticky;
   top: 0;
   z-index: 20;
+}
+
+:root[data-theme='calm'] .topbar {
+  background: rgba(246, 252, 249, 0.92);
 }
 
 .topbar-inner {
@@ -161,6 +178,10 @@ textarea {
   min-height: calc(100vh - 73px);
   position: sticky;
   top: 73px;
+}
+
+:root[data-theme='calm'] .sidebar {
+  background: rgba(244, 250, 247, 0.9);
 }
 
 .sidebar-open {
@@ -312,6 +333,10 @@ textarea {
   padding: 2rem 2rem 2.25rem;
   border-top: 1px solid rgba(23, 49, 63, 0.1);
   background: rgba(255, 255, 255, 0.72);
+}
+
+:root[data-theme='calm'] .site-footer {
+  background: rgba(246, 252, 249, 0.9);
 }
 
 .site-footer-inner {
@@ -590,6 +615,10 @@ textarea {
   color: white;
 }
 
+:root[data-theme='calm'] .primary-button {
+  background: #285f73;
+}
+
 .secondary-button {
   background: #e8eff1;
   color: #17313f;
@@ -601,6 +630,10 @@ textarea {
   padding: 0.55rem 0.9rem;
   background: transparent;
   color: #17313f;
+}
+
+.theme-toggle {
+  white-space: nowrap;
 }
 
 .stack-form {
@@ -932,6 +965,10 @@ textarea {
   color: white;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.2);
   z-index: 40;
+}
+
+:root[data-theme='calm'] .cookie-banner {
+  background: #224454;
 }
 
 .cookie-banner p {

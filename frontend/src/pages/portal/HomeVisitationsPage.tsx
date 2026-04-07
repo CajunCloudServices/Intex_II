@@ -77,6 +77,8 @@ export function HomeVisitationsPage() {
   const loadData = async () => {
     if (!token) return;
 
+    // This page combines two related workflows on purpose: home visit notes and case
+    // conferences are usually reviewed together when staff are checking follow-up readiness.
     setLoading(true);
     setError(null);
 

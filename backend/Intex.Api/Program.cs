@@ -16,6 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
+// The API can run against Postgres for normal app usage or an in-memory database for tests
+// and quick local verification. Keeping that choice in one place makes the rest of the app
+// behave the same regardless of which provider is active.
 var useInMemoryDatabase = builder.Environment.IsEnvironment("Test") ||
     string.Equals(builder.Configuration["Database:Provider"], "InMemory", StringComparison.OrdinalIgnoreCase);
 
@@ -37,12 +40,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentityCore<ApplicationUser>(options =>
     {
+        // Password rules are intentionally stricter than the bare defaults so the project
+        // can point to a concrete security control during review.
         options.Password.RequiredLength = 12;
         options.Password.RequireDigit = true;
         options.Password.RequireLowercase = true;
         options.Password.RequireUppercase = true;
         options.Password.RequireNonAlphanumeric = true;
         options.User.RequireUniqueEmail = true;
+        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.AllowedForNewUsers = true;
     })
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -50,6 +58,16 @@ builder.Services
     .AddDefaultTokenProviders();
 
 var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
+var isProductionLike = !(builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Test"));
+if (isProductionLike &&
+    (string.IsNullOrWhiteSpace(jwtOptions.Key) ||
+     jwtOptions.Key.Length < 32 ||
+     jwtOptions.Key == JwtOptions.DevelopmentPlaceholderKey))
+{
+    throw new InvalidOperationException(
+        "Production startup requires a strong Jwt:Key value from environment variables or secret storage.");
+}
+
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key));
 var defaultFrontendOrigins = new[]
 {
@@ -69,7 +87,7 @@ builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.RequireHttpsMetadata = false;
+        options.RequireHttpsMetadata = isProductionLike;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -94,11 +112,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
+        // In production, CORS should come from environment variables so the deployed frontend
+        // can be changed without editing code. These localhost entries are only the fallback
+        // for local development when no explicit deployment origin has been provided yet.
         var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
         var validConfiguredOrigins = configuredOrigins?
             .Where(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
                 (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
-                (uri.AbsolutePath == "/" || string.IsNullOrEmpty(uri.AbsolutePath)))
+                (uri.AbsolutePath == "/" || string.IsNullOrEmpty(uri.AbsolutePath)) &&
+                (!isProductionLike || !uri.IsLoopback))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
 
@@ -120,6 +142,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<AppSeeder>();
 
 var app = builder.Build();
@@ -201,16 +224,21 @@ app.Use(async (context, next) =>
     context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
     context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
 
-    // This CSP is intentionally small for the local starter stack.
-    // When the app gets deployed, replace these localhost allowances with the real production domains only.
+    var cspConnectSources = app.Environment.IsDevelopment()
+        ? "'self' http://localhost:4173 http://localhost:4174 http://localhost:5173 http://localhost:5080 http://localhost:5081 http://localhost:5082 http://localhost:8080 https://localhost:4173 https://localhost:4174 https://localhost:5173"
+        : BuildProductionConnectSources(app.Configuration);
+
     context.Response.Headers["Content-Security-Policy"] =
         "default-src 'self'; " +
+        "base-uri 'self'; " +
+        "form-action 'self'; " +
+        "frame-ancestors 'none'; " +
+        "object-src 'none'; " +
         "script-src 'self'; " +
         "style-src 'self' 'unsafe-inline'; " +
         "img-src 'self' data: https:; " +
         "font-src 'self' data:; " +
-        "connect-src 'self' http://localhost:4173 http://localhost:4174 http://localhost:5173 http://localhost:5080 http://localhost:5081 http://localhost:5082 http://localhost:8080 https://localhost:4173 https://localhost:4174 https://localhost:5173; " +
-        "frame-ancestors 'none';";
+        $"connect-src {cspConnectSources};";
 
     await next();
 });
@@ -230,8 +258,46 @@ using (var scope = app.Services.CreateScope())
         await dbContext.Database.MigrateAsync();
     }
 
+    // Seed data gives the frontend meaningful records immediately after startup. The seeder is
+    // written to be idempotent, so repeated boots do not keep inserting duplicates.
     var seeder = scope.ServiceProvider.GetRequiredService<AppSeeder>();
     await seeder.SeedAsync();
 }
 
 app.Run();
+
+static string BuildProductionConnectSources(IConfiguration configuration)
+{
+    var configuredOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    var publicApiHostname = configuration["PUBLIC_API_HOSTNAME"];
+
+    var sources = configuredOrigins
+        .Append(NormalizeProductionOrigin(publicApiHostname))
+        .Where(value => !string.IsNullOrWhiteSpace(value))
+        .Select(value => value!.TrimEnd('/'))
+        .Where(value => Uri.TryCreate(value, UriKind.Absolute, out var uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
+            !uri.IsLoopback)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToList();
+
+    sources.Insert(0, "'self'");
+    return string.Join(' ', sources);
+}
+
+static string? NormalizeProductionOrigin(string? value)
+{
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        return null;
+    }
+
+    var trimmed = value.Trim().TrimEnd('/');
+    if (trimmed.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+        trimmed.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+    {
+        return trimmed;
+    }
+
+    return $"https://{trimmed}";
+}

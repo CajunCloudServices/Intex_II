@@ -83,6 +83,9 @@ export function ReportsAnalyticsPage() {
   const loadAnalytics = async () => {
     if (!token) return;
 
+    // Reports come from several purpose-specific endpoints instead of one giant payload.
+    // That keeps the backend query logic easier to understand and lets each report evolve
+    // without forcing every other module to change at the same time.
     setLoading(true);
     setError(null);
 

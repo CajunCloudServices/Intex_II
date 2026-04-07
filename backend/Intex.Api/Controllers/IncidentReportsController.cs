@@ -2,6 +2,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/incidents")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
-public class IncidentReportsController(ApplicationDbContext dbContext) : ControllerBase
+public class IncidentReportsController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<IncidentReportResponse>>> GetAll([FromQuery] int? residentId, [FromQuery] int? safehouseId)
@@ -60,6 +61,7 @@ public class IncidentReportsController(ApplicationDbContext dbContext) : Control
 
         dbContext.IncidentReports.Add(incident);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(IncidentReport), incident.Id, $"Created incident for resident #{incident.ResidentId} at safehouse #{incident.SafehouseId}.", User);
 
         var createdIncident = await QueryIncidents().FirstAsync(x => x.Id == incident.Id);
         return CreatedAtAction(nameof(GetById), new { id = incident.Id }, MapIncident(createdIncident));
@@ -88,6 +90,7 @@ public class IncidentReportsController(ApplicationDbContext dbContext) : Control
         incident.FollowUpRequired = request.FollowUpRequired;
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(IncidentReport), incident.Id, $"Updated incident for resident #{incident.ResidentId}.", User);
         var updatedIncident = await QueryIncidents().FirstAsync(x => x.Id == id);
         return Ok(MapIncident(updatedIncident));
     }
@@ -107,8 +110,10 @@ public class IncidentReportsController(ApplicationDbContext dbContext) : Control
             return NotFound();
         }
 
+        var summary = $"Deleted incident for resident #{incident.ResidentId}.";
         dbContext.IncidentReports.Remove(incident);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(IncidentReport), id, summary, User);
         return NoContent();
     }
 

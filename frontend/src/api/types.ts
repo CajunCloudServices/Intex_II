@@ -8,6 +8,17 @@ export interface UserProfile {
   supporterId?: number | null;
 }
 
+export interface AuditEvent {
+  id: number;
+  actionType: string;
+  entityType: string;
+  entityId: number;
+  actorUserId?: string | null;
+  actorEmail: string;
+  createdAtUtc: string;
+  summary: string;
+}
+
 export interface AuthResponse {
   token: string;
   expiresAtUtc: string;

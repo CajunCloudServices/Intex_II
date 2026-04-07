@@ -2,6 +2,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
-public class SafehousesController(ApplicationDbContext dbContext) : ControllerBase
+public class SafehousesController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SafehouseResponse>>> GetAll([FromQuery] string? status)
@@ -56,6 +57,7 @@ public class SafehousesController(ApplicationDbContext dbContext) : ControllerBa
 
         dbContext.Safehouses.Add(safehouse);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(Safehouse), safehouse.Id, $"Created safehouse {safehouse.Code} - {safehouse.Name}.", User);
 
         var createdSafehouse = await QuerySafehouses().FirstAsync(x => x.Id == safehouse.Id);
         return CreatedAtAction(nameof(GetById), new { id = safehouse.Id }, MapSafehouse(createdSafehouse));
@@ -85,6 +87,7 @@ public class SafehousesController(ApplicationDbContext dbContext) : ControllerBa
         safehouse.Notes = request.Notes;
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(Safehouse), safehouse.Id, $"Updated safehouse {safehouse.Code} - {safehouse.Name}.", User);
         var updatedSafehouse = await QuerySafehouses().FirstAsync(x => x.Id == id);
         return Ok(MapSafehouse(updatedSafehouse));
     }
@@ -104,8 +107,10 @@ public class SafehousesController(ApplicationDbContext dbContext) : ControllerBa
             return NotFound();
         }
 
+        var summary = $"Deleted safehouse {safehouse.Code} - {safehouse.Name}.";
         dbContext.Safehouses.Remove(safehouse);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(Safehouse), id, summary, User);
         return NoContent();
     }
 

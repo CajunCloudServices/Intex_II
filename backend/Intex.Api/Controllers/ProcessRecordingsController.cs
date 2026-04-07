@@ -2,6 +2,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/process-recordings")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
-public class ProcessRecordingsController(ApplicationDbContext dbContext) : ControllerBase
+public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProcessRecordingResponse>>> GetAll([FromQuery] int? residentId)
@@ -56,6 +57,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext) : Contr
 
         dbContext.ProcessRecordings.Add(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(ProcessRecording), entity.Id, $"Created process recording for resident #{entity.ResidentId}.", User);
 
         return CreatedAtAction(nameof(GetById), new { id = entity.Id }, await BuildQuery().FirstAsync(x => x.Id == entity.Id));
     }
@@ -86,6 +88,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext) : Contr
         entity.RestrictedNotes = request.RestrictedNotes;
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(ProcessRecording), entity.Id, $"Updated process recording for resident #{entity.ResidentId}.", User);
         return Ok(await BuildQuery().FirstAsync(x => x.Id == id));
     }
 
@@ -104,8 +107,10 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext) : Contr
             return NotFound();
         }
 
+        var summary = $"Deleted process recording for resident #{entity.ResidentId}.";
         dbContext.ProcessRecordings.Remove(entity);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(ProcessRecording), id, summary, User);
         return NoContent();
     }
 

@@ -15,6 +15,8 @@ public class JwtTokenService(
 {
     public async Task<AuthResponse> CreateAuthResponseAsync(ApplicationUser user)
     {
+        // The frontend only needs one auth payload after login: the JWT plus a compact user
+        // profile so React can immediately decide which portal routes to show.
         var options = jwtOptions.Value;
         var roles = await userManager.GetRolesAsync(user);
         var expiresAtUtc = DateTime.UtcNow.AddMinutes(options.ExpirationMinutes);

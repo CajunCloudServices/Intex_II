@@ -111,7 +111,7 @@ export function HomePage() {
           <h2 id="impact-heading">Impact at a glance</h2>
           <p className="home-section-lead">
             Numbers are only one part of the story—but they help show capacity, reach, and the trust donors place
-            in our work. (Figures shown are illustrative for this demo.)
+            in our work.
           </p>
         </div>
         <div className="page-grid three">

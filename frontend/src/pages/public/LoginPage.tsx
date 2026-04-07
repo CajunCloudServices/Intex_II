@@ -80,8 +80,8 @@ export function LoginPage() {
       </section>
 
       <SectionCard
-        title="Demo access"
-        subtitle="Open only if you need the seeded grading accounts."
+        title="Review access accounts"
+        subtitle="Open only when you need the prepared evaluation accounts."
         actions={
           <button className="ghost-button" onClick={() => setShowDemoAccess((value) => !value)} type="button">
             {showDemoAccess ? 'Hide accounts' : 'Show accounts'}
@@ -112,7 +112,7 @@ export function LoginPage() {
             ))}
           </div>
         ) : (
-          <p className="home-muted">The demo accounts remain available for grading, but they are hidden during normal use.</p>
+          <p className="home-muted">Prepared reviewer accounts are available when needed, but they stay hidden during normal use.</p>
         )}
       </SectionCard>
     </div>
