@@ -12,6 +12,7 @@ import type {
   Safehouse,
   SafehousePerformanceSummary,
   SafehouseRequest,
+  SocialAnalytics,
 } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
@@ -62,6 +63,9 @@ export function ReportsAnalyticsPage() {
   const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
   const [reintegrationSummary, setReintegrationSummary] = useState<ReintegrationSummary | null>(null);
   const [outreachPerformance, setOutreachPerformance] = useState<OutreachPerformanceSummary | null>(null);
+  const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
+  const [socialPlatformFilter, setSocialPlatformFilter] = useState('All');
+  const [socialTypeFilter, setSocialTypeFilter] = useState('All');
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
   const [incidents, setIncidents] = useState<IncidentReport[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
@@ -90,12 +94,13 @@ export function ReportsAnalyticsPage() {
     setError(null);
 
     try {
-      const [trendData, outcomeData, safehouseReport, reintegrationData, outreachData, safehouseData, incidentData, residentData] = await Promise.all([
+      const [trendData, outcomeData, safehouseReport, reintegrationData, outreachData, socialData, safehouseData, incidentData, residentData] = await Promise.all([
         api.donationTrends(token),
         api.residentOutcomes(token),
         api.safehousePerformance(token),
         api.reintegrationSummary(token),
         api.outreachPerformance(token),
+        api.socialAnalytics(token),
         api.safehouses(token),
         api.incidents(token),
         api.residents(token),
@@ -105,6 +110,7 @@ export function ReportsAnalyticsPage() {
       setSafehousePerformance(safehouseReport);
       setReintegrationSummary(reintegrationData);
       setOutreachPerformance(outreachData);
+      setSocialAnalytics(socialData);
       setSafehouses(safehouseData);
       setIncidents(incidentData);
       setResidents(residentData);
@@ -330,6 +336,30 @@ export function ReportsAnalyticsPage() {
                 emptyMessage="No safehouse performance data is available."
                 caption="Safehouse performance summary"
               />
+              {safehousePerformance?.monthlyTrends && safehousePerformance.monthlyTrends.length > 0 ? (
+                <div>
+                  <p className="muted-inline" style={{ margin: '0.5rem 0' }}>Monthly health score trend</p>
+                  {safehousePerformance.monthlyTrends.map((row) => {
+                    const maxHealth = Math.max(...row.monthlyTrend.map((p) => p.avgHealthScore), 1);
+                    return (
+                      <div key={row.safehouseId} style={{ marginBottom: '1rem' }}>
+                        <p className="muted-inline" style={{ margin: '0 0 0.4rem', fontWeight: 600 }}>{row.safehouseName}</p>
+                        <div className="chart-list">
+                          {row.monthlyTrend.map((point) => (
+                            <div className="chart-row" key={point.monthStart}>
+                              <span>{point.monthStart.slice(0, 7)}</span>
+                              <div className="chart-bar">
+                                <div style={{ width: `${Math.max((point.avgHealthScore / maxHealth) * 100, 8)}%` }} />
+                              </div>
+                              <strong>{point.avgHealthScore.toFixed(1)}</strong>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
             </SectionCard>
 
             <SectionCard title="Reintegration summary" subtitle="Current reintegration status and pathway mix">
@@ -347,21 +377,64 @@ export function ReportsAnalyticsPage() {
           </section>
 
           <section className="page-grid two dashboard-split">
-            <SectionCard title="Outreach performance" subtitle="Platform summaries and recent post performance">
-              {outreachPerformance ? (
-                <DataTable
-                  columns={['Platform', 'Avg engagement', 'Donation referrals', 'Estimated value']}
-                  rows={outreachPerformance.platformSummaries.map((item) => [
-                    item.platform,
-                    `${(item.averageEngagementRate * 100).toFixed(1)}%`,
-                    item.totalDonationReferrals,
-                    formatMoney(item.estimatedDonationValuePhp),
-                  ])}
-                  emptyMessage="No outreach platform summaries are available."
-                  caption="Outreach performance by platform"
-                />
+            <SectionCard
+              title="Social media analytics"
+              subtitle="Post-level performance across platforms"
+              actions={
+                <div className="filter-row">
+                  <select
+                    aria-label="Filter by platform"
+                    className="inline-select"
+                    value={socialPlatformFilter}
+                    onChange={(event) => setSocialPlatformFilter(event.target.value)}
+                  >
+                    <option>All</option>
+                    {[...new Set(socialAnalytics?.posts.map((p) => p.platform) ?? [])].map((pl) => (
+                      <option key={pl}>{pl}</option>
+                    ))}
+                  </select>
+                  <select
+                    aria-label="Filter by post type"
+                    className="inline-select"
+                    value={socialTypeFilter}
+                    onChange={(event) => setSocialTypeFilter(event.target.value)}
+                  >
+                    <option>All</option>
+                    {[...new Set(socialAnalytics?.posts.map((p) => p.postType) ?? [])].map((t) => (
+                      <option key={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+              }
+            >
+              {socialAnalytics ? (
+                <>
+                  <section className="page-grid four compact">
+                    <MetricCard label="Total impressions" value={socialAnalytics.totals.totalImpressions.toLocaleString()} detail="Cumulative impressions across all posts." />
+                    <MetricCard label="Total reach" value={socialAnalytics.totals.totalReach.toLocaleString()} detail="Unique accounts reached." />
+                    <MetricCard label="Donation referrals" value={String(socialAnalytics.totals.totalDonationReferrals)} detail="Clicks attributed to donations." accent />
+                    <MetricCard label="Avg engagement" value={`${(socialAnalytics.totals.avgEngagementRate * 100).toFixed(1)}%`} detail="Average engagement rate across posts." />
+                  </section>
+                  <DataTable
+                    columns={['Platform', 'Type', 'Date', 'Impressions', 'Reach', 'Engagement', 'CTR', 'Referrals']}
+                    rows={(socialAnalytics.posts
+                      .filter((p) => (socialPlatformFilter === 'All' || p.platform === socialPlatformFilter) && (socialTypeFilter === 'All' || p.postType === socialTypeFilter)))
+                      .map((post) => [
+                        post.platform,
+                        post.postType,
+                        post.createdAtUtc.slice(0, 10),
+                        post.impressions.toLocaleString(),
+                        post.reach.toLocaleString(),
+                        `${(post.engagementRate * 100).toFixed(1)}%`,
+                        post.clickThroughs.toLocaleString(),
+                        post.donationReferrals,
+                      ])}
+                    emptyMessage="No posts match the current filters."
+                    caption="Social media post-level performance"
+                  />
+                </>
               ) : (
-                <EmptyState title="No outreach data" message="No outreach performance data was returned." />
+                <EmptyState title="No social analytics data" message="No social analytics data was returned." />
               )}
             </SectionCard>
 
@@ -524,20 +597,20 @@ export function ReportsAnalyticsPage() {
                 <form className="stack-form" onSubmit={handleSafehouseSubmit}>
                   <FormSection title="Safehouse details">
                     <FormGrid>
-                      <label><span>Code</span><input value={safehouseForm.code} onChange={(event) => setSafehouseForm({ ...safehouseForm, code: event.target.value })} required /></label>
-                      <label><span>Name</span><input value={safehouseForm.name} onChange={(event) => setSafehouseForm({ ...safehouseForm, name: event.target.value })} required /></label>
-                      <label><span>Region</span><input value={safehouseForm.region} onChange={(event) => setSafehouseForm({ ...safehouseForm, region: event.target.value })} required /></label>
-                      <label><span>City</span><input value={safehouseForm.city} onChange={(event) => setSafehouseForm({ ...safehouseForm, city: event.target.value })} required /></label>
-                      <label><span>Province</span><input value={safehouseForm.province} onChange={(event) => setSafehouseForm({ ...safehouseForm, province: event.target.value })} required /></label>
-                      <label><span>Country</span><input value={safehouseForm.country} onChange={(event) => setSafehouseForm({ ...safehouseForm, country: event.target.value })} required /></label>
-                      <label><span>Open date</span><input type="date" value={safehouseForm.openDate} onChange={(event) => setSafehouseForm({ ...safehouseForm, openDate: event.target.value })} required /></label>
-                      <label><span>Status</span><input value={safehouseForm.status} onChange={(event) => setSafehouseForm({ ...safehouseForm, status: event.target.value })} required /></label>
-                      <label><span>Capacity (girls)</span><input type="number" min="0" value={safehouseForm.capacityGirls} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityGirls: Number(event.target.value) })} required /></label>
-                      <label><span>Capacity (staff)</span><input type="number" min="0" value={safehouseForm.capacityStaff} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityStaff: Number(event.target.value) })} required /></label>
-                      <label><span>Current occupancy</span><input type="number" min="0" value={safehouseForm.currentOccupancy} onChange={(event) => setSafehouseForm({ ...safehouseForm, currentOccupancy: Number(event.target.value) })} required /></label>
+                      <label htmlFor="sh-code"><span>Code</span><input id="sh-code" value={safehouseForm.code} onChange={(event) => setSafehouseForm({ ...safehouseForm, code: event.target.value })} required /></label>
+                      <label htmlFor="sh-name"><span>Name</span><input id="sh-name" value={safehouseForm.name} onChange={(event) => setSafehouseForm({ ...safehouseForm, name: event.target.value })} required /></label>
+                      <label htmlFor="sh-region"><span>Region</span><input id="sh-region" value={safehouseForm.region} onChange={(event) => setSafehouseForm({ ...safehouseForm, region: event.target.value })} required /></label>
+                      <label htmlFor="sh-city"><span>City</span><input id="sh-city" value={safehouseForm.city} onChange={(event) => setSafehouseForm({ ...safehouseForm, city: event.target.value })} required /></label>
+                      <label htmlFor="sh-province"><span>Province</span><input id="sh-province" value={safehouseForm.province} onChange={(event) => setSafehouseForm({ ...safehouseForm, province: event.target.value })} required /></label>
+                      <label htmlFor="sh-country"><span>Country</span><input id="sh-country" value={safehouseForm.country} onChange={(event) => setSafehouseForm({ ...safehouseForm, country: event.target.value })} required /></label>
+                      <label htmlFor="sh-open-date"><span>Open date</span><input id="sh-open-date" type="date" value={safehouseForm.openDate} onChange={(event) => setSafehouseForm({ ...safehouseForm, openDate: event.target.value })} required /></label>
+                      <label htmlFor="sh-status"><span>Status</span><input id="sh-status" value={safehouseForm.status} onChange={(event) => setSafehouseForm({ ...safehouseForm, status: event.target.value })} required /></label>
+                      <label htmlFor="sh-capacity-girls"><span>Capacity (girls)</span><input id="sh-capacity-girls" type="number" min="0" value={safehouseForm.capacityGirls} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityGirls: Number(event.target.value) })} required /></label>
+                      <label htmlFor="sh-capacity-staff"><span>Capacity (staff)</span><input id="sh-capacity-staff" type="number" min="0" value={safehouseForm.capacityStaff} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityStaff: Number(event.target.value) })} required /></label>
+                      <label htmlFor="sh-occupancy"><span>Current occupancy</span><input id="sh-occupancy" type="number" min="0" value={safehouseForm.currentOccupancy} onChange={(event) => setSafehouseForm({ ...safehouseForm, currentOccupancy: Number(event.target.value) })} required /></label>
                     </FormGrid>
                   </FormSection>
-                  <label><span>Notes</span><textarea value={safehouseForm.notes ?? ''} onChange={(event) => setSafehouseForm({ ...safehouseForm, notes: event.target.value })} rows={3} /></label>
+                  <label htmlFor="sh-notes"><span>Notes</span><textarea id="sh-notes" value={safehouseForm.notes ?? ''} onChange={(event) => setSafehouseForm({ ...safehouseForm, notes: event.target.value })} rows={3} /></label>
                   <div className="form-actions">
                     <button className="primary-button" disabled={submitting === 'safehouse'} type="submit">
                       {submitting === 'safehouse' ? 'Saving...' : editingSafehouseId ? 'Update safehouse' : 'Create safehouse'}
@@ -554,9 +627,9 @@ export function ReportsAnalyticsPage() {
                 <form className="stack-form" onSubmit={handleIncidentSubmit}>
                   <FormSection title="Incident details">
                     <FormGrid>
-                      <label>
+                      <label htmlFor="inc-resident">
                         <span>Resident</span>
-                        <select value={incidentForm.residentId} onChange={(event) => setIncidentForm({ ...incidentForm, residentId: Number(event.target.value) })}>
+                        <select id="inc-resident" value={incidentForm.residentId} onChange={(event) => setIncidentForm({ ...incidentForm, residentId: Number(event.target.value) })}>
                           {residents.map((resident) => (
                             <option key={resident.id} value={resident.id}>
                               {resident.caseControlNumber}
@@ -564,9 +637,9 @@ export function ReportsAnalyticsPage() {
                           ))}
                         </select>
                       </label>
-                      <label>
+                      <label htmlFor="inc-safehouse">
                         <span>Safehouse</span>
-                        <select value={incidentForm.safehouseId} onChange={(event) => setIncidentForm({ ...incidentForm, safehouseId: Number(event.target.value) })}>
+                        <select id="inc-safehouse" value={incidentForm.safehouseId} onChange={(event) => setIncidentForm({ ...incidentForm, safehouseId: Number(event.target.value) })}>
                           {safehouses.map((safehouse) => (
                             <option key={safehouse.id} value={safehouse.id}>
                               {safehouse.name}
@@ -574,19 +647,19 @@ export function ReportsAnalyticsPage() {
                           ))}
                         </select>
                       </label>
-                      <label><span>Incident date</span><input type="date" value={incidentForm.incidentDate} onChange={(event) => setIncidentForm({ ...incidentForm, incidentDate: event.target.value })} required /></label>
-                      <label><span>Incident type</span><input value={incidentForm.incidentType} onChange={(event) => setIncidentForm({ ...incidentForm, incidentType: event.target.value })} required /></label>
-                      <label><span>Severity</span><input value={incidentForm.severity} onChange={(event) => setIncidentForm({ ...incidentForm, severity: event.target.value })} required /></label>
-                      <label><span>Reported by</span><input value={incidentForm.reportedBy} onChange={(event) => setIncidentForm({ ...incidentForm, reportedBy: event.target.value })} required /></label>
+                      <label htmlFor="inc-date"><span>Incident date</span><input id="inc-date" type="date" value={incidentForm.incidentDate} onChange={(event) => setIncidentForm({ ...incidentForm, incidentDate: event.target.value })} required /></label>
+                      <label htmlFor="inc-type"><span>Incident type</span><input id="inc-type" value={incidentForm.incidentType} onChange={(event) => setIncidentForm({ ...incidentForm, incidentType: event.target.value })} required /></label>
+                      <label htmlFor="inc-severity"><span>Severity</span><input id="inc-severity" value={incidentForm.severity} onChange={(event) => setIncidentForm({ ...incidentForm, severity: event.target.value })} required /></label>
+                      <label htmlFor="inc-reported-by"><span>Reported by</span><input id="inc-reported-by" value={incidentForm.reportedBy} onChange={(event) => setIncidentForm({ ...incidentForm, reportedBy: event.target.value })} required /></label>
                     </FormGrid>
                   </FormSection>
-                  <label><span>Description</span><textarea value={incidentForm.description} onChange={(event) => setIncidentForm({ ...incidentForm, description: event.target.value })} rows={3} required /></label>
-                  <label><span>Response taken</span><textarea value={incidentForm.responseTaken} onChange={(event) => setIncidentForm({ ...incidentForm, responseTaken: event.target.value })} rows={3} required /></label>
+                  <label htmlFor="inc-description"><span>Description</span><textarea id="inc-description" value={incidentForm.description} onChange={(event) => setIncidentForm({ ...incidentForm, description: event.target.value })} rows={3} required /></label>
+                  <label htmlFor="inc-response"><span>Response taken</span><textarea id="inc-response" value={incidentForm.responseTaken} onChange={(event) => setIncidentForm({ ...incidentForm, responseTaken: event.target.value })} rows={3} required /></label>
                   <div className="check-grid">
                     <CheckboxField label="Resolved" checked={incidentForm.resolved} onChange={(checked) => setIncidentForm({ ...incidentForm, resolved: checked })} />
                     <CheckboxField label="Follow-up required" checked={incidentForm.followUpRequired} onChange={(checked) => setIncidentForm({ ...incidentForm, followUpRequired: checked })} />
                   </div>
-                  <label><span>Resolution date</span><input type="date" value={incidentForm.resolutionDate ?? ''} onChange={(event) => setIncidentForm({ ...incidentForm, resolutionDate: event.target.value })} /></label>
+                  <label htmlFor="inc-resolution-date"><span>Resolution date</span><input id="inc-resolution-date" type="date" value={incidentForm.resolutionDate ?? ''} onChange={(event) => setIncidentForm({ ...incidentForm, resolutionDate: event.target.value })} /></label>
                   <div className="form-actions">
                     <button className="primary-button" disabled={submitting === 'incident'} type="submit">
                       {submitting === 'incident' ? 'Saving...' : editingIncidentId ? 'Update incident' : 'Create incident'}

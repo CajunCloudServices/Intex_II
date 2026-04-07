@@ -10,3 +10,7 @@ frontend/dist/
 *.png
 *.jpg
 *.jpeg
+# Lighthouse HTML reports are CI artifacts — use actions/upload-artifact, not git
+docs/lighthouse/*.html
+docs/lighthouse/manifest.json
+docs/lighthouse/links.json

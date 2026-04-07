@@ -313,6 +313,22 @@ export interface ResidentOutcomeSummary {
   reintegrationStatuses: BreakdownItem[];
 }
 
+export interface SafehouseMonthlyTrendPoint {
+  monthStart: string;
+  activeResidents: number;
+  avgEducationProgress: number;
+  avgHealthScore: number;
+  processRecordingCount: number;
+  homeVisitationCount: number;
+  incidentCount: number;
+}
+
+export interface SafehouseTrendRow {
+  safehouseId: number;
+  safehouseName: string;
+  monthlyTrend: SafehouseMonthlyTrendPoint[];
+}
+
 export interface SafehousePerformanceSummary {
   safehouses: {
     safehouseId: number;
@@ -323,6 +339,7 @@ export interface SafehousePerformanceSummary {
     incidentCount: number;
     donationAllocationTotal: number;
   }[];
+  monthlyTrends: SafehouseTrendRow[];
 }
 
 export interface ReintegrationSummary {
@@ -346,6 +363,45 @@ export interface OutreachPerformanceSummary {
     donationReferrals: number;
     estimatedDonationValuePhp: number;
   }[];
+}
+
+export interface SocialPostDetail {
+  id: number;
+  platform: string;
+  postType: string;
+  caption?: string | null;
+  createdAtUtc: string;
+  campaignName?: string | null;
+  impressions: number;
+  reach: number;
+  likes: number;
+  comments: number;
+  shares: number;
+  clickThroughs: number;
+  engagementRate: number;
+  donationReferrals: number;
+  estimatedDonationValuePhp: number;
+  isBoosted: boolean;
+}
+
+export interface SocialAnalyticsTotals {
+  totalPosts: number;
+  totalImpressions: number;
+  totalReach: number;
+  totalDonationReferrals: number;
+  totalEstimatedValuePhp: number;
+  avgEngagementRate: number;
+}
+
+export interface SocialAnalytics {
+  totals: SocialAnalyticsTotals;
+  platformSummaries: {
+    platform: string;
+    averageEngagementRate: number;
+    totalDonationReferrals: number;
+    estimatedDonationValuePhp: number;
+  }[];
+  posts: SocialPostDetail[];
 }
 
 export interface SupporterRequest {

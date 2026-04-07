@@ -646,6 +646,19 @@ textarea {
   font-size: 2rem;
 }
 
+.metric-card-label {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid #0b7f6b;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 .primary-button,
 .secondary-button {
   border: none;
@@ -1336,5 +1349,50 @@ textarea {
   .form-grid-three,
   .check-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .topbar,
+  .sidebar,
+  .sidebar-backdrop,
+  .site-footer,
+  .cookie-banner,
+  .section-card-actions,
+  .form-actions,
+  .table-actions,
+  .ghost-button,
+  .primary-button,
+  .secondary-button,
+  .filter-row,
+  .page-header .eyebrow {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  .shell-body {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-panel {
+    background: white;
+    color: black;
+    border: 1px solid #ccc;
+    box-shadow: none;
+    break-inside: avoid;
+  }
+
+  .detail-panel-header p,
+  .detail-list dt,
+  .detail-list dd {
+    color: black;
+  }
+
+  .detail-list div {
+    border-bottom-color: #ccc;
   }
 }

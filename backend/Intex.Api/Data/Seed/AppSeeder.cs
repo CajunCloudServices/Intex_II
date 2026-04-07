@@ -132,6 +132,23 @@ public class AppSeeder(
                 FirstDonationDate = new DateOnly(2025, 7, 1),
                 AcquisitionChannel = "PartnerReferral",
                 CreatedAtUtc = new DateTime(2025, 7, 1, 9, 0, 0, DateTimeKind.Utc)
+            },
+            // Second individual donor — used for donor isolation tests.
+            new Supporter
+            {
+                SupporterType = "MonetaryDonor",
+                DisplayName = "Alex Rivera",
+                FirstName = "Alex",
+                LastName = "Rivera",
+                RelationshipType = "Individual",
+                Region = "Asia Pacific",
+                Country = "Australia",
+                Email = "donor2@intex.local",
+                Phone = "555-0103",
+                Status = "Active",
+                FirstDonationDate = new DateOnly(2026, 1, 10),
+                AcquisitionChannel = "SocialMedia",
+                CreatedAtUtc = new DateTime(2026, 1, 10, 10, 0, 0, DateTimeKind.Utc)
             }
         };
 
@@ -427,6 +444,21 @@ public class AppSeeder(
                 IsRecurring = false,
                 CampaignName = "Back to School",
                 Notes = "Corporate partner event pledge."
+            },
+            // Donor2-only donation — must not appear in donor1's my-history response.
+            new Donation
+            {
+                SupporterId = supporters[2].Id,
+                DonationType = "Monetary",
+                DonationDate = new DateOnly(2026, 1, 15),
+                ChannelSource = "SocialMedia",
+                CurrencyCode = "AUD",
+                Amount = 100m,
+                EstimatedValue = 100m,
+                ImpactUnit = "pesos",
+                IsRecurring = false,
+                CampaignName = "Back to School",
+                Notes = "One-time online gift."
             });
 
         await dbContext.SaveChangesAsync();
@@ -450,6 +482,15 @@ public class AppSeeder(
                 AmountAllocated = 50000m,
                 AllocationDate = new DateOnly(2026, 3, 23),
                 AllocationNotes = "School fees and materials."
+            },
+            new DonationAllocation
+            {
+                DonationId = donations[2].Id,
+                SafehouseId = safehouses[0].Id,
+                ProgramArea = "Education",
+                AmountAllocated = 100m,
+                AllocationDate = new DateOnly(2026, 1, 16),
+                AllocationNotes = "School supply contribution from donor2."
             });
 
         var partners = await dbContext.Partners.OrderBy(x => x.Id).ToListAsync();
@@ -476,6 +517,35 @@ public class AppSeeder(
             });
 
         dbContext.SafehouseMonthlyMetrics.AddRange(
+            // SH-01 — January 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[0].Id,
+                MonthStart = new DateOnly(2026, 1, 1),
+                MonthEnd = new DateOnly(2026, 1, 31),
+                ActiveResidents = 16,
+                AvgEducationProgress = 68.0m,
+                AvgHealthScore = 6.6m,
+                ProcessRecordingCount = 18,
+                HomeVisitationCount = 4,
+                IncidentCount = 3,
+                Notes = "January intake; several new residents settling in."
+            },
+            // SH-01 — February 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[0].Id,
+                MonthStart = new DateOnly(2026, 2, 1),
+                MonthEnd = new DateOnly(2026, 2, 28),
+                ActiveResidents = 17,
+                AvgEducationProgress = 71.2m,
+                AvgHealthScore = 6.8m,
+                ProcessRecordingCount = 19,
+                HomeVisitationCount = 5,
+                IncidentCount = 2,
+                Notes = "Education attendance improving after schedule stabilisation."
+            },
+            // SH-01 — March 2026
             new SafehouseMonthlyMetric
             {
                 SafehouseId = safehouses[0].Id,
@@ -489,6 +559,35 @@ public class AppSeeder(
                 IncidentCount = 2,
                 Notes = "Stable month with moderate case activity."
             },
+            // SH-02 — January 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[1].Id,
+                MonthStart = new DateOnly(2026, 1, 1),
+                MonthEnd = new DateOnly(2026, 1, 31),
+                ActiveResidents = 8,
+                AvgEducationProgress = 61.5m,
+                AvgHealthScore = 5.9m,
+                ProcessRecordingCount = 13,
+                HomeVisitationCount = 3,
+                IncidentCount = 2,
+                Notes = "Low staffing coverage; partner support gap."
+            },
+            // SH-02 — February 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[1].Id,
+                MonthStart = new DateOnly(2026, 2, 1),
+                MonthEnd = new DateOnly(2026, 2, 28),
+                ActiveResidents = 9,
+                AvgEducationProgress = 64.8m,
+                AvgHealthScore = 6.1m,
+                ProcessRecordingCount = 15,
+                HomeVisitationCount = 3,
+                IncidentCount = 1,
+                Notes = "Partner tutoring programme began mid-month."
+            },
+            // SH-02 — March 2026
             new SafehouseMonthlyMetric
             {
                 SafehouseId = safehouses[1].Id,
@@ -555,6 +654,139 @@ public class AppSeeder(
                 EngagementRate = 0.0685m,
                 DonationReferrals = 7,
                 EstimatedDonationValuePhp = 42000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Instagram",
+                PlatformPostId = "ig_20001",
+                PostUrl = "https://example.org/posts/ig_20001",
+                CreatedAtUtc = new DateTime(2026, 3, 8, 10, 0, 0, DateTimeKind.Utc),
+                PostType = "Appeal",
+                MediaType = "Reel",
+                Caption = "Every peso counts. Help us keep our safehouses running.",
+                Hashtags = "#GiveHope,#BackToSchool",
+                HasCallToAction = true,
+                CallToActionType = "DonateNow",
+                ContentTopic = "Fundraising",
+                SentimentTone = "Urgent",
+                FeaturesResidentStory = false,
+                CampaignName = "Back to School",
+                IsBoosted = true,
+                BoostBudgetPhp = 1800m,
+                Impressions = 18500,
+                Reach = 13200,
+                Likes = 780,
+                Comments = 94,
+                Shares = 210,
+                ClickThroughs = 312,
+                EngagementRate = 0.0588m,
+                DonationReferrals = 14,
+                EstimatedDonationValuePhp = 78000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Facebook",
+                PlatformPostId = "fb_10002",
+                PostUrl = "https://example.org/posts/fb_10002",
+                CreatedAtUtc = new DateTime(2026, 2, 14, 9, 0, 0, DateTimeKind.Utc),
+                PostType = "EventPromo",
+                MediaType = "Photo",
+                Caption = "Join us for our February fundraising evening.",
+                Hashtags = "#HarborLightEvent,#HopeForGirls",
+                HasCallToAction = true,
+                CallToActionType = "RegisterNow",
+                ContentTopic = "Events",
+                SentimentTone = "Celebratory",
+                FeaturesResidentStory = false,
+                CampaignName = "Year-End Hope",
+                IsBoosted = false,
+                Impressions = 5400,
+                Reach = 3900,
+                Likes = 182,
+                Comments = 23,
+                Shares = 38,
+                ClickThroughs = 64,
+                EngagementRate = 0.0452m,
+                DonationReferrals = 3,
+                EstimatedDonationValuePhp = 18500m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Instagram",
+                PlatformPostId = "ig_20002",
+                PostUrl = "https://example.org/posts/ig_20002",
+                CreatedAtUtc = new DateTime(2026, 2, 5, 11, 30, 0, DateTimeKind.Utc),
+                PostType = "ImpactStory",
+                MediaType = "Photo",
+                Caption = "What does resilience look like? It looks like this.",
+                Hashtags = "#DonorImpact,#SafeHaven",
+                HasCallToAction = false,
+                ContentTopic = "DonorImpact",
+                SentimentTone = "Hopeful",
+                FeaturesResidentStory = true,
+                IsBoosted = false,
+                Impressions = 9700,
+                Reach = 7200,
+                Likes = 620,
+                Comments = 77,
+                Shares = 91,
+                ClickThroughs = 48,
+                EngagementRate = 0.0812m,
+                DonationReferrals = 5,
+                EstimatedDonationValuePhp = 29000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Facebook",
+                PlatformPostId = "fb_10003",
+                PostUrl = "https://example.org/posts/fb_10003",
+                CreatedAtUtc = new DateTime(2026, 1, 20, 8, 0, 0, DateTimeKind.Utc),
+                PostType = "Appeal",
+                MediaType = "Video",
+                Caption = "Our girls are heading back to school. Can you help?",
+                Hashtags = "#BackToSchool,#HopeForGirls",
+                HasCallToAction = true,
+                CallToActionType = "DonateNow",
+                ContentTopic = "Education",
+                SentimentTone = "Hopeful",
+                FeaturesResidentStory = false,
+                CampaignName = "Back to School",
+                IsBoosted = true,
+                BoostBudgetPhp = 3000m,
+                Impressions = 22000,
+                Reach = 15800,
+                Likes = 910,
+                Comments = 118,
+                Shares = 265,
+                ClickThroughs = 407,
+                EngagementRate = 0.0590m,
+                DonationReferrals = 18,
+                EstimatedDonationValuePhp = 95000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Instagram",
+                PlatformPostId = "ig_20003",
+                PostUrl = "https://example.org/posts/ig_20003",
+                CreatedAtUtc = new DateTime(2026, 1, 10, 12, 0, 0, DateTimeKind.Utc),
+                PostType = "PartnerSpotlight",
+                MediaType = "Photo",
+                Caption = "Thank you to our partners who make every day possible.",
+                Hashtags = "#ThankYou,#CommunityImpact",
+                HasCallToAction = false,
+                ContentTopic = "Partnerships",
+                SentimentTone = "Grateful",
+                FeaturesResidentStory = false,
+                IsBoosted = false,
+                Impressions = 4200,
+                Reach = 3100,
+                Likes = 245,
+                Comments = 19,
+                Shares = 31,
+                ClickThroughs = 22,
+                EngagementRate = 0.0702m,
+                DonationReferrals = 1,
+                EstimatedDonationValuePhp = 5000m
             });
 
         dbContext.PublicImpactSnapshots.AddRange(
@@ -581,6 +813,11 @@ public class AppSeeder(
     {
         var donorSupporterId = await dbContext.Supporters
             .Where(x => x.Email == "donor@intex.local")
+            .Select(x => (int?)x.Id)
+            .FirstOrDefaultAsync();
+
+        var donor2SupporterId = await dbContext.Supporters
+            .Where(x => x.Email == "donor2@intex.local")
             .Select(x => (int?)x.Id)
             .FirstOrDefaultAsync();
 
@@ -611,7 +848,8 @@ public class AppSeeder(
         {
             new SeedUser("admin@intex.local", "Admin!234567", "Avery Admin", RoleNames.Admin, null),
             new SeedUser("staff@intex.local", "Staff!234567", "Skyler Staff", RoleNames.Staff, null),
-            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor, donorSupporterId)
+            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor, donorSupporterId),
+            new SeedUser("donor2@intex.local", "Donor2!234567", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
         };
 
         foreach (var seedUser in users)

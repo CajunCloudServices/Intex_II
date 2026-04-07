@@ -5,6 +5,7 @@ import type {
   ReintegrationSummary,
   ResidentOutcomeSummary,
   SafehousePerformanceSummary,
+  SocialAnalytics,
 } from '../types';
 
 export const reportsApi = {
@@ -30,6 +31,11 @@ export const reportsApi = {
 
   outreachPerformance: (token: string) =>
     apiRequest<OutreachPerformanceSummary>('/reports/outreach-performance', {
+      token,
+    }),
+
+  socialAnalytics: (token: string) =>
+    apiRequest<SocialAnalytics>('/reports/social-analytics', {
       token,
     }),
 };

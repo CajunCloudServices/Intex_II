@@ -127,7 +127,27 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
                 x.DonationAllocations.Sum(a => a.AmountAllocated)))
             .ToListAsync();
 
-        return Ok(new SafehousePerformanceResponse(safehouses));
+        var monthlyTrends = (await dbContext.SafehouseMonthlyMetrics
+            .Include(x => x.Safehouse)
+            .OrderBy(x => x.SafehouseId)
+            .ThenBy(x => x.MonthStart)
+            .ToListAsync())
+            .GroupBy(x => new { x.SafehouseId, x.Safehouse!.Name })
+            .Select(group => new SafehouseTrendRowDto(
+                group.Key.SafehouseId,
+                group.Key.Name,
+                group.Select(m => new SafehouseMonthlyTrendPointDto(
+                    m.MonthStart,
+                    m.ActiveResidents,
+                    m.AvgEducationProgress,
+                    m.AvgHealthScore,
+                    m.ProcessRecordingCount,
+                    m.HomeVisitationCount,
+                    m.IncidentCount))
+                .ToList()))
+            .ToList();
+
+        return Ok(new SafehousePerformanceResponse(safehouses, monthlyTrends));
     }
 
     [HttpGet("reintegration-summary")]
@@ -191,5 +211,53 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToListAsync();
 
         return Ok(new OutreachPerformanceResponse(platformSummaries, recentPosts));
+    }
+
+    [HttpGet("social-analytics")]
+    public async Task<ActionResult<SocialAnalyticsResponse>> GetSocialAnalytics()
+    {
+        // TODO: Add optional ?platform=&type=&from=&to=&page=&pageSize= query params when post volumes grow.
+        var posts = await dbContext.SocialMediaPosts
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .ToListAsync();
+
+        var totals = new SocialAnalyticsTotalsDto(
+            posts.Count,
+            posts.Sum(x => x.Impressions),
+            posts.Sum(x => x.Reach),
+            posts.Sum(x => x.DonationReferrals),
+            posts.Sum(x => x.EstimatedDonationValuePhp),
+            posts.Count > 0 ? posts.Average(x => x.EngagementRate) : 0m);
+
+        var platformSummaries = posts
+            .GroupBy(x => x.Platform)
+            .OrderByDescending(x => x.Sum(p => p.DonationReferrals))
+            .Select(group => new PlatformPerformanceDto(
+                group.Key,
+                group.Average(x => x.EngagementRate),
+                group.Sum(x => x.DonationReferrals),
+                group.Sum(x => x.EstimatedDonationValuePhp)))
+            .ToList();
+
+        var postDetails = posts.Select(x => new SocialPostDetailDto(
+            x.Id,
+            x.Platform,
+            x.PostType,
+            x.Caption,
+            x.CreatedAtUtc,
+            x.CampaignName,
+            x.Impressions,
+            x.Reach,
+            x.Likes,
+            x.Comments,
+            x.Shares,
+            x.ClickThroughs,
+            x.EngagementRate,
+            x.DonationReferrals,
+            x.EstimatedDonationValuePhp,
+            x.IsBoosted))
+            .ToList();
+
+        return Ok(new SocialAnalyticsResponse(totals, platformSummaries, postDetails));
     }
 }

@@ -38,7 +38,23 @@ public record SafehousePerformanceRowDto(
     int IncidentCount,
     decimal DonationAllocationTotal);
 
-public record SafehousePerformanceResponse(IReadOnlyList<SafehousePerformanceRowDto> Safehouses);
+public record SafehouseMonthlyTrendPointDto(
+    DateOnly MonthStart,
+    int ActiveResidents,
+    decimal AvgEducationProgress,
+    decimal AvgHealthScore,
+    int ProcessRecordingCount,
+    int HomeVisitationCount,
+    int IncidentCount);
+
+public record SafehouseTrendRowDto(
+    int SafehouseId,
+    string SafehouseName,
+    IReadOnlyList<SafehouseMonthlyTrendPointDto> MonthlyTrend);
+
+public record SafehousePerformanceResponse(
+    IReadOnlyList<SafehousePerformanceRowDto> Safehouses,
+    IReadOnlyList<SafehouseTrendRowDto> MonthlyTrends);
 
 public record ReintegrationSummaryResponse(
     IReadOnlyList<BreakdownItemDto> ReintegrationStatuses,
@@ -62,3 +78,35 @@ public record PlatformPerformanceDto(
 public record OutreachPerformanceResponse(
     IReadOnlyList<PlatformPerformanceDto> PlatformSummaries,
     IReadOnlyList<OutreachPerformanceRowDto> RecentPosts);
+
+public record SocialPostDetailDto(
+    int Id,
+    string Platform,
+    string PostType,
+    string? Caption,
+    DateTime CreatedAtUtc,
+    string? CampaignName,
+    int Impressions,
+    int Reach,
+    int Likes,
+    int Comments,
+    int Shares,
+    int ClickThroughs,
+    decimal EngagementRate,
+    int DonationReferrals,
+    decimal EstimatedDonationValuePhp,
+    bool IsBoosted);
+
+public record SocialAnalyticsTotalsDto(
+    int TotalPosts,
+    int TotalImpressions,
+    int TotalReach,
+    int TotalDonationReferrals,
+    decimal TotalEstimatedValuePhp,
+    decimal AvgEngagementRate);
+
+// TODO: Add optional ?platform=&type=&from=&to=&page=&pageSize= query params when post volumes grow.
+public record SocialAnalyticsResponse(
+    SocialAnalyticsTotalsDto Totals,
+    IReadOnlyList<PlatformPerformanceDto> PlatformSummaries,
+    IReadOnlyList<SocialPostDetailDto> Posts);

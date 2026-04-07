@@ -122,12 +122,86 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         var safehousePerformance = await _client.GetAsync("/api/reports/safehouse-performance");
         var reintegration = await _client.GetAsync("/api/reports/reintegration-summary");
         var outreach = await _client.GetAsync("/api/reports/outreach-performance");
+        var socialAnalytics = await _client.GetAsync("/api/reports/social-analytics");
 
         Assert.True(donationTrends.IsSuccessStatusCode, await donationTrends.Content.ReadAsStringAsync());
         Assert.True(residentOutcomes.IsSuccessStatusCode, await residentOutcomes.Content.ReadAsStringAsync());
         Assert.True(safehousePerformance.IsSuccessStatusCode, await safehousePerformance.Content.ReadAsStringAsync());
         Assert.True(reintegration.IsSuccessStatusCode, await reintegration.Content.ReadAsStringAsync());
         Assert.True(outreach.IsSuccessStatusCode, await outreach.Content.ReadAsStringAsync());
+        Assert.True(socialAnalytics.IsSuccessStatusCode, await socialAnalytics.Content.ReadAsStringAsync());
+    }
+
+    [Fact]
+    public async Task SafehousePerformance_IncludesMonthlyTrends()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.GetAsync("/api/reports/safehouse-performance");
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var payload = await response.Content.ReadFromJsonAsync<SafehousePerformanceResponse>();
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload!.MonthlyTrends);
+
+        var firstTrend = payload.MonthlyTrends[0];
+        Assert.True(firstTrend.MonthlyTrend.Count >= 3, "Expected at least 3 monthly trend points per safehouse.");
+        Assert.True(firstTrend.MonthlyTrend.All(p => p.AvgHealthScore > 0), "Each trend point should have a non-zero health score.");
+    }
+
+    [Fact]
+    public async Task SocialAnalytics_HasPostLevelData()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.GetAsync("/api/reports/social-analytics");
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var payload = await response.Content.ReadFromJsonAsync<SocialAnalyticsResponse>();
+        Assert.NotNull(payload);
+        Assert.True(payload!.Posts.Count >= 1, "Expected at least one social post.");
+        Assert.True(payload.Posts[0].Impressions > 0, "First post should have non-zero impressions.");
+        Assert.True(payload.Posts[0].EngagementRate > 0, "First post should have a non-zero engagement rate.");
+        Assert.True(payload.Totals.TotalPosts >= 1);
+        Assert.NotEmpty(payload.PlatformSummaries);
+    }
+
+    [Fact]
+    public async Task DonorHistory_IncludesAllocationsWithSafehouseName()
+    {
+        await LoginAsDonorAsync();
+
+        var response = await _client.GetAsync("/api/donations/my-history");
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var donations = await response.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(donations);
+        Assert.NotEmpty(donations!);
+
+        var withAllocations = donations!.FirstOrDefault(d => d.Allocations.Count > 0);
+        Assert.NotNull(withAllocations);
+        Assert.False(string.IsNullOrWhiteSpace(withAllocations!.Allocations[0].SafehouseName));
+        Assert.False(string.IsNullOrWhiteSpace(withAllocations.Allocations[0].ProgramArea));
+    }
+
+    [Fact]
+    public async Task DonorCannotSeeOtherDonorsHistory()
+    {
+        // donor2@intex.local has one distinct donation (SupporterId = donor2's supporter row).
+        // Logging in as donor1 must not return donor2's donation.
+        await LoginAsDonorAsync();
+        var donor1History = await _client.GetAsync("/api/donations/my-history");
+        var donor1Donations = await donor1History.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(donor1Donations);
+
+        await LoginAsDonor2Async();
+        var donor2History = await _client.GetAsync("/api/donations/my-history");
+        var donor2Donations = await donor2History.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(donor2Donations);
+
+        var donor1Ids = donor1Donations!.Select(d => d.Id).ToHashSet();
+        var donor2Ids = donor2Donations!.Select(d => d.Id).ToHashSet();
+        Assert.Empty(donor1Ids.Intersect(donor2Ids));
     }
 
     [Fact]
@@ -267,6 +341,16 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     private async Task LoginAsDonorAsync()
     {
         var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!234567"));
+        Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
+
+        var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
+        Assert.NotNull(auth);
+        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
+    }
+
+    private async Task LoginAsDonor2Async()
+    {
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor2@intex.local", "Donor2!234567"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
