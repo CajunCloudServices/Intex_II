@@ -80,6 +80,79 @@ public class SupportersController(ApplicationDbContext dbContext, IAuditLogServi
         return supporter is null ? NotFound() : Ok(supporter);
     }
 
+    [HttpGet("churn-risk-summary")]
+    public async Task<ActionResult<DonorChurnRiskSummaryResponse>> GetChurnRiskSummary([FromQuery] int top = 15)
+    {
+        var supporters = await dbContext.Supporters
+            .AsNoTracking()
+            .Include(x => x.Donations)
+            .ToListAsync();
+
+        if (supporters.Count == 0)
+        {
+            return Ok(new DonorChurnRiskSummaryResponse(0, 0, 0, 0, []));
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var rows = supporters.Select(supporter =>
+        {
+            var donationCount = supporter.Donations.Count;
+            var lifetimeDonation = supporter.Donations.Sum(x => x.Amount ?? x.EstimatedValue);
+            var lastDonation = supporter.Donations
+                .OrderByDescending(x => x.DonationDate)
+                .Select(x => (DateOnly?)x.DonationDate)
+                .FirstOrDefault();
+            var daysSinceLastDonation = lastDonation.HasValue
+                ? today.DayNumber - lastDonation.Value.DayNumber
+                : 999;
+
+            var isRecurringDonor = supporter.Donations.Any(x => x.IsRecurring);
+            var isActiveStatus = string.Equals(supporter.Status, "Active", StringComparison.OrdinalIgnoreCase);
+            var isColdChannel = supporter.AcquisitionChannel.Equals("SocialMedia", StringComparison.OrdinalIgnoreCase)
+                || supporter.AcquisitionChannel.Equals("Event", StringComparison.OrdinalIgnoreCase);
+
+            var probability =
+                0.18m +
+                Math.Min(daysSinceLastDonation / 365m, 0.55m) +
+                (donationCount <= 1 ? 0.18m : 0m) +
+                (lifetimeDonation < 500m ? 0.08m : 0m) +
+                (!isRecurringDonor ? 0.12m : -0.10m) +
+                (!isActiveStatus ? 0.15m : 0m) +
+                (isColdChannel ? 0.05m : 0m);
+
+            var boundedProbability = Math.Clamp(probability, 0.01m, 0.99m);
+            var riskTier = boundedProbability >= 0.70m ? "High"
+                : boundedProbability >= 0.40m ? "Medium"
+                : "Low";
+            var action = riskTier switch
+            {
+                "High" => "Initiate personal outreach within 7 days and propose recurring support options.",
+                "Medium" => "Queue donor for monthly retention touchpoint and tailored campaign follow-up.",
+                _ => "Continue normal stewardship cadence."
+            };
+
+            return new DonorChurnRiskRowDto(
+                supporter.Id,
+                supporter.DisplayName,
+                Math.Round(boundedProbability, 4),
+                riskTier,
+                lastDonation,
+                lifetimeDonation,
+                donationCount,
+                daysSinceLastDonation,
+                action);
+        })
+            .OrderByDescending(x => x.ChurnProbability)
+            .ToList();
+
+        return Ok(new DonorChurnRiskSummaryResponse(
+            rows.Count,
+            rows.Count(x => x.RiskTier == "High"),
+            rows.Count(x => x.RiskTier == "Medium"),
+            rows.Count(x => x.RiskTier == "Low"),
+            rows.Take(Math.Clamp(top, 1, 50)).ToList()));
+    }
+
     [HttpPost]
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<SupporterResponse>> Create(SupporterRequest request)

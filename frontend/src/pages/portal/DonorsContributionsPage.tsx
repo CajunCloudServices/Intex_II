@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../../api';
-import type { Donation, DonationRequest, Safehouse, Supporter, SupporterRequest } from '../../api/types';
+import type { Donation, DonationRequest, DonorChurnRiskSummary, Safehouse, Supporter, SupporterRequest } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import {
@@ -76,6 +76,7 @@ export function DonorsContributionsPage() {
   const [supporters, setSupporters] = useState<Supporter[]>([]);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
+  const [churnRiskSummary, setChurnRiskSummary] = useState<DonorChurnRiskSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
@@ -100,14 +101,16 @@ export function DonorsContributionsPage() {
     setError(null);
 
     try {
-      const [supportersData, donationsData, safehouseData] = await Promise.all([
+      const [supportersData, donationsData, safehouseData, churnRiskData] = await Promise.all([
         api.supporters(token),
         api.donations(token),
         api.safehouses(token),
+        api.donorChurnRiskSummary(token, 12),
       ]);
       setSupporters(supportersData);
       setDonations(donationsData);
       setSafehouses(safehouseData);
+      setChurnRiskSummary(churnRiskData);
       setSelectedSupporterId((current) => current ?? supportersData[0]?.id ?? null);
       setSelectedDonationId((current) => current ?? donationsData[0]?.id ?? null);
       setDonationForm((current) => current.allocations[0].safehouseId > 0 ? current : createDonationForm(safehouseData[0]?.id));
@@ -330,6 +333,27 @@ export function DonorsContributionsPage() {
         <MetricCard label="Active supporters" value={String(activeSupporters)} detail="Current active donor and partner relationships." />
         <MetricCard label="Raised" value={formatMoney(totalRaised)} detail={`${recurringDonations} recurring gifts in the dataset.`} />
       </section>
+
+      <SectionCard title="At-risk donors (deployed churn scoring)" subtitle="Supporters ranked by current churn probability for retention outreach.">
+        <section className="page-grid four compact">
+          <MetricCard label="Evaluated" value={String(churnRiskSummary?.evaluatedSupporters ?? 0)} detail="Supporters included in churn scoring run." />
+          <MetricCard label="High risk" value={String(churnRiskSummary?.highRiskCount ?? 0)} detail="Prioritize immediate donor outreach." accent />
+          <MetricCard label="Medium risk" value={String(churnRiskSummary?.mediumRiskCount ?? 0)} detail="Schedule this month." />
+          <MetricCard label="Low risk" value={String(churnRiskSummary?.lowRiskCount ?? 0)} detail="Continue normal stewardship cadence." />
+        </section>
+        <DataTable
+          caption="Top donor churn risks"
+          columns={['Supporter', 'Risk', 'Tier', 'Days since donation', 'Action']}
+          rows={(churnRiskSummary?.topRisks ?? []).map((risk) => [
+            risk.displayName,
+            `${(risk.churnProbability * 100).toFixed(1)}%`,
+            risk.riskTier,
+            risk.daysSinceLastDonation,
+            risk.recommendedAction,
+          ])}
+          emptyMessage="No churn-risk rows available."
+        />
+      </SectionCard>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
 

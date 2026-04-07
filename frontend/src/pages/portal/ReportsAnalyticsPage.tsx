@@ -2,15 +2,19 @@ import { useDeferredValue, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../../api';
 import type {
+  CounselingRiskSummary,
   DonationTrends,
   IncidentReport,
   IncidentReportRequest,
   OutreachPerformanceSummary,
+  ReintegrationRiskSummary,
   ReintegrationSummary,
   Resident,
   ResidentOutcomeSummary,
   Safehouse,
   SafehousePerformanceSummary,
+  SocialPostAdvisorPrediction,
+  SocialPostAdvisorRequest,
   SafehouseRequest,
   SocialAnalytics,
 } from '../../api/types';
@@ -58,14 +62,34 @@ function createIncidentForm(residentId?: number, safehouseId?: number): Incident
   };
 }
 
+function createSocialAdvisorForm(): SocialPostAdvisorRequest {
+  return {
+    platform: 'Facebook',
+    postType: 'Story',
+    mediaType: 'Video',
+    sentimentTone: 'Hopeful',
+    postHour: 19,
+    numHashtags: 4,
+    hasCallToAction: true,
+    featuresResidentStory: true,
+    isBoosted: false,
+    boostBudgetPhp: 0,
+  };
+}
+
 export function ReportsAnalyticsPage() {
   const { token, user } = useAuth();
   const [donationTrends, setDonationTrends] = useState<DonationTrends | null>(null);
   const [residentOutcomes, setResidentOutcomes] = useState<ResidentOutcomeSummary | null>(null);
   const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
   const [reintegrationSummary, setReintegrationSummary] = useState<ReintegrationSummary | null>(null);
+  const [reintegrationRiskSummary, setReintegrationRiskSummary] = useState<ReintegrationRiskSummary | null>(null);
   const [outreachPerformance, setOutreachPerformance] = useState<OutreachPerformanceSummary | null>(null);
   const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
+  const [counselingRiskSummary, setCounselingRiskSummary] = useState<CounselingRiskSummary | null>(null);
+  const [socialAdvisorForm, setSocialAdvisorForm] = useState<SocialPostAdvisorRequest>(createSocialAdvisorForm());
+  const [socialAdvisorPrediction, setSocialAdvisorPrediction] = useState<SocialPostAdvisorPrediction | null>(null);
+  const [socialAdvisorLoading, setSocialAdvisorLoading] = useState(false);
   const [socialPlatformFilter, setSocialPlatformFilter] = useState('All');
   const [socialTypeFilter, setSocialTypeFilter] = useState('All');
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
@@ -96,13 +120,15 @@ export function ReportsAnalyticsPage() {
     setError(null);
 
     try {
-      const [trendData, outcomeData, safehouseReport, reintegrationData, outreachData, socialData, safehouseData, incidentData, residentData] = await Promise.all([
+      const [trendData, outcomeData, safehouseReport, reintegrationData, reintegrationRiskData, outreachData, socialData, counselingRiskData, safehouseData, incidentData, residentData] = await Promise.all([
         api.donationTrends(token),
         api.residentOutcomes(token),
         api.safehousePerformance(token),
         api.reintegrationSummary(token),
+        api.reintegrationRiskSummary(token, 12),
         api.outreachPerformance(token),
         api.socialAnalytics(token),
+        api.counselingRiskSummary(token, 12),
         api.safehouses(token),
         api.incidents(token),
         api.residents(token),
@@ -111,8 +137,10 @@ export function ReportsAnalyticsPage() {
       setResidentOutcomes(outcomeData);
       setSafehousePerformance(safehouseReport);
       setReintegrationSummary(reintegrationData);
+      setReintegrationRiskSummary(reintegrationRiskData);
       setOutreachPerformance(outreachData);
       setSocialAnalytics(socialData);
+      setCounselingRiskSummary(counselingRiskData);
       setSafehouses(safehouseData);
       setIncidents(incidentData);
       setResidents(residentData);
@@ -234,6 +262,27 @@ export function ReportsAnalyticsPage() {
       await loadAnalytics();
     } catch (err) {
       setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Incident delete failed.' });
+    }
+  };
+
+  const runSocialAdvisor = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!token) return;
+    setSocialAdvisorLoading(true);
+    setFeedback(null);
+    try {
+      const payload = {
+        ...socialAdvisorForm,
+        postHour: Math.max(0, Math.min(23, Number(socialAdvisorForm.postHour))),
+        numHashtags: Math.max(0, Number(socialAdvisorForm.numHashtags)),
+        boostBudgetPhp: Math.max(0, Number(socialAdvisorForm.boostBudgetPhp)),
+      };
+      const prediction = await api.socialPostAdvisor(token, payload);
+      setSocialAdvisorPrediction(prediction);
+    } catch (err) {
+      setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Post advisor request failed.' });
+    } finally {
+      setSocialAdvisorLoading(false);
     }
   };
 
@@ -366,12 +415,25 @@ export function ReportsAnalyticsPage() {
 
             <SectionCard title="Reintegration summary" subtitle="Current reintegration status and pathway mix">
               {reintegrationSummary ? (
-                <DataTable
-                  columns={['Status', 'Residents']}
-                  rows={reintegrationSummary.reintegrationStatuses.map((item) => [item.label, item.count])}
-                  emptyMessage="No reintegration summary data is available."
-                  caption="Reintegration statuses"
-                />
+                <>
+                  <DataTable
+                    columns={['Status', 'Residents']}
+                    rows={reintegrationSummary.reintegrationStatuses.map((item) => [item.label, item.count])}
+                    emptyMessage="No reintegration summary data is available."
+                    caption="Reintegration statuses"
+                  />
+                  <DataTable
+                    columns={['Resident', 'Risk score', 'Positive trajectory', 'Action']}
+                    rows={(reintegrationRiskSummary?.topRiskResidents ?? []).map((item) => [
+                      item.residentCode,
+                      `${(item.riskScore * 100).toFixed(1)}%`,
+                      `${(item.positiveProbability * 100).toFixed(1)}%`,
+                      item.recommendedAction,
+                    ])}
+                    emptyMessage="No reintegration risk data is available."
+                    caption="ML reintegration risk watchlist"
+                  />
+                </>
               ) : (
                 <EmptyState title="No reintegration data" message="No reintegration summary data was returned." />
               )}
@@ -434,6 +496,47 @@ export function ReportsAnalyticsPage() {
                     emptyMessage="No posts match the current filters."
                     caption="Social media post-level performance"
                   />
+                  <form className="stack-form" onSubmit={runSocialAdvisor}>
+                    <FormSection title="Post advisor (deployed prediction)">
+                      <FormGrid>
+                        <label><span>Platform</span><input value={socialAdvisorForm.platform} onChange={(event) => setSocialAdvisorForm({ ...socialAdvisorForm, platform: event.target.value })} required /></label>
+                        <label><span>Post type</span><input value={socialAdvisorForm.postType} onChange={(event) => setSocialAdvisorForm({ ...socialAdvisorForm, postType: event.target.value })} required /></label>
+                        <label><span>Media type</span><input value={socialAdvisorForm.mediaType} onChange={(event) => setSocialAdvisorForm({ ...socialAdvisorForm, mediaType: event.target.value })} required /></label>
+                        <label><span>Sentiment</span><input value={socialAdvisorForm.sentimentTone} onChange={(event) => setSocialAdvisorForm({ ...socialAdvisorForm, sentimentTone: event.target.value })} required /></label>
+                        <label><span>Post hour</span><input type="number" min="0" max="23" value={socialAdvisorForm.postHour} onChange={(event) => setSocialAdvisorForm({ ...socialAdvisorForm, postHour: Number(event.target.value) })} required /></label>
+                        <label><span>Hashtags</span><input type="number" min="0" value={socialAdvisorForm.numHashtags} onChange={(event) => setSocialAdvisorForm({ ...socialAdvisorForm, numHashtags: Number(event.target.value) })} required /></label>
+                        <label><span>Boost budget (PHP)</span><input type="number" min="0" value={socialAdvisorForm.boostBudgetPhp} onChange={(event) => setSocialAdvisorForm({ ...socialAdvisorForm, boostBudgetPhp: Number(event.target.value) })} /></label>
+                      </FormGrid>
+                      <div className="check-grid">
+                        <CheckboxField label="Has call to action" checked={socialAdvisorForm.hasCallToAction} onChange={(checked) => setSocialAdvisorForm({ ...socialAdvisorForm, hasCallToAction: checked })} />
+                        <CheckboxField label="Features resident story" checked={socialAdvisorForm.featuresResidentStory} onChange={(checked) => setSocialAdvisorForm({ ...socialAdvisorForm, featuresResidentStory: checked })} />
+                        <CheckboxField label="Is boosted" checked={socialAdvisorForm.isBoosted} onChange={(checked) => setSocialAdvisorForm({ ...socialAdvisorForm, isBoosted: checked })} />
+                      </div>
+                    </FormSection>
+                    <div className="form-actions">
+                      <button className="primary-button" type="submit" disabled={socialAdvisorLoading}>
+                        {socialAdvisorLoading ? 'Scoring...' : 'Predict conversion value'}
+                      </button>
+                    </div>
+                  </form>
+                  {socialAdvisorPrediction ? (
+                    <>
+                      <section className="page-grid two compact">
+                        <MetricCard label="Predicted donation value" value={formatMoney(socialAdvisorPrediction.predictedDonationValuePhp)} detail="Estimated conversion value for the draft post." accent />
+                        <MetricCard label="Historical baseline" value={formatMoney(socialAdvisorPrediction.baselineDonationValuePhp)} detail="Average donation value across historical posts." />
+                      </section>
+                      <DataTable
+                        columns={['Feature', 'Effect']}
+                        rows={socialAdvisorPrediction.topContributions.map((item) => [
+                          item.feature,
+                          formatMoney(item.effectAmountPhp),
+                        ])}
+                        emptyMessage="No contribution details available."
+                        caption="Top feature effects"
+                      />
+                      <p className="muted-inline">{socialAdvisorPrediction.notes}</p>
+                    </>
+                  ) : null}
                 </>
               ) : (
                 <EmptyState title="No social analytics data" message="No social analytics data was returned." />
@@ -518,6 +621,30 @@ export function ReportsAnalyticsPage() {
                 ])}
                 emptyMessage="No safehouses match the current filter."
                 caption="Safehouse records"
+              />
+            </SectionCard>
+          </section>
+
+          <section className="page-grid two dashboard-split">
+            <SectionCard title="Counseling escalation risk" subtitle="Session-level concern probability for supervisor triage.">
+              <section className="page-grid four compact">
+                <MetricCard label="Evaluated sessions" value={String(counselingRiskSummary?.evaluatedSessions ?? 0)} detail="Sessions scored with deployed concern model." />
+                <MetricCard label="High risk" value={String(counselingRiskSummary?.highRiskCount ?? 0)} detail="Immediate supervisor review recommended." accent />
+                <MetricCard label="Medium risk" value={String(counselingRiskSummary?.mediumRiskCount ?? 0)} detail="Review in regular cadence." />
+                <MetricCard label="Low risk" value={String(counselingRiskSummary?.lowRiskCount ?? 0)} detail="Monitor in routine check-ins." />
+              </section>
+              <DataTable
+                columns={['Resident', 'Date', 'Session', 'Concern probability', 'Tier', 'Primary factor']}
+                rows={(counselingRiskSummary?.topRiskSessions ?? []).map((item) => [
+                  item.residentCode,
+                  item.sessionDate,
+                  item.sessionType,
+                  `${(item.concernProbability * 100).toFixed(1)}%`,
+                  item.riskTier,
+                  item.primaryFactor,
+                ])}
+                emptyMessage="No counseling risk rows were returned."
+                caption="Counseling risk watchlist"
               />
             </SectionCard>
           </section>

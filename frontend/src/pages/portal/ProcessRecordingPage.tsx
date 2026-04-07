@@ -1,7 +1,7 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../../api';
-import type { ProcessRecording, ProcessRecordingRequest, Resident } from '../../api/types';
+import type { CounselingRiskSummary, ProcessRecording, ProcessRecordingRequest, Resident } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { CheckboxField, FormGrid, FormSection } from '../../components/ui/FormPrimitives';
@@ -36,6 +36,7 @@ export function ProcessRecordingPage() {
   const { token, user } = useAuth();
   const [recordings, setRecordings] = useState<ProcessRecording[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
+  const [counselingRiskSummary, setCounselingRiskSummary] = useState<CounselingRiskSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
@@ -55,9 +56,14 @@ export function ProcessRecordingPage() {
     setError(null);
 
     try {
-      const [recordingData, residentData] = await Promise.all([api.processRecordings(token), api.residents(token)]);
+      const [recordingData, residentData, counselingRiskData] = await Promise.all([
+        api.processRecordings(token),
+        api.residents(token),
+        api.counselingRiskSummary(token, 10),
+      ]);
       setRecordings(recordingData);
       setResidents(residentData);
+      setCounselingRiskSummary(counselingRiskData);
       setSelectedRecordingId((current) => current ?? recordingData[0]?.id ?? null);
       setRecordingForm((current) => current.residentId > 0 ? current : createRecordingForm(residentData[0]?.id));
     } catch (err) {
@@ -151,6 +157,28 @@ export function ProcessRecordingPage() {
         <MetricCard label="Progress noted" value={String(progressCount)} detail="Sessions that ended with visible progress." />
         <MetricCard label="Escalations" value={String(concernCount + referralCount)} detail={`${referralCount} referrals and ${concernCount} concern flags.`} />
       </section>
+
+      <SectionCard title="Counseling risk monitor" subtitle="Deployed concern-probability scoring for triage handoff.">
+        <section className="page-grid four compact">
+          <MetricCard label="Scored sessions" value={String(counselingRiskSummary?.evaluatedSessions ?? 0)} detail="Sessions included in latest scoring run." />
+          <MetricCard label="High risk" value={String(counselingRiskSummary?.highRiskCount ?? 0)} detail="Immediate follow-up advised." accent />
+          <MetricCard label="Medium risk" value={String(counselingRiskSummary?.mediumRiskCount ?? 0)} detail="Review in weekly supervision." />
+          <MetricCard label="Low risk" value={String(counselingRiskSummary?.lowRiskCount ?? 0)} detail="Routine monitoring only." />
+        </section>
+        <DataTable
+          columns={['Resident', 'Date', 'Session', 'Concern probability', 'Tier', 'Primary factor']}
+          rows={(counselingRiskSummary?.topRiskSessions ?? []).map((risk) => [
+            risk.residentCode,
+            risk.sessionDate,
+            risk.sessionType,
+            `${(risk.concernProbability * 100).toFixed(1)}%`,
+            risk.riskTier,
+            risk.primaryFactor,
+          ])}
+          emptyMessage="No counseling risk data was returned."
+          caption="Top counseling risk sessions"
+        />
+      </SectionCard>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
 
