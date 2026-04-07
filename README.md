@@ -60,6 +60,7 @@ Implemented:
 
 - HTTPS redirection outside local development, with local HTTP kept enabled so React/Vite cross-origin dev still works
 - JWT auth
+- ASP.NET Identity username/password authentication
 - role-gated API access
 - stronger-than-default password policy starter
 - basic security headers
@@ -77,6 +78,52 @@ Scaffolded but not fully production-hardened:
 - formal secret-management integration
 
 The code and comments are explicit about these boundaries. This repo does not claim advanced hardening that is not implemented.
+
+## Requirement Evidence
+
+These are the three infrastructure/auth items that are already satisfied in the current codebase and deployment shape.
+
+### 1. Credentials stored securely outside the codebase
+
+- real environment values are expected from `.env` or exported environment variables
+- the root `.env` file is git-ignored in [`.gitignore`](/Users/lajicpajam/School/Intex II/.gitignore)
+- production compose reads secrets from environment variables in [docker-compose.production.yml](/Users/lajicpajam/School/Intex II/docker-compose.production.yml)
+- the repo only contains a sample file, [`.env.example`](/Users/lajicpajam/School/Intex II/.env.example), for local setup
+
+The production values that stay outside source control include:
+
+- `POSTGRES_DB`
+- `POSTGRES_USER`
+- `POSTGRES_PASSWORD`
+- `JWT_KEY`
+- `JWT_ISSUER`
+- `JWT_AUDIENCE`
+- `CORS_ALLOWED_ORIGIN_1`
+
+### 2. Authenticated login with username/password using ASP.NET Identity
+
+- Identity user model: [backend/Intex.Api/ApplicationUser.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/ApplicationUser.cs)
+- Identity database context: [backend/Intex.Api/Data/ApplicationDbContext.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/ApplicationDbContext.cs)
+- Identity + password policy wiring: [backend/Intex.Api/Program.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs)
+- login/register/me endpoints: [backend/Intex.Api/Controllers/AuthController.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/Controllers/AuthController.cs)
+
+This project uses ASP.NET Identity for username/password authentication and then issues JWTs for the React frontend after a successful sign-in.
+
+### 3. Backend API and database deployed to a public cloud host
+
+- production deployment workflow: [.github/workflows/deploy.yml](/Users/lajicpajam/School/Intex II/.github/workflows/deploy.yml)
+- production containers: [docker-compose.production.yml](/Users/lajicpajam/School/Intex II/docker-compose.production.yml)
+
+Current public backend base URL:
+
+- [https://slavicsoftwaresleuths.cajuncloudservices.com/api/health](https://slavicsoftwaresleuths.cajuncloudservices.com/api/health)
+
+Important deployment note:
+
+- the API is publicly reachable over HTTPS
+- the PostgreSQL database is deployed on the cloud host as part of the production stack, but it is intentionally not exposed publicly on the internet
+
+That private-database/public-API split is the correct security posture for a production deployment.
 
 ## Seeded Test Accounts
 

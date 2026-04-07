@@ -6,6 +6,8 @@ This file maps the big INTEX requirements to the main places in the codebase.
 
 - API startup, auth, CORS, security headers, migrations:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs`
+- ASP.NET Identity user model:
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/ApplicationUser.cs`
 - Entity and database model:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/ApplicationDbContext.cs`
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Entities/`
@@ -13,6 +15,12 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/AppSeeder.cs`
 - JWT creation:
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Services/JwtTokenService.cs`
+- Production cloud deployment:
+  - `/Users/lajicpajam/School/Intex II/docker-compose.production.yml`
+  - `/Users/lajicpajam/School/Intex II/.github/workflows/deploy.yml`
+- Secret/env wiring:
+  - `/Users/lajicpajam/School/Intex II/.env.example`
+  - `/Users/lajicpajam/School/Intex II/.gitignore`
 
 ## Role-based auth
 
