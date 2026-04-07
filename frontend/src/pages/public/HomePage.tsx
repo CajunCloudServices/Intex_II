@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
+import homeHeroImage from '../../assets/generated/home-hero.webp';
+import homeSupportSpaceImage from '../../assets/generated/home-support-space.webp';
+import homeCommunitySpaceImage from '../../assets/generated/home-community-space.webp';
 
 export function HomePage() {
   return (
@@ -27,14 +30,13 @@ export function HomePage() {
           </ul>
         </div>
         <div className="hero-panel hero-panel--soft">
-          <figure className="hero-aside-card">
-            <blockquote>
-              <p>
-                Healing is not linear—and it does not happen alone. We walk alongside each young person with
-                patience, respect, and hope.
-              </p>
-            </blockquote>
-            <figcaption>Our commitment to every resident</figcaption>
+          <figure className="hero-aside-card hero-aside-card--image">
+            <img
+              className="editorial-image"
+              src={homeHeroImage}
+              alt="A welcoming safe home at dusk with warm light, mountain views, and a calm garden path."
+            />
+            <figcaption>Safe, welcoming homes are the foundation of every recovery plan.</figcaption>
           </figure>
         </div>
       </section>
@@ -71,6 +73,30 @@ export function HomePage() {
         </SectionCard>
       </div>
 
+      <section className="home-section home-feature-split" aria-labelledby="care-environment-heading">
+        <figure className="editorial-media home-feature-media">
+          <img
+            className="editorial-image"
+            src={homeSupportSpaceImage}
+            alt="A bright counseling and study space with books, soft chairs, natural light, and a calm learning environment."
+          />
+        </figure>
+        <SectionCard
+          titleId="care-environment-heading"
+          title="Healing happens in everyday spaces"
+          subtitle="Recovery is supported by routine, safety, and room to breathe"
+        >
+          <p>
+            HarborLight homes are designed to feel calm and lived in. Residents move between counseling,
+            study time, meals, and quiet rest in spaces that emphasize stability rather than crisis.
+          </p>
+          <p>
+            That steady rhythm matters. A consistent environment helps young people rebuild trust, practice new
+            routines, and engage with school, therapy, and life-skills work without feeling overwhelmed.
+          </p>
+        </SectionCard>
+      </section>
+
       <section className="home-section" aria-labelledby="services-heading">
         <div className="home-section-intro">
           <h2 id="services-heading">What we do</h2>
@@ -104,6 +130,31 @@ export function HomePage() {
             </p>
           </SectionCard>
         </div>
+      </section>
+
+      <section className="home-section home-feature-split home-feature-split--reverse" aria-labelledby="community-heading">
+        <SectionCard
+          titleId="community-heading"
+          title="Homes built around belonging"
+          subtitle="Care includes the ordinary moments that make a place feel safe"
+        >
+          <p>
+            Shared meals, evening routines, and supportive check-ins are part of how HarborLight creates a sense
+            of home. Recovery is not just clinical care. It is also consistency, warmth, and the ability to
+            participate in daily life without fear.
+          </p>
+          <p>
+            Donor support helps cover the practical details behind that stability: food, linens, utilities,
+            transportation, school supplies, and the quiet operational work that keeps every residence steady.
+          </p>
+        </SectionCard>
+        <figure className="editorial-media home-feature-media">
+          <img
+            className="editorial-image"
+            src={homeCommunitySpaceImage}
+            alt="A warm communal dining and living area with lamplight, flowers, and a welcoming shared table."
+          />
+        </figure>
       </section>
 
       <section id="impact" className="home-section" aria-labelledby="impact-heading">

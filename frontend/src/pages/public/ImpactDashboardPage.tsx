@@ -4,6 +4,7 @@ import type { PublicImpactSnapshot } from '../../api/types';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { formatDate } from '../../lib/format';
+import impactOverviewImage from '../../assets/generated/impact-overview.webp';
 
 export function ImpactDashboardPage() {
   const [snapshots, setSnapshots] = useState<PublicImpactSnapshot[]>([]);
@@ -42,6 +43,14 @@ export function ImpactDashboardPage() {
           <p>Anonymous, donor-facing reporting that summarizes how services, capacity, and support are progressing over time.</p>
         </div>
       </div>
+
+      <section className="editorial-media editorial-media--wide">
+        <img
+          className="editorial-image"
+          src={impactOverviewImage}
+          alt="Care resources arranged with intention, including blankets, notebooks, pencils, tea, and a house key."
+        />
+      </section>
 
       {loading ? (
         <LoadingState label="Loading public impact snapshots..." />

@@ -44,6 +44,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     headers.set('Authorization', `Bearer ${options.token}`);
   }
 
+  // Every frontend API helper funnels through this function so authentication, error parsing,
+  // and global auth-expiry handling stay centralized instead of being reimplemented per page.
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,

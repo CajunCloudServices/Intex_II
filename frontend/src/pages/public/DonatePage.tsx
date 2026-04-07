@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { SectionCard } from '../../components/ui/Cards';
+import donateSupportImage from '../../assets/generated/donate-support.webp';
 
 export function DonatePage() {
   return (
@@ -14,6 +15,14 @@ export function DonatePage() {
           </p>
         </div>
       </div>
+
+      <section className="editorial-media editorial-media--wide">
+        <img
+          className="editorial-image"
+          src={donateSupportImage}
+          alt="A warm welcome kit inside a safe residence, with blankets, toiletries, a journal, tea, and bedside light."
+        />
+      </section>
 
       <SectionCard title="How your gift helps" subtitle="Every contribution supports safe housing and healing">
         <ul className="simple-list donate-list">

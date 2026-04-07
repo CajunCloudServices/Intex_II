@@ -1,3 +1,5 @@
+import privacySafeguardingImage from '../../assets/generated/privacy-safeguarding.webp';
+
 export function PrivacyPolicyPage() {
   return (
     <div className="page-shell">
@@ -9,6 +11,14 @@ export function PrivacyPolicyPage() {
             <p>How HarborLight Nexus collects, uses, and safeguards supporter, staff, and resident-related information.</p>
           </div>
         </div>
+
+        <figure className="editorial-media editorial-media--wide">
+          <img
+            className="editorial-image"
+            src={privacySafeguardingImage}
+            alt="A calm secure records room with organized files, frosted glass, and soft shield-shaped light."
+          />
+        </figure>
 
         <p>
           HarborLight Nexus processes supporter, donation, resident-care, and outreach data to operate nonprofit services,

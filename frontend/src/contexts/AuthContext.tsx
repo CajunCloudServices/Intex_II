@@ -56,6 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   useEffect(() => {
+    // The shared API client raises browser events for 401/403 so session expiry and
+    // permission errors can be handled once here instead of in every route component.
     const handleUnauthorized = () => {
       localStorage.removeItem(TOKEN_STORAGE_KEY);
       setToken(null);

@@ -13,6 +13,10 @@ If you are trying to understand the project quickly, read in this order:
 3. [docs/backend-walkthrough.md](/Users/lajicpajam/School/Intex II/docs/backend-walkthrough.md)
 4. [docs/frontend-walkthrough.md](/Users/lajicpajam/School/Intex II/docs/frontend-walkthrough.md)
 5. [docs/testing-checklist.md](/Users/lajicpajam/School/Intex II/docs/testing-checklist.md)
+6. [docs/local-development.md](/Users/lajicpajam/School/Intex II/docs/local-development.md)
+7. [docs/auth-session-model.md](/Users/lajicpajam/School/Intex II/docs/auth-session-model.md)
+8. [docs/deployment-runbook.md](/Users/lajicpajam/School/Intex II/docs/deployment-runbook.md)
+9. [docs/assets-and-branding.md](/Users/lajicpajam/School/Intex II/docs/assets-and-branding.md)
 
 ## Tech Stack
 
@@ -168,6 +172,8 @@ Copy from [`.env.example`](/Users/lajicpajam/School/Intex II/.env.example) or ex
 See [docs/production-environment.md](/Users/lajicpajam/School/Intex II/docs/production-environment.md) for the full local-vs-production split and how to explain secret handling to a grader.
 
 ## Run Locally
+
+The canonical teammate setup guide lives in [docs/local-development.md](/Users/lajicpajam/School/Intex II/docs/local-development.md).
 
 ### Option 1: Docker Compose
 

@@ -62,6 +62,7 @@ The frontend talks to the backend in two layers:
    - global unauthorized/forbidden events
 2. [index.ts](/Users/lajicpajam/School/Intex II/frontend/src/api/index.ts)
    - typed route helper functions like `api.login`, `api.residents`, `api.createDonation`, and so on
+   - assembled from domain-specific modules under `frontend/src/api/modules/` so route helpers are easier to find
 
 This pattern keeps page components cleaner. If the backend path changes, you usually edit the API layer rather than each page.
 
