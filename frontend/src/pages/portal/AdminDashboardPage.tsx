@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import type { DashboardSummary } from '../../api/types';
+import type { DashboardSummary, DonationTrends, SafehousePerformanceSummary, SocialAnalytics } from '../../api/types';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
@@ -10,6 +10,9 @@ import { formatDateTime, formatMoney } from '../../lib/format';
 export function AdminDashboardPage() {
   const { token } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [donationTrends, setDonationTrends] = useState<DonationTrends | null>(null);
+  const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
+  const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -21,7 +24,16 @@ export function AdminDashboardPage() {
     setError(null);
 
     try {
-      setSummary(await api.dashboardSummary(token));
+      const [dashboard, trends, safehouses, social] = await Promise.all([
+        api.dashboardSummary(token),
+        api.donationTrends(token),
+        api.safehousePerformance(token),
+        api.socialAnalytics(token),
+      ]);
+      setSummary(dashboard);
+      setDonationTrends(trends);
+      setSafehousePerformance(safehouses);
+      setSocialAnalytics(social);
       setLastUpdated(new Date().toISOString());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard summary.');
@@ -63,6 +75,30 @@ export function AdminDashboardPage() {
             <MetricCard label="High-risk residents" value={String(summary.highRiskResidents)} detail="Residents currently flagged high or critical risk." accent />
             <MetricCard label="Visits needing follow-up" value={String(summary.visitsNeedingFollowUp)} detail="Home or field visits that still need action." />
             <MetricCard label="Open incidents" value={String(summary.openIncidents)} detail="Incident reports that remain unresolved." />
+          </section>
+
+          <section className="page-grid four">
+            <MetricCard
+              label="Total funding tracked"
+              value={formatMoney(donationTrends?.monthlyTotals.reduce((sum, point) => sum + point.totalAmount, 0) ?? 0)}
+              detail="Total donation volume in current trend history."
+              accent
+            />
+            <MetricCard
+              label="Social impressions"
+              value={(socialAnalytics?.totals.totalImpressions ?? 0).toLocaleString()}
+              detail="Total social impressions across tracked posts."
+            />
+            <MetricCard
+              label="Social referrals"
+              value={String(socialAnalytics?.totals.totalDonationReferrals ?? 0)}
+              detail="Donation referrals attributed to social posts."
+            />
+            <MetricCard
+              label="Avg engagement"
+              value={`${((socialAnalytics?.totals.avgEngagementRate ?? 0) * 100).toFixed(1)}%`}
+              detail="Average engagement across social channels."
+            />
           </section>
 
           <section className="page-grid two">
@@ -116,6 +152,39 @@ export function AdminDashboardPage() {
                 <li>{summary.progressSummary.concernsFlagged} process recordings flagged concerns for follow-up.</li>
                 <li>{summary.progressSummary.referralsMade} sessions resulted in a referral or escalation.</li>
               </ul>
+            </SectionCard>
+          </section>
+
+          <section className="page-grid two">
+            <SectionCard title="Safehouse capacity trend" subtitle="Occupancy and recent health trend by safehouse">
+              <DataTable
+                columns={['Safehouse', 'Occupancy', 'Health trend']}
+                rows={(safehousePerformance?.safehouses ?? []).map((safehouse) => {
+                  const trend = safehousePerformance?.monthlyTrends.find((item) => item.safehouseId === safehouse.safehouseId);
+                  const latestScore = trend?.monthlyTrend.at(-1)?.avgHealthScore ?? 0;
+                  return [
+                    safehouse.safehouseName,
+                    `${safehouse.currentOccupancy}/${safehouse.capacityGirls}`,
+                    latestScore > 0 ? latestScore.toFixed(1) : 'N/A',
+                  ];
+                })}
+                emptyMessage="No safehouse trend data is available."
+                caption="Safehouse occupancy and health indicators"
+              />
+            </SectionCard>
+
+            <SectionCard title="Top social posts" subtitle="Recent social content driving referrals">
+              <DataTable
+                columns={['Platform', 'Type', 'Referrals', 'Engagement']}
+                rows={(socialAnalytics?.posts ?? []).slice(0, 8).map((post) => [
+                  post.platform,
+                  post.postType,
+                  post.donationReferrals,
+                  `${(post.engagementRate * 100).toFixed(1)}%`,
+                ])}
+                emptyMessage="No social post analytics available."
+                caption="Recent social performance"
+              />
             </SectionCard>
           </section>
       </>

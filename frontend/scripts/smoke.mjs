@@ -29,9 +29,12 @@ try {
   await page.getByLabel('Email').fill('donor@intex.local');
   await page.getByLabel('Password').fill('Donor!234567');
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.waitForURL('**/portal/donor-history');
-  await page.getByRole('heading', { name: 'My contributions' }).waitFor();
-  await page.getByRole('link', { name: 'My Contributions' }).waitFor();
+  await page.waitForURL('**/portal/my-impact');
+  await page.getByRole('heading', { name: 'My impact dashboard' }).waitFor();
+  await page.getByRole('link', { name: 'My Impact Dashboard' }).waitFor();
+  await page.getByLabel('Prediction amount').fill('4200');
+  await page.getByRole('button', { name: 'Estimate' }).click();
+  await page.getByText('Predicted outcomes by program area').waitFor();
   if ((await page.getByText('Admin Dashboard').count()) !== 0) {
     throw new Error('Donor navigation exposed a staff/admin link.');
   }

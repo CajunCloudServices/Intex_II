@@ -14,7 +14,7 @@ const staffLinks = [
   { to: '/portal/reports', label: 'Reports & Analytics' },
 ];
 
-const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions' }];
+const donorLinks = [{ to: '/portal/my-impact', label: 'My Impact Dashboard' }];
 const publicLinks = [
   { to: '/', label: 'Home' },
   { to: '/impact', label: 'Impact' },

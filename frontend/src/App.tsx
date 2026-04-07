@@ -24,7 +24,7 @@ function PortalHomeRoute() {
 
   // Donor users have a different landing page than staff/admin users.
   if (user?.roles.includes('Donor') && user.roles.length === 1) {
-    return <Navigate to="/portal/donor-history" replace />;
+    return <Navigate to="/portal/my-impact" replace />;
   }
 
   return <Navigate to="/portal/admin" replace />;
@@ -62,6 +62,7 @@ function App() {
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Donor']} />}>
+            <Route path="portal/my-impact" element={<DonorHistoryPage />} />
             <Route path="portal/donor-history" element={<DonorHistoryPage />} />
           </Route>
 

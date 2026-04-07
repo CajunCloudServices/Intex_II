@@ -128,6 +128,41 @@ export interface Donation {
   allocations: DonationAllocation[];
 }
 
+export interface DonorImpactSummary {
+  totalDonated: number;
+  donationCount: number;
+  recurringDonationCount: number;
+  averageDonationAmount: number;
+}
+
+export interface DonorAllocationBreakdownItem {
+  safehouseId: number;
+  safehouseName: string;
+  programArea: string;
+  totalAllocated: number;
+  allocationCount: number;
+  sharePercent: number;
+}
+
+export interface DonorAllocationBreakdown {
+  totalAllocated: number;
+  items: DonorAllocationBreakdownItem[];
+}
+
+export interface DonationImpactPredictionOutcome {
+  programArea: string;
+  allocatedAmount: number;
+  outcomeUnit: string;
+  unitCost: number;
+  estimatedUnits: number;
+}
+
+export interface DonationImpactPrediction {
+  amount: number;
+  outcomes: DonationImpactPredictionOutcome[];
+  assumptions: string;
+}
+
 export interface ResidentPlan {
   id: number;
   planCategory: string;
