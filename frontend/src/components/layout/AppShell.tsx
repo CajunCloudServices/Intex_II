@@ -6,15 +6,15 @@ import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
 
 const staffLinks = [
-  { to: '/portal/admin', label: 'Admin Dashboard' },
-  { to: '/portal/donors', label: 'Donors & Contributions' },
-  { to: '/portal/caseload', label: 'Caseload Inventory' },
-  { to: '/portal/process-recordings', label: 'Process Recordings' },
-  { to: '/portal/home-visitations', label: 'Home Visitations' },
-  { to: '/portal/reports', label: 'Reports & Analytics' },
+  { to: '/portal/admin', label: 'Admin Dashboard', shortLabel: 'AD' },
+  { to: '/portal/donors', label: 'Donors & Contributions', shortLabel: 'DC' },
+  { to: '/portal/caseload', label: 'Caseload Inventory', shortLabel: 'CI' },
+  { to: '/portal/process-recordings', label: 'Process Recordings', shortLabel: 'PR' },
+  { to: '/portal/home-visitations', label: 'Home Visitations', shortLabel: 'HV' },
+  { to: '/portal/reports', label: 'Reports & Analytics', shortLabel: 'RA' },
 ];
 
-const donorLinks = [{ to: '/portal/my-impact', label: 'My Impact Dashboard' }];
+const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions', shortLabel: 'MC' }];
 const publicLinks = [
   { to: '/', label: 'Home' },
   { to: '/impact', label: 'Impact' },
@@ -45,11 +45,13 @@ export function AppShell() {
   }, [theme]);
 
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
-  const portalLinks = isDonorOnly
-    ? donorLinks
-    : user?.roles.includes('Admin')
-      ? [...staffLinks, { to: '/portal/audit-history', label: 'Audit History' }]
-      : staffLinks;
+  const portalLinks = isDonorOnly ? donorLinks : staffLinks;
+  const userInitials = user?.fullName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
   const headerLinks = user
     ? [...publicLinks, { to: '/portal', label: 'Portal' }]
     : [...publicLinks, { to: '/login', label: 'Login' }];
@@ -68,14 +70,21 @@ export function AppShell() {
 
   return (
     <div className="app-shell">
-      {/* The shell stays mounted across the public site and portal so navigation, feedback,
-          and layout behavior stay consistent while only the routed page content changes. */}
-      <header className="topbar">
+      <header className={`topbar${user ? ' topbar-portal' : ''}`}>
         <div className="topbar-inner">
-          <div className="header-stack">
-            <div className="brand-mark">Tanglaw Project</div>
-            <div className="brand-subtitle">Safe housing &amp; healing for young survivors</div>
-          </div>
+          <NavLink className="brand-link" to="/">
+            <div className="brand-emblem" aria-hidden="true">
+              TP
+            </div>
+            <div className="header-stack">
+              <div className="brand-mark">Tanglaw Project</div>
+              <div className="brand-subtitle">
+                {user
+                  ? 'Parol-inspired hope for fieldwork, care, and community records'
+                  : 'A parol-inspired symbol of faith, hope, and healing for young survivors'}
+              </div>
+            </div>
+          </NavLink>
 
           <div className="topbar-actions">
             <nav className="topbar-nav topbar-nav-desktop">
@@ -93,6 +102,18 @@ export function AppShell() {
                 {themeLabel}
               </button>
             </nav>
+
+            {user ? (
+              <div className="topbar-user-card" aria-label="Signed in user">
+                <div className="topbar-user-meta">
+                  <strong>{user.fullName}</strong>
+                  <span>{isDonorOnly ? 'Donor portal access' : 'Internal network'}</span>
+                </div>
+                <div className="topbar-avatar" aria-hidden="true">
+                  {userInitials || 'TP'}
+                </div>
+              </div>
+            ) : null}
 
             <button
               className="mobile-menu-button"
@@ -138,10 +159,15 @@ export function AppShell() {
         {user && (
           <>
             <aside className={`sidebar${mobileNavOpen ? ' sidebar-open' : ''}`}>
-              <div className="sidebar-heading">Portal</div>
+              <div className="sidebar-brand">
+                <div className="sidebar-brand-title">Staff Portal</div>
+                <div className="sidebar-brand-subtitle">{isDonorOnly ? 'Donor network' : 'Internal network'}</div>
+              </div>
+
+              <div className="sidebar-heading">Navigation</div>
               <div className="sidebar-user">
                 <strong>{user.fullName}</strong>
-                <span>{themeLabel}</span>
+                <span>{isDonorOnly ? 'Supporter account' : 'Operations workspace'}</span>
                 <div className="badge-group">
                   {user.roles.map((role) => (
                     <StatusBadge key={role} value={role} />
@@ -155,10 +181,22 @@ export function AppShell() {
               <nav className="sidebar-nav">
                 {portalLinks.map((link) => (
                   <NavLink key={link.to} to={link.to}>
-                    {link.label}
+                    <span className="sidebar-link-mark" aria-hidden="true">
+                      {link.shortLabel}
+                    </span>
+                    <span>{link.label}</span>
                   </NavLink>
                 ))}
               </nav>
+
+              <div className="sidebar-utility">
+                <NavLink className="sidebar-utility-link" to="/impact">
+                  Public impact
+                </NavLink>
+                <button className="sidebar-utility-link text-button" onClick={logout} type="button">
+                  Sign out
+                </button>
+              </div>
             </aside>
 
             {mobileNavOpen ? (
@@ -189,24 +227,16 @@ export function AppShell() {
         <div className="site-footer-inner">
           <div className="site-footer-brand">
             <div className="brand-mark">Tanglaw Project</div>
-            <p className="site-footer-tagline">A refuge-inspired nonprofit program for survivors.</p>
           </div>
           <div className="site-footer-grid">
             <nav className="site-footer-nav" aria-label="Footer navigation">
-              <NavLink to="/" end>
-                Home
-              </NavLink>
-              <NavLink to="/impact">Impact</NavLink>
-              <NavLink to="/donate">Donate</NavLink>
               <NavLink to="/privacy">Privacy</NavLink>
-              <NavLink to="/login">Login</NavLink>
+              <a href="#terms">Terms</a>
+              <a href="#annual-report">Annual Report</a>
+              <a href="mailto:hello@tanglawproject.org">Contact</a>
             </nav>
             <div className="site-footer-meta">
-              <p>
-                <span className="site-footer-label">Contact:</span>{' '}
-                <a href="mailto:hello@tanglawproject.example.org">hello@tanglawproject.example.org</a>
-              </p>
-              <p className="site-footer-note">For partnership inquiries, safeguarding questions, or donor support.</p>
+              <p className="site-footer-note">© 2026 Tanglaw Project</p>
             </div>
           </div>
         </div>

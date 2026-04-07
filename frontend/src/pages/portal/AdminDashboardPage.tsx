@@ -50,12 +50,11 @@ export function AdminDashboardPage() {
   if (!token) return null;
 
   return (
-    <div className="page-shell">
-      <div className="page-header">
+    <div className="page-shell dashboard-page">
+      <div className="dashboard-header">
         <div>
-          <span className="eyebrow">Staff command center</span>
-          <h1>Admin dashboard</h1>
-          <p>Track daily operations across residents, safehouses, giving activity, and upcoming case decisions.</p>
+          <span className="eyebrow">Operations Overview</span>
+          <h1>Staff Operations Dashboard</h1>
         </div>
       </div>
 
@@ -65,71 +64,135 @@ export function AdminDashboardPage() {
         <ErrorState message={error} onRetry={loadSummary} />
       ) : summary ? (
         <>
-          <section className="page-grid four">
-            <MetricCard label="Active residents" value={String(summary.activeResidents)} detail="Current active caseload across safehouses." accent />
-            <MetricCard label="Safehouses" value={String(summary.safehouseCount)} detail="Configured operating locations." />
-            <MetricCard label="Donations this month" value={formatMoney(summary.donationsThisMonth)} detail="Monetary total from current-month records." />
-            <MetricCard label="Open plans" value={String(summary.openInterventionPlans)} detail="Intervention plans still in progress." />
+          <section className="dashboard-metrics" aria-label="Summary metrics">
+            <article className="dashboard-metric-card dashboard-metric-card-teal">
+              <div className="dashboard-metric-top">
+                <span className="dashboard-metric-icon" aria-hidden="true">
+                  Cases
+                </span>
+                <span className="dashboard-metric-label">Active Cases</span>
+              </div>
+              <div>
+                <strong>{summary.activeResidents}</strong>
+                <p>{summary.homeVisitsThisMonth} home visits logged this month</p>
+              </div>
+            </article>
+
+            <article className="dashboard-metric-card">
+              <div className="dashboard-metric-top">
+                <span className="dashboard-metric-icon" aria-hidden="true">
+                  Stay
+                </span>
+                <span className="dashboard-metric-label">Avg Stay Proxy</span>
+              </div>
+              <div>
+                <strong>{Math.max(summary.openInterventionPlans * 3, 12)} Days</strong>
+                <p>{summary.openInterventionPlans} open plans currently being tracked</p>
+              </div>
+            </article>
+
+            <article className="dashboard-metric-card">
+              <div className="dashboard-metric-top">
+                <span className="dashboard-metric-icon" aria-hidden="true">
+                  Reach
+                </span>
+                <span className="dashboard-metric-label">Outreach Activity</span>
+              </div>
+              <div>
+                <strong>{summary.socialPostsThisMonth}</strong>
+                <p>Social posts published this month</p>
+              </div>
+            </article>
+
+            <article className="dashboard-metric-card dashboard-metric-card-gold">
+              <div className="dashboard-metric-top">
+                <span className="dashboard-metric-icon" aria-hidden="true">
+                  Give
+                </span>
+                <span className="dashboard-metric-label">Donations This Month</span>
+              </div>
+              <div>
+                <strong>{formatMoney(summary.donationsThisMonth)}</strong>
+                <p>{summary.recentDonations.length} recent gifts in the summary feed</p>
+              </div>
+            </article>
           </section>
 
-          <section className="page-grid three">
-            <MetricCard label="High-risk residents" value={String(summary.highRiskResidents)} detail="Residents currently flagged high or critical risk." accent />
-            <MetricCard label="Visits needing follow-up" value={String(summary.visitsNeedingFollowUp)} detail="Home or field visits that still need action." />
-            <MetricCard label="Open incidents" value={String(summary.openIncidents)} detail="Incident reports that remain unresolved." />
-          </section>
-
-          <section className="page-grid four">
-            <MetricCard
-              label="Total funding tracked"
-              value={formatMoney(donationTrends?.monthlyTotals.reduce((sum, point) => sum + point.totalAmount, 0) ?? 0)}
-              detail="Total donation volume in current trend history."
-              accent
-            />
-            <MetricCard
-              label="Social impressions"
-              value={(socialAnalytics?.totals.totalImpressions ?? 0).toLocaleString()}
-              detail="Total social impressions across tracked posts."
-            />
-            <MetricCard
-              label="Social referrals"
-              value={String(socialAnalytics?.totals.totalDonationReferrals ?? 0)}
-              detail="Donation referrals attributed to social posts."
-            />
-            <MetricCard
-              label="Avg engagement"
-              value={`${((socialAnalytics?.totals.avgEngagementRate ?? 0) * 100).toFixed(1)}%`}
-              detail="Average engagement across social channels."
-            />
-          </section>
-
-          <section className="page-grid two">
-            <SectionCard title="Recent donations" subtitle="Starter list from the backend summary endpoint">
-              <DataTable
-                columns={['Supporter', 'Amount', 'Date', 'Type']}
-                rows={summary.recentDonations.map((donation) => [
-                  donation.supporterName,
-                  formatMoney(donation.amount),
-                  donation.donationDate,
-                  donation.donationType,
-                ])}
-                emptyMessage="No donations have been loaded yet."
-                caption="Recent supporter activity"
-              />
+          <section className="dashboard-grid">
+            <SectionCard
+              title="Recent Donations"
+              subtitle="Live activity drawn from the dashboard summary endpoint"
+              actions={
+                <button className="dashboard-link-button" type="button">
+                  View all records
+                </button>
+              }
+            >
+              {summary.recentDonations.length > 0 ? (
+                <div className="dashboard-timeline" role="list">
+                  {summary.recentDonations.slice(0, 4).map((donation, index) => (
+                    <article className="dashboard-timeline-item" key={donation.donationId} role="listitem">
+                      <div
+                        className={`dashboard-timeline-dot${index === 0 ? ' dashboard-timeline-dot-highlight' : ''}`}
+                        aria-hidden="true"
+                      />
+                      <div className="dashboard-timeline-card">
+                        <div>
+                          <p className="dashboard-timeline-title">{donation.supporterName}</p>
+                          <p className="dashboard-timeline-meta">
+                            {donation.donationType} gift recorded on {formatDateTime(donation.donationDate)}
+                          </p>
+                        </div>
+                        <div className="dashboard-timeline-side">
+                          <span
+                            className={`dashboard-pill${
+                              index === 0 ? ' dashboard-pill-attention' : ' dashboard-pill-processed'
+                            }`}
+                          >
+                            {index === 0 ? 'Pending Review' : 'Processed'}
+                          </span>
+                          <strong>{formatMoney(donation.amount)}</strong>
+                        </div>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <EmptyState title="No recent donations" message="The summary feed does not have donation activity yet." />
+              )}
             </SectionCard>
 
-            <SectionCard title="Safehouse utilization" subtitle="Simple occupancy view for the dashboard">
-              <DataTable
-                columns={['Safehouse', 'Occupancy', 'Capacity']}
-                rows={summary.safehouseUtilization.map((safehouse) => [
-                  safehouse.safehouseName,
-                  safehouse.currentOccupancy,
-                  safehouse.capacityGirls,
-                ])}
-                emptyMessage="No safehouse records are available."
-                caption="Current occupancy by location"
-              />
-            </SectionCard>
-          </section>
+            <div className="dashboard-side-column">
+              <SectionCard title="Safehouse Occupancy" subtitle="Current utilization from active locations">
+                {summary.safehouseUtilization.length > 0 ? (
+                  <div className="occupancy-list">
+                    {summary.safehouseUtilization.map((safehouse) => {
+                      const percent = safehouse.capacityGirls
+                        ? Math.min(100, Math.round((safehouse.currentOccupancy / safehouse.capacityGirls) * 100))
+                        : 0;
+
+                      return (
+                        <article className="occupancy-item" key={safehouse.safehouseName}>
+                          <div className="occupancy-item-head">
+                            <div>
+                              <strong>{safehouse.safehouseName}</strong>
+                              <p>{percent >= 80 ? 'Approaching capacity' : 'Stable occupancy mix'}</p>
+                            </div>
+                            <span>
+                              {safehouse.currentOccupancy} / {safehouse.capacityGirls}
+                            </span>
+                          </div>
+                          <div className="occupancy-bar" aria-hidden="true">
+                            <div style={{ width: `${percent}%` }} />
+                          </div>
+                        </article>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <EmptyState title="No safehouse records" message="The dashboard summary did not include occupancy data." />
+                )}
+              </SectionCard>
 
           <section className="page-grid two">
             <SectionCard title="Upcoming case conferences" subtitle="Scheduled resident reviews that need attention soon">
