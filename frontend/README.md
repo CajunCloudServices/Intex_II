@@ -1,6 +1,6 @@
-# HarborLight Nexus Frontend
+# Tanglaw Project Frontend
 
-This is the React + TypeScript + Vite client for the HarborLight Nexus INTEX starter. It is intentionally simple, readable, and easy to extend.
+This is the React + TypeScript + Vite client for Tanglaw Project. It is intentionally simple, readable, and easy to extend.
 
 ## What This Frontend Does
 
@@ -38,6 +38,8 @@ Set the API URL before starting the Vite server:
 VITE_API_URL=http://localhost:5081/api npm run dev
 ```
 
+For the full teammate setup guide, see [docs/local-development.md](/Users/lajicpajam/School/Intex%20II/docs/local-development.md).
+
 Build the frontend:
 
 ```bash
@@ -60,4 +62,3 @@ npm run build
 - The app uses plain React state on purpose. That makes the code easier to understand during INTEX work.
 - Search and filter logic is local to the page components, so it is easy to replace with server-side filtering later.
 - The UI is responsive, but it is still a starter. Feel free to swap the colors, layout density, and charting approach.
-

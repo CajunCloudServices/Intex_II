@@ -16,7 +16,7 @@ export function DataTable({
         <thead>
           <tr>
             {columns.map((column) => (
-              <th key={column}>{column}</th>
+              <th key={column} scope="col">{column}</th>
             ))}
           </tr>
         </thead>
@@ -25,7 +25,7 @@ export function DataTable({
             rows.map((row, index) => (
               <tr key={index}>
                 {row.map((cell, cellIndex) => (
-                  <td key={`${index}-${cellIndex}`} data-label={columns[cellIndex]}>
+                  <td key={`${index}-${cellIndex}`} data-label={columns[cellIndex] ?? `Column ${cellIndex + 1}`}>
                     {cell ?? '—'}
                   </td>
                 ))}

@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-
-const STORAGE_KEY = 'intex.cookie-consent';
+import { getConsentLevel, saveConsentLevel } from '../../lib/browserPreferences';
 
 export function CookieConsentBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    setVisible(!localStorage.getItem(STORAGE_KEY));
+    setVisible(!getConsentLevel());
   }, []);
 
   if (!visible) {
@@ -18,8 +17,8 @@ export function CookieConsentBanner() {
       <div>
         <strong>Cookie settings</strong>
         <p>
-          This starter currently stores an auth token and UI consent preferences in the browser for local development.
-          Replace this with your production consent categories before launch.
+          This notice is functional, not cosmetic. Tanglaw Project always stores the minimum browser data needed to keep the secure portal signed in, and
+          it can optionally store a browser-accessible theme preference cookie if you accept non-essential settings.
         </p>
       </div>
       <div className="cookie-actions">
@@ -27,7 +26,7 @@ export function CookieConsentBanner() {
           className="secondary-button"
           type="button"
           onClick={() => {
-            localStorage.setItem(STORAGE_KEY, 'essential-only');
+            saveConsentLevel('essential-only');
             setVisible(false);
           }}
         >
@@ -37,11 +36,11 @@ export function CookieConsentBanner() {
           className="primary-button"
           type="button"
           onClick={() => {
-            localStorage.setItem(STORAGE_KEY, 'accepted');
+            saveConsentLevel('accepted');
             setVisible(false);
           }}
         >
-          Accept
+          Accept optional preference cookie
         </button>
       </div>
     </div>

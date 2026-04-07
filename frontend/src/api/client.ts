@@ -1,4 +1,24 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5080/api';
+function resolveApiBaseUrl() {
+  const configured = import.meta.env.VITE_API_URL?.trim();
+  if (configured) {
+    return configured.replace(/\/+$/, '');
+  }
+
+  // Local development is allowed to fall back to localhost so teammates can boot the repo
+  // without setting env vars first. Production should fail loudly instead of silently
+  // calling a wrong origin.
+  if (import.meta.env.DEV) {
+    return 'http://localhost:5080/api';
+  }
+
+  throw new Error('Missing VITE_API_URL. Set the frontend API base URL for this deployment.');
+}
+
+const API_BASE_URL = resolveApiBaseUrl();
+
+export function buildApiUrl(path: string) {
+  return new URL(`${API_BASE_URL}${path}`, window.location.origin).toString();
+}
 
 export class ApiError extends Error {
   status: number;
@@ -24,6 +44,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     headers.set('Authorization', `Bearer ${options.token}`);
   }
 
+  // Every frontend API helper funnels through this function so authentication, error parsing,
+  // and global auth-expiry handling stay centralized instead of being reimplemented per page.
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers,
@@ -35,14 +57,31 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
     // The API often returns JSON error payloads, but we still want a readable fallback.
     try {
-      const parsed = JSON.parse(text) as { message?: string; errors?: string[] };
-      message = parsed.message ?? parsed.errors?.join(', ') ?? message;
+      const parsed = JSON.parse(text) as {
+        message?: string;
+        errors?: Array<string | { field?: string; message?: string }>;
+      };
+      const formattedErrors = parsed.errors
+        ?.map((entry) => {
+          if (typeof entry === 'string') {
+            return entry;
+          }
+          if (!entry) {
+            return '';
+          }
+          return entry.field ? `${entry.field}: ${entry.message ?? 'Invalid value.'}` : (entry.message ?? 'Invalid value.');
+        })
+        .filter(Boolean)
+        .join(', ');
+      message = parsed.message ?? formattedErrors ?? message;
     } catch {
       if (text) {
         message = text;
       }
     }
 
+    // These window events let AuthContext respond in one place instead of forcing every page
+    // to duplicate session-expiry and permission-denied handling.
     if (response.status === 401) {
       window.dispatchEvent(new CustomEvent('intex:unauthorized'));
     }

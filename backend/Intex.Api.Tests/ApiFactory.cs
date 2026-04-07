@@ -13,7 +13,9 @@ public class ApiFactory : WebApplicationFactory<Program>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["Database:Name"] = $"IntexTests-{Guid.NewGuid():N}"
+                ["Database:Name"] = $"IntexTests-{Guid.NewGuid():N}",
+                ["Seed:Mode"] = "Fixture",
+                ["Seed:ImportCsvOnStartup"] = "false"
             });
         });
     }

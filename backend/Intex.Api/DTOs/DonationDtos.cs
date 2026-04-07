@@ -11,17 +11,17 @@ public record DonationAllocationRequest(
 
 public record DonationRequest(
     [Range(1, int.MaxValue)] int SupporterId,
-    [Required, StringLength(30)] string DonationType,
+    [Required, StringLength(30), RegularExpression(ValidationPatterns.DonationType)] string DonationType,
     DateOnly DonationDate,
-    [Required, StringLength(30)] string ChannelSource,
-    [StringLength(3)] string? CurrencyCode,
+    [Required, StringLength(30), RegularExpression(ValidationPatterns.DonationChannel)] string ChannelSource,
+    [StringLength(3), RegularExpression(ValidationPatterns.CurrencyCode)] string? CurrencyCode,
     decimal? Amount,
     [Range(typeof(decimal), "0.01", "999999999.99")] decimal EstimatedValue,
     [Required, StringLength(30)] string ImpactUnit,
     bool IsRecurring,
     [StringLength(100)] string? CampaignName,
     [StringLength(2000)] string? Notes,
-    [Required] List<DonationAllocationRequest> Allocations);
+    [Required, MinLength(1)] List<DonationAllocationRequest> Allocations);
 
 public record DonationAllocationResponse(
     int Id,
@@ -47,3 +47,33 @@ public record DonationResponse(
     string? CampaignName,
     string? Notes,
     List<DonationAllocationResponse> Allocations);
+
+public record DonorImpactSummaryResponse(
+    decimal TotalDonated,
+    int DonationCount,
+    int RecurringDonationCount,
+    decimal AverageDonationAmount);
+
+public record DonorAllocationBreakdownItemResponse(
+    int SafehouseId,
+    string SafehouseName,
+    string ProgramArea,
+    decimal TotalAllocated,
+    int AllocationCount,
+    decimal SharePercent);
+
+public record DonorAllocationBreakdownResponse(
+    decimal TotalAllocated,
+    IReadOnlyList<DonorAllocationBreakdownItemResponse> Items);
+
+public record DonationImpactPredictionOutcomeResponse(
+    string ProgramArea,
+    decimal AllocatedAmount,
+    string OutcomeUnit,
+    decimal UnitCost,
+    decimal EstimatedUnits);
+
+public record DonationImpactPredictionResponse(
+    decimal Amount,
+    IReadOnlyList<DonationImpactPredictionOutcomeResponse> Outcomes,
+    string Assumptions);

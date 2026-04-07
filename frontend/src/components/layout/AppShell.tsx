@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { clearThemePreference, getConsentLevel, getSavedTheme, persistThemePreference, type ThemeMode } from '../../lib/browserPreferences';
 import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
 
@@ -25,6 +26,7 @@ export function AppShell() {
   const { user, logout, authMessage, clearAuthMessage } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [theme, setTheme] = useState<ThemeMode>(() => (getConsentLevel() === 'accepted' ? getSavedTheme() : 'default'));
 
   // Keep the drawer closed when navigation changes and stop the page from scrolling behind it.
   useEffect(() => {
@@ -38,6 +40,10 @@ export function AppShell() {
     };
   }, [mobileNavOpen]);
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme === 'calm' ? 'calm' : 'default';
+  }, [theme]);
+
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
   const portalLinks = isDonorOnly ? donorLinks : staffLinks;
   const userInitials = user?.fullName
@@ -49,6 +55,18 @@ export function AppShell() {
   const headerLinks = user
     ? [...publicLinks, { to: '/portal', label: 'Portal' }]
     : [...publicLinks, { to: '/login', label: 'Login' }];
+  const themeLabel = theme === 'calm' ? 'Calm theme' : 'Standard theme';
+
+  const toggleTheme = () => {
+    const nextTheme: ThemeMode = theme === 'default' ? 'calm' : 'default';
+    setTheme(nextTheme);
+
+    if (getConsentLevel() === 'accepted') {
+      persistThemePreference(nextTheme);
+    } else {
+      clearThemePreference();
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -80,6 +98,9 @@ export function AppShell() {
                   Sign out
                 </button>
               ) : null}
+              <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
+                {themeLabel}
+              </button>
             </nav>
 
             {user ? (
@@ -126,6 +147,9 @@ export function AppShell() {
                   Sign out
                 </button>
               ) : null}
+              <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
+                {themeLabel}
+              </button>
             </nav>
           </div>
         ) : null}
@@ -149,6 +173,9 @@ export function AppShell() {
                     <StatusBadge key={role} value={role} />
                   ))}
                 </div>
+                <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
+                  Toggle theme
+                </button>
               </div>
 
               <nav className="sidebar-nav">

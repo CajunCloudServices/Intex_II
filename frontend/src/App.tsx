@@ -4,6 +4,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { CookieConsentBanner } from './components/ui/CookieConsentBanner';
 import { useAuth } from './hooks/useAuth';
 import { AdminDashboardPage } from './pages/portal/AdminDashboardPage';
+import { AuditHistoryPage } from './pages/portal/AuditHistoryPage';
 import { CaseloadInventoryPage } from './pages/portal/CaseloadInventoryPage';
 import { DonorsContributionsPage } from './pages/portal/DonorsContributionsPage';
 import { DonorHistoryPage } from './pages/portal/DonorHistoryPage';
@@ -12,6 +13,7 @@ import { ProcessRecordingPage } from './pages/portal/ProcessRecordingPage';
 import { ReportsAnalyticsPage } from './pages/portal/ReportsAnalyticsPage';
 import { DonatePage } from './pages/public/DonatePage';
 import { HomePage } from './pages/public/HomePage';
+import { GoogleCallbackPage } from './pages/public/GoogleCallbackPage';
 import { ImpactDashboardPage } from './pages/public/ImpactDashboardPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { NotFoundPage } from './pages/public/NotFoundPage';
@@ -22,7 +24,7 @@ function PortalHomeRoute() {
 
   // Donor users have a different landing page than staff/admin users.
   if (user?.roles.includes('Donor') && user.roles.length === 1) {
-    return <Navigate to="/portal/donor-history" replace />;
+    return <Navigate to="/portal/my-impact" replace />;
   }
 
   return <Navigate to="/portal/admin" replace />;
@@ -31,12 +33,15 @@ function PortalHomeRoute() {
 function App() {
   return (
     <>
+      {/* Public and portal routes share one shell, but ProtectedRoute decides which parts
+          of the tree require an authenticated user and which roles may enter. */}
       <Routes>
         <Route path="/" element={<AppShell />}>
           <Route index element={<HomePage />} />
           <Route path="impact" element={<ImpactDashboardPage />} />
           <Route path="donate" element={<DonatePage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="login/google/callback" element={<GoogleCallbackPage />} />
           <Route path="privacy" element={<PrivacyPolicyPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Staff', 'Donor']} />}>
@@ -52,7 +57,12 @@ function App() {
             <Route path="portal/reports" element={<ReportsAnalyticsPage />} />
           </Route>
 
+          <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+            <Route path="portal/audit-history" element={<AuditHistoryPage />} />
+          </Route>
+
           <Route element={<ProtectedRoute allowedRoles={['Donor']} />}>
+            <Route path="portal/my-impact" element={<DonorHistoryPage />} />
             <Route path="portal/donor-history" element={<DonorHistoryPage />} />
           </Route>
 

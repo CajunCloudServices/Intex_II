@@ -13,7 +13,7 @@ export function MetricCard({
 }) {
   return (
     <article className={`metric-card${accent ? ' metric-card-accent' : ''}`}>
-      <span>{label}</span>
+      <h3 className="metric-card-label">{label}</h3>
       <strong>{value}</strong>
       <p>{detail}</p>
     </article>
@@ -44,5 +44,19 @@ export function SectionCard({
       </div>
       {children}
     </section>
+  );
+}
+
+export function FloatingCard({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`section-card floating-card${className ? ` ${className}` : ''}`}>
+      {children}
+    </div>
   );
 }

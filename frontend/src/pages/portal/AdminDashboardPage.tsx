@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import type { DashboardSummary } from '../../api/types';
-import { SectionCard } from '../../components/ui/Cards';
+import type { DashboardSummary, DonationTrends, SafehousePerformanceSummary, SocialAnalytics } from '../../api/types';
+import { MetricCard, SectionCard } from '../../components/ui/Cards';
+import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDateTime, formatMoney } from '../../lib/format';
 
 export function AdminDashboardPage() {
   const { token } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [donationTrends, setDonationTrends] = useState<DonationTrends | null>(null);
+  const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
+  const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -20,7 +25,16 @@ export function AdminDashboardPage() {
     setError(null);
 
     try {
-      setSummary(await api.dashboardSummary(token));
+      const [dashboard, trends, safehouses, social] = await Promise.all([
+        api.dashboardSummary(token),
+        api.donationTrends(token),
+        api.safehousePerformance(token),
+        api.socialAnalytics(token),
+      ]);
+      setSummary(dashboard);
+      setDonationTrends(trends);
+      setSafehousePerformance(safehouses);
+      setSocialAnalytics(social);
       setLastUpdated(new Date().toISOString());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard summary.');
@@ -180,16 +194,64 @@ export function AdminDashboardPage() {
                 )}
               </SectionCard>
 
-              <SectionCard title="Urgent Attention" subtitle="Helpful context for demos and walkthroughs">
-                <ul className="simple-list dashboard-note-list">
-                  <li>Last refreshed: {lastUpdated ? formatDateTime(lastUpdated) : 'Just now'}</li>
-                  <li>{summary.safehouseCount} safehouses are included in the current dashboard rollup.</li>
-                  <li>Delete flows elsewhere in the portal should still require explicit confirmation.</li>
-                </ul>
-              </SectionCard>
-            </div>
+          <section className="page-grid two">
+            <SectionCard title="Upcoming case conferences" subtitle="Scheduled resident reviews that need attention soon">
+              <DataTable
+                columns={['Resident', 'Conference date', 'Lead worker', 'Status']}
+                rows={summary.upcomingCaseConferences.map((conference) => [
+                  conference.residentCode,
+                  conference.conferenceDate,
+                  conference.leadWorker,
+                  <StatusBadge key={`conf-status-${conference.residentCode}`} value={conference.status} />,
+                ])}
+                emptyMessage="No upcoming case conferences are scheduled."
+                caption="Upcoming case conferences"
+              />
+            </SectionCard>
+
+            <SectionCard title="Progress summary" subtitle="Operational signals from counseling and follow-up workflows">
+              <ul className="simple-list">
+                <li>Last refreshed: {lastUpdated ? formatDateTime(lastUpdated) : 'Just now'}</li>
+                <li>{summary.progressSummary.progressNoted} process recordings flagged measurable progress.</li>
+                <li>{summary.progressSummary.concernsFlagged} process recordings flagged concerns for follow-up.</li>
+                <li>{summary.progressSummary.referralsMade} sessions resulted in a referral or escalation.</li>
+              </ul>
+            </SectionCard>
           </section>
-        </>
+
+          <section className="page-grid two">
+            <SectionCard title="Safehouse capacity trend" subtitle="Occupancy and recent health trend by safehouse">
+              <DataTable
+                columns={['Safehouse', 'Occupancy', 'Health trend']}
+                rows={(safehousePerformance?.safehouses ?? []).map((safehouse) => {
+                  const trend = safehousePerformance?.monthlyTrends.find((item) => item.safehouseId === safehouse.safehouseId);
+                  const latestScore = trend?.monthlyTrend.at(-1)?.avgHealthScore ?? 0;
+                  return [
+                    safehouse.safehouseName,
+                    `${safehouse.currentOccupancy}/${safehouse.capacityGirls}`,
+                    latestScore > 0 ? latestScore.toFixed(1) : 'N/A',
+                  ];
+                })}
+                emptyMessage="No safehouse trend data is available."
+                caption="Safehouse occupancy and health indicators"
+              />
+            </SectionCard>
+
+            <SectionCard title="Top social posts" subtitle="Recent social content driving referrals">
+              <DataTable
+                columns={['Platform', 'Type', 'Referrals', 'Engagement']}
+                rows={(socialAnalytics?.posts ?? []).slice(0, 8).map((post) => [
+                  post.platform,
+                  post.postType,
+                  post.donationReferrals,
+                  `${(post.engagementRate * 100).toFixed(1)}%`,
+                ])}
+                emptyMessage="No social post analytics available."
+                caption="Recent social performance"
+              />
+            </SectionCard>
+          </section>
+      </>
       ) : (
         <EmptyState title="No dashboard data" message="The summary endpoint returned no data yet." />
       )}

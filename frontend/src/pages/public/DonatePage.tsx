@@ -1,10 +1,7 @@
 import { Link } from 'react-router-dom';
 import { SectionCard } from '../../components/ui/Cards';
+import donateSupportImage from '../../assets/generated/donate-support.webp';
 
-/**
- * Public donation entry point (placeholder).
- * Wire this route to your real payment flow when ready—no backend logic here.
- */
 export function DonatePage() {
   return (
     <div className="page-shell narrow donate-page">
@@ -13,11 +10,19 @@ export function DonatePage() {
           <span className="eyebrow">Support our work</span>
           <h1>Donate</h1>
           <p>
-            Online giving is not yet connected in this demo app. In production, this page would host your secure
-            donation form or link to your processor (for example, a hosted checkout).
+            Online giving is handled through the organization&apos;s secure giving process. This page can be connected
+            to a hosted donation form, payment processor, or donor portal as the team finalizes operations.
           </p>
         </div>
       </div>
+
+      <section className="editorial-media editorial-media--wide">
+        <img
+          className="editorial-image"
+          src={donateSupportImage}
+          alt="A warm welcome kit inside a safe residence, with blankets, toiletries, a journal, tea, and bedside light."
+        />
+      </section>
 
       <SectionCard title="How your gift helps" subtitle="Every contribution supports safe housing and healing">
         <ul className="simple-list donate-list">

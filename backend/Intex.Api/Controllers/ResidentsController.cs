@@ -2,6 +2,7 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
-public class ResidentsController(ApplicationDbContext dbContext) : ControllerBase
+public class ResidentsController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ResidentResponse>>> GetAll([FromQuery] string? status, [FromQuery] int? safehouseId)
@@ -49,6 +50,7 @@ public class ResidentsController(ApplicationDbContext dbContext) : ControllerBas
         var resident = MapResident(new Resident { CreatedAtUtc = DateTime.UtcNow }, request);
         dbContext.Residents.Add(resident);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(Resident), resident.Id, $"Created resident {resident.CaseControlNumber}.", User);
 
         var createdResident = await BuildResidentEntityQuery().FirstAsync(x => x.Id == resident.Id);
         return CreatedAtAction(nameof(GetById), new { id = resident.Id }, MapResidentResponse(createdResident));
@@ -83,6 +85,7 @@ public class ResidentsController(ApplicationDbContext dbContext) : ControllerBas
         }).ToList();
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(Resident), resident.Id, $"Updated resident {resident.CaseControlNumber}.", User);
         var updatedResident = await BuildResidentEntityQuery().FirstAsync(x => x.Id == id);
         return Ok(MapResidentResponse(updatedResident));
     }
@@ -102,8 +105,10 @@ public class ResidentsController(ApplicationDbContext dbContext) : ControllerBas
             return NotFound();
         }
 
+        var summary = $"Deleted resident {resident.CaseControlNumber}.";
         dbContext.Residents.Remove(resident);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(Resident), id, summary, User);
         return NoContent();
     }
 

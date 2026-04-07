@@ -1,0 +1,20 @@
+name: Deploy Tanglaw Project
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: tanglaw-project-prod-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - cajuncloud-prod
+    steps:
+      - name: Deploy on production runner
+        run: /home/lajicpajam/bin/harborlight-deploy.sh

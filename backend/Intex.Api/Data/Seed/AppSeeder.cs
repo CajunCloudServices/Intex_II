@@ -1,18 +1,27 @@
 using System.Text.Json;
 using Intex.Api.Authorization;
 using Intex.Api.Entities;
+using Intex.Api.Models.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Intex.Api.Data.Seed;
 
 public class AppSeeder(
     ApplicationDbContext dbContext,
     RoleManager<IdentityRole<Guid>> roleManager,
-    UserManager<ApplicationUser> userManager)
+    UserManager<ApplicationUser> userManager,
+    ICsvRelationalSeeder csvRelationalSeeder,
+    IOptions<SeedOptions> seedOptions,
+    ILogger<AppSeeder> logger)
 {
+    private readonly SeedOptions options = seedOptions.Value;
+
     public async Task SeedAsync()
     {
+        // Roles must exist before user creation, because the seeded accounts are assigned
+        // immediately after the domain rows are inserted.
         foreach (var roleName in RoleNames.All)
         {
             if (!await roleManager.RoleExistsAsync(roleName))
@@ -23,7 +32,33 @@ public class AppSeeder(
 
         if (!await dbContext.Safehouses.AnyAsync())
         {
-            await SeedDomainDataAsync();
+            var preferCsv = string.Equals(options.Mode, "Csv", StringComparison.OrdinalIgnoreCase);
+            if (preferCsv && options.ImportCsvOnStartup)
+            {
+                var importResult = await csvRelationalSeeder.SeedAsync();
+                if (!importResult.Success)
+                {
+                    logger.LogWarning(
+                        "CSV relational seed failed with {ErrorCount} errors; falling back to fixture seed.",
+                        importResult.Errors.Count);
+                    foreach (var error in importResult.Errors.Take(25))
+                    {
+                        logger.LogWarning("CSV seed error: {Error}", error);
+                    }
+
+                    await SeedDomainDataAsync();
+                }
+                else
+                {
+                    logger.LogInformation(
+                        "CSV relational seed completed. Imported counts: {Counts}",
+                        string.Join(", ", importResult.ImportedCounts.Select(x => $"{x.Key}={x.Value}")));
+                }
+            }
+            else
+            {
+                await SeedDomainDataAsync();
+            }
         }
 
         await SeedUsersAsync();
@@ -97,6 +132,23 @@ public class AppSeeder(
                 FirstDonationDate = new DateOnly(2025, 7, 1),
                 AcquisitionChannel = "PartnerReferral",
                 CreatedAtUtc = new DateTime(2025, 7, 1, 9, 0, 0, DateTimeKind.Utc)
+            },
+            // Second individual donor — used for donor isolation tests.
+            new Supporter
+            {
+                SupporterType = "MonetaryDonor",
+                DisplayName = "Alex Rivera",
+                FirstName = "Alex",
+                LastName = "Rivera",
+                RelationshipType = "Individual",
+                Region = "Asia Pacific",
+                Country = "Australia",
+                Email = "donor2@intex.local",
+                Phone = "555-0103",
+                Status = "Active",
+                FirstDonationDate = new DateOnly(2026, 1, 10),
+                AcquisitionChannel = "SocialMedia",
+                CreatedAtUtc = new DateTime(2026, 1, 10, 10, 0, 0, DateTimeKind.Utc)
             }
         };
 
@@ -234,6 +286,32 @@ public class AppSeeder(
                 VisitOutcome = "Favorable"
             });
 
+        dbContext.CaseConferences.AddRange(
+            new CaseConference
+            {
+                ResidentId = residents[0].Id,
+                ConferenceDate = new DateOnly(2026, 4, 18),
+                LeadWorker = "Ana Santos",
+                Attendees = "Ana Santos, house parent, school liaison",
+                Purpose = "Review transition readiness and align school support.",
+                DecisionsMade = "Proceed with a supervised weekend family visit and maintain weekly counseling.",
+                FollowUpActions = "Confirm transport, caregiver orientation, and post-visit debrief.",
+                NextReviewDate = new DateOnly(2026, 5, 2),
+                Status = "Scheduled"
+            },
+            new CaseConference
+            {
+                ResidentId = residents[1].Id,
+                ConferenceDate = new DateOnly(2026, 4, 11),
+                LeadWorker = "Maria Reyes",
+                Attendees = "Maria Reyes, education lead, safehouse supervisor",
+                Purpose = "Review literacy progress and behavior support response.",
+                DecisionsMade = "Increase tutoring frequency and add a peer-support check-in twice weekly.",
+                FollowUpActions = "Update intervention plan milestones and monitor classroom behavior for 30 days.",
+                NextReviewDate = new DateOnly(2026, 5, 9),
+                Status = "Completed"
+            });
+
         dbContext.IncidentReports.AddRange(
             new IncidentReport
             {
@@ -248,6 +326,94 @@ public class AppSeeder(
                 ResolutionDate = new DateOnly(2026, 2, 21),
                 ReportedBy = "Maria Reyes",
                 FollowUpRequired = true
+            });
+
+        dbContext.HealthWellbeingRecords.AddRange(
+            new HealthWellbeingRecord
+            {
+                ResidentId = residents[0].Id,
+                RecordDate = new DateOnly(2026, 2, 15),
+                GeneralHealthScore = 7.1m,
+                NutritionScore = 7.4m,
+                SleepQualityScore = 6.9m,
+                EnergyLevelScore = 7.0m,
+                HeightCm = 148m,
+                WeightKg = 41.5m,
+                Bmi = 18.9m,
+                MedicalCheckupDone = true,
+                DentalCheckupDone = true,
+                PsychologicalCheckupDone = true,
+                Notes = "Steady improvement with regular sleep schedule."
+            },
+            new HealthWellbeingRecord
+            {
+                ResidentId = residents[1].Id,
+                RecordDate = new DateOnly(2026, 2, 15),
+                GeneralHealthScore = 6.1m,
+                NutritionScore = 6.3m,
+                SleepQualityScore = 5.9m,
+                EnergyLevelScore = 5.8m,
+                HeightCm = 152m,
+                WeightKg = 44.2m,
+                Bmi = 19.1m,
+                MedicalCheckupDone = true,
+                DentalCheckupDone = false,
+                PsychologicalCheckupDone = true,
+                Notes = "Needs ongoing support for sleep quality."
+            });
+
+        dbContext.EducationRecords.AddRange(
+            new EducationRecord
+            {
+                ResidentId = residents[0].Id,
+                RecordDate = new DateOnly(2026, 2, 28),
+                EducationLevel = "Grade 8",
+                SchoolName = "Quezon Secondary School",
+                EnrollmentStatus = "Enrolled",
+                AttendanceRate = 92m,
+                ProgressPercent = 78m,
+                CompletionStatus = "In Progress",
+                Notes = "Consistent attendance after transport support."
+            },
+            new EducationRecord
+            {
+                ResidentId = residents[1].Id,
+                RecordDate = new DateOnly(2026, 2, 28),
+                EducationLevel = "Grade 9",
+                SchoolName = "Cebu Learning Center",
+                EnrollmentStatus = "Enrolled",
+                AttendanceRate = 84m,
+                ProgressPercent = 64m,
+                CompletionStatus = "In Progress",
+                Notes = "Requires tutoring reinforcement in math."
+            });
+
+        dbContext.Partners.AddRange(
+            new Partner
+            {
+                PartnerName = "City Health Outreach",
+                PartnerType = "NGO",
+                RoleType = "Healthcare",
+                ContactName = "Lia Gomez",
+                Email = "lia.gomez@example.org",
+                Phone = "+63-2-555-0120",
+                Region = "Luzon",
+                Status = "Active",
+                StartDate = new DateOnly(2025, 6, 1),
+                Notes = "Supports monthly checkups and referrals."
+            },
+            new Partner
+            {
+                PartnerName = "BrightPath Learning Foundation",
+                PartnerType = "Foundation",
+                RoleType = "Education",
+                ContactName = "Paulo Dizon",
+                Email = "paulo.dizon@example.org",
+                Phone = "+63-2-555-0168",
+                Region = "Visayas",
+                Status = "Active",
+                StartDate = new DateOnly(2025, 9, 15),
+                Notes = "Provides tutoring and school materials."
             });
 
         dbContext.Donations.AddRange(
@@ -278,6 +444,21 @@ public class AppSeeder(
                 IsRecurring = false,
                 CampaignName = "Back to School",
                 Notes = "Corporate partner event pledge."
+            },
+            // Donor2-only donation — must not appear in donor1's my-history response.
+            new Donation
+            {
+                SupporterId = supporters[2].Id,
+                DonationType = "Monetary",
+                DonationDate = new DateOnly(2026, 1, 15),
+                ChannelSource = "SocialMedia",
+                CurrencyCode = "AUD",
+                Amount = 100m,
+                EstimatedValue = 100m,
+                ImpactUnit = "pesos",
+                IsRecurring = false,
+                CampaignName = "Back to School",
+                Notes = "One-time online gift."
             });
 
         await dbContext.SaveChangesAsync();
@@ -301,6 +482,148 @@ public class AppSeeder(
                 AmountAllocated = 50000m,
                 AllocationDate = new DateOnly(2026, 3, 23),
                 AllocationNotes = "School fees and materials."
+            },
+            new DonationAllocation
+            {
+                DonationId = donations[2].Id,
+                SafehouseId = safehouses[0].Id,
+                ProgramArea = "Education",
+                AmountAllocated = 100m,
+                AllocationDate = new DateOnly(2026, 1, 16),
+                AllocationNotes = "School supply contribution from donor2."
+            });
+
+        var partners = await dbContext.Partners.OrderBy(x => x.Id).ToListAsync();
+        dbContext.PartnerAssignments.AddRange(
+            new PartnerAssignment
+            {
+                PartnerId = partners[0].Id,
+                SafehouseId = safehouses[0].Id,
+                ProgramArea = "Health",
+                AssignmentStart = new DateOnly(2025, 7, 1),
+                ResponsibilityNotes = "Monthly on-site wellness rounds",
+                IsPrimary = true,
+                Status = "Active"
+            },
+            new PartnerAssignment
+            {
+                PartnerId = partners[1].Id,
+                SafehouseId = safehouses[1].Id,
+                ProgramArea = "Education",
+                AssignmentStart = new DateOnly(2025, 10, 1),
+                ResponsibilityNotes = "Academic catch-up workshops",
+                IsPrimary = true,
+                Status = "Active"
+            });
+
+        dbContext.SafehouseMonthlyMetrics.AddRange(
+            // SH-01 — January 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[0].Id,
+                MonthStart = new DateOnly(2026, 1, 1),
+                MonthEnd = new DateOnly(2026, 1, 31),
+                ActiveResidents = 16,
+                AvgEducationProgress = 68.0m,
+                AvgHealthScore = 6.6m,
+                ProcessRecordingCount = 18,
+                HomeVisitationCount = 4,
+                IncidentCount = 3,
+                Notes = "January intake; several new residents settling in."
+            },
+            // SH-01 — February 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[0].Id,
+                MonthStart = new DateOnly(2026, 2, 1),
+                MonthEnd = new DateOnly(2026, 2, 28),
+                ActiveResidents = 17,
+                AvgEducationProgress = 71.2m,
+                AvgHealthScore = 6.8m,
+                ProcessRecordingCount = 19,
+                HomeVisitationCount = 5,
+                IncidentCount = 2,
+                Notes = "Education attendance improving after schedule stabilisation."
+            },
+            // SH-01 — March 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[0].Id,
+                MonthStart = new DateOnly(2026, 3, 1),
+                MonthEnd = new DateOnly(2026, 3, 31),
+                ActiveResidents = 18,
+                AvgEducationProgress = 74.5m,
+                AvgHealthScore = 7.0m,
+                ProcessRecordingCount = 21,
+                HomeVisitationCount = 6,
+                IncidentCount = 2,
+                Notes = "Stable month with moderate case activity."
+            },
+            // SH-02 — January 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[1].Id,
+                MonthStart = new DateOnly(2026, 1, 1),
+                MonthEnd = new DateOnly(2026, 1, 31),
+                ActiveResidents = 8,
+                AvgEducationProgress = 61.5m,
+                AvgHealthScore = 5.9m,
+                ProcessRecordingCount = 13,
+                HomeVisitationCount = 3,
+                IncidentCount = 2,
+                Notes = "Low staffing coverage; partner support gap."
+            },
+            // SH-02 — February 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[1].Id,
+                MonthStart = new DateOnly(2026, 2, 1),
+                MonthEnd = new DateOnly(2026, 2, 28),
+                ActiveResidents = 9,
+                AvgEducationProgress = 64.8m,
+                AvgHealthScore = 6.1m,
+                ProcessRecordingCount = 15,
+                HomeVisitationCount = 3,
+                IncidentCount = 1,
+                Notes = "Partner tutoring programme began mid-month."
+            },
+            // SH-02 — March 2026
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[1].Id,
+                MonthStart = new DateOnly(2026, 3, 1),
+                MonthEnd = new DateOnly(2026, 3, 31),
+                ActiveResidents = 10,
+                AvgEducationProgress = 68.2m,
+                AvgHealthScore = 6.3m,
+                ProcessRecordingCount = 17,
+                HomeVisitationCount = 4,
+                IncidentCount = 1,
+                Notes = "Improving engagement with partner support."
+            });
+
+        dbContext.InKindDonationItems.AddRange(
+            new InKindDonationItem
+            {
+                DonationId = donations[0].Id,
+                ItemName = "Nutrition Pack",
+                ItemCategory = "Food",
+                Quantity = 20,
+                UnitOfMeasure = "boxes",
+                EstimatedUnitValue = 30m,
+                IntendedUse = "Resident meal support",
+                ReceivedCondition = "Good"
+            },
+            new InKindDonationItem
+            {
+                DonationId = donations[1].Id,
+                ItemName = "School Supply Kit",
+                ItemCategory = "Education",
+                Quantity = 40,
+                UnitOfMeasure = "kits",
+                EstimatedUnitValue = 18.5m,
+                IntendedUse = "Back-to-school distribution",
+                ReceivedCondition = "New"
             });
 
         dbContext.SocialMediaPosts.AddRange(
@@ -331,6 +654,139 @@ public class AppSeeder(
                 EngagementRate = 0.0685m,
                 DonationReferrals = 7,
                 EstimatedDonationValuePhp = 42000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Instagram",
+                PlatformPostId = "ig_20001",
+                PostUrl = "https://example.org/posts/ig_20001",
+                CreatedAtUtc = new DateTime(2026, 3, 8, 10, 0, 0, DateTimeKind.Utc),
+                PostType = "Appeal",
+                MediaType = "Reel",
+                Caption = "Every peso counts. Help us keep our safehouses running.",
+                Hashtags = "#GiveHope,#BackToSchool",
+                HasCallToAction = true,
+                CallToActionType = "DonateNow",
+                ContentTopic = "Fundraising",
+                SentimentTone = "Urgent",
+                FeaturesResidentStory = false,
+                CampaignName = "Back to School",
+                IsBoosted = true,
+                BoostBudgetPhp = 1800m,
+                Impressions = 18500,
+                Reach = 13200,
+                Likes = 780,
+                Comments = 94,
+                Shares = 210,
+                ClickThroughs = 312,
+                EngagementRate = 0.0588m,
+                DonationReferrals = 14,
+                EstimatedDonationValuePhp = 78000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Facebook",
+                PlatformPostId = "fb_10002",
+                PostUrl = "https://example.org/posts/fb_10002",
+                CreatedAtUtc = new DateTime(2026, 2, 14, 9, 0, 0, DateTimeKind.Utc),
+                PostType = "EventPromo",
+                MediaType = "Photo",
+                Caption = "Join us for our February fundraising evening.",
+                Hashtags = "#TanglawProjectEvent,#HopeForGirls",
+                HasCallToAction = true,
+                CallToActionType = "RegisterNow",
+                ContentTopic = "Events",
+                SentimentTone = "Celebratory",
+                FeaturesResidentStory = false,
+                CampaignName = "Year-End Hope",
+                IsBoosted = false,
+                Impressions = 5400,
+                Reach = 3900,
+                Likes = 182,
+                Comments = 23,
+                Shares = 38,
+                ClickThroughs = 64,
+                EngagementRate = 0.0452m,
+                DonationReferrals = 3,
+                EstimatedDonationValuePhp = 18500m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Instagram",
+                PlatformPostId = "ig_20002",
+                PostUrl = "https://example.org/posts/ig_20002",
+                CreatedAtUtc = new DateTime(2026, 2, 5, 11, 30, 0, DateTimeKind.Utc),
+                PostType = "ImpactStory",
+                MediaType = "Photo",
+                Caption = "What does resilience look like? It looks like this.",
+                Hashtags = "#DonorImpact,#SafeHaven",
+                HasCallToAction = false,
+                ContentTopic = "DonorImpact",
+                SentimentTone = "Hopeful",
+                FeaturesResidentStory = true,
+                IsBoosted = false,
+                Impressions = 9700,
+                Reach = 7200,
+                Likes = 620,
+                Comments = 77,
+                Shares = 91,
+                ClickThroughs = 48,
+                EngagementRate = 0.0812m,
+                DonationReferrals = 5,
+                EstimatedDonationValuePhp = 29000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Facebook",
+                PlatformPostId = "fb_10003",
+                PostUrl = "https://example.org/posts/fb_10003",
+                CreatedAtUtc = new DateTime(2026, 1, 20, 8, 0, 0, DateTimeKind.Utc),
+                PostType = "Appeal",
+                MediaType = "Video",
+                Caption = "Our girls are heading back to school. Can you help?",
+                Hashtags = "#BackToSchool,#HopeForGirls",
+                HasCallToAction = true,
+                CallToActionType = "DonateNow",
+                ContentTopic = "Education",
+                SentimentTone = "Hopeful",
+                FeaturesResidentStory = false,
+                CampaignName = "Back to School",
+                IsBoosted = true,
+                BoostBudgetPhp = 3000m,
+                Impressions = 22000,
+                Reach = 15800,
+                Likes = 910,
+                Comments = 118,
+                Shares = 265,
+                ClickThroughs = 407,
+                EngagementRate = 0.0590m,
+                DonationReferrals = 18,
+                EstimatedDonationValuePhp = 95000m
+            },
+            new SocialMediaPost
+            {
+                Platform = "Instagram",
+                PlatformPostId = "ig_20003",
+                PostUrl = "https://example.org/posts/ig_20003",
+                CreatedAtUtc = new DateTime(2026, 1, 10, 12, 0, 0, DateTimeKind.Utc),
+                PostType = "PartnerSpotlight",
+                MediaType = "Photo",
+                Caption = "Thank you to our partners who make every day possible.",
+                Hashtags = "#ThankYou,#CommunityImpact",
+                HasCallToAction = false,
+                ContentTopic = "Partnerships",
+                SentimentTone = "Grateful",
+                FeaturesResidentStory = false,
+                IsBoosted = false,
+                Impressions = 4200,
+                Reach = 3100,
+                Likes = 245,
+                Comments = 19,
+                Shares = 31,
+                ClickThroughs = 22,
+                EngagementRate = 0.0702m,
+                DonationReferrals = 1,
+                EstimatedDonationValuePhp = 5000m
             });
 
         dbContext.PublicImpactSnapshots.AddRange(
@@ -355,12 +811,45 @@ public class AppSeeder(
 
     private async Task SeedUsersAsync()
     {
+        var donorSupporterId = await dbContext.Supporters
+            .Where(x => x.Email == "donor@intex.local")
+            .Select(x => (int?)x.Id)
+            .FirstOrDefaultAsync();
+
+        var donor2SupporterId = await dbContext.Supporters
+            .Where(x => x.Email == "donor2@intex.local")
+            .Select(x => (int?)x.Id)
+            .FirstOrDefaultAsync();
+
+        if (!donorSupporterId.HasValue)
+        {
+            var fallbackDonor = new Supporter
+            {
+                SupporterType = "MonetaryDonor",
+                DisplayName = "Jordan Lee",
+                FirstName = "Jordan",
+                LastName = "Lee",
+                RelationshipType = "International",
+                Region = "Luzon",
+                Country = "Philippines",
+                Email = "donor@intex.local",
+                Status = "Active",
+                AcquisitionChannel = "SystemSeed",
+                CreatedAtUtc = DateTime.UtcNow
+            };
+            dbContext.Supporters.Add(fallbackDonor);
+            await dbContext.SaveChangesAsync();
+            donorSupporterId = fallbackDonor.Id;
+        }
+
+        // These seeded users are for local/demo verification. Production deployments should
+        // replace them with real admin-managed accounts and stronger secrets.
         var users = new[]
         {
             new SeedUser("admin@intex.local", "Admin!234567", "Avery Admin", RoleNames.Admin, null),
             new SeedUser("staff@intex.local", "Staff!234567", "Skyler Staff", RoleNames.Staff, null),
-            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor,
-                await dbContext.Supporters.Where(x => x.Email == "donor@intex.local").Select(x => (int?)x.Id).FirstAsync())
+            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor, donorSupporterId),
+            new SeedUser("donor2@intex.local", "Donor2!234567", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
         };
 
         foreach (var seedUser in users)

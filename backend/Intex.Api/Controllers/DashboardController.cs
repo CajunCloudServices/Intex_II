@@ -29,6 +29,9 @@ public class DashboardController(ApplicationDbContext dbContext) : ControllerBas
             await dbContext.InterventionPlans.CountAsync(x => x.Status == "Open" || x.Status == "In Progress"),
             await dbContext.HomeVisitations.CountAsync(x => x.VisitDate >= monthStart),
             await dbContext.SocialMediaPosts.CountAsync(x => x.CreatedAtUtc >= monthStartUtc),
+            await dbContext.Residents.CountAsync(x => x.CurrentRiskLevel == "High" || x.CurrentRiskLevel == "Critical"),
+            await dbContext.HomeVisitations.CountAsync(x => x.FollowUpNeeded),
+            await dbContext.IncidentReports.CountAsync(x => !x.Resolved),
             await dbContext.Donations
                 .Include(x => x.Supporter)
                 .OrderByDescending(x => x.DonationDate)
@@ -43,7 +46,24 @@ public class DashboardController(ApplicationDbContext dbContext) : ControllerBas
             await dbContext.Safehouses
                 .OrderBy(x => x.Name)
                 .Select(x => new SafehouseUtilizationDto(x.Name, x.CurrentOccupancy, x.CapacityGirls))
-                .ToListAsync());
+                .ToListAsync(),
+            await dbContext.CaseConferences
+                .Include(x => x.Resident)
+                .Where(x => x.ConferenceDate >= monthStart)
+                .OrderBy(x => x.ConferenceDate)
+                .Take(5)
+                .Select(x => new UpcomingCaseConferenceDto(
+                    x.Id,
+                    x.ResidentId,
+                    x.Resident!.CaseControlNumber,
+                    x.ConferenceDate,
+                    x.LeadWorker,
+                    x.Status))
+                .ToListAsync(),
+            new ProcessProgressSummaryDto(
+                await dbContext.ProcessRecordings.CountAsync(x => x.ProgressNoted),
+                await dbContext.ProcessRecordings.CountAsync(x => x.ConcernsFlagged),
+                await dbContext.ProcessRecordings.CountAsync(x => x.ReferralMade)));
 
         return Ok(response);
     }
@@ -52,33 +72,9 @@ public class DashboardController(ApplicationDbContext dbContext) : ControllerBas
     [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<IActionResult> GetAnalytics()
     {
-        var safehouseDonationTotals = await dbContext.DonationAllocations
-            .Include(x => x.Safehouse)
-            .GroupBy(x => x.Safehouse!.Name)
-            .Select(group => new
-            {
-                safehouse = group.Key,
-                totalAllocated = group.Sum(x => x.AmountAllocated)
-            })
-            .OrderByDescending(x => x.totalAllocated)
-            .ToListAsync();
-
-        var socialPerformance = await dbContext.SocialMediaPosts
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .Take(6)
-            .Select(x => new
-            {
-                x.Platform,
-                x.PostType,
-                x.EngagementRate,
-                x.DonationReferrals
-            })
-            .ToListAsync();
-
         return Ok(new
         {
-            donationAllocationsBySafehouse = safehouseDonationTotals,
-            socialPerformance
+            message = "Use the dedicated /api/reports endpoints for analytics modules."
         });
     }
 }

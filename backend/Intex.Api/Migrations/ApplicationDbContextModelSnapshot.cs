@@ -95,6 +95,103 @@ namespace Intex.Api.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Intex.Api.Entities.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActionType")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("ActorEmail")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ActorUserId")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.ToTable("AuditLogs");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.CaseConference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Attendees")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly>("ConferenceDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("DecisionsMade")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FollowUpActions")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LeadWorker")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<DateOnly?>("NextReviewDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Purpose")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ResidentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResidentId");
+
+                    b.ToTable("CaseConferences");
+                });
+
             modelBuilder.Entity("Intex.Api.Entities.Donation", b =>
                 {
                     b.Property<int>("Id")
@@ -185,6 +282,114 @@ namespace Intex.Api.Migrations
                     b.ToTable("DonationAllocations");
                 });
 
+            modelBuilder.Entity("Intex.Api.Entities.EducationRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("AttendanceRate")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<string>("CompletionStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EducationLevel")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EnrollmentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("ProgressPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<DateOnly>("RecordDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("ResidentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SchoolName")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResidentId");
+
+                    b.ToTable("EducationRecords");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.HealthWellbeingRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("Bmi")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<bool>("DentalCheckupDone")
+                        .HasColumnType("boolean");
+
+                    b.Property<decimal>("EnergyLevelScore")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<decimal>("GeneralHealthScore")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<decimal?>("HeightCm")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.Property<bool>("MedicalCheckupDone")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("NutritionScore")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<bool>("PsychologicalCheckupDone")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateOnly>("RecordDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("ResidentId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("SleepQualityScore")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<decimal?>("WeightKg")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ResidentId");
+
+                    b.ToTable("HealthWellbeingRecords");
+                });
+
             modelBuilder.Entity("Intex.Api.Entities.HomeVisitation", b =>
                 {
                     b.Property<int>("Id")
@@ -245,6 +450,50 @@ namespace Intex.Api.Migrations
                     b.HasIndex("ResidentId");
 
                     b.ToTable("HomeVisitations");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.InKindDonationItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DonationId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal?>("EstimatedUnitValue")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("IntendedUse")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ItemCategory")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
+                    b.Property<string>("ReceivedCondition")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UnitOfMeasure")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DonationId");
+
+                    b.ToTable("InKindDonationItems");
                 });
 
             modelBuilder.Entity("Intex.Api.Entities.IncidentReport", b =>
@@ -350,6 +599,100 @@ namespace Intex.Api.Migrations
                     b.HasIndex("ResidentId");
 
                     b.ToTable("InterventionPlans");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.Partner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContactName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly?>("EndDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PartnerName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PartnerType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Region")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("RoleType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly?>("StartDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Partners");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.PartnerAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateOnly?>("AssignmentEnd")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("AssignmentStart")
+                        .HasColumnType("date");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("PartnerId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ProgramArea")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResponsibilityNotes")
+                        .HasColumnType("text");
+
+                    b.Property<int>("SafehouseId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PartnerId");
+
+                    b.HasIndex("SafehouseId");
+
+                    b.ToTable("PartnerAssignments");
                 });
 
             modelBuilder.Entity("Intex.Api.Entities.ProcessRecording", b =>
@@ -622,6 +965,53 @@ namespace Intex.Api.Migrations
                         .IsUnique();
 
                     b.ToTable("Safehouses");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.SafehouseMonthlyMetric", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ActiveResidents")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("AvgEducationProgress")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<decimal>("AvgHealthScore")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<int>("HomeVisitationCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IncidentCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly>("MonthEnd")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("MonthStart")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProcessRecordingCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SafehouseId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SafehouseId");
+
+                    b.ToTable("SafehouseMonthlyMetrics");
                 });
 
             modelBuilder.Entity("Intex.Api.Entities.SocialMediaPost", b =>
@@ -920,6 +1310,17 @@ namespace Intex.Api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Intex.Api.Entities.CaseConference", b =>
+                {
+                    b.HasOne("Intex.Api.Entities.Resident", "Resident")
+                        .WithMany("CaseConferences")
+                        .HasForeignKey("ResidentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resident");
+                });
+
             modelBuilder.Entity("Intex.Api.Entities.Donation", b =>
                 {
                     b.HasOne("Intex.Api.Entities.Supporter", "Supporter")
@@ -950,6 +1351,28 @@ namespace Intex.Api.Migrations
                     b.Navigation("Safehouse");
                 });
 
+            modelBuilder.Entity("Intex.Api.Entities.EducationRecord", b =>
+                {
+                    b.HasOne("Intex.Api.Entities.Resident", "Resident")
+                        .WithMany("EducationRecords")
+                        .HasForeignKey("ResidentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resident");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.HealthWellbeingRecord", b =>
+                {
+                    b.HasOne("Intex.Api.Entities.Resident", "Resident")
+                        .WithMany("HealthWellbeingRecords")
+                        .HasForeignKey("ResidentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Resident");
+                });
+
             modelBuilder.Entity("Intex.Api.Entities.HomeVisitation", b =>
                 {
                     b.HasOne("Intex.Api.Entities.Resident", "Resident")
@@ -959,6 +1382,17 @@ namespace Intex.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Resident");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.InKindDonationItem", b =>
+                {
+                    b.HasOne("Intex.Api.Entities.Donation", "Donation")
+                        .WithMany("InKindItems")
+                        .HasForeignKey("DonationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Donation");
                 });
 
             modelBuilder.Entity("Intex.Api.Entities.IncidentReport", b =>
@@ -991,6 +1425,25 @@ namespace Intex.Api.Migrations
                     b.Navigation("Resident");
                 });
 
+            modelBuilder.Entity("Intex.Api.Entities.PartnerAssignment", b =>
+                {
+                    b.HasOne("Intex.Api.Entities.Partner", "Partner")
+                        .WithMany("Assignments")
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Intex.Api.Entities.Safehouse", "Safehouse")
+                        .WithMany("PartnerAssignments")
+                        .HasForeignKey("SafehouseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Partner");
+
+                    b.Navigation("Safehouse");
+                });
+
             modelBuilder.Entity("Intex.Api.Entities.ProcessRecording", b =>
                 {
                     b.HasOne("Intex.Api.Entities.Resident", "Resident")
@@ -1008,6 +1461,17 @@ namespace Intex.Api.Migrations
                         .WithMany("Residents")
                         .HasForeignKey("SafehouseId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Safehouse");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.SafehouseMonthlyMetric", b =>
+                {
+                    b.HasOne("Intex.Api.Entities.Safehouse", "Safehouse")
+                        .WithMany("MonthlyMetrics")
+                        .HasForeignKey("SafehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Safehouse");
@@ -1067,10 +1531,22 @@ namespace Intex.Api.Migrations
             modelBuilder.Entity("Intex.Api.Entities.Donation", b =>
                 {
                     b.Navigation("Allocations");
+
+                    b.Navigation("InKindItems");
+                });
+
+            modelBuilder.Entity("Intex.Api.Entities.Partner", b =>
+                {
+                    b.Navigation("Assignments");
                 });
 
             modelBuilder.Entity("Intex.Api.Entities.Resident", b =>
                 {
+                    b.Navigation("EducationRecords");
+
+                    b.Navigation("HealthWellbeingRecords");
+                    b.Navigation("CaseConferences");
+
                     b.Navigation("HomeVisitations");
 
                     b.Navigation("IncidentReports");
@@ -1085,6 +1561,10 @@ namespace Intex.Api.Migrations
                     b.Navigation("DonationAllocations");
 
                     b.Navigation("IncidentReports");
+
+                    b.Navigation("MonthlyMetrics");
+
+                    b.Navigation("PartnerAssignments");
 
                     b.Navigation("Residents");
                 });

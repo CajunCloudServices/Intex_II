@@ -22,10 +22,15 @@ services:
       context: ./backend/Intex.Api
     container_name: harborlight_nexus_api
     restart: unless-stopped
+    volumes:
+      - harborlight_nexus_dataprotection_keys:/root/.aspnet/DataProtection-Keys
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_URLS: ${ASPNETCORE_URLS}
       PUBLIC_API_HOSTNAME: ${PUBLIC_API_HOSTNAME}
+      Frontend__BaseUrl: ${FRONTEND__BASEURL}
+      Authentication__Google__ClientId: ${AUTHENTICATION__GOOGLE__CLIENTID}
+      Authentication__Google__ClientSecret: ${AUTHENTICATION__GOOGLE__CLIENTSECRET}
       ConnectionStrings__DefaultConnection: Host=harborlight_nexus_db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       Jwt__Key: ${JWT_KEY}
       Jwt__Issuer: ${JWT_ISSUER}
@@ -52,3 +57,5 @@ services:
 volumes:
   harborlight_nexus_postgres_data:
     name: harborlight_nexus_postgres_data
+  harborlight_nexus_dataprotection_keys:
+    name: harborlight_nexus_dataprotection_keys

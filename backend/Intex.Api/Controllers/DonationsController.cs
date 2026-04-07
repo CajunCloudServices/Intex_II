@@ -3,15 +3,21 @@ using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
+using Intex.Api.Models.Options;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Intex.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DonationsController(ApplicationDbContext dbContext) : ControllerBase
+public class DonationsController(
+    ApplicationDbContext dbContext,
+    IAuditLogService auditLogService,
+    IOptions<DonationImpactOptions> donationImpactOptions) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = Policies.StaffOrAdmin)]
@@ -36,18 +42,145 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
     [Authorize(Policy = Policies.DonorOnly)]
     public async Task<ActionResult<IEnumerable<DonationResponse>>> GetMyHistory()
     {
-        var supporterIdClaim = User.FindFirstValue("supporter_id");
-        if (!int.TryParse(supporterIdClaim, out var supporterId))
+        var supporterId = ResolveSupporterId();
+        if (supporterId is null)
         {
             return Forbid();
         }
 
         var donations = await QueryDonations()
-            .Where(x => x.SupporterId == supporterId)
+            .Where(x => x.SupporterId == supporterId.Value)
             .OrderByDescending(x => x.DonationDate)
             .ToListAsync();
 
         return Ok(donations.Select(MapDonation));
+    }
+
+    [HttpGet("my-impact-summary")]
+    [Authorize(Policy = Policies.DonorOnly)]
+    public async Task<ActionResult<DonorImpactSummaryResponse>> GetMyImpactSummary()
+    {
+        var supporterId = ResolveSupporterId();
+        if (supporterId is null)
+        {
+            return Forbid();
+        }
+
+        var donations = await dbContext.Donations
+            .Where(x => x.SupporterId == supporterId.Value)
+            .ToListAsync();
+
+        if (donations.Count == 0)
+        {
+            return Ok(new DonorImpactSummaryResponse(0m, 0, 0, 0m));
+        }
+
+        var total = donations.Sum(x => x.Amount ?? x.EstimatedValue);
+        var recurring = donations.Count(x => x.IsRecurring);
+        return Ok(new DonorImpactSummaryResponse(
+            total,
+            donations.Count,
+            recurring,
+            total / donations.Count));
+    }
+
+    [HttpGet("my-allocation-breakdown")]
+    [Authorize(Policy = Policies.DonorOnly)]
+    public async Task<ActionResult<DonorAllocationBreakdownResponse>> GetMyAllocationBreakdown()
+    {
+        var supporterId = ResolveSupporterId();
+        if (supporterId is null)
+        {
+            return Forbid();
+        }
+
+        var allocations = await dbContext.DonationAllocations
+            .Include(x => x.Donation)
+            .Include(x => x.Safehouse)
+            .Where(x => x.Donation!.SupporterId == supporterId.Value)
+            .ToListAsync();
+
+        var totalAllocated = allocations.Sum(x => x.AmountAllocated);
+        var items = allocations
+            .GroupBy(x => new { x.SafehouseId, SafehouseName = x.Safehouse!.Name, x.ProgramArea })
+            .OrderByDescending(group => group.Sum(a => a.AmountAllocated))
+            .Select(group =>
+            {
+                var amount = group.Sum(a => a.AmountAllocated);
+                return new DonorAllocationBreakdownItemResponse(
+                    group.Key.SafehouseId,
+                    group.Key.SafehouseName,
+                    group.Key.ProgramArea,
+                    amount,
+                    group.Count(),
+                    totalAllocated <= 0 ? 0 : Math.Round((amount / totalAllocated) * 100m, 2));
+            })
+            .ToList();
+
+        return Ok(new DonorAllocationBreakdownResponse(totalAllocated, items));
+    }
+
+    [HttpGet("predict-impact")]
+    [Authorize(Policy = Policies.DonorOnly)]
+    public async Task<ActionResult<DonationImpactPredictionResponse>> PredictImpact([FromQuery] decimal amount)
+    {
+        if (amount <= 0)
+        {
+            return BadRequest(new { message = "Amount must be greater than 0." });
+        }
+
+        var supporterId = ResolveSupporterId();
+        if (supporterId is null)
+        {
+            return Forbid();
+        }
+
+        var monetaryAllocations = await dbContext.DonationAllocations
+            .Include(x => x.Donation)
+            .Where(x => x.Donation!.DonationType == "Monetary")
+            .ToListAsync();
+
+        var options = donationImpactOptions.Value;
+        var fallbackAreas = options.ProgramAreaUnitCosts.Keys.ToList();
+
+        Dictionary<string, decimal> areaSplits;
+        if (monetaryAllocations.Count == 0)
+        {
+            var equalWeight = fallbackAreas.Count == 0 ? 0 : 1m / fallbackAreas.Count;
+            areaSplits = fallbackAreas.ToDictionary(a => a, _ => equalWeight, StringComparer.OrdinalIgnoreCase);
+        }
+        else
+        {
+            var total = monetaryAllocations.Sum(x => x.AmountAllocated);
+            areaSplits = monetaryAllocations
+                .GroupBy(x => x.ProgramArea)
+                .ToDictionary(
+                    group => group.Key,
+                    group => total <= 0 ? 0m : group.Sum(x => x.AmountAllocated) / total,
+                    StringComparer.OrdinalIgnoreCase);
+        }
+
+        var outcomes = areaSplits
+            .OrderByDescending(x => x.Value)
+            .Select(split =>
+            {
+                var allocatedAmount = Math.Round(amount * split.Value, 2);
+                var unitCost = options.ProgramAreaUnitCosts.TryGetValue(split.Key, out var configuredCost) ? configuredCost : 100m;
+                var unit = options.ProgramAreaOutcomeUnits.TryGetValue(split.Key, out var configuredUnit) ? configuredUnit : "outcome units";
+                var estimatedUnits = unitCost <= 0 ? 0m : Math.Round(allocatedAmount / unitCost, 2);
+                return new DonationImpactPredictionOutcomeResponse(
+                    split.Key,
+                    allocatedAmount,
+                    unit,
+                    unitCost,
+                    estimatedUnits);
+            })
+            .ToList();
+
+        return Ok(new DonationImpactPredictionResponse(
+            amount,
+            outcomes,
+            "Prediction uses weighted historical monetary allocation mix and configured program-area unit costs."));
     }
 
     [HttpPost]
@@ -79,6 +212,7 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
 
         dbContext.Donations.Add(donation);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Create", nameof(Donation), donation.Id, $"Created {donation.DonationType} donation for supporter #{donation.SupporterId}.", User);
 
         var createdDonation = await QueryDonations().FirstAsync(x => x.Id == donation.Id);
         return CreatedAtAction(nameof(GetById), new { id = donation.Id }, MapDonation(createdDonation));
@@ -120,6 +254,7 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
         }).ToList();
 
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Update", nameof(Donation), donation.Id, $"Updated {donation.DonationType} donation for supporter #{donation.SupporterId}.", User);
         var updatedDonation = await QueryDonations().FirstAsync(x => x.Id == id);
         return Ok(MapDonation(updatedDonation));
     }
@@ -139,8 +274,10 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
             return NotFound();
         }
 
+        var summary = $"Deleted {donation.DonationType} donation for supporter #{donation.SupporterId}.";
         dbContext.Donations.Remove(donation);
         await dbContext.SaveChangesAsync();
+        await auditLogService.LogAsync("Delete", nameof(Donation), id, summary, User);
         return NoContent();
     }
 
@@ -149,6 +286,12 @@ public class DonationsController(ApplicationDbContext dbContext) : ControllerBas
             .Include(x => x.Supporter)
             .Include(x => x.Allocations)
             .ThenInclude(x => x.Safehouse);
+
+    private int? ResolveSupporterId()
+    {
+        var supporterIdClaim = User.FindFirstValue("supporter_id");
+        return int.TryParse(supporterIdClaim, out var supporterId) ? supporterId : null;
+    }
 
     private static DonationResponse MapDonation(Donation donation) =>
         new(

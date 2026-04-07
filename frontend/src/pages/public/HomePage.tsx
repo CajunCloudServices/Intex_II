@@ -62,6 +62,10 @@ function ImpactIcon({ kind }: { kind: 'homes' | 'care' | 'hubs' | 'goal' }) {
       </svg>
   );
 }
+import { MetricCard, SectionCard } from '../../components/ui/Cards';
+import homeHeroImage from '../../assets/generated/home-hero.webp';
+import homeSupportSpaceImage from '../../assets/generated/home-support-space.webp';
+import homeCommunitySpaceImage from '../../assets/generated/home-community-space.webp';
 
 export function HomePage() {
   return (
@@ -166,6 +170,28 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <div id="about" className="home-section" role="region" aria-labelledby="about-heading">
+        <SectionCard
+          titleId="about-heading"
+          title="About Tanglaw Project"
+          subtitle="People, place, and how we work"
+        >
+          <p>
+            Tanglaw Project is led by a nonprofit board and an experienced program director. We operate
+            primarily in the Mountain West and partner with licensed therapists, schools, and local agencies so
+            care stays coordinated and accountable.
+          </p>
+          <p>
+            Funding comes from individual donors, foundations, and community events. We publish high-level impact
+            updates so supporters can see how resources are used—without exposing private resident details.
+          </p>
+          <p className="home-muted">
+            <Link to="/impact">View the public impact dashboard</Link> for recent snapshots, or{' '}
+            <a href="mailto:hello@tanglawproject.example.org">contact us</a> to learn about partnership opportunities.
+          </p>
+        </SectionCard>
+      </div>
     </div>
   );
 }
