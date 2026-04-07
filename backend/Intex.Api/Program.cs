@@ -5,7 +5,9 @@ using Intex.Api.Data;
 using Intex.Api.Data.Seed;
 using Intex.Api.Models.Options;
 using Intex.Api.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -69,6 +71,8 @@ if (isProductionLike &&
 }
 
 var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key));
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 var defaultFrontendOrigins = new[]
 {
     "http://localhost:4173",
@@ -83,8 +87,9 @@ var defaultFrontendOrigins = new[]
     "http://127.0.0.1:5173"
 };
 
-builder.Services
+var authenticationBuilder = builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddCookie(IdentityConstants.ExternalScheme)
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = isProductionLike;
@@ -100,6 +105,16 @@ builder.Services
             ClockSkew = TimeSpan.FromMinutes(2)
         };
     });
+
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    authenticationBuilder.AddGoogle(options =>
+    {
+        options.SignInScheme = IdentityConstants.ExternalScheme;
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+    });
+}
 
 builder.Services.AddAuthorization(options =>
 {

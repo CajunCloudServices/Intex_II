@@ -13,6 +13,7 @@ import { ProcessRecordingPage } from './pages/portal/ProcessRecordingPage';
 import { ReportsAnalyticsPage } from './pages/portal/ReportsAnalyticsPage';
 import { DonatePage } from './pages/public/DonatePage';
 import { HomePage } from './pages/public/HomePage';
+import { GoogleCallbackPage } from './pages/public/GoogleCallbackPage';
 import { ImpactDashboardPage } from './pages/public/ImpactDashboardPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { NotFoundPage } from './pages/public/NotFoundPage';
@@ -40,6 +41,7 @@ function App() {
           <Route path="impact" element={<ImpactDashboardPage />} />
           <Route path="donate" element={<DonatePage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="login/google/callback" element={<GoogleCallbackPage />} />
           <Route path="privacy" element={<PrivacyPolicyPage />} />
 
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Staff', 'Donor']} />}>

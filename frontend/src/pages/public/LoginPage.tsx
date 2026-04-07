@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { api } from '../../api';
 import { useAuth } from '../../hooks/useAuth';
 import { SectionCard } from '../../components/ui/Cards';
 import { ErrorState } from '../../components/ui/PageState';
@@ -15,8 +16,22 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showDemoAccess, setShowDemoAccess] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(false);
 
   const redirectTo = (location.state as { from?: string } | undefined)?.from;
+
+  useEffect(() => {
+    const loadProviders = async () => {
+      try {
+        const providers = await api.authProviders();
+        setGoogleEnabled(providers.googleEnabled);
+      } catch {
+        setGoogleEnabled(false);
+      }
+    };
+
+    void loadProviders();
+  }, []);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -76,6 +91,18 @@ export function LoginPage() {
           <button className="primary-button" disabled={submitting} type="submit">
             {submitting ? 'Signing in...' : 'Sign in'}
           </button>
+
+          {googleEnabled ? (
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={() => {
+                window.location.href = api.googleLoginUrl(redirectTo ?? '/portal');
+              }}
+            >
+              Continue with Google
+            </button>
+          ) : null}
         </form>
       </section>
 

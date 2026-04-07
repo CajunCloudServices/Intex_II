@@ -16,6 +16,9 @@ These values belong in a server-side `.env` file, a GitHub Actions secret, or an
 - `CORS__ALLOWEDORIGINS__0`
 - `CORS__ALLOWEDORIGINS__1` if a second frontend origin is needed
 - `PUBLIC_API_HOSTNAME`
+- `FRONTEND__BASEURL`
+- `AUTHENTICATION__GOOGLE__CLIENTID` if Google sign-in is enabled
+- `AUTHENTICATION__GOOGLE__CLIENTSECRET` if Google sign-in is enabled
 - `VITE_API_URL`
 
 The repo includes [`.env.example`](/Users/lajicpajam/School/Intex II/.env.example) only as a safe sample. The real `.env` file is ignored by git and should never be committed.

@@ -16,6 +16,10 @@ function resolveApiBaseUrl() {
 
 const API_BASE_URL = resolveApiBaseUrl();
 
+export function buildApiUrl(path: string) {
+  return new URL(`${API_BASE_URL}${path}`, window.location.origin).toString();
+}
+
 export class ApiError extends Error {
   status: number;
   details: string;

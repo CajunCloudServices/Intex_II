@@ -1,7 +1,8 @@
-import { apiRequest } from './client';
+import { apiRequest, buildApiUrl } from './client';
 import type {
   AuditEvent,
   AuthResponse,
+  AuthProvidersResponse,
   CaseConference,
   CaseConferenceRequest,
   DashboardSummary,
@@ -38,6 +39,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
+
+  authProviders: () => apiRequest<AuthProvidersResponse>('/auth/providers'),
+
+  googleLoginUrl: (returnUrl = '/portal') =>
+    buildApiUrl(`/auth/google/login?returnUrl=${encodeURIComponent(returnUrl)}`),
 
   me: (token: string) =>
     apiRequest<UserProfile>('/auth/me', {

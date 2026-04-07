@@ -61,6 +61,7 @@ If you are trying to understand the project quickly, read in this order:
 - Functional cookie consent banner tied to an optional browser-accessible theme preference
 - Tailored privacy policy page
 - Admin-only audit history for sensitive mutations
+- Google sign-in readiness for existing accounts, backed by ASP.NET Core external authentication
 - Dockerfiles and compose stack for Postgres, backend, and frontend
 - Backend test project with integration and validation tests
 - Frontend Playwright smoke script for public navigation, donor RBAC, and admin CRUD smoke coverage
@@ -159,6 +160,9 @@ Copy from [`.env.example`](/Users/lajicpajam/School/Intex II/.env.example) or ex
 - `JWT__AUDIENCE`
 - `CORS__ALLOWEDORIGINS__0`
 - `PUBLIC_API_HOSTNAME`
+- `FRONTEND__BASEURL`
+- `AUTHENTICATION__GOOGLE__CLIENTID` (optional)
+- `AUTHENTICATION__GOOGLE__CLIENTSECRET` (optional)
 - `VITE_API_URL`
 
 See [docs/production-environment.md](/Users/lajicpajam/School/Intex II/docs/production-environment.md) for the full local-vs-production split and how to explain secret handling to a grader.
@@ -253,6 +257,29 @@ Helpful docs:
 - Security verification checks: [docs/security-verification.md](/Users/lajicpajam/School/Intex II/docs/security-verification.md)
 - Video demo checklist: [docs/video-demo-checklist.md](/Users/lajicpajam/School/Intex II/docs/video-demo-checklist.md)
 - Team notes: [docs/notes.md](/Users/lajicpajam/School/Intex II/docs/notes.md)
+
+## Google Sign-In Setup
+
+The app is now wired for Google sign-in through the backend. Google sign-in is only enabled when these backend environment variables are set:
+
+- `AUTHENTICATION__GOOGLE__CLIENTID`
+- `AUTHENTICATION__GOOGLE__CLIENTSECRET`
+- `FRONTEND__BASEURL`
+
+Important behavior:
+
+- Google sign-in is for existing HarborLight accounts only.
+- If a Google email matches an existing local account, the Google login is linked to that account.
+- If no existing local account matches, sign-in is rejected instead of silently creating a new user.
+
+Google Cloud Console values:
+
+- Authorized JavaScript origins:
+  - your frontend origin, for example `https://slavicsoftwaresleuths.cajuncloudservices.com`
+  - local Vite origins you actually use, for example `http://localhost:5173`
+- Authorized redirect URI:
+  - `https://slavicsoftwaresleuths.cajuncloudservices.com/signin-google`
+  - local backend callback if needed, for example `http://localhost:5081/signin-google`
 
 ## Next Recommended Steps
 

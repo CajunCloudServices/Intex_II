@@ -25,6 +25,10 @@ export interface AuthResponse {
   user: UserProfile;
 }
 
+export interface AuthProvidersResponse {
+  googleEnabled: boolean;
+}
+
 export interface PublicImpactMetric {
   label: string;
   value: string;
