@@ -120,6 +120,8 @@ def main() -> None:
         [
             "supporter_id",
             "display_name",
+            "email",
+            "phone",
             "supporter_type",
             "acquisition_channel",
             "status",
@@ -142,6 +144,8 @@ def main() -> None:
             {
                 "supporter_id": int(r["supporter_id"]),
                 "display_name": str(r.get("display_name") or "")[:80],
+                "email": str(r.get("email") or "").strip(),
+                "phone": str(r.get("phone") or "").strip(),
                 "supporter_type": str(r.get("supporter_type") or ""),
                 "acquisition_channel": str(r.get("acquisition_channel") or ""),
                 "status": str(r.get("status") or ""),
@@ -182,49 +186,44 @@ def main() -> None:
         return s.replace("_", " ")
 
     insights = {
-        "eyebrow": "DONOR LAPSE RISK · COMPUTER SCORE + STATISTICAL READ",
+        "eyebrow": "DONORS MOST LIKELY TO STOP GIVING",
         "headline": (
-            f"{high_risk_active} supporters who still look “active” score at 50% or higher on lapsing—"
-            f"those are people to thank, call, or visit before they drift away."
+            f"{high_risk_active} active supporters are high follow-up priority right now."
         ),
         "lede": (
-            f"In this file, about {100 * supporters['is_churned'].mean():.0f}% of supporters are already marked as lapsed. "
-            f"On a hidden test sample, the lapse score separated who lapsed vs who stayed better than guessing "
-            f"(quality index {auc:.2f} on a 0–1 scale where 0.5 is random and 1.0 is perfect ranking). "
-            f"The cards pair “who the computer worries about” with “what tends to show up alongside lapse in a simple read of the data.”"
+            f"About {100 * supporters['is_churned'].mean():.0f}% of supporters on file have already lapsed. "
+            f"Use this page to decide who to call first this week."
         ),
         "prediction_cards": [
             {
-                "label": "Active supporters with a 50%+ lapse score",
+                "label": "Active supporters who need outreach now",
                 "value": str(high_risk_active),
-                "hint": "Still marked active but the tool thinks lapse is as likely as not",
+                "hint": "High chance of lapsing without follow-up",
             },
             {
-                "label": "Single strongest clue in the lapse scorer",
+                "label": "Biggest warning sign",
                 "value": _pretty_coef_feat(top_fi["feature"])[:42],
-                "hint": "The automated tool leaned on this measure most often when sorting people",
+                "hint": "People with this pattern were more likely to lapse",
             },
             {
-                "label": "Quality of the lapse ranking (test sample)",
+                "label": "How reliable this ranking is",
                 "value": f"{auc:.2f}",
-                "hint": "Runs from 0.5 (random) to 1.0 (perfect). Higher means the score lines up better with who actually lapsed.",
+                "hint": "Higher is better",
             },
         ],
         "cause_cards": [
             {
-                "title": f"Channel with the most lapse: {worst_ch['channel']}",
+                "title": f"Most at-risk donor source: {worst_ch['channel']}",
                 "body": f"About {100 * float(worst_ch['churn_rate']):.0f}% lapsed among {int(worst_ch['n'])} people from that channel. "
                 f"The calmest channel in this export is {best_ch['channel']} at {100 * float(best_ch['churn_rate']):.0f}%.",
             },
             {
-                "title": f"When «{_pretty_coef_feat(top_pos_c['feature'])[:50]}» is higher, lapse looks less likely",
-                "body": f"In a simple statistical model, that factor lines up with staying (direction +{top_pos_c['coefficient']:.2f}). "
-                f"It does not prove that changing it will fix lapse.",
+                "title": f"Lower lapse is linked with: {_pretty_coef_feat(top_pos_c['feature'])[:50]}",
+                "body": "This pattern appears more in supporters who keep giving.",
             },
             {
-                "title": f"When «{_pretty_coef_feat(top_neg_c['feature'])[:50]}» is higher, lapse looks more likely",
-                "body": f"The same kind of model links this factor with drifting away (direction {top_neg_c['coefficient']:.2f}). "
-                f"Again: pattern in the data, not a guarantee of cause.",
+                "title": f"Higher lapse is linked with: {_pretty_coef_feat(top_neg_c['feature'])[:50]}",
+                "body": "This pattern appears more in supporters who drift away.",
             },
         ],
         "model_drivers": [
@@ -238,7 +237,7 @@ def main() -> None:
             for x in fi[:5]
         ],
         "calls_to_action": [
-            f"Reach out: {r['display_name'][:40]} — lapse risk score {100 * float(r['churn_probability']):.0f}%"
+            f"Call {r['display_name'][:40]} this week — lapse risk is {100 * float(r['churn_probability']):.0f}%."
             for _, r in active_df.nlargest(3, "churn_probability").iterrows()
         ],
     }

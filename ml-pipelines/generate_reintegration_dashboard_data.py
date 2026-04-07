@@ -338,48 +338,44 @@ def main() -> None:
         return _feat_plain.get(s, s.replace("_", " "))
 
     insights = {
-        "eyebrow": "CASE OUTLOOK SCORE · POSITIVE PATH VS STRUGGLE",
+        "eyebrow": "WHO NEEDS EXTRA CASE SUPPORT",
         "headline": (
-            f"When a resident ends up on a positive path, the computer’s “hope score” averages {100 * mean_prob_pos:.0f}%—"
-            f"when they don’t, it averages {100 * mean_prob_neg:.0f}%. That is a {100 * gap:.0f}‑point gap, which means the tool is not guessing randomly."
+            f"Residents on a stronger path average {100 * mean_prob_pos:.0f}%. "
+            f"Residents still struggling average {100 * mean_prob_neg:.0f}%."
         ),
         "lede": (
-            f"About {100 * float(y_pred.mean()):.0f}% of residents in this export met our “positive trajectory” definition. "
-            f"On held-back test cases, the outlook score separated residents who improved from those who struggled better than guessing "
-            f"(quality index {auc:.2f} from 0–1, where 0.5 is random and 1.0 is a perfect ranking). "
-            f"The cards spell out that gap in plain English; the statistics below highlight factors that tend to travel with better or harder outcomes."
+            f"{100 * float(y_pred.mean()):.0f}% of residents in this file are currently on a positive path. "
+            f"Use this page to focus case conferences and follow-up time."
         ),
         "prediction_cards": [
             {
-                "label": "Gap between “doing well” and “still struggling”",
+                "label": "Gap between stronger and harder cases",
                 "value": f"+{100 * gap:.0f} points",
-                "hint": "Average outlook score for residents who improved vs those who did not",
+                "hint": "Bigger gap means clearer separation",
             },
             {
-                "label": "Strongest clue in the automated outlook score",
+                "label": "Biggest case signal",
                 "value": _pf(top_fi["feature"])[:40],
-                "hint": "The tool leaned on this measure most when deciding how hopeful to be",
+                "hint": "This showed up most in the ranking",
             },
             {
-                "label": "Stability check on other slices of the data",
+                "label": "Reliability check",
                 "value": f"{cv_rows['Random Forest']['ROC-AUC']:.2f}",
-                "hint": "Same 0.5–1.0 quality scale, averaged when the data is split different ways so you know it is not a one-off fluke.",
+                "hint": "Higher is better",
             },
         ],
         "cause_cards": [
             {
-                "title": f"Tends to travel with better outcomes: {_pf(top_prot['feature'])}",
-                "body": f"In a simple statistical read, higher values line up with a better path (strength {top_prot['coefficient']:+.2f}). "
-                f"This is association, not proof that changing one thing fixes everything.",
+                "title": f"Better outcomes are linked with: {_pf(top_prot['feature'])}",
+                "body": "This pattern appears more in residents on a positive path.",
             },
             {
-                "title": f"Tends to travel with harder outcomes: {_pf(top_risk['feature'])}",
-                "body": f"The same style of model links this factor with a tougher path (strength {top_risk['coefficient']:+.2f}). "
-                f"Use it as a prompt to look closer, not as a verdict.",
+                "title": f"Harder outcomes are linked with: {_pf(top_risk['feature'])}",
+                "body": "This pattern appears more in residents needing extra support.",
             },
             {
                 "title": "How to use this screen",
-                "body": "Top sections = big picture from the computer and the statistics. Open the fold below when you need names, numbers, and rows to audit.",
+                "body": "Top cards give a quick planning summary. Open the fold below for resident-by-resident detail.",
             },
         ],
         "model_drivers": [
@@ -393,7 +389,7 @@ def main() -> None:
             for x in fi[:5]
         ],
         "calls_to_action": [
-            f"Resident {r['resident_id']}: records still show a hard path, but the outlook score is {100 * r['trajectory_probability']:.0f}% — schedule a human review."
+            f"Review Resident {r['resident_id']} at next case meeting (high support need)."
             for r in top3_low
         ],
     }

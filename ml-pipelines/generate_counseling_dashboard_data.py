@@ -247,53 +247,84 @@ def main() -> None:
     safer_type = str(by_type.idxmin()) if len(by_type) else ""
     safer_rate = float(by_type.min()) if len(by_type) else 0.0
 
+    n_alert_residents = int(
+        model_df.loc[model_df["supervisor_alert"], "resident_id"].nunique()
+    )
+    avg_alert_sessions_per_resident = (
+        (n_alert / n_alert_residents) if n_alert_residents else 0.0
+    )
+    mean_concern_prob = float(model_df["concern_probability"].mean())
+
     top3_res = sorted(res_summaries, key=lambda x: -x["max_concern_probability"])[:3]
     calls = [
-        f"Resident {r['resident_id']} ({r.get('case_control_no') or 'case'}): highest concern score "
-        f"{100 * r['max_concern_probability']:.0f}% — skim their recent sessions."
+        f"This week: review Resident {r['resident_id']} ({r.get('case_control_no') or 'case'}) first. "
+        f"Top concern score is {100 * r['max_concern_probability']:.0f}%."
         for r in top3_res
     ]
 
     insights = {
-        "eyebrow": "AUTOMATED SESSION REVIEW · CONCERN RISK SCORES",
+        "eyebrow": "SESSIONS THAT NEED FOLLOW-UP",
         "headline": (
-            f"The system highlights {n_alert} sessions as worth a closer look ({100 * n_alert / n_s:.0f}% of all)—"
-            f"and it overlaps with {100 * recall_flagged:.0f}% of sessions where a concern was actually recorded."
+            f"{100 * n_alert / n_s:.0f}% of sessions ({n_alert}) were detected as needing attention. "
+            f"That equals {n_alert_residents} unique residents, averaging {avg_alert_sessions_per_resident:.1f} flagged sessions per resident."
         ),
         "lede": (
-            f"The score uses {len(PRED_FEATURES)} pieces of information you already have before the session ends. "
-            f"We treat {portfolio['alert_threshold']:.0%} and above as “raise this with a supervisor.” "
-            f"To cast a wide net, some sessions get flagged even when no concern was later recorded—about {100 * noise_rate:.0f}% of “no concern” sessions still show an alert."
+            f"Use {portfolio['alert_threshold']:.0%} as the follow-up line. "
+            f"This catches more at-risk sessions, but it also creates extra check-ins. "
+            f"About {100 * noise_rate:.0f}% of sessions without a later concern will still be flagged."
         ),
         "prediction_cards": [
             {
-                "label": "Sessions scoring above the alert line",
+                "kicker": "Follow-up flags (predictive)",
+                "label": "Sessions marked for supervisor review",
                 "value": str(n_alert),
-                "hint": f"{100 * n_alert / n_s:.1f}% of sessions scored at {portfolio['alert_threshold']:.0%} or higher on “chance of a concern”",
+                "hint": f"{100 * n_alert / n_s:.1f}% of all sessions scored at {portfolio['alert_threshold']:.0%} concern or higher",
             },
             {
-                "label": "Recorded concerns the alert overlapped with",
+                "kicker": "Average concern level (predictive)",
+                "label": "Mean concern probability across sessions",
+                "value": f"{100 * mean_concern_prob:.0f}%",
+                "hint": "Typical risk level before applying the 35% follow-up line",
+            },
+            {
+                "kicker": "Residents to prioritize (predictive)",
+                "label": "Residents with at least one flagged session",
+                "value": str(n_alert_residents),
+                "hint": f"Averaging {avg_alert_sessions_per_resident:.1f} flagged sessions per affected resident",
+            },
+            {
+                "kicker": "Flags vs recorded concerns (predictive vs records)",
+                "label": "Share of real concerns the flag line caught early",
                 "value": f"{100 * recall_flagged:.0f}%",
-                "hint": f"{caught} out of {n_flag} sessions that truly had a concern also had an alert",
+                "hint": f"{caught} of {n_flag} sessions that later had a concern note were already flagged",
             },
             {
-                "label": "Average shift in how residents seemed",
+                "kicker": "Mood outcome (from session notes)",
+                "label": "Average mood change after sessions",
                 "value": f"+{portfolio['mean_emotion_shift']:.2f}",
-                "hint": "Simple before-and-after mood score across all sessions (higher usually means they seemed better at the end)",
+                "hint": "Positive means residents generally ended sessions in a better state",
             },
         ],
         "cause_cards": [
             {
-                "title": f"When someone arrives feeling «{worst_em}», outcomes are toughest",
-                "body": f"In the data, {100 * worst_em_rate:.0f}% of those sessions later had a concern noted—the highest rate by starting mood.",
+                "kicker": "Starting mood vs later concern (from records)",
+                "title": f"Highest-risk starting mood: {worst_em}",
+                "body": f"{100 * worst_em_rate:.0f}% of sessions starting here had a concern filed later.",
             },
             {
-                "title": f"{riskier_type} sessions show more concerns than {safer_type}",
-                "body": f"Roughly {100 * riskier_rate:.0f}% vs {100 * safer_rate:.0f}% of sessions had a concern flag in the records.",
+                "kicker": "Session format vs concern rate (from records)",
+                "title": f"{riskier_type} sessions show higher concern rates than {safer_type}",
+                "body": f"Recorded concern rate is {100 * riskier_rate:.0f}% ({riskier_type}) vs {100 * safer_rate:.0f}% ({safer_type}).",
             },
             {
-                "title": "Correlation is not causation",
-                "body": "The bars below show what the scoring tool leaned on—not proof that those items “caused” a concern. Your clinical judgment still comes first.",
+                "kicker": "Recorded concern prevalence (from records)",
+                "title": "How often concerns show up in case notes",
+                "body": f"{100 * n_flag / n_s:.0f}% of sessions ({n_flag} total) have a concern recorded—this is the real outcome, not the prediction.",
+            },
+            {
+                "kicker": "How to read the pattern cards",
+                "title": "Association is not the same as cause",
+                "body": "These compare groups after the fact. They help supervisors notice themes; they do not prove that one factor alone caused a concern.",
             },
         ],
         "model_drivers": top_drivers,

@@ -194,6 +194,19 @@ textarea {
   min-width: 0;
 }
 
+.ml-insights-page {
+  margin: -2.5rem -2.5rem -6rem -2.5rem;
+  min-height: calc(100vh - 73px);
+}
+
+.ml-insights-frame {
+  width: 100%;
+  height: calc(100vh - 73px);
+  border: 0;
+  display: block;
+  background: #fff;
+}
+
 .page-shell {
   display: grid;
   gap: 1.5rem;
@@ -868,6 +881,10 @@ textarea {
 
   .main-content {
     padding: 1.25rem;
+  }
+
+  .ml-insights-page {
+    margin: -1.25rem -1.25rem -6rem -1.25rem;
   }
 
   .credential-grid {

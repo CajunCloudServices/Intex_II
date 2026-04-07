@@ -184,39 +184,38 @@ def main() -> None:
         return s.replace("_", " ")[:55]
 
     insights = {
-        "eyebrow": "POST FUNDRAISING · ESTIMATED GIFT SIZE",
+        "eyebrow": "WHICH POSTS BRING IN MORE DONATIONS",
         "headline": (
-            f"The automated estimate explains a solid share of which posts bring larger gifts (fit score {r2:.2f} on a math-transformed dollar scale)."
+            "This page estimates which posts are likely to bring higher donation amounts."
             if r2 > 0.15
-            else f"Gift size is noisy, but the automated estimate still shows which ingredients the computer leaned on (fit score {r2:.2f})."
+            else "Donation amounts vary a lot, but this page still shows what usually helps."
         ),
         "lede": (
-            f"Typical attributed gift in this file is about PHP {med_act:,.0f}. "
-            f"{over_performers} posts raised far less than the pattern suggested—worth asking what was different about timing, audience, or story."
+            f"Typical gift in this file is about PHP {med_act:,.0f}. "
+            f"{over_performers} posts raised much less than expected. Review those posts for timing, message, and channel."
         ),
         "prediction_cards": [
             {
-                "label": "How much of the pattern the estimate captured",
+                "label": "How reliable this estimate is",
                 "value": f"{r2:.2f}",
-                "hint": "1.0 = perfect; 0 = useless. (Technical name: R-squared on log dollars.)",
+                "hint": "Higher is better",
             },
             {
-                "label": "Typical miss on the log-dollar scale",
+                "label": "Typical miss size",
                 "value": f"{rmse:.3f}",
-                "hint": "Smaller is better; think of it as average error before converting back to pesos.",
+                "hint": "Lower is better",
             },
             {
-                "label": "Biggest clue in the automated estimate",
+                "label": "Biggest post signal",
                 "value": _short_feat(top_gb["feature"]),
-                "hint": "The tool relied on this factor most when guessing gift size",
+                "hint": "This mattered most in the ranking",
             },
         ],
         "cause_cards": (
             [
                 {
-                    "title": f"Strong linear signal: {_short_feat(top_ols['feature'])}",
-                    "body": f"In a straightforward regression, this moves estimated gifts with strength {top_ols['coefficient']:.3f} "
-                    f"(confidence p={top_ols['p_value']:.3f}). Good for storytelling; still not proof you can move money by tweaking one lever.",
+                    "title": f"One strong pattern: {_short_feat(top_ols['feature'])}",
+                    "body": "This factor shows a clear link with higher or lower donation amounts in the data.",
                 }
             ]
             if top_ols
@@ -224,12 +223,12 @@ def main() -> None:
         )
         + [
             {
-                "title": "Only pre-publish facts go into the estimate",
-                "body": "We deliberately exclude likes, shares, and reach so the score mirrors what your team knows before hitting “post.”",
+                "title": "Uses only info you know before posting",
+                "body": "This keeps the guidance useful during planning, not after results are in.",
             },
             {
-                "title": "Two ways to read the tabs below",
-                "body": "The “simple statistics” tab is easiest to quote in a meeting. The “automated estimate” tab is tuned for accuracy.",
+                "title": "How to use this page",
+                "body": "Use top cards for planning. Use tables below for post-by-post review.",
             },
         ],
         "model_drivers": [
@@ -243,7 +242,7 @@ def main() -> None:
             for x in fi[:5]
         ],
         "calls_to_action": [
-            f"Post #{int(r['post_id'])} ({r['platform']}/{r['post_type']}): expected about PHP {r['predicted_donation_php']:,.0f} but raised {r['actual_donation_php']:,.0f}—compare messaging and timing."
+            f"Review Post #{int(r['post_id'])} ({r['platform']}/{r['post_type']}). It raised less than expected."
             for r in sorted(
                 posts_out,
                 key=lambda x: x["predicted_donation_php"] - x["actual_donation_php"],
