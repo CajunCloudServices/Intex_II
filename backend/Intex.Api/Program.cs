@@ -164,7 +164,11 @@ var app = builder.Build();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    // HarborLight is deployed behind a local reverse proxy in Docker and an external TLS proxy.
+    // Clear the defaults so forwarded scheme/host data from that chain is honored consistently.
+    KnownNetworks = { },
+    KnownProxies = { }
 });
 
 app.Use(async (context, next) =>
