@@ -57,8 +57,23 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
     // The API often returns JSON error payloads, but we still want a readable fallback.
     try {
-      const parsed = JSON.parse(text) as { message?: string; errors?: string[] };
-      message = parsed.message ?? parsed.errors?.join(', ') ?? message;
+      const parsed = JSON.parse(text) as {
+        message?: string;
+        errors?: Array<string | { field?: string; message?: string }>;
+      };
+      const formattedErrors = parsed.errors
+        ?.map((entry) => {
+          if (typeof entry === 'string') {
+            return entry;
+          }
+          if (!entry) {
+            return '';
+          }
+          return entry.field ? `${entry.field}: ${entry.message ?? 'Invalid value.'}` : (entry.message ?? 'Invalid value.');
+        })
+        .filter(Boolean)
+        .join(', ');
+      message = parsed.message ?? formattedErrors ?? message;
     } catch {
       if (text) {
         message = text;

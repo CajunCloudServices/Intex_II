@@ -3,6 +3,7 @@ using Intex.Api;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.Data.Seed;
+using Intex.Api.Infrastructure;
 using Intex.Api.Models.Options;
 using Intex.Api.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -237,7 +238,35 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new SanitizingStringJsonConverter());
+    })
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(entry => entry.Value?.Errors.Count > 0)
+                .SelectMany(entry => entry.Value!.Errors.Select(error => new
+                {
+                    field = entry.Key,
+                    message = string.IsNullOrWhiteSpace(error.ErrorMessage) ? "Invalid value." : error.ErrorMessage
+                }))
+                .ToList();
+
+            return new BadRequestObjectResult(new
+            {
+                title = "Validation failed",
+                message = "One or more input fields are invalid.",
+                status = StatusCodes.Status400BadRequest,
+                traceId = context.HttpContext.TraceIdentifier,
+                errors
+            });
+        };
+    });
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IReintegrationFeatureBuilder, ReintegrationFeatureBuilder>();

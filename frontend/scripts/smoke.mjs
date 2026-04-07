@@ -60,14 +60,18 @@ try {
   const updatedName = `${initialName} Updated`;
   const email = `smoke-${id}@example.com`;
 
-  await supporterForm.locator('input').nth(0).fill(initialName);
-  await supporterForm.locator('input').nth(1).fill(email);
-  await supporterForm.locator('input').nth(2).fill('CorporatePartner');
-  await supporterForm.locator('input').nth(3).fill('Active');
-  await supporterForm.locator('input').nth(4).fill('International');
-  await supporterForm.locator('input').nth(5).fill('Smoke Test');
-  await supporterForm.locator('input').nth(10).fill('Metro Manila');
-  await supporterForm.locator('input').nth(11).fill('Philippines');
+  await supporterForm.getByLabel('Display name').fill(initialName);
+  await supporterForm.getByLabel('Email').fill('bad-email');
+  await supporterForm.getByLabel('Supporter type').fill('CorporatePartner');
+  await supporterForm.getByLabel('Status').fill('Active');
+  await supporterForm.getByLabel('Relationship type').fill('International');
+  await supporterForm.getByLabel('Acquisition channel').fill('Smoke Test');
+  await supporterForm.getByLabel('Region').fill('Metro Manila');
+  await supporterForm.getByLabel('Country').fill('Philippines');
+  await supporterForm.getByRole('button', { name: 'Create supporter' }).click();
+  await supporterForm.getByText('Enter a valid email address, like name@example.org.').waitFor();
+
+  await supporterForm.getByLabel('Email').fill(email);
   await supporterForm.getByRole('button', { name: 'Create supporter' }).click();
   await adminPage.getByText('Supporter created.').waitFor();
 
@@ -77,7 +81,7 @@ try {
   await supporterRow(adminPage, initialName).getByRole('button', { name: 'Edit' }).evaluate((node) => node.click());
   await adminPage.getByText('Edit supporter').waitFor();
 
-  await supporterForm.locator('input').nth(0).fill(updatedName);
+  await supporterForm.getByLabel('Display name').fill(updatedName);
   await supporterForm.getByRole('button', { name: 'Update supporter' }).click();
   await adminPage.getByText('Supporter updated.').waitFor();
 
@@ -91,6 +95,23 @@ try {
   await adminPage.goto(`${baseUrl}/portal/home-visitations`, { waitUntil: 'networkidle' });
   await adminPage.getByRole('heading', { name: 'Home visitations & case conferences' }).waitFor();
   await adminPage.getByRole('heading', { name: 'Case conference history' }).waitFor();
+
+  await adminPage.goto(`${baseUrl}/portal/caseload`, { waitUntil: 'networkidle' });
+  await adminPage.getByRole('heading', { name: 'Caseload inventory' }).waitFor();
+  const filterSelects = adminPage.locator('.filter-row select');
+  const selectCount = await filterSelects.count();
+  if (selectCount < 5) {
+    throw new Error('Caseload is missing one or more required dedicated filter controls.');
+  }
+  const firstWorkerCell = adminPage.locator('table tbody tr').first().locator('td').nth(4);
+  const firstWorker = (await firstWorkerCell.innerText()).trim();
+  await filterSelects.nth(3).selectOption({ label: firstWorker });
+  const workerCells = adminPage.locator('table tbody tr td:nth-child(5)');
+  const workerValues = await workerCells.allInnerTexts();
+  if (!workerValues.every((value) => value.trim() === firstWorker)) {
+    throw new Error('Social worker filter did not constrain caseload rows as expected.');
+  }
+  await filterSelects.nth(3).selectOption({ label: 'All' });
 
   await adminPage.goto(`${baseUrl}/portal/reports`, { waitUntil: 'networkidle' });
   await adminPage.getByRole('heading', { name: 'Reports & analytics' }).waitFor();

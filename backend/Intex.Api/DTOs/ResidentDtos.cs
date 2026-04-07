@@ -8,18 +8,18 @@ public record InterventionPlanRequest(
     [Required, StringLength(200)] string ServicesProvided,
     [Range(typeof(decimal), "0.01", "999999999.99")] decimal? TargetValue,
     DateOnly TargetDate,
-    [Required, StringLength(20)] string Status,
+    [Required, StringLength(20), RegularExpression(ValidationPatterns.InterventionStatus)] string Status,
     DateOnly? CaseConferenceDate);
 
 public record ResidentRequest(
-    [Required, StringLength(20)] string CaseControlNumber,
-    [Required, StringLength(50)] string InternalCode,
+    [Required, StringLength(20), RegularExpression(ValidationPatterns.CaseCode)] string CaseControlNumber,
+    [Required, StringLength(50), RegularExpression(ValidationPatterns.CaseCode)] string InternalCode,
     [Range(1, int.MaxValue)] int SafehouseId,
-    [Required, StringLength(20)] string CaseStatus,
+    [Required, StringLength(20), RegularExpression(ValidationPatterns.ResidentCaseStatus)] string CaseStatus,
     DateOnly DateOfBirth,
     [Required, StringLength(120)] string PlaceOfBirth,
     [Required, StringLength(60)] string Religion,
-    [Required, StringLength(40)] string CaseCategory,
+    [Required, StringLength(40), RegularExpression(ValidationPatterns.ResidentCaseCategory)] string CaseCategory,
     bool IsTrafficked,
     bool IsPhysicalAbuseCase,
     bool IsSexualAbuseCase,
@@ -36,11 +36,11 @@ public record ResidentRequest(
     [Required, StringLength(500)] string InitialCaseAssessment,
     [StringLength(80)] string? ReintegrationType,
     [StringLength(40)] string? ReintegrationStatus,
-    [Required, StringLength(20)] string InitialRiskLevel,
-    [Required, StringLength(20)] string CurrentRiskLevel,
+    [Required, StringLength(20), RegularExpression(ValidationPatterns.RiskLevel)] string InitialRiskLevel,
+    [Required, StringLength(20), RegularExpression(ValidationPatterns.RiskLevel)] string CurrentRiskLevel,
     DateOnly? DateClosed,
     [StringLength(4000)] string? RestrictedNotes,
-    [Required] List<InterventionPlanRequest> InterventionPlans);
+    [Required, MinLength(1)] List<InterventionPlanRequest> InterventionPlans);
 
 public record InterventionPlanResponse(
     int Id,

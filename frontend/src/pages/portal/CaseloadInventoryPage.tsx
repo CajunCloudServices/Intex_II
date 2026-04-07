@@ -4,12 +4,28 @@ import { api } from '../../api';
 import type { Resident, ResidentRequest, Safehouse } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
-import { CheckboxField, FormGrid, FormSection } from '../../components/ui/FormPrimitives';
+import {
+  CheckboxField,
+  FormGrid,
+  FormSection,
+  ValidatedSelectField,
+  ValidatedTextField,
+  ValidatedTextareaField,
+} from '../../components/ui/FormPrimitives';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
+import {
+  sanitizeOptionalText,
+  sanitizeText,
+  validateDateNotFuture,
+  validateDateRequired,
+  validateRequired,
+  withError,
+  type ValidationErrors,
+} from '../../lib/validation';
 
 function createResidentForm(safehouseId?: number): ResidentRequest {
   const today = new Date().toISOString().slice(0, 10);
@@ -67,10 +83,12 @@ export function CaseloadInventoryPage() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [safehouseFilter, setSafehouseFilter] = useState('All');
   const [caseCategoryFilter, setCaseCategoryFilter] = useState('All');
+  const [socialWorkerFilter, setSocialWorkerFilter] = useState('All');
   const [riskFilter, setRiskFilter] = useState('All');
   const [selectedResidentId, setSelectedResidentId] = useState<number | null>(null);
   const [editingResidentId, setEditingResidentId] = useState<number | null>(null);
   const [residentForm, setResidentForm] = useState<ResidentRequest>(createResidentForm());
+  const [residentErrors, setResidentErrors] = useState<ValidationErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const deferredSearch = useDeferredValue(search);
   const isAdmin = user?.roles.includes('Admin') ?? false;
@@ -103,6 +121,7 @@ export function CaseloadInventoryPage() {
   const normalizedSearch = normalizeText(deferredSearch);
   const safehouseNames = Array.from(new Set(residents.map((resident) => resident.safehouseName))).sort();
   const caseCategories = Array.from(new Set(residents.map((resident) => resident.caseCategory))).sort();
+  const socialWorkers = Array.from(new Set(residents.map((resident) => resident.assignedSocialWorker))).sort();
   const filteredResidents = residents.filter((resident) => {
     const matchesSearch =
       !normalizedSearch ||
@@ -113,8 +132,9 @@ export function CaseloadInventoryPage() {
     const matchesStatus = statusFilter === 'All' || resident.caseStatus === statusFilter;
     const matchesSafehouse = safehouseFilter === 'All' || resident.safehouseName === safehouseFilter;
     const matchesCategory = caseCategoryFilter === 'All' || resident.caseCategory === caseCategoryFilter;
+    const matchesSocialWorker = socialWorkerFilter === 'All' || resident.assignedSocialWorker === socialWorkerFilter;
     const matchesRisk = riskFilter === 'All' || resident.currentRiskLevel === riskFilter;
-    return matchesSearch && matchesStatus && matchesSafehouse && matchesCategory && matchesRisk;
+    return matchesSearch && matchesStatus && matchesSafehouse && matchesCategory && matchesSocialWorker && matchesRisk;
   });
 
   const activeCount = residents.filter((resident) => resident.caseStatus === 'Active').length;
@@ -123,7 +143,32 @@ export function CaseloadInventoryPage() {
 
   const resetResidentForm = () => {
     setEditingResidentId(null);
+    setResidentErrors({});
     setResidentForm(createResidentForm(safehouses[0]?.id));
+  };
+
+  const validateResidentForm = (form: ResidentRequest): ValidationErrors => {
+    const firstPlan = form.interventionPlans[0];
+    let errors: ValidationErrors = {};
+    errors = withError(errors, 'caseControlNumber', validateRequired(form.caseControlNumber, 'Case control number'));
+    errors = withError(errors, 'internalCode', validateRequired(form.internalCode, 'Internal code'));
+    errors = withError(errors, 'caseStatus', validateRequired(form.caseStatus, 'Case status'));
+    errors = withError(errors, 'caseCategory', validateRequired(form.caseCategory, 'Case category'));
+    errors = withError(errors, 'dateOfBirth', validateDateNotFuture(form.dateOfBirth, 'Date of birth'));
+    errors = withError(errors, 'dateOfAdmission', validateDateRequired(form.dateOfAdmission, 'Date of admission'));
+    errors = withError(errors, 'placeOfBirth', validateRequired(form.placeOfBirth, 'Place of birth'));
+    errors = withError(errors, 'religion', validateRequired(form.religion, 'Religion'));
+    errors = withError(errors, 'referralSource', validateRequired(form.referralSource, 'Referral source'));
+    errors = withError(errors, 'assignedSocialWorker', validateRequired(form.assignedSocialWorker, 'Assigned social worker'));
+    errors = withError(errors, 'initialCaseAssessment', validateRequired(form.initialCaseAssessment, 'Initial case assessment'));
+    errors = withError(errors, 'initialRiskLevel', validateRequired(form.initialRiskLevel, 'Initial risk level'));
+    errors = withError(errors, 'currentRiskLevel', validateRequired(form.currentRiskLevel, 'Current risk level'));
+    errors = withError(errors, 'planCategory', validateRequired(firstPlan?.planCategory ?? '', 'Plan category'));
+    errors = withError(errors, 'planStatus', validateRequired(firstPlan?.status ?? '', 'Plan status'));
+    errors = withError(errors, 'planTargetDate', validateDateRequired(firstPlan?.targetDate ?? '', 'Plan target date'));
+    errors = withError(errors, 'servicesProvided', validateRequired(firstPlan?.servicesProvided ?? '', 'Services provided'));
+    errors = withError(errors, 'planDescription', validateRequired(firstPlan?.planDescription ?? '', 'Plan description'));
+    return errors;
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -131,18 +176,40 @@ export function CaseloadInventoryPage() {
     if (!token) return;
     setSubmitting(true);
     setFeedback(null);
+    const formErrors = validateResidentForm(residentForm);
+    setResidentErrors(formErrors);
+    if (Object.keys(formErrors).length > 0) {
+      setSubmitting(false);
+      setFeedback({ tone: 'error', message: 'Please correct the highlighted resident form fields.' });
+      return;
+    }
 
     try {
       const payload = {
         ...residentForm,
-        specialNeedsDiagnosis: residentForm.specialNeedsDiagnosis || null,
-        referringAgencyPerson: residentForm.referringAgencyPerson || null,
-        reintegrationType: residentForm.reintegrationType || null,
-        reintegrationStatus: residentForm.reintegrationStatus || null,
+        caseControlNumber: sanitizeText(residentForm.caseControlNumber),
+        internalCode: sanitizeText(residentForm.internalCode),
+        caseStatus: sanitizeText(residentForm.caseStatus),
+        placeOfBirth: sanitizeText(residentForm.placeOfBirth),
+        religion: sanitizeText(residentForm.religion),
+        caseCategory: sanitizeText(residentForm.caseCategory),
+        referralSource: sanitizeText(residentForm.referralSource),
+        assignedSocialWorker: sanitizeText(residentForm.assignedSocialWorker),
+        initialCaseAssessment: sanitizeText(residentForm.initialCaseAssessment),
+        initialRiskLevel: sanitizeText(residentForm.initialRiskLevel),
+        currentRiskLevel: sanitizeText(residentForm.currentRiskLevel),
+        specialNeedsDiagnosis: sanitizeOptionalText(residentForm.specialNeedsDiagnosis ?? ''),
+        referringAgencyPerson: sanitizeOptionalText(residentForm.referringAgencyPerson ?? ''),
+        reintegrationType: sanitizeOptionalText(residentForm.reintegrationType ?? ''),
+        reintegrationStatus: sanitizeOptionalText(residentForm.reintegrationStatus ?? ''),
         dateClosed: residentForm.dateClosed || null,
-        restrictedNotes: residentForm.restrictedNotes || null,
+        restrictedNotes: sanitizeOptionalText(residentForm.restrictedNotes ?? ''),
         interventionPlans: residentForm.interventionPlans.map((plan) => ({
           ...plan,
+          planCategory: sanitizeText(plan.planCategory),
+          planDescription: sanitizeText(plan.planDescription),
+          servicesProvided: sanitizeText(plan.servicesProvided),
+          status: sanitizeText(plan.status),
           targetValue: plan.targetValue || null,
           caseConferenceDate: plan.caseConferenceDate || null,
         })),
@@ -211,6 +278,7 @@ export function CaseloadInventoryPage() {
                   <select className="inline-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option>All</option><option>Active</option><option>Closed</option><option>Transferred</option></select>
                   <select className="inline-select" value={safehouseFilter} onChange={(e) => setSafehouseFilter(e.target.value)}><option>All</option>{safehouseNames.map((name) => <option key={name}>{name}</option>)}</select>
                   <select className="inline-select" value={caseCategoryFilter} onChange={(e) => setCaseCategoryFilter(e.target.value)}><option>All</option>{caseCategories.map((category) => <option key={category}>{category}</option>)}</select>
+                  <select className="inline-select" value={socialWorkerFilter} onChange={(e) => setSocialWorkerFilter(e.target.value)}><option>All</option>{socialWorkers.map((worker) => <option key={worker}>{worker}</option>)}</select>
                   <select className="inline-select" value={riskFilter} onChange={(e) => setRiskFilter(e.target.value)}><option>All</option><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select>
                 </div>
               }
@@ -321,27 +389,29 @@ export function CaseloadInventoryPage() {
               <form className="stack-form" onSubmit={handleSubmit}>
                 <FormSection title="Core case information">
                   <FormGrid>
-                    <label><span>Case control number</span><input value={residentForm.caseControlNumber} onChange={(e) => setResidentForm({ ...residentForm, caseControlNumber: e.target.value })} required /></label>
-                    <label><span>Internal code</span><input value={residentForm.internalCode} onChange={(e) => setResidentForm({ ...residentForm, internalCode: e.target.value })} required /></label>
-                    <label><span>Safehouse</span><select value={residentForm.safehouseId} onChange={(e) => setResidentForm({ ...residentForm, safehouseId: Number(e.target.value) })}>{safehouses.map((safehouse) => <option key={safehouse.id} value={safehouse.id}>{safehouse.name}</option>)}</select></label>
-                    <label><span>Case status</span><input value={residentForm.caseStatus} onChange={(e) => setResidentForm({ ...residentForm, caseStatus: e.target.value })} required /></label>
-                    <label><span>Date of birth</span><input type="date" value={residentForm.dateOfBirth} onChange={(e) => setResidentForm({ ...residentForm, dateOfBirth: e.target.value })} required /></label>
-                    <label><span>Date of admission</span><input type="date" value={residentForm.dateOfAdmission} onChange={(e) => setResidentForm({ ...residentForm, dateOfAdmission: e.target.value })} required /></label>
-                    <label><span>Place of birth</span><input value={residentForm.placeOfBirth} onChange={(e) => setResidentForm({ ...residentForm, placeOfBirth: e.target.value })} required /></label>
-                    <label><span>Religion</span><input value={residentForm.religion} onChange={(e) => setResidentForm({ ...residentForm, religion: e.target.value })} required /></label>
-                    <label><span>Case category</span><input value={residentForm.caseCategory} onChange={(e) => setResidentForm({ ...residentForm, caseCategory: e.target.value })} required /></label>
-                    <label><span>Referral source</span><input value={residentForm.referralSource} onChange={(e) => setResidentForm({ ...residentForm, referralSource: e.target.value })} required /></label>
-                    <label><span>Assigned social worker</span><input value={residentForm.assignedSocialWorker} onChange={(e) => setResidentForm({ ...residentForm, assignedSocialWorker: e.target.value })} required /></label>
-                    <label><span>Referring person</span><input value={residentForm.referringAgencyPerson ?? ''} onChange={(e) => setResidentForm({ ...residentForm, referringAgencyPerson: e.target.value })} /></label>
+                    <ValidatedTextField label="Case control number" required hint="Use letters, numbers, and dashes." value={residentForm.caseControlNumber} onChange={(e) => setResidentForm({ ...residentForm, caseControlNumber: e.target.value })} error={residentErrors.caseControlNumber} />
+                    <ValidatedTextField label="Internal code" required hint="Internal short code, ex: RBAC-001." value={residentForm.internalCode} onChange={(e) => setResidentForm({ ...residentForm, internalCode: e.target.value })} error={residentErrors.internalCode} />
+                    <ValidatedSelectField label="Safehouse" value={residentForm.safehouseId} onChange={(e) => setResidentForm({ ...residentForm, safehouseId: Number(e.target.value) })}>
+                      {safehouses.map((safehouse) => <option key={safehouse.id} value={safehouse.id}>{safehouse.name}</option>)}
+                    </ValidatedSelectField>
+                    <ValidatedTextField label="Case status" required hint="Examples: Active, Closed, Transferred." value={residentForm.caseStatus} onChange={(e) => setResidentForm({ ...residentForm, caseStatus: e.target.value })} error={residentErrors.caseStatus} />
+                    <ValidatedTextField label="Date of birth" type="date" required value={residentForm.dateOfBirth} onChange={(e) => setResidentForm({ ...residentForm, dateOfBirth: e.target.value })} error={residentErrors.dateOfBirth} />
+                    <ValidatedTextField label="Date of admission" type="date" required value={residentForm.dateOfAdmission} onChange={(e) => setResidentForm({ ...residentForm, dateOfAdmission: e.target.value })} error={residentErrors.dateOfAdmission} />
+                    <ValidatedTextField label="Place of birth" required value={residentForm.placeOfBirth} onChange={(e) => setResidentForm({ ...residentForm, placeOfBirth: e.target.value })} error={residentErrors.placeOfBirth} />
+                    <ValidatedTextField label="Religion" required value={residentForm.religion} onChange={(e) => setResidentForm({ ...residentForm, religion: e.target.value })} error={residentErrors.religion} />
+                    <ValidatedTextField label="Case category" required hint="Example: Neglected or Trafficking." value={residentForm.caseCategory} onChange={(e) => setResidentForm({ ...residentForm, caseCategory: e.target.value })} error={residentErrors.caseCategory} />
+                    <ValidatedTextField label="Referral source" required value={residentForm.referralSource} onChange={(e) => setResidentForm({ ...residentForm, referralSource: e.target.value })} error={residentErrors.referralSource} />
+                    <ValidatedTextField label="Assigned social worker" required value={residentForm.assignedSocialWorker} onChange={(e) => setResidentForm({ ...residentForm, assignedSocialWorker: e.target.value })} error={residentErrors.assignedSocialWorker} />
+                    <ValidatedTextField label="Referring person" value={residentForm.referringAgencyPerson ?? ''} onChange={(e) => setResidentForm({ ...residentForm, referringAgencyPerson: e.target.value })} />
                   </FormGrid>
                 </FormSection>
 
                 <FormSection title="Risk and flags">
                   <FormGrid>
-                    <label><span>Initial risk</span><input value={residentForm.initialRiskLevel} onChange={(e) => setResidentForm({ ...residentForm, initialRiskLevel: e.target.value })} required /></label>
-                    <label><span>Current risk</span><input value={residentForm.currentRiskLevel} onChange={(e) => setResidentForm({ ...residentForm, currentRiskLevel: e.target.value })} required /></label>
-                    <label><span>Reintegration type</span><input value={residentForm.reintegrationType ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationType: e.target.value })} /></label>
-                    <label><span>Reintegration status</span><input value={residentForm.reintegrationStatus ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationStatus: e.target.value })} /></label>
+                    <ValidatedTextField label="Initial risk" required hint="Low, Medium, High, or Critical." value={residentForm.initialRiskLevel} onChange={(e) => setResidentForm({ ...residentForm, initialRiskLevel: e.target.value })} error={residentErrors.initialRiskLevel} />
+                    <ValidatedTextField label="Current risk" required hint="Low, Medium, High, or Critical." value={residentForm.currentRiskLevel} onChange={(e) => setResidentForm({ ...residentForm, currentRiskLevel: e.target.value })} error={residentErrors.currentRiskLevel} />
+                    <ValidatedTextField label="Reintegration type" value={residentForm.reintegrationType ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationType: e.target.value })} />
+                    <ValidatedTextField label="Reintegration status" value={residentForm.reintegrationStatus ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationStatus: e.target.value })} />
                   </FormGrid>
                   <div className="check-grid">
                     <CheckboxField label="Trafficked" checked={residentForm.isTrafficked} onChange={(checked) => setResidentForm({ ...residentForm, isTrafficked: checked })} />
@@ -357,16 +427,16 @@ export function CaseloadInventoryPage() {
 
                 <FormSection title="Starter intervention plan">
                   <FormGrid>
-                    <label><span>Plan category</span><input value={residentForm.interventionPlans[0]?.planCategory ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planCategory: e.target.value }] })} required /></label>
-                    <label><span>Status</span><input value={residentForm.interventionPlans[0]?.status ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], status: e.target.value }] })} required /></label>
-                    <label><span>Target date</span><input type="date" value={residentForm.interventionPlans[0]?.targetDate ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], targetDate: e.target.value }] })} required /></label>
-                    <label><span>Services provided</span><input value={residentForm.interventionPlans[0]?.servicesProvided ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], servicesProvided: e.target.value }] })} required /></label>
+                    <ValidatedTextField label="Plan category" required value={residentForm.interventionPlans[0]?.planCategory ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planCategory: e.target.value }] })} error={residentErrors.planCategory} />
+                    <ValidatedTextField label="Status" required value={residentForm.interventionPlans[0]?.status ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], status: e.target.value }] })} error={residentErrors.planStatus} />
+                    <ValidatedTextField label="Target date" type="date" required value={residentForm.interventionPlans[0]?.targetDate ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], targetDate: e.target.value }] })} error={residentErrors.planTargetDate} />
+                    <ValidatedTextField label="Services provided" required value={residentForm.interventionPlans[0]?.servicesProvided ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], servicesProvided: e.target.value }] })} error={residentErrors.servicesProvided} />
                   </FormGrid>
-                  <label><span>Plan description</span><textarea value={residentForm.interventionPlans[0]?.planDescription ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planDescription: e.target.value }] })} rows={3} required /></label>
+                  <ValidatedTextareaField label="Plan description" required rows={3} value={residentForm.interventionPlans[0]?.planDescription ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planDescription: e.target.value }] })} error={residentErrors.planDescription} />
                 </FormSection>
 
-                <label><span>Initial case assessment</span><textarea value={residentForm.initialCaseAssessment} onChange={(e) => setResidentForm({ ...residentForm, initialCaseAssessment: e.target.value })} rows={3} required /></label>
-                <label><span>Restricted notes</span><textarea value={residentForm.restrictedNotes ?? ''} onChange={(e) => setResidentForm({ ...residentForm, restrictedNotes: e.target.value })} rows={3} /></label>
+                <ValidatedTextareaField label="Initial case assessment" required rows={3} value={residentForm.initialCaseAssessment} onChange={(e) => setResidentForm({ ...residentForm, initialCaseAssessment: e.target.value })} error={residentErrors.initialCaseAssessment} />
+                <ValidatedTextareaField label="Restricted notes" rows={3} hint="Optional: sensitive notes visible to authorized staff only." value={residentForm.restrictedNotes ?? ''} onChange={(e) => setResidentForm({ ...residentForm, restrictedNotes: e.target.value })} />
                 <div className="form-actions">
                   <button className="primary-button" disabled={submitting} type="submit">
                     {submitting ? 'Saving...' : editingResidentId ? 'Update resident' : 'Create resident'}

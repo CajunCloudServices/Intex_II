@@ -11,17 +11,17 @@ public record DonationAllocationRequest(
 
 public record DonationRequest(
     [Range(1, int.MaxValue)] int SupporterId,
-    [Required, StringLength(30)] string DonationType,
+    [Required, StringLength(30), RegularExpression(ValidationPatterns.DonationType)] string DonationType,
     DateOnly DonationDate,
-    [Required, StringLength(30)] string ChannelSource,
-    [StringLength(3)] string? CurrencyCode,
+    [Required, StringLength(30), RegularExpression(ValidationPatterns.DonationChannel)] string ChannelSource,
+    [StringLength(3), RegularExpression(ValidationPatterns.CurrencyCode)] string? CurrencyCode,
     decimal? Amount,
     [Range(typeof(decimal), "0.01", "999999999.99")] decimal EstimatedValue,
     [Required, StringLength(30)] string ImpactUnit,
     bool IsRecurring,
     [StringLength(100)] string? CampaignName,
     [StringLength(2000)] string? Notes,
-    [Required] List<DonationAllocationRequest> Allocations);
+    [Required, MinLength(1)] List<DonationAllocationRequest> Allocations);
 
 public record DonationAllocationResponse(
     int Id,

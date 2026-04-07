@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Intex.Api.DTOs;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -48,6 +49,7 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "email");
     }
 
     [Fact]
@@ -72,6 +74,7 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "SupporterId");
     }
 
     [Fact]
@@ -113,6 +116,7 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "CaseControlNumber");
     }
 
     [Fact]
@@ -134,6 +138,38 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SupporterCreate_TrimsInputFields_BeforePersist()
+    {
+        await LoginAsAdminAsync();
+
+        var id = Guid.NewGuid().ToString("N")[..8];
+        var response = await _client.PostAsJsonAsync("/api/supporters", new
+        {
+            supporterType = "  MonetaryDonor ",
+            displayName = $"  Trim Test {id}  ",
+            organizationName = "   Team   Lighthouse ",
+            firstName = "  Jordan ",
+            lastName = "  Lee ",
+            relationshipType = " International ",
+            region = " Metro Manila ",
+            country = " Philippines ",
+            email = $" trim-{id}@example.com ",
+            phone = " +63 912 555 1000 ",
+            status = " Active ",
+            firstDonationDate = (DateOnly?)null,
+            acquisitionChannel = " Website "
+        });
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var created = await response.Content.ReadFromJsonAsync<SupporterResponse>();
+        Assert.NotNull(created);
+        Assert.Equal($"Trim Test {id}", created!.DisplayName);
+        Assert.Equal("Team Lighthouse", created.OrganizationName);
+        Assert.Equal("MonetaryDonor", created.SupporterType);
+        Assert.Equal("Active", created.Status);
     }
 
     [Fact]
@@ -163,5 +199,22 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(auth);
         _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
+    }
+
+    private static async Task AssertHasValidationErrorShapeAsync(HttpResponseMessage response, string expectedFieldName)
+    {
+        var payload = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(payload);
+        var root = document.RootElement;
+
+        Assert.Equal("Validation failed", root.GetProperty("title").GetString());
+        Assert.Equal(400, root.GetProperty("status").GetInt32());
+        Assert.True(root.TryGetProperty("traceId", out var traceIdElement));
+        Assert.False(string.IsNullOrWhiteSpace(traceIdElement.GetString()));
+        Assert.True(root.TryGetProperty("errors", out var errorsElement));
+        Assert.Equal(JsonValueKind.Array, errorsElement.ValueKind);
+        Assert.Contains(errorsElement.EnumerateArray(), item =>
+            item.TryGetProperty("field", out var field) &&
+            field.GetString()!.Contains(expectedFieldName, StringComparison.OrdinalIgnoreCase));
     }
 }

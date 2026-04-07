@@ -691,6 +691,36 @@ textarea {
   gap: 0.45rem;
 }
 
+.field-shell {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field-label {
+  font-weight: 600;
+}
+
+.field-required-marker {
+  color: #8f1f35;
+  margin-left: 0.25rem;
+}
+
+.field-hint {
+  color: #587381;
+  font-size: 0.85rem;
+}
+
+.field-error {
+  color: #8f1f35;
+  font-size: 0.85rem;
+}
+
+.field-shell-error input,
+.field-shell-error select,
+.field-shell-error textarea {
+  border-color: rgba(143, 31, 53, 0.6);
+}
+
 .stack-form select,
 .stack-form input,
 .stack-form textarea {
@@ -952,6 +982,7 @@ textarea {
 .checkbox-field {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.65rem;
   padding: 0.8rem 0.95rem;
   border-radius: 16px;
