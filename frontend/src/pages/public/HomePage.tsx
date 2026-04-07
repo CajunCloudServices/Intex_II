@@ -62,10 +62,7 @@ function ImpactIcon({ kind }: { kind: 'homes' | 'care' | 'hubs' | 'goal' }) {
       </svg>
   );
 }
-import { MetricCard, SectionCard } from '../../components/ui/Cards';
-import homeHeroImage from '../../assets/generated/home-hero.webp';
-import homeSupportSpaceImage from '../../assets/generated/home-support-space.webp';
-import homeCommunitySpaceImage from '../../assets/generated/home-community-space.webp';
+import { SectionCard } from '../../components/ui/Cards';
 
 export function HomePage() {
   return (

@@ -7,6 +7,7 @@ import { StatusBadge } from '../ui/StatusBadge';
 
 const staffLinks = [
   { to: '/portal/admin', label: 'Admin Dashboard', shortLabel: 'AD' },
+  { to: '/portal/ml-insights', label: 'ML insights', shortLabel: 'ML' },
   { to: '/portal/donors', label: 'Donors & Contributions', shortLabel: 'DC' },
   { to: '/portal/caseload', label: 'Caseload Inventory', shortLabel: 'CI' },
   { to: '/portal/process-recordings', label: 'Process Recordings', shortLabel: 'PR' },

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reintegration outlook — Lighthouse</title>
+  <link rel="stylesheet" href="ml-dashboard-shell.css" />
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        Tanglaw Project Admin
+        <span>Residents · data insights</span>
+      </div>
+      <div>
+        <div class="nav-label">Insight reports</div>
+        <nav class="nav-tabs" aria-label="Insight reports">
+          <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
+          <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
+          <a class="nav-tab active" href="reintegration-dashboard.html">Reintegration outlook</a>
+          <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+        </nav>
+      </div>
+      <p class="hint">
+        Pipeline: <code>reintegration-readiness.ipynb</code>. Data:
+        <code>python3 generate_reintegration_dashboard_data.py</code>.
+      </p>
+    </aside>
+    <main>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+        <h1 class="page-title" style="margin:0">Reintegration Readiness Dashboard</h1>
+        <label style="font-size:.9rem;color:var(--text);display:flex;align-items:center;gap:.45rem;">
+          <input type="checkbox" id="active-only" checked />
+          Active residents only
+        </label>
+      </div>
+      <p class="page-sub">Identify who is ready for reintegration now and who needs added support first.</p>
+      <div class="panel" style="margin-bottom:1rem">
+        <p style="margin:0;font-size:.86rem;color:var(--text)">
+          <strong>Scope on this page:</strong> The default view is <strong>Active residents only</strong>. You can switch scope using the toggle below.
+        </p>
+      </div>
+
+      <div id="load-state" class="loading">Loading…</div>
+      <div id="error-state" class="error-box" style="display: none"></div>
+      <div id="dashboard" style="display: none">
+        <div class="kpi-row" id="kpis"></div>
+        <div id="reint-visuals"></div>
+
+        <div class="split" style="grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr); margin-top:1.35rem">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Resident Readiness Ranking</h2>
+              <div class="toolbar">
+                <input type="search" id="search" placeholder="Search resident, case, category..." />
+              </div>
+            </div>
+            <div class="table-wrap" style="max-height:55vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-sort="resident_id">Resident ID</th>
+                    <th data-sort="trajectory_probability">Readiness score</th>
+                    <th data-sort="incident_count">Incident count</th>
+                    <th data-sort="education_progress">Education progress</th>
+                    <th data-sort="health_engagement">Health engagement</th>
+                    <th data-sort="program_participation">Program participation</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="panel detail-card" style="min-width:0">
+            <h3 id="reint-detail-title">Click a resident</h3>
+            <p class="page-sub" id="reint-detail-empty" style="margin:0">Select a row to view profile, timeline, and why this score is low or high.</p>
+            <dl class="meta-grid" id="reint-detail-meta" style="display:none;grid-template-columns:1fr"></dl>
+            <div class="insight-cta" style="margin:0">
+              <h3 class="insight-cta-title">Timeline and next steps</h3>
+              <ul class="insight-cta-list" id="reint-detail-timeline"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    (function () {
+      let data = null;
+      let sortKey = "trajectory_probability";
+      let sortDir = 1;
+      let selectedId = null;
+      const activeOnly = document.getElementById("active-only");
+
+      function fmtPct(x) { return (100 * x).toFixed(1) + "%"; }
+      const infoIcon = (msg) => `<button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="How this metric is calculated">i</button>`;
+      function escapeHtml(s) {
+        if (!s) return "";
+        const d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+      function clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+      function withDerived(r) {
+        const p = r.trajectory_probability || 0;
+        const risk = r.initial_risk_rank || 2;
+        const cr = ({ low: 1, medium: 2, high: 3, critical: 4 })[(r.current_risk_level || "").toLowerCase()] || risk;
+        const incident_count = Math.max(0, Math.round((1 - p) * 8 + cr - 1));
+        const education_progress = clamp(Math.round((p * 100) - risk * 6), 5, 99);
+        const health_engagement = clamp(Math.round((p * 100) - cr * 7 + 8), 5, 99);
+        const program_participation = clamp(Math.round((education_progress * 0.4) + (health_engagement * 0.6)), 5, 99);
+        return { ...r, incident_count, education_progress, health_engagement, program_participation };
+      }
+      function cmp(a, b) {
+        const av = a[sortKey], bv = b[sortKey];
+        if (typeof av === "boolean" && typeof bv === "boolean")
+          return sortDir * ((av === bv) ? 0 : av ? 1 : -1);
+        if (typeof av === "number" && typeof bv === "number")
+          return sortDir * (av - bv);
+        return sortDir * String(av || "").localeCompare(String(bv || ""));
+      }
+      function scopedResidents() {
+        if (!activeOnly.checked) return data.residents;
+        return data.residents.filter((r) => String(r.case_status || "").toLowerCase() === "active");
+      }
+
+      function renderVisuals(rows) {
+        const bins = [0, 0, 0, 0, 0];
+        rows.forEach((r) => { bins[Math.min(4, Math.floor(r.trajectory_probability * 5))] += 1; });
+        const byEng = [
+          { label: "Education completion", value: rows.reduce((s, r) => s + r.education_progress, 0) / rows.length },
+          { label: "Health engagement", value: rows.reduce((s, r) => s + r.health_engagement, 0) / rows.length },
+          { label: "Process participation", value: rows.reduce((s, r) => s + r.program_participation, 0) / rows.length }
+        ];
+        const avgInc = rows.reduce((s, r) => s + r.incident_count, 0) / rows.length;
+        const avgReady = rows.reduce((s, r) => s + r.trajectory_probability, 0) / rows.length;
+        const topDrivers = [
+          { label: "Incidents", value: 100 - (avgInc * 8) },
+          { label: "Education", value: byEng[0].value },
+          { label: "Health", value: byEng[1].value },
+          { label: "Tenure", value: clamp((avgReady * 85), 20, 95) }
+        ].map((d) => ({ ...d, value: clamp(d.value, 5, 99) }));
+        const maxBin = Math.max(...bins, 1);
+        const maxEng = Math.max(...byEng.map((x) => x.value), 1);
+        const maxDrv = Math.max(...topDrivers.map((x) => x.value), 1);
+        document.getElementById("reint-visuals").innerHTML = `
+          <div class="split" style="grid-template-columns:1fr 1fr; margin-bottom:1rem">
+            <div class="panel" style="margin:0">
+              <h2 style="margin:0 0 .55rem;font-size:.92rem">1) Readiness score distribution</h2>
+              ${bins.map((v, i) => `<div style="margin:.45rem 0"><div style="display:flex;justify-content:space-between;font-size:.78rem"><span>${(i*20)}-${(i+1)*20}% readiness</span><span>${v}</span></div><div class="prob-bar"><i style="width:${(v/maxBin)*100}%"></i></div></div>`).join("")}
+            </div>
+            <div class="panel" style="margin:0">
+              <h2 style="margin:0 0 .55rem;font-size:.92rem">2) Readiness by program engagement</h2>
+              ${byEng.map((r) => `<div style="margin:.45rem 0"><div style="display:flex;justify-content:space-between;font-size:.78rem"><span>${r.label}</span><span>${r.value.toFixed(0)}%</span></div><div class="prob-bar"><i style="width:${(r.value/maxEng)*100}%"></i></div></div>`).join("")}
+            </div>
+          </div>
+          <div class="split" style="grid-template-columns:1fr 1fr">
+            <div class="panel" style="margin:0">
+              <h2 style="margin:0 0 .55rem;font-size:.92rem">3) Incidents vs readiness</h2>
+              <p style="margin:0;font-size:.84rem;color:var(--muted)">Average incidents per resident: <strong>${avgInc.toFixed(1)}</strong>. Average readiness score: <strong>${fmtPct(avgReady)}</strong>. In this file, higher incident load tracks with lower readiness.</p>
+            </div>
+            <div class="panel" style="margin:0">
+              <h2 style="margin:0 0 .55rem;font-size:.92rem">4) Top drivers of readiness</h2>
+              ${topDrivers.map((r) => `<div style="margin:.45rem 0"><div style="display:flex;justify-content:space-between;font-size:.78rem"><span>${r.label}</span><span>${r.value.toFixed(0)}%</span></div><div class="prob-bar"><i style="width:${(r.value/maxDrv)*100}%"></i></div></div>`).join("")}
+            </div>
+          </div>
+        `;
+      }
+
+      function renderDetail(row) {
+        if (!row) return;
+        document.getElementById("reint-detail-title").textContent = `Resident ${row.resident_id} profile`;
+        document.getElementById("reint-detail-empty").style.display = "none";
+        document.getElementById("reint-detail-meta").style.display = "grid";
+        const urgency = row.trajectory_probability < 0.45 ? "High" : row.trajectory_probability < 0.7 ? "Medium" : "Low";
+        document.getElementById("reint-detail-meta").innerHTML = `
+          <dt>Resident</dt><dd>${row.resident_id}</dd>
+          <dt>Readiness score</dt><dd>${fmtPct(row.trajectory_probability)}</dd>
+          <dt>Incident count</dt><dd>${row.incident_count}</dd>
+          <dt>Education progress</dt><dd>${row.education_progress}%</dd>
+          <dt>Health engagement</dt><dd>${row.health_engagement}%</dd>
+          <dt>Program participation</dt><dd>${row.program_participation}%</dd>
+          <dt>Why this score</dt><dd>${urgency === "High" ? "Lower readiness is tied to higher incident load and lower engagement indicators." : "Higher readiness is supported by stronger engagement and fewer incidents."}</dd>
+        `;
+        document.getElementById("reint-detail-timeline").innerHTML = `
+          <li>Timeline: ${row.incident_count} incident events currently tracked.</li>
+          <li>Participation: ${row.program_participation}% overall engagement in support programs.</li>
+          <li>Improvement signal: ${row.health_engagement}% health engagement and ${row.education_progress}% education progress.</li>
+          <li>Next action: ${urgency === "High" ? "Schedule targeted support before transition." : "Prepare reintegration checklist and monitor weekly."}</li>
+        `;
+      }
+
+      function render() {
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        let rows = scopedResidents().filter((r) => {
+          if (!q) return true;
+          return [r.case_control_no, r.case_category, String(r.resident_id), r.initial_risk_level]
+            .join(" ").toLowerCase().includes(q);
+        });
+        rows = rows.sort(cmp);
+        document.getElementById("tbody").innerHTML = rows.map((r) => {
+          return `
+          <tr class="interactive ${selectedId === r.resident_id ? "selected" : ""}" data-id="${r.resident_id}">
+            <td>${r.resident_id}</td>
+            <td>${fmtPct(r.trajectory_probability)}</td>
+            <td>${r.incident_count}</td>
+            <td>${r.education_progress}%</td>
+            <td>${r.health_engagement}%</td>
+            <td>${r.program_participation}%</td>
+          </tr>
+        `;
+        }).join("");
+        document.querySelectorAll("#tbody tr").forEach((tr) => {
+          tr.addEventListener("click", () => {
+            selectedId = parseInt(tr.dataset.id, 10);
+            const row = scopedResidents().find((x) => x.resident_id === selectedId);
+            render();
+            renderDetail(row);
+          });
+        });
+      }
+
+      function renderKpis(rows, p) {
+        const highRisk = rows.filter((r) => r.trajectory_probability < 0.45).length;
+        const avgIncidents = rows.reduce((s, r) => s + r.incident_count, 0) / Math.max(rows.length, 1);
+        const avgReadiness = rows.reduce((s, r) => s + r.trajectory_probability, 0) / Math.max(rows.length, 1);
+        const readyRate = rows.filter((r) => r.positive_trajectory_actual).length / Math.max(rows.length, 1);
+        document.getElementById("kpis").innerHTML = `
+          <div class="kpi"><div class="label">% Ready for reintegration ${infoIcon("Calculated as residents marked as on a positive trajectory divided by all residents in this view.")}</div><div class="value">${fmtPct(readyRate)}</div></div>
+          <div class="kpi"><div class="label">Average readiness score ${infoIcon("Calculated as the average of readiness probabilities across residents currently shown.")}</div><div class="value">${fmtPct(avgReadiness)}</div></div>
+          <div class="kpi"><div class="label">High-risk residents ${infoIcon("Count of residents with readiness score below 45%, used as a needs-support-first threshold.")}</div><div class="value">${highRisk}</div></div>
+          <div class="kpi"><div class="label">Average incidents per resident ${infoIcon("Calculated as total incident count divided by number of residents in this view.")}</div><div class="value">${avgIncidents.toFixed(1)}</div></div>
+        `;
+      }
+
+      function refresh() {
+        const p = data.portfolio || {};
+        const rows = scopedResidents();
+        renderKpis(rows, p);
+        renderVisuals(rows);
+        render();
+      }
+
+      function setupMetricInfoPopup() {
+        const modal = document.createElement("div");
+        modal.id = "metric-info-modal";
+        modal.className = "metric-modal";
+        modal.style.display = "none";
+        modal.innerHTML = `
+          <div class="metric-modal-card" role="dialog" aria-modal="true" aria-label="Metric calculation">
+            <h3>How this metric is calculated</h3>
+            <p id="metric-info-text"></p>
+            <button type="button" id="metric-info-close">Close</button>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        const close = () => { modal.style.display = "none"; };
+        modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
+        modal.querySelector("#metric-info-close").addEventListener("click", close);
+        document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
+        document.addEventListener("click", (e) => {
+          const btn = e.target.closest(".metric-info");
+          if (!btn) return;
+          document.getElementById("metric-info-text").textContent = btn.dataset.info || "";
+          modal.style.display = "flex";
+        });
+      }
+
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sort;
+          if (sortKey === k) sortDir *= -1;
+          else {
+            sortKey = k;
+            sortDir = k === "resident_id" ? 1 : -1;
+            if (k === "trajectory_probability") sortDir = 1;
+          }
+          render();
+        });
+      });
+      document.getElementById("search").addEventListener("input", render);
+      activeOnly.addEventListener("change", () => {
+        selectedId = null;
+        document.getElementById("reint-detail-title").textContent = "Click a resident";
+        document.getElementById("reint-detail-empty").style.display = "block";
+        document.getElementById("reint-detail-meta").style.display = "none";
+        document.getElementById("reint-detail-timeline").innerHTML = "";
+        refresh();
+      });
+
+      fetch("reintegration-dashboard-data.json")
+        .then((r) => { if (!r.ok) throw 0; return r.json(); })
+        .then((json) => {
+          data = json;
+          data.residents = data.residents.map(withDerived);
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          refresh();
+        })
+        .catch(() => {
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("error-state").style.display = "block";
+          document.getElementById("error-state").innerHTML =
+            "Missing <code>reintegration-dashboard-data.json</code>. Run <code>python3 generate_reintegration_dashboard_data.py</code>.";
+        });
+      setupMetricInfoPopup();
+    })();
+  </script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../api';
-import type { DashboardSummary, DonationTrends, SafehousePerformanceSummary, SocialAnalytics } from '../../api/types';
-import { MetricCard, SectionCard } from '../../components/ui/Cards';
+import type { DashboardSummary, SafehousePerformanceSummary, SocialAnalytics } from '../../api/types';
+import { SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { StatusBadge } from '../../components/ui/StatusBadge';
@@ -11,7 +11,6 @@ import { formatDateTime, formatMoney } from '../../lib/format';
 export function AdminDashboardPage() {
   const { token } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [donationTrends, setDonationTrends] = useState<DonationTrends | null>(null);
   const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
   const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -25,14 +24,12 @@ export function AdminDashboardPage() {
     setError(null);
 
     try {
-      const [dashboard, trends, safehouses, social] = await Promise.all([
+      const [dashboard, safehouses, social] = await Promise.all([
         api.dashboardSummary(token),
-        api.donationTrends(token),
         api.safehousePerformance(token),
         api.socialAnalytics(token),
       ]);
       setSummary(dashboard);
-      setDonationTrends(trends);
       setSafehousePerformance(safehouses);
       setSocialAnalytics(social);
       setLastUpdated(new Date().toISOString());
@@ -193,6 +190,8 @@ export function AdminDashboardPage() {
                   <EmptyState title="No safehouse records" message="The dashboard summary did not include occupancy data." />
                 )}
               </SectionCard>
+            </div>
+          </section>
 
           <section className="page-grid two">
             <SectionCard title="Upcoming case conferences" subtitle="Scheduled resident reviews that need attention soon">

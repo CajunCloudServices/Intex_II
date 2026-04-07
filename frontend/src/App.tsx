@@ -10,6 +10,7 @@ import { DonorsContributionsPage } from './pages/portal/DonorsContributionsPage'
 import { DonorHistoryPage } from './pages/portal/DonorHistoryPage';
 import { HomeVisitationsPage } from './pages/portal/HomeVisitationsPage';
 import { ProcessRecordingPage } from './pages/portal/ProcessRecordingPage';
+import { MlInsightsDashboardPage } from './pages/portal/MlInsightsDashboardPage';
 import { ReportsAnalyticsPage } from './pages/portal/ReportsAnalyticsPage';
 import { DonatePage } from './pages/public/DonatePage';
 import { HomePage } from './pages/public/HomePage';
@@ -55,6 +56,7 @@ function App() {
             <Route path="portal/process-recordings" element={<ProcessRecordingPage />} />
             <Route path="portal/home-visitations" element={<HomeVisitationsPage />} />
             <Route path="portal/reports" element={<ReportsAnalyticsPage />} />
+            <Route path="portal/ml-insights" element={<MlInsightsDashboardPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

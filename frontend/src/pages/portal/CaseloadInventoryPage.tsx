@@ -12,7 +12,7 @@ import {
   ValidatedTextField,
   ValidatedTextareaField,
 } from '../../components/ui/FormPrimitives';
-import { MetricCard, SectionCard } from '../../components/ui/Cards';
+import { SectionCard } from '../../components/ui/Cards';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
@@ -402,7 +402,7 @@ export function CaseloadInventoryPage() {
                   Next
                 </button>
               </div>
-            </div>
+            </SectionCard>
 
             <DetailPanel title={selectedResident?.caseControlNumber ?? 'Resident details'} subtitle="Review demographics, referral context, risk, and the current intervention direction for this resident.">
               {selectedResident ? (
