@@ -1,0 +1,20 @@
+name: Deploy HarborLight Nexus
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: harborlight-prod-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on:
+      - self-hosted
+      - harborlight-prod
+    steps:
+      - name: Deploy on production runner
+        run: /home/lajicpajam/bin/harborlight-deploy.sh
