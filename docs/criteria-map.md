@@ -94,3 +94,25 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api.Tests/`
 - Frontend smoke coverage:
   - `/Users/lajicpajam/School/Intex II/frontend/scripts/smoke.mjs`
+
+## ML data and inference integration
+
+- Shared notebook data loader:
+  - `ml-pipelines/data_loader.py`
+- Notebook pipelines:
+  - `ml-pipelines/counseling-effectiveness.ipynb`
+  - `ml-pipelines/donor-churn-prediction.ipynb`
+  - `ml-pipelines/social-media-conversion.ipynb`
+  - `ml-pipelines/reintegration-readiness.ipynb`
+- New relational entities and FK wiring:
+  - `backend/Intex.Api/Entities/`
+  - `backend/Intex.Api/Data/ApplicationDbContext.cs`
+  - `backend/Intex.Api/Migrations/`
+- Reintegration feature builder and inference integration:
+  - `backend/Intex.Api/Services/ReintegrationFeatureBuilder.cs`
+  - `backend/Intex.Api/Services/MlInferenceClient.cs`
+  - `backend/Intex.Api/Controllers/MlController.cs`
+  - `backend/Intex.Api/DTOs/MlDtos.cs`
+- ML contracts and ops docs:
+  - `docs/ml-feature-contracts.md`
+  - `docs/ml-ops-runbook.md`

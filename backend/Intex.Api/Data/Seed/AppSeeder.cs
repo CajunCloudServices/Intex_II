@@ -250,6 +250,94 @@ public class AppSeeder(
                 FollowUpRequired = true
             });
 
+        dbContext.HealthWellbeingRecords.AddRange(
+            new HealthWellbeingRecord
+            {
+                ResidentId = residents[0].Id,
+                RecordDate = new DateOnly(2026, 2, 15),
+                GeneralHealthScore = 7.1m,
+                NutritionScore = 7.4m,
+                SleepQualityScore = 6.9m,
+                EnergyLevelScore = 7.0m,
+                HeightCm = 148m,
+                WeightKg = 41.5m,
+                Bmi = 18.9m,
+                MedicalCheckupDone = true,
+                DentalCheckupDone = true,
+                PsychologicalCheckupDone = true,
+                Notes = "Steady improvement with regular sleep schedule."
+            },
+            new HealthWellbeingRecord
+            {
+                ResidentId = residents[1].Id,
+                RecordDate = new DateOnly(2026, 2, 15),
+                GeneralHealthScore = 6.1m,
+                NutritionScore = 6.3m,
+                SleepQualityScore = 5.9m,
+                EnergyLevelScore = 5.8m,
+                HeightCm = 152m,
+                WeightKg = 44.2m,
+                Bmi = 19.1m,
+                MedicalCheckupDone = true,
+                DentalCheckupDone = false,
+                PsychologicalCheckupDone = true,
+                Notes = "Needs ongoing support for sleep quality."
+            });
+
+        dbContext.EducationRecords.AddRange(
+            new EducationRecord
+            {
+                ResidentId = residents[0].Id,
+                RecordDate = new DateOnly(2026, 2, 28),
+                EducationLevel = "Grade 8",
+                SchoolName = "Quezon Secondary School",
+                EnrollmentStatus = "Enrolled",
+                AttendanceRate = 92m,
+                ProgressPercent = 78m,
+                CompletionStatus = "In Progress",
+                Notes = "Consistent attendance after transport support."
+            },
+            new EducationRecord
+            {
+                ResidentId = residents[1].Id,
+                RecordDate = new DateOnly(2026, 2, 28),
+                EducationLevel = "Grade 9",
+                SchoolName = "Cebu Learning Center",
+                EnrollmentStatus = "Enrolled",
+                AttendanceRate = 84m,
+                ProgressPercent = 64m,
+                CompletionStatus = "In Progress",
+                Notes = "Requires tutoring reinforcement in math."
+            });
+
+        dbContext.Partners.AddRange(
+            new Partner
+            {
+                PartnerName = "City Health Outreach",
+                PartnerType = "NGO",
+                RoleType = "Healthcare",
+                ContactName = "Lia Gomez",
+                Email = "lia.gomez@example.org",
+                Phone = "+63-2-555-0120",
+                Region = "Luzon",
+                Status = "Active",
+                StartDate = new DateOnly(2025, 6, 1),
+                Notes = "Supports monthly checkups and referrals."
+            },
+            new Partner
+            {
+                PartnerName = "BrightPath Learning Foundation",
+                PartnerType = "Foundation",
+                RoleType = "Education",
+                ContactName = "Paulo Dizon",
+                Email = "paulo.dizon@example.org",
+                Phone = "+63-2-555-0168",
+                Region = "Visayas",
+                Status = "Active",
+                StartDate = new DateOnly(2025, 9, 15),
+                Notes = "Provides tutoring and school materials."
+            });
+
         dbContext.Donations.AddRange(
             new Donation
             {
@@ -301,6 +389,81 @@ public class AppSeeder(
                 AmountAllocated = 50000m,
                 AllocationDate = new DateOnly(2026, 3, 23),
                 AllocationNotes = "School fees and materials."
+            });
+
+        var partners = await dbContext.Partners.OrderBy(x => x.Id).ToListAsync();
+        dbContext.PartnerAssignments.AddRange(
+            new PartnerAssignment
+            {
+                PartnerId = partners[0].Id,
+                SafehouseId = safehouses[0].Id,
+                ProgramArea = "Health",
+                AssignmentStart = new DateOnly(2025, 7, 1),
+                ResponsibilityNotes = "Monthly on-site wellness rounds",
+                IsPrimary = true,
+                Status = "Active"
+            },
+            new PartnerAssignment
+            {
+                PartnerId = partners[1].Id,
+                SafehouseId = safehouses[1].Id,
+                ProgramArea = "Education",
+                AssignmentStart = new DateOnly(2025, 10, 1),
+                ResponsibilityNotes = "Academic catch-up workshops",
+                IsPrimary = true,
+                Status = "Active"
+            });
+
+        dbContext.SafehouseMonthlyMetrics.AddRange(
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[0].Id,
+                MonthStart = new DateOnly(2026, 3, 1),
+                MonthEnd = new DateOnly(2026, 3, 31),
+                ActiveResidents = 18,
+                AvgEducationProgress = 74.5m,
+                AvgHealthScore = 7.0m,
+                ProcessRecordingCount = 21,
+                HomeVisitationCount = 6,
+                IncidentCount = 2,
+                Notes = "Stable month with moderate case activity."
+            },
+            new SafehouseMonthlyMetric
+            {
+                SafehouseId = safehouses[1].Id,
+                MonthStart = new DateOnly(2026, 3, 1),
+                MonthEnd = new DateOnly(2026, 3, 31),
+                ActiveResidents = 10,
+                AvgEducationProgress = 68.2m,
+                AvgHealthScore = 6.3m,
+                ProcessRecordingCount = 17,
+                HomeVisitationCount = 4,
+                IncidentCount = 1,
+                Notes = "Improving engagement with partner support."
+            });
+
+        dbContext.InKindDonationItems.AddRange(
+            new InKindDonationItem
+            {
+                DonationId = donations[0].Id,
+                ItemName = "Nutrition Pack",
+                ItemCategory = "Food",
+                Quantity = 20,
+                UnitOfMeasure = "boxes",
+                EstimatedUnitValue = 30m,
+                IntendedUse = "Resident meal support",
+                ReceivedCondition = "Good"
+            },
+            new InKindDonationItem
+            {
+                DonationId = donations[1].Id,
+                ItemName = "School Supply Kit",
+                ItemCategory = "Education",
+                Quantity = 40,
+                UnitOfMeasure = "kits",
+                EstimatedUnitValue = 18.5m,
+                IntendedUse = "Back-to-school distribution",
+                ReceivedCondition = "New"
             });
 
         dbContext.SocialMediaPosts.AddRange(

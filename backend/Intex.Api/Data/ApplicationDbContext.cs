@@ -22,6 +22,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<IncidentReport> IncidentReports => Set<IncidentReport>();
     public DbSet<SocialMediaPost> SocialMediaPosts => Set<SocialMediaPost>();
     public DbSet<PublicImpactSnapshot> PublicImpactSnapshots => Set<PublicImpactSnapshot>();
+    public DbSet<Partner> Partners => Set<Partner>();
+    public DbSet<PartnerAssignment> PartnerAssignments => Set<PartnerAssignment>();
+    public DbSet<EducationRecord> EducationRecords => Set<EducationRecord>();
+    public DbSet<HealthWellbeingRecord> HealthWellbeingRecords => Set<HealthWellbeingRecord>();
+    public DbSet<SafehouseMonthlyMetric> SafehouseMonthlyMetrics => Set<SafehouseMonthlyMetric>();
+    public DbSet<InKindDonationItem> InKindDonationItems => Set<InKindDonationItem>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -60,6 +66,35 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
         builder.Entity<InterventionPlan>(entity =>
         {
             entity.Property(x => x.TargetValue).HasPrecision(8, 2);
+        });
+
+        builder.Entity<EducationRecord>(entity =>
+        {
+            entity.Property(x => x.AttendanceRate).HasPrecision(5, 2);
+            entity.Property(x => x.ProgressPercent).HasPrecision(5, 2);
+        });
+
+        builder.Entity<HealthWellbeingRecord>(entity =>
+        {
+            entity.Property(x => x.GeneralHealthScore).HasPrecision(5, 2);
+            entity.Property(x => x.NutritionScore).HasPrecision(5, 2);
+            entity.Property(x => x.SleepQualityScore).HasPrecision(5, 2);
+            entity.Property(x => x.EnergyLevelScore).HasPrecision(5, 2);
+            entity.Property(x => x.HeightCm).HasPrecision(6, 2);
+            entity.Property(x => x.WeightKg).HasPrecision(6, 2);
+            entity.Property(x => x.Bmi).HasPrecision(5, 2);
+        });
+
+        builder.Entity<SafehouseMonthlyMetric>(entity =>
+        {
+            entity.Property(x => x.AvgEducationProgress).HasPrecision(5, 2);
+            entity.Property(x => x.AvgHealthScore).HasPrecision(5, 2);
+        });
+
+        builder.Entity<InKindDonationItem>(entity =>
+        {
+            entity.Property(x => x.Quantity).HasPrecision(12, 2);
+            entity.Property(x => x.EstimatedUnitValue).HasPrecision(12, 2);
         });
 
         builder.Entity<SocialMediaPost>(entity =>
@@ -122,5 +157,41 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
             .WithMany(x => x.IncidentReports)
             .HasForeignKey(x => x.SafehouseId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<PartnerAssignment>()
+            .HasOne(x => x.Partner)
+            .WithMany(x => x.Assignments)
+            .HasForeignKey(x => x.PartnerId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<PartnerAssignment>()
+            .HasOne(x => x.Safehouse)
+            .WithMany(x => x.PartnerAssignments)
+            .HasForeignKey(x => x.SafehouseId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<EducationRecord>()
+            .HasOne(x => x.Resident)
+            .WithMany(x => x.EducationRecords)
+            .HasForeignKey(x => x.ResidentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<HealthWellbeingRecord>()
+            .HasOne(x => x.Resident)
+            .WithMany(x => x.HealthWellbeingRecords)
+            .HasForeignKey(x => x.ResidentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<SafehouseMonthlyMetric>()
+            .HasOne(x => x.Safehouse)
+            .WithMany(x => x.MonthlyMetrics)
+            .HasForeignKey(x => x.SafehouseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<InKindDonationItem>()
+            .HasOne(x => x.Donation)
+            .WithMany(x => x.InKindItems)
+            .HasForeignKey(x => x.DonationId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
