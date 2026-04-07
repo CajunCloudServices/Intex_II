@@ -110,3 +110,75 @@ public record SocialAnalyticsResponse(
     SocialAnalyticsTotalsDto Totals,
     IReadOnlyList<PlatformPerformanceDto> PlatformSummaries,
     IReadOnlyList<SocialPostDetailDto> Posts);
+
+public record SocialPostAdvisorRequestDto(
+    string Platform,
+    string PostType,
+    string MediaType,
+    string SentimentTone,
+    int PostHour,
+    int NumHashtags,
+    bool HasCallToAction,
+    bool FeaturesResidentStory,
+    bool IsBoosted,
+    decimal BoostBudgetPhp);
+
+public record SocialPostAdvisorFeatureContributionDto(
+    string Feature,
+    decimal EffectAmountPhp);
+
+public record SocialPostAdvisorResponseDto(
+    decimal PredictedDonationValuePhp,
+    decimal BaselineDonationValuePhp,
+    IReadOnlyList<SocialPostAdvisorFeatureContributionDto> TopContributions,
+    string Notes);
+
+public record DonorChurnRiskRowDto(
+    int SupporterId,
+    string DisplayName,
+    decimal ChurnProbability,
+    string RiskTier,
+    DateOnly? LastDonationDate,
+    decimal LifetimeDonationAmount,
+    int DonationCount,
+    int DaysSinceLastDonation,
+    string RecommendedAction);
+
+public record DonorChurnRiskSummaryResponse(
+    int EvaluatedSupporters,
+    int HighRiskCount,
+    int MediumRiskCount,
+    int LowRiskCount,
+    IReadOnlyList<DonorChurnRiskRowDto> TopRisks);
+
+public record CounselingRiskRowDto(
+    int RecordingId,
+    int ResidentId,
+    string ResidentCode,
+    DateOnly SessionDate,
+    string SessionType,
+    decimal ConcernProbability,
+    string RiskTier,
+    string PrimaryFactor);
+
+public record CounselingRiskSummaryResponse(
+    int EvaluatedSessions,
+    int HighRiskCount,
+    int MediumRiskCount,
+    int LowRiskCount,
+    IReadOnlyList<CounselingRiskRowDto> TopRiskSessions);
+
+public record ReintegrationRiskRowDto(
+    int ResidentId,
+    string ResidentCode,
+    decimal RiskScore,
+    decimal PositiveProbability,
+    string RecommendedAction,
+    IReadOnlyList<string> TopRiskFactors);
+
+public record ReintegrationRiskSummaryResponse(
+    int EvaluatedResidents,
+    int HighRiskCount,
+    int MediumRiskCount,
+    int LowRiskCount,
+    IReadOnlyList<ReintegrationRiskRowDto> TopRiskResidents);

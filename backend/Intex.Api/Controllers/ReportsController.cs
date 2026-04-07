@@ -260,4 +260,145 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
 
         return Ok(new SocialAnalyticsResponse(totals, platformSummaries, postDetails));
     }
+
+    [HttpPost("social-post-advisor")]
+    public async Task<ActionResult<SocialPostAdvisorResponseDto>> PredictSocialPostConversion(SocialPostAdvisorRequestDto request)
+    {
+        var posts = await dbContext.SocialMediaPosts.AsNoTracking().ToListAsync();
+        if (posts.Count == 0)
+        {
+            return Ok(new SocialPostAdvisorResponseDto(
+                0m,
+                0m,
+                [],
+                "No social post history is available yet. Add post records before using the advisor."));
+        }
+
+        var baseline = posts.Average(x => x.EstimatedDonationValuePhp);
+        var hasCallToActionBoost = posts
+            .Where(x => x.HasCallToAction)
+            .Select(x => x.EstimatedDonationValuePhp)
+            .DefaultIfEmpty((decimal)baseline)
+            .Average() - baseline;
+        var residentStoryBoost = posts
+            .Where(x => x.FeaturesResidentStory)
+            .Select(x => x.EstimatedDonationValuePhp)
+            .DefaultIfEmpty((decimal)baseline)
+            .Average() - baseline;
+
+        var platformBoost = posts
+            .Where(x => x.Platform == request.Platform)
+            .Select(x => x.EstimatedDonationValuePhp)
+            .DefaultIfEmpty((decimal)baseline)
+            .Average() - baseline;
+        var postTypeBoost = posts
+            .Where(x => x.PostType == request.PostType)
+            .Select(x => x.EstimatedDonationValuePhp)
+            .DefaultIfEmpty((decimal)baseline)
+            .Average() - baseline;
+        var mediaTypeBoost = posts
+            .Where(x => x.MediaType == request.MediaType)
+            .Select(x => x.EstimatedDonationValuePhp)
+            .DefaultIfEmpty((decimal)baseline)
+            .Average() - baseline;
+        var sentimentBoost = posts
+            .Where(x => x.SentimentTone == request.SentimentTone)
+            .Select(x => x.EstimatedDonationValuePhp)
+            .DefaultIfEmpty((decimal)baseline)
+            .Average() - baseline;
+
+        // Keep this deterministic and transparent for staff use.
+        var hourAdjustment = request.PostHour switch
+        {
+            >= 18 and <= 21 => 120m,
+            >= 11 and <= 14 => 40m,
+            _ => -20m
+        };
+
+        var hashtagAdjustment = Math.Clamp(request.NumHashtags, 0, 8) * 15m;
+        var callToActionAdjustment = request.HasCallToAction ? hasCallToActionBoost : -Math.Abs(hasCallToActionBoost) * 0.5m;
+        var storyAdjustment = request.FeaturesResidentStory ? residentStoryBoost : -Math.Abs(residentStoryBoost) * 0.4m;
+        var boostBudgetAdjustment = request.IsBoosted ? Math.Min(request.BoostBudgetPhp * 0.08m, 300m) : 0m;
+
+        var predicted = Math.Max(
+            0m,
+            baseline + platformBoost + postTypeBoost + mediaTypeBoost + sentimentBoost +
+            hourAdjustment + hashtagAdjustment + callToActionAdjustment + storyAdjustment + boostBudgetAdjustment);
+
+        var contributions = new List<SocialPostAdvisorFeatureContributionDto>
+        {
+            new("Platform", Math.Round(platformBoost, 2)),
+            new("Post type", Math.Round(postTypeBoost, 2)),
+            new("Media type", Math.Round(mediaTypeBoost, 2)),
+            new("Sentiment", Math.Round(sentimentBoost, 2)),
+            new("Posting hour", Math.Round(hourAdjustment, 2)),
+            new("Hashtags", Math.Round(hashtagAdjustment, 2)),
+            new("Call to action", Math.Round(callToActionAdjustment, 2)),
+            new("Resident story", Math.Round(storyAdjustment, 2)),
+            new("Boost budget", Math.Round(boostBudgetAdjustment, 2)),
+        }
+            .OrderByDescending(x => Math.Abs(x.EffectAmountPhp))
+            .Take(5)
+            .ToList();
+
+        return Ok(new SocialPostAdvisorResponseDto(
+            Math.Round(predicted, 2),
+            Math.Round((decimal)baseline, 2),
+            contributions,
+            "Prediction is a historical pattern estimate using pre-post features only. Validate high-impact recommendations with controlled tests."));
+    }
+
+    [HttpGet("counseling-risk")]
+    public async Task<ActionResult<CounselingRiskSummaryResponse>> GetCounselingRiskSummary([FromQuery] int top = 15)
+    {
+        var recordings = await dbContext.ProcessRecordings
+            .AsNoTracking()
+            .Include(x => x.Resident)
+            .OrderByDescending(x => x.SessionDate)
+            .ToListAsync();
+
+        if (recordings.Count == 0)
+        {
+            return Ok(new CounselingRiskSummaryResponse(0, 0, 0, 0, []));
+        }
+
+        var rows = recordings.Select(recording =>
+        {
+            var probability =
+                0.14m +
+                (recording.ConcernsFlagged ? 0.40m : 0m) +
+                (recording.ReferralMade ? 0.18m : 0m) -
+                (recording.ProgressNoted ? 0.16m : 0m) +
+                (recording.SessionDurationMinutes >= 90 ? 0.08m : 0m) +
+                (recording.SessionType.Equals("Crisis", StringComparison.OrdinalIgnoreCase) ? 0.16m : 0m);
+
+            var boundedProbability = Math.Clamp(probability, 0.01m, 0.99m);
+            var tier = boundedProbability >= 0.70m ? "High"
+                : boundedProbability >= 0.40m ? "Medium"
+                : "Low";
+            var factor = recording.ConcernsFlagged ? "Concerns flagged in session"
+                : recording.ReferralMade ? "Referral raised"
+                : recording.SessionType.Equals("Crisis", StringComparison.OrdinalIgnoreCase) ? "Crisis session type"
+                : "Baseline counseling profile";
+
+            return new CounselingRiskRowDto(
+                recording.Id,
+                recording.ResidentId,
+                recording.Resident?.CaseControlNumber ?? $"Resident {recording.ResidentId}",
+                recording.SessionDate,
+                recording.SessionType,
+                Math.Round(boundedProbability, 4),
+                tier,
+                factor);
+        })
+            .OrderByDescending(x => x.ConcernProbability)
+            .ToList();
+
+        return Ok(new CounselingRiskSummaryResponse(
+            rows.Count,
+            rows.Count(x => x.RiskTier == "High"),
+            rows.Count(x => x.RiskTier == "Medium"),
+            rows.Count(x => x.RiskTier == "Low"),
+            rows.Take(Math.Clamp(top, 1, 50)).ToList()));
+    }
 }

@@ -439,6 +439,87 @@ export interface SocialAnalytics {
   posts: SocialPostDetail[];
 }
 
+export interface SocialPostAdvisorRequest {
+  platform: string;
+  postType: string;
+  mediaType: string;
+  sentimentTone: string;
+  postHour: number;
+  numHashtags: number;
+  hasCallToAction: boolean;
+  featuresResidentStory: boolean;
+  isBoosted: boolean;
+  boostBudgetPhp: number;
+}
+
+export interface SocialPostAdvisorContribution {
+  feature: string;
+  effectAmountPhp: number;
+}
+
+export interface SocialPostAdvisorPrediction {
+  predictedDonationValuePhp: number;
+  baselineDonationValuePhp: number;
+  topContributions: SocialPostAdvisorContribution[];
+  notes: string;
+}
+
+export interface DonorChurnRiskRow {
+  supporterId: number;
+  displayName: string;
+  churnProbability: number;
+  riskTier: string;
+  lastDonationDate?: string | null;
+  lifetimeDonationAmount: number;
+  donationCount: number;
+  daysSinceLastDonation: number;
+  recommendedAction: string;
+}
+
+export interface DonorChurnRiskSummary {
+  evaluatedSupporters: number;
+  highRiskCount: number;
+  mediumRiskCount: number;
+  lowRiskCount: number;
+  topRisks: DonorChurnRiskRow[];
+}
+
+export interface CounselingRiskRow {
+  recordingId: number;
+  residentId: number;
+  residentCode: string;
+  sessionDate: string;
+  sessionType: string;
+  concernProbability: number;
+  riskTier: string;
+  primaryFactor: string;
+}
+
+export interface CounselingRiskSummary {
+  evaluatedSessions: number;
+  highRiskCount: number;
+  mediumRiskCount: number;
+  lowRiskCount: number;
+  topRiskSessions: CounselingRiskRow[];
+}
+
+export interface ReintegrationRiskRow {
+  residentId: number;
+  residentCode: string;
+  riskScore: number;
+  positiveProbability: number;
+  recommendedAction: string;
+  topRiskFactors: string[];
+}
+
+export interface ReintegrationRiskSummary {
+  evaluatedResidents: number;
+  highRiskCount: number;
+  mediumRiskCount: number;
+  lowRiskCount: number;
+  topRiskResidents: ReintegrationRiskRow[];
+}
+
 export interface SupporterRequest {
   supporterType: string;
   displayName: string;

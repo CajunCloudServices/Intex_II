@@ -1,6 +1,7 @@
 import { apiRequest } from '../client';
 import type {
   Donation,
+  DonorChurnRiskSummary,
   DonationImpactPrediction,
   DonationRequest,
   DonorAllocationBreakdown,
@@ -77,6 +78,11 @@ export const donorApi = {
 
   donorImpactPrediction: (token: string, amount: number) =>
     apiRequest<DonationImpactPrediction>(`/donations/predict-impact?amount=${encodeURIComponent(String(amount))}`, {
+      token,
+    }),
+
+  donorChurnRiskSummary: (token: string, top = 15) =>
+    apiRequest<DonorChurnRiskSummary>(`/supporters/churn-risk-summary?top=${encodeURIComponent(String(top))}`, {
       token,
     }),
 };
