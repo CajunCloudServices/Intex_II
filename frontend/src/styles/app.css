@@ -1458,7 +1458,7 @@ textarea {
   overflow: hidden;
 }
 
-.chart-bar > div {
+.chart-fill {
   height: 100%;
   background: linear-gradient(90deg, #0b7f6b, #1c5f6b);
 }
@@ -2183,9 +2183,30 @@ body {
   background: var(--tl-surface-high);
 }
 
-.chart-bar > div {
+.chart-fill {
   background: linear-gradient(90deg, var(--tl-gold-dark), var(--tl-gold));
 }
+
+.w-pct-5 { width: 5%; }
+.w-pct-10 { width: 10%; }
+.w-pct-15 { width: 15%; }
+.w-pct-20 { width: 20%; }
+.w-pct-25 { width: 25%; }
+.w-pct-30 { width: 30%; }
+.w-pct-35 { width: 35%; }
+.w-pct-40 { width: 40%; }
+.w-pct-45 { width: 45%; }
+.w-pct-50 { width: 50%; }
+.w-pct-55 { width: 55%; }
+.w-pct-60 { width: 60%; }
+.w-pct-65 { width: 65%; }
+.w-pct-70 { width: 70%; }
+.w-pct-75 { width: 75%; }
+.w-pct-80 { width: 80%; }
+.w-pct-85 { width: 85%; }
+.w-pct-90 { width: 90%; }
+.w-pct-95 { width: 95%; }
+.w-pct-100 { width: 100%; }
 
 /* Form errors and required markers — danger red */
 .field-required-marker,

@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-intex}
       POSTGRES_USER: ${POSTGRES_USER:-intex}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-intex_dev_password}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -15,10 +15,10 @@ services:
       context: ./backend/Intex.Api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: ${CONNECTIONSTRINGS__DEFAULTCONNECTION:-Host=postgres;Port=5432;Database=intex;Username=intex;Password=intex_dev_password}
+      ConnectionStrings__DefaultConnection: ${CONNECTIONSTRINGS__DEFAULTCONNECTION}
       Jwt__Issuer: Intex.Api
       Jwt__Audience: Intex.Frontend
-      Jwt__Key: ${JWT__KEY:-ChangeThisDevelopmentJwtKey12345!}
+      Jwt__Key: ${JWT__KEY}
       Cors__AllowedOrigins__0: http://localhost:5173
     ports:
       - "8080:8080"

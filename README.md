@@ -194,14 +194,14 @@ If `5432` or `5080` is already in use on your machine, use an alternate local po
 Postgres:
 
 ```bash
-docker run --name intex-postgres -e POSTGRES_DB=intex -e POSTGRES_USER=intex -e POSTGRES_PASSWORD=intex_dev_password -p 55433:5432 -d postgres:17
+docker run --name intex-postgres -e POSTGRES_DB=intex -e POSTGRES_USER=intex -e POSTGRES_PASSWORD="<your-strong-local-password>" -p 55433:5432 -d postgres:17
 ```
 
 Backend:
 
 ```bash
 cd backend/Intex.Api
-ConnectionStrings__DefaultConnection="Host=localhost;Port=55433;Database=intex;Username=intex;Password=intex_dev_password" dotnet run --urls http://localhost:5081
+ConnectionStrings__DefaultConnection="Host=localhost;Port=55433;Database=intex;Username=intex;Password=<your-strong-local-password>" dotnet run --urls http://localhost:5081
 ```
 
 Frontend:

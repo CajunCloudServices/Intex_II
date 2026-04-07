@@ -40,10 +40,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         return;
     }
 
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection") ??
-        builder.Configuration["ConnectionStrings__DefaultConnection"] ??
-        "Host=localhost;Port=5432;Database=intex;Username=intex;Password=intex_dev_password");
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+        builder.Configuration["ConnectionStrings__DefaultConnection"];
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        throw new InvalidOperationException(
+            "A database connection string is required. Set ConnectionStrings:DefaultConnection or ConnectionStrings__DefaultConnection via environment variables or user secrets.");
+    }
+
+    options.UseNpgsql(connectionString);
 });
 
 builder.Services
@@ -375,9 +380,9 @@ app.Use(async (context, next) =>
         "frame-ancestors 'none'; " +
         "object-src 'none'; " +
         "script-src 'self'; " +
-        "style-src 'self' 'unsafe-inline'; " +
+        "style-src 'self' https://fonts.googleapis.com; " +
         "img-src 'self' data: https:; " +
-        "font-src 'self' data:; " +
+        "font-src 'self' data: https://fonts.gstatic.com; " +
         $"connect-src {cspConnectSources};";
 
     await next();

@@ -3,6 +3,7 @@ import { api } from '../../api';
 import type { PublicImpactSnapshot } from '../../api/types';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { chartWidthClass } from '../../lib/charts';
 import { formatDate, formatMoney } from '../../lib/format';
 import impactOverviewImage from '../../assets/generated/impact-overview.webp';
 
@@ -123,7 +124,7 @@ export function ImpactDashboardPage() {
                 <div className="chart-row" key={point.label}>
                   <span>{point.label}</span>
                   <div className="chart-bar">
-                    <div style={{ width: `${Math.max((point.value / maxDonationTrend) * 100, 8)}%` }} />
+                    <div className={chartWidthClass((point.value / maxDonationTrend) * 100)} />
                   </div>
                   <strong>{formatMoney(point.value)}</strong>
                 </div>

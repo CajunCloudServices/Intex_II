@@ -22,6 +22,7 @@ import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
+import { chartWidthClass } from '../../lib/charts';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
 
 function createSafehouseForm(): SafehouseRequest {
@@ -270,7 +271,7 @@ export function ReportsAnalyticsPage() {
                       <div className="chart-row" key={point.periodLabel}>
                         <span>{point.periodLabel}</span>
                         <div className="chart-bar">
-                          <div style={{ width: `${Math.max((point.totalAmount / Math.max(totalRaised, 1)) * 100, 8)}%` }} />
+                          <div className={chartWidthClass((point.totalAmount / Math.max(totalRaised, 1)) * 100)} />
                         </div>
                         <strong>{formatMoney(point.totalAmount)}</strong>
                       </div>
@@ -350,7 +351,7 @@ export function ReportsAnalyticsPage() {
                             <div className="chart-row" key={point.monthStart}>
                               <span>{point.monthStart.slice(0, 7)}</span>
                               <div className="chart-bar">
-                                <div style={{ width: `${Math.max((point.avgHealthScore / maxHealth) * 100, 8)}%` }} />
+                                <div className={chartWidthClass((point.avgHealthScore / maxHealth) * 100)} />
                               </div>
                               <strong>{point.avgHealthScore.toFixed(1)}</strong>
                             </div>

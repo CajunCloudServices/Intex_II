@@ -31,7 +31,7 @@ Use `import_csv_snapshot.py` to push all 17 CSV tables into a Postgres staging s
 
 ```bash
 python ml-pipelines/import_csv_snapshot.py \
-  --connection-string "postgresql+psycopg://intex:intex_dev_password@localhost:5432/intex" \
+  --connection-string "postgresql+psycopg://intex:<your-strong-local-password>@localhost:5432/intex" \
   --schema ml_snapshot
 ```
 
