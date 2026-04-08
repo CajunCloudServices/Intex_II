@@ -12,7 +12,7 @@ import {
   ValidatedTextField,
   ValidatedTextareaField,
 } from '../../components/ui/FormPrimitives';
-import { MetricCard, SectionCard } from '../../components/ui/Cards';
+import { SectionCard } from '../../components/ui/Cards';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
@@ -141,6 +141,11 @@ export function CaseloadInventoryPage() {
   const activeCount = residents.filter((resident) => resident.caseStatus === 'Active').length;
   const highRiskCount = residents.filter((resident) => resident.currentRiskLevel === 'High' || resident.currentRiskLevel === 'Critical').length;
   const planCount = residents.reduce((sum, resident) => sum + resident.interventionPlans.length, 0);
+  const archivedThisWeekCount = residents.filter((resident) => {
+    if (!resident.dateClosed) return false;
+    const closedTime = new Date(resident.dateClosed).getTime();
+    return Number.isFinite(closedTime) && Date.now() - closedTime <= 7 * 24 * 60 * 60 * 1000;
+  }).length;
 
   const resetResidentForm = () => {
     setEditingResidentId(null);
@@ -246,19 +251,44 @@ export function CaseloadInventoryPage() {
   };
 
   return (
-    <div className="page-shell">
-      <div className="page-header">
+    <div className="page-shell caseload-page">
+      <div className="caseload-header">
         <div>
-          <span className="eyebrow">Case management</span>
-          <h1>Caseload inventory</h1>
-          <p>Manage resident records, family context, risk signals, and intervention planning from one case-management view.</p>
+          <div className="caseload-breadcrumb">Archive / Current Quarter</div>
+          <h1>Active Caseload Archive</h1>
+          <p>Manage resident records, risk signals, and one starter intervention plan directly in the portal.</p>
         </div>
+        {isAdmin ? (
+          <button
+            className="primary-button"
+            onClick={() => {
+              resetResidentForm();
+              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }}
+            type="button"
+          >
+            New Case
+          </button>
+        ) : null}
       </div>
 
-      <section className="page-grid three">
-        <MetricCard label="Active residents" value={String(activeCount)} detail="Current open caseload." accent />
-        <MetricCard label="High-risk cases" value={String(highRiskCount)} detail="Residents that need closer review." />
-        <MetricCard label="Intervention plans" value={String(planCount)} detail="Starter plan rows connected to current residents." />
+      <section className="caseload-stats" aria-label="Caseload summary">
+        <article className="caseload-stat-card">
+          <span>Total Active</span>
+          <strong>{activeCount}</strong>
+        </article>
+        <article className="caseload-stat-card">
+          <span>Urgent Action</span>
+          <strong className="caseload-stat-alert">{highRiskCount}</strong>
+        </article>
+        <article className="caseload-stat-card caseload-stat-card-highlight">
+          <span>In Progress</span>
+          <strong>{planCount}</strong>
+        </article>
+        <article className="caseload-stat-card">
+          <span>Archived This Week</span>
+          <strong>{archivedThisWeekCount}</strong>
+        </article>
       </section>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
@@ -357,6 +387,21 @@ export function CaseloadInventoryPage() {
                   ])}
                 />
               )}
+              <div className="caseload-pagination">
+                <button className="text-button" type="button">
+                  Previous
+                </button>
+                <div className="caseload-pagination-pages">
+                  <span className="is-active">1</span>
+                  <span>2</span>
+                  <span>3</span>
+                  <span>...</span>
+                  <span>9</span>
+                </div>
+                <button className="text-button" type="button">
+                  Next
+                </button>
+              </div>
             </SectionCard>
 
             <DetailPanel title={selectedResident?.caseControlNumber ?? 'Resident details'} subtitle="Review demographics, referral context, risk, and the current intervention direction for this resident.">

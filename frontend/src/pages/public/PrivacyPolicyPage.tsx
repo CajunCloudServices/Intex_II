@@ -22,8 +22,8 @@ export function PrivacyPolicyPage() {
 
         <p>
           Tanglaw Project processes supporter, donation, resident-care, and outreach data to operate nonprofit services,
-          communicate impact, and manage internal case workflows. We collect only the information needed to provide safe services,
-          administer donations, and maintain secure internal records.
+          communicate impact, and manage internal case workflows. This starter application is intended for development and
+          educational use and should be customized with your final hosting, subprocessors, retention periods, and legal contacts.
         </p>
 
         <h2>Data we may store</h2>
