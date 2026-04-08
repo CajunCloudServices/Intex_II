@@ -33,6 +33,11 @@ curl_retry() {
 echo "[verify] Checking public health"
 curl_retry -o /dev/null "${base_url}/api/health"
 
+echo "[verify] Checking public impact dashboard data"
+public_impact_json="$(curl_retry "${base_url}/api/public-impact")"
+grep -q '"snapshots"' <<< "${public_impact_json}"
+grep -q '"overallSummary"' <<< "${public_impact_json}"
+
 echo "[verify] Checking login shell and brand assets"
 login_html="$(curl_retry "${base_url}/login")"
 grep -q '/assets/index-' <<< "${login_html}"
