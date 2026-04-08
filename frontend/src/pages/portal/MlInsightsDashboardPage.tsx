@@ -1,6 +1,16 @@
+import { useParams } from 'react-router-dom';
+
 export function MlInsightsDashboardPage() {
+  const { dashboardKey } = useParams();
   const base = import.meta.env.BASE_URL;
-  const src = `${base}ml-dashboards/counseling-admin-dashboard.html`;
+  const dashboardPathByKey: Record<string, string> = {
+    counseling: 'counseling-admin-dashboard.html',
+    donor: 'donor-churn-dashboard.html',
+    reintegration: 'reintegration-dashboard.html',
+    social: 'social-media-dashboard.html',
+  };
+  const selectedPath = dashboardPathByKey[dashboardKey ?? ''] ?? 'counseling-admin-dashboard.html';
+  const src = `${base}ml-dashboards/${selectedPath}`;
 
   return (
     <div className="ml-insights-page">

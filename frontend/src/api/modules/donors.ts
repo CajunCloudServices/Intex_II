@@ -4,6 +4,8 @@ import type {
   DonorChurnRiskSummary,
   DonationImpactPrediction,
   DonationRequest,
+  PublicDonationSubmissionRequest,
+  PublicDonationSubmissionResponse,
   DonorAllocationBreakdown,
   DonorImpactSummary,
   Supporter,
@@ -57,6 +59,12 @@ export const donorApi = {
 
   donorImpactPrediction: (amount: number) =>
     apiRequest<DonationImpactPrediction>(`/donations/predict-impact?amount=${encodeURIComponent(String(amount))}`),
+
+  submitPublicDonation: (payload: PublicDonationSubmissionRequest) =>
+    apiRequest<PublicDonationSubmissionResponse>('/donations/public-submit', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 
   donorChurnRiskSummary: (top = 15) =>
     apiRequest<DonorChurnRiskSummary>(`/supporters/churn-risk-summary?top=${encodeURIComponent(String(top))}`),

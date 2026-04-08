@@ -57,6 +57,7 @@ function App() {
             <Route path="portal/home-visitations" element={<HomeVisitationsPage />} />
             <Route path="portal/reports" element={<ReportsAnalyticsPage />} />
             <Route path="portal/ml-insights" element={<MlInsightsDashboardPage />} />
+            <Route path="portal/ml-insights/:dashboardKey" element={<MlInsightsDashboardPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
