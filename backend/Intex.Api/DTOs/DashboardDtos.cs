@@ -40,6 +40,14 @@ public record PublicImpactSummaryDto(
     int HomeVisitsThisMonth,
     DateOnly? HomeVisitsReportingMonth);
 
+public record PublicImpactOverallSummaryDto(
+    decimal TotalTrackedSupport,
+    int TotalHomeVisitsRecorded,
+    int SafehouseCount,
+    int PublishedReportingMonths,
+    int CurrentOccupancy,
+    int TotalCapacity);
+
 public record PublicImpactSnapshotResponse(
     int Id,
     DateOnly SnapshotDate,
@@ -56,4 +64,5 @@ public record PublicImpactDashboardResponse(
     IReadOnlyList<PublicImpactSnapshotResponse> Snapshots,
     IReadOnlyList<PublicImpactResourceUseItemDto> ResourceUse,
     IReadOnlyList<PublicImpactCapacityRowDto> CapacityRows,
-    PublicImpactSummaryDto Summary);
+    PublicImpactSummaryDto Summary,
+    PublicImpactOverallSummaryDto OverallSummary);

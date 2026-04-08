@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Social Media to Donation Pipeline Analytics</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
-  <script>
-    if (new URLSearchParams(window.location.search).get("embed") === "1") {
-      document.documentElement.classList.add("portal-embed");
-    }
-  </script>
 </head>
 <body>
   <script>
@@ -342,7 +337,6 @@
         renderVisuals();
         renderTable();
       }
-
 
       function setQuickActive(id) {
         ["days-7-btn", "days-30-btn", "days-90-btn", "days-365-btn", "all-time-btn"].forEach((btnId) => {

@@ -61,11 +61,21 @@ export interface PublicImpactSummary {
   homeVisitsReportingMonth?: string | null;
 }
 
+export interface PublicImpactOverallSummary {
+  totalTrackedSupport: number;
+  totalHomeVisitsRecorded: number;
+  safehouseCount: number;
+  publishedReportingMonths: number;
+  currentOccupancy: number;
+  totalCapacity: number;
+}
+
 export interface PublicImpactDashboard {
   snapshots: PublicImpactSnapshot[];
   resourceUse: PublicImpactResourceUseItem[];
   capacityRows: PublicImpactCapacityRow[];
   summary: PublicImpactSummary;
+  overallSummary: PublicImpactOverallSummary;
 }
 
 export interface DashboardSummary {
