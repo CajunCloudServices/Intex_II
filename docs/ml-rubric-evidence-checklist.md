@@ -58,10 +58,20 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
   - `frontend/src/api/modules/reports.ts`
   - UI: "Counseling risk monitor"
 
+## Pipeline: Donation impact predictor (additional)
+
+- Notebook: `ml-pipelines/donation-impact-predictor.ipynb`
+  - Donor-facing impact estimation (OLS + regularized / boosted predictive tracks)
+  - See `docs/trend-workbook-evaluation-report.md` for corpus-level grade
+
 ## Cross-cutting reproducibility and execution
 
 - Shared loader:
   - `ml-pipelines/data_loader.py`
+- Trend evaluation helpers:
+  - `ml-pipelines/trend_eval_helpers.py`
+- Batch execute (optional skip list inside script):
+  - `ml-pipelines/run_all_notebooks.py`
 - API contracts:
   - `backend/Intex.Api/DTOs/ReportDtos.cs`
   - `frontend/src/api/types.ts`
@@ -74,6 +84,7 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
   - Explicit prediction vs explanation framing
   - Reproducible prep pipeline and feature-selection outputs
   - Baseline vs predictive comparison and CV reporting
+  - Final cell: calibration bins, threshold scan, bootstrap CIs on linear model, slice AUC (`trend_eval_helpers.py`)
 - Deployment evidence:
   - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
   - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx` ("Deep trend deployment scorecards")
@@ -83,6 +94,7 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
 - Notebook: `ml-pipelines/campaign-timing-seasonality.ipynb`
   - Time-aware split, baseline, explanatory and predictive tracks
   - Campaign and calendar feature interpretation for planning decisions
+  - Final cell: calibration, thresholds, bootstrap CIs, quarter slices
 - Deployment evidence:
   - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
   - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
@@ -90,8 +102,9 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
 ## Deep Trend Pipeline 7: Safehouse Operational Load Risk
 
 - Notebook: `ml-pipelines/safehouse-operational-load-risk.ipynb`
-  - Incident-rate explanatory model and guarded predictive path
-  - Handles one-class snapshot condition without pipeline failure
+  - Rolling/lag operational features; reframed target vs house-specific median; **GroupKFold**
+  - Lagged-only features for classification to avoid roll-rate label leakage
+  - Final cell: calibration, thresholds, bootstrap CIs, safehouse slices
 - Deployment evidence:
   - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
   - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
@@ -99,8 +112,8 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
 ## Deep Trend Pipeline 8: Intervention Mix Effectiveness
 
 - Notebook: `ml-pipelines/intervention-mix-effectiveness.ipynb`
-  - Emotional trajectory explanation + escalation prediction
-  - Baseline/CV metrics and actionable intervention guidance
+  - Resident context join + strictly prior-session history + intervention tokens + group×count interaction
+  - Group-aware CV; final cell evaluation artifacts
 - Deployment evidence:
   - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
   - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
@@ -108,8 +121,8 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
 ## Deep Trend Pipeline 9: Incident Composition Archetypes
 
 - Notebook: `ml-pipelines/incident-composition-archetypes.ipynb`
-  - Severity explanation and multiclass incident-type prediction
-  - Macro-F1/accuracy discipline and prevention-playbook recommendations
+  - Prior-window resident history, type entropy, smoothed house–type rate; group holdout by resident
+  - Binary High/Critical auxiliary + evaluation artifacts on binary track
 - Deployment evidence:
   - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
   - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
@@ -117,8 +130,8 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
 ## Deep Trend Pipeline 10: Resident Trajectory Archetypes
 
 - Notebook: `ml-pipelines/resident-trajectory-archetypes.ipynb`
-  - Cross-domain trajectory explanatory + predictive tracks
-  - Feature importance and decision prioritization outputs
+  - Leakage checklist markdown; `current_risk_num` dropped from features; GroupShuffleSplit + GroupKFold
+  - Final cell: calibration, thresholds, bootstrap CIs, slice diagnostics
 - Deployment evidence:
   - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
   - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
