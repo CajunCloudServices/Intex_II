@@ -74,7 +74,8 @@ if git -C "${repo_root}" rev-parse --verify HEAD >/dev/null 2>&1; then
 fi
 
 echo "[deploy] Recreating production services"
-docker compose "${live_compose_args[@]}" up -d --force-recreate
+docker compose "${live_compose_args[@]}" down --remove-orphans
+docker compose "${live_compose_args[@]}" up -d
 
 echo "[deploy] Waiting for web container to serve root"
 for attempt in $(seq 1 20); do
