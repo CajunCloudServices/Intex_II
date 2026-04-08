@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Donor Churn Dashboard — Lighthouse</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
+  <script>
+    if (new URLSearchParams(window.location.search).get("embed") === "1") {
+      document.documentElement.classList.add("portal-embed");
+    }
+  </script>
 </head>
 <body>
   <script>

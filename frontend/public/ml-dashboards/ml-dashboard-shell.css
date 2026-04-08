@@ -31,6 +31,15 @@ body {
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
 }
+
+/* Embedded inside portal: hide this dashboard's own sidebar to avoid double sidebars. */
+html.portal-embed .app {
+  grid-template-columns: 1fr;
+}
+
+html.portal-embed .sidebar {
+  display: none;
+}
 @media (max-width: 960px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { position: sticky; top: 0; z-index: 10; }
