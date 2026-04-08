@@ -44,7 +44,8 @@ services:
 
   harborlight_nexus_web:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
       args:
         VITE_API_URL: /api
     container_name: harborlight_nexus_web

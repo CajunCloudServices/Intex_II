@@ -28,10 +28,10 @@ const jsonFiles = [
 
 /** Same keys as MlDashboardController — load over cookies in deployed static HTML. */
 const fetchReplacements = [
-  ['fetch("counseling-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/counseling-dashboard-data", { credentials: "include" })'],
-  ['fetch("donor-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })'],
-  ['fetch("reintegration-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })'],
-  ['fetch("social-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/counseling-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/counseling-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/donor-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/reintegration-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/social-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-dashboard-data", { credentials: "include" })'],
 ];
 
 function transformHtml(content) {

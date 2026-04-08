@@ -292,7 +292,7 @@
         refresh();
       });
 
-      fetch("../json/reintegration-dashboard-data.json")
+      fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })
         .then((r) => { if (!r.ok) throw 0; return r.json(); })
         .then((json) => {
           data = json;

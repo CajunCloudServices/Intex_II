@@ -293,7 +293,7 @@
       });
       document.getElementById("search").addEventListener("input", () => renderTable(data.supporters));
 
-      fetch("../json/donor-dashboard-data.json")
+      fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })
         .then((r) => { if (!r.ok) throw 0; return r.json(); })
         .then((json) => {
           data = json;

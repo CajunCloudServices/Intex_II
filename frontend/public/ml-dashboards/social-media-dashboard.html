@@ -397,7 +397,7 @@
         });
       });
 
-      fetch("../json/social-dashboard-data.json")
+      fetch("/api/ml-dashboard/data/social-dashboard-data", { credentials: "include" })
         .then((r) => { if (!r.ok) throw 0; return r.json(); })
         .then((json) => {
           data = json;
