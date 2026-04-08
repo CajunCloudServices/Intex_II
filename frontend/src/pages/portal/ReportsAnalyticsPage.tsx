@@ -315,7 +315,7 @@ export function ReportsAnalyticsPage() {
         <ErrorState message={error} onRetry={loadAnalytics} />
       ) : (
         <>
-          <section className="page-grid one">
+          <section className="page-grid one" id="deep-trend-scorecards">
             <SectionCard title="Deep trend deployment scorecards" subtitle="Operational bridge for all six new exploratory/explanatory trend pipelines.">
               <DataTable
                 columns={['Pipeline', 'Primary metric', 'Current value', 'Endpoint', 'Recommendation']}

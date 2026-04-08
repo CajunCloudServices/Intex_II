@@ -1,19 +1,36 @@
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { clearThemePreference, getConsentLevel, getSavedTheme, persistThemePreference, type ThemeMode } from '../../lib/browserPreferences';
 import { LogoMark } from '../brand/LogoMark';
 import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
 
-const staffLinks = [
-  { to: '/portal/admin', label: 'Admin Dashboard', shortLabel: 'AD' },
-  { to: '/portal/ml-insights', label: 'ML insights', shortLabel: 'ML' },
+const staffLinksBeforeMl = [{ to: '/portal/admin', label: 'Admin Dashboard', shortLabel: 'AD' }];
+
+const staffLinksAfterMl = [
   { to: '/portal/donors', label: 'Donors & Contributions', shortLabel: 'DC' },
   { to: '/portal/caseload', label: 'Caseload Inventory', shortLabel: 'CI' },
   { to: '/portal/process-recordings', label: 'Process Recordings', shortLabel: 'PR' },
   { to: '/portal/home-visitations', label: 'Home Visitations', shortLabel: 'HV' },
   { to: '/portal/reports', label: 'Reports & Analytics', shortLabel: 'RA' },
+];
+
+const mlProgramDashboardLinks = [
+  { to: '/portal/ml-insights/counseling', label: 'Counseling sessions' },
+  { to: '/portal/ml-insights/donor', label: 'Donor lapse risk' },
+  { to: '/portal/ml-insights/reintegration', label: 'Reintegration outlook' },
+  { to: '/portal/ml-insights/social', label: 'Social posts & gifts' },
+];
+
+/** Same keys as docs/trend-pipeline-registry.md — deep trend notebooks surface on Reports analytics. */
+const mlTrendPipelineLinks = [
+  { label: 'Social content mix efficiency', key: 'social-content-mix-efficiency' },
+  { label: 'Campaign timing & seasonality', key: 'campaign-timing-seasonality' },
+  { label: 'Safehouse operational load risk', key: 'safehouse-operational-load-risk' },
+  { label: 'Intervention mix effectiveness', key: 'intervention-mix-effectiveness' },
+  { label: 'Incident composition archetypes', key: 'incident-composition-archetypes' },
+  { label: 'Resident trajectory archetypes', key: 'resident-trajectory-archetypes' },
 ];
 
 const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions', shortLabel: 'MC' }];
@@ -47,7 +64,6 @@ export function AppShell() {
   }, [theme]);
 
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
-  const portalLinks = isDonorOnly ? donorLinks : staffLinks;
   const userInitials = user?.fullName
     .split(/\s+/)
     .filter(Boolean)
@@ -181,14 +197,66 @@ export function AppShell() {
               </div>
 
               <nav className="sidebar-nav">
-                {portalLinks.map((link) => (
-                  <NavLink key={link.to} to={link.to}>
-                    <span className="sidebar-link-mark" aria-hidden="true">
-                      {link.shortLabel}
-                    </span>
-                    <span>{link.label}</span>
-                  </NavLink>
-                ))}
+                {isDonorOnly ? (
+                  donorLinks.map((link) => (
+                    <NavLink key={link.to} to={link.to}>
+                      <span className="sidebar-link-mark" aria-hidden="true">
+                        {link.shortLabel}
+                      </span>
+                      <span>{link.label}</span>
+                    </NavLink>
+                  ))
+                ) : (
+                  <>
+                    {staffLinksBeforeMl.map((link) => (
+                      <NavLink key={link.to} to={link.to}>
+                        <span className="sidebar-link-mark" aria-hidden="true">
+                          {link.shortLabel}
+                        </span>
+                        <span>{link.label}</span>
+                      </NavLink>
+                    ))}
+                    <div className="sidebar-nav-group">
+                      <NavLink
+                        to="/portal/ml-insights/counseling"
+                        className={({ isActive }) =>
+                          isActive || location.pathname.startsWith('/portal/ml-insights') ? 'active' : undefined
+                        }
+                      >
+                        <span className="sidebar-link-mark" aria-hidden="true">
+                          ML
+                        </span>
+                        <span>ML insights</span>
+                      </NavLink>
+                      <div className="sidebar-nav-sub" role="group" aria-label="ML insight reports">
+                        {mlProgramDashboardLinks.map((item) => (
+                          <NavLink key={item.to} to={item.to} className="sidebar-nav-sub-link" end>
+                            {item.label}
+                          </NavLink>
+                        ))}
+                        <div className="sidebar-nav-sub-heading">Deep trend pipelines</div>
+                        {mlTrendPipelineLinks.map((item) => (
+                          <Link
+                            key={item.key}
+                            to="/portal/reports#deep-trend-scorecards"
+                            className="sidebar-nav-sub-link"
+                            aria-label={item.key}
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    {staffLinksAfterMl.map((link) => (
+                      <NavLink key={link.to} to={link.to}>
+                        <span className="sidebar-link-mark" aria-hidden="true">
+                          {link.shortLabel}
+                        </span>
+                        <span>{link.label}</span>
+                      </NavLink>
+                    ))}
+                  </>
+                )}
               </nav>
 
               <div className="sidebar-utility">

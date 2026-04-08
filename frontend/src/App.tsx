@@ -56,7 +56,8 @@ function App() {
             <Route path="portal/process-recordings" element={<ProcessRecordingPage />} />
             <Route path="portal/home-visitations" element={<HomeVisitationsPage />} />
             <Route path="portal/reports" element={<ReportsAnalyticsPage />} />
-            <Route path="portal/ml-insights" element={<MlInsightsDashboardPage />} />
+            <Route path="portal/ml-insights" element={<Navigate to="/portal/ml-insights/counseling" replace />} />
+            <Route path="portal/ml-insights/:report" element={<MlInsightsDashboardPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

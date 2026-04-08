@@ -7,6 +7,11 @@
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
 </head>
 <body>
+  <script>
+    if (new URLSearchParams(location.search).get('embed') === '1') {
+      document.body.classList.add('embed');
+    }
+  </script>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
@@ -442,7 +447,7 @@
         renderTable();
       });
 
-      fetch("../json/counseling-dashboard-data.json")
+      fetch("/api/ml-dashboard/data/counseling-dashboard-data", { credentials: "include" })
         .then((res) => {
           if (!res.ok) throw new Error("HTTP " + res.status);
           return res.json();

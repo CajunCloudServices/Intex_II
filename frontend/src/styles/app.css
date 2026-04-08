@@ -816,6 +816,47 @@ textarea {
   color: var(--color-primary-ink);
 }
 
+.sidebar-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sidebar-nav-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin: 0 0 0.35rem 0.35rem;
+  padding: 0 0 0 0.65rem;
+  border-left: 2px solid var(--color-outline-ghost);
+}
+
+.sidebar-nav-sub-heading {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-soft);
+  margin: 0.45rem 0 0.1rem;
+  padding-left: 0.5rem;
+}
+
+.sidebar-nav .sidebar-nav-sub-link {
+  display: block;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 0.45rem;
+  color: var(--color-text-muted);
+  line-height: 1.35;
+  gap: 0;
+}
+
+.sidebar-nav a.sidebar-nav-sub-link.active {
+  background: var(--color-surface-container);
+  color: var(--color-text);
+}
+
 .sidebar-utility {
   display: grid;
   gap: 0.35rem;

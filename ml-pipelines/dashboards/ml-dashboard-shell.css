@@ -673,3 +673,18 @@ tbody tr.selected { background: #fdd48e55; }
   color: #271900;
   font-weight: 700;
 }
+
+/* Portal iframe (?embed=1): single column; hide duplicate nav and dev hints */
+body.embed .app {
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+}
+body.embed .sidebar {
+  display: none !important;
+}
+body.embed .hint {
+  display: none !important;
+}
+body.embed main {
+  max-width: none;
+}

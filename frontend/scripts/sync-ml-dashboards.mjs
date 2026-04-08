@@ -27,11 +27,20 @@ const jsonFiles = [
 ];
 
 /** Same keys as MlDashboardController — load over cookies in deployed static HTML. */
+const apiFetch = (key) =>
+  `fetch("/api/ml-dashboard/data/${key}", { credentials: "include" })`;
+
 const fetchReplacements = [
-  ['fetch("counseling-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/counseling-dashboard-data", { credentials: "include" })'],
-  ['fetch("donor-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })'],
-  ['fetch("reintegration-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })'],
-  ['fetch("social-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-dashboard-data", { credentials: "include" })'],
+  // ml-pipelines/dashboards layout (json lives under ../json/)
+  ['fetch("../json/counseling-dashboard-data.json")', apiFetch('counseling-dashboard-data')],
+  ['fetch("../json/donor-dashboard-data.json")', apiFetch('donor-dashboard-data')],
+  ['fetch("../json/reintegration-dashboard-data.json")', apiFetch('reintegration-dashboard-data')],
+  ['fetch("../json/social-dashboard-data.json")', apiFetch('social-dashboard-data')],
+  // legacy flat paths (if present)
+  ['fetch("counseling-dashboard-data.json")', apiFetch('counseling-dashboard-data')],
+  ['fetch("donor-dashboard-data.json")', apiFetch('donor-dashboard-data')],
+  ['fetch("reintegration-dashboard-data.json")', apiFetch('reintegration-dashboard-data')],
+  ['fetch("social-dashboard-data.json")', apiFetch('social-dashboard-data')],
 ];
 
 function transformHtml(content) {
