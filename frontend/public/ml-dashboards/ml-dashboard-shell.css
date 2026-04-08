@@ -31,15 +31,6 @@ body {
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
 }
-
-/* Embedded inside portal: hide this dashboard's own sidebar to avoid double sidebars. */
-html.portal-embed .app {
-  grid-template-columns: 1fr;
-}
-
-html.portal-embed .sidebar {
-  display: none;
-}
 @media (max-width: 960px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { position: sticky; top: 0; z-index: 10; }
@@ -213,13 +204,23 @@ main {
   z-index: 20;
 }
 
-.metric-info::after {
-  content: attr(data-info);
+.metric-info-wrap:hover .metric-tooltip,
+.metric-info-wrap:focus-within .metric-tooltip {
+  opacity: 1;
+}
+
+.metric-info-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.metric-tooltip {
   position: absolute;
   left: 50%;
   bottom: calc(100% + 8px);
   transform: translateX(-50%);
-  width: min(320px, 70vw);
+  width: min(340px, 75vw);
   background: #1b1c1a;
   color: #fff;
   border-radius: 8px;
@@ -235,11 +236,6 @@ main {
   opacity: 0;
   pointer-events: none;
   z-index: 20;
-}
-
-.metric-info:hover::after,
-.metric-info:focus-visible::after {
-  opacity: 1;
 }
 
 .metric-info-wrap:hover .metric-tooltip,
@@ -767,6 +763,35 @@ tbody tr.selected { background: #fdd48e55; }
 .timeframe-link.active {
   color: #271900;
   font-weight: 700;
+}
+
+.timeline-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fdd48e, #ffb702);
+  outline: none;
+}
+
+.timeline-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  border: 2px solid #7d5800;
+  background: #fff;
+  cursor: pointer;
+}
+
+.timeline-range::-moz-range-thumb {
+  width: 17px;
+  height: 17px;
+  border-radius: 999px;
+  border: 2px solid #7d5800;
+  background: #fff;
+  cursor: pointer;
 }
 
 .timeline-range {

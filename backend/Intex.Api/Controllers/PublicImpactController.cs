@@ -4,6 +4,7 @@ using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Intex.Api.Controllers;
 
@@ -89,6 +90,9 @@ public class PublicImpactController(ApplicationDbContext dbContext, ILogger<Publ
                 .SumAsync(x => x.HomeVisitationCount)
             : 0;
 
+        var totalHomeVisitsRecorded = await dbContext.SafehouseMonthlyMetrics
+            .SumAsync(x => x.HomeVisitationCount);
+
         return Ok(new PublicImpactDashboardResponse(
             snapshots,
             resourceUse,
@@ -98,7 +102,14 @@ public class PublicImpactController(ApplicationDbContext dbContext, ILogger<Publ
                 capacityRows.Sum(x => x.CapacityGirls),
                 capacityRows.Count,
                 homeVisitsThisMonth,
-                homeVisitMonth)));
+                homeVisitMonth),
+            new PublicImpactOverallSummaryDto(
+                totalAllocated,
+                totalHomeVisitsRecorded,
+                capacityRows.Count,
+                snapshots.Count(x => x.IsDisplayValid),
+                capacityRows.Sum(x => x.CurrentOccupancy),
+                capacityRows.Sum(x => x.CapacityGirls))));
     }
 
     private bool IsDisplayValid(PublicImpactSnapshotMetrics metrics)

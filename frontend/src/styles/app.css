@@ -517,7 +517,7 @@ textarea {
   backdrop-filter: blur(24px);
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 40;
 }
 
 .topbar-inner {
@@ -3880,7 +3880,6 @@ body {
   top: 92px;
   z-index: 8;
   align-self: start;
-  margin-left: auto;
 }
 
 .impact-page-toolbar {
@@ -3895,6 +3894,11 @@ body {
   box-shadow: var(--tl-soft-shadow);
 }
 
+.impact-page-toolbar-tall {
+  min-height: 96px;
+  align-content: center;
+}
+
 .impact-page-toolbar-label {
   color: var(--tl-text-muted);
   font-size: 0.78rem;
@@ -3904,8 +3908,7 @@ body {
 }
 
 .impact-transparency-note {
-  display: grid;
-  gap: 0.35rem;
+  display: block;
   padding: 1rem 1.2rem;
   border-radius: 20px;
   background: color-mix(in srgb, var(--tl-surface-card) 72%, var(--tl-secondary) 28%);
@@ -3917,20 +3920,48 @@ body {
   color: var(--tl-text);
 }
 
-.impact-transparency-note span {
-  color: var(--tl-text-muted);
-  font-size: 0.92rem;
-}
-
 .impact-selection-summary {
   display: grid;
-  gap: 0.35rem;
-  padding: 0.25rem 0 0;
+  gap: 0.2rem;
+  padding: 0.1rem 0 0;
+}
+
+.impact-overall-shell,
+.impact-monthly-shell,
+.impact-static-shell {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.impact-monthly-shell {
+  margin-top: 1rem;
+  align-content: start;
+}
+
+.impact-overall-header h2,
+.impact-monthly-header h2,
+.impact-static-header h2 {
+  margin: 0;
+  font-family: var(--tl-font-display);
+  font-size: clamp(1.4rem, 2.5vw, 1.95rem);
+  color: var(--tl-text);
+}
+
+.impact-overall-grid .metric-card:nth-child(2)::before {
+  background: var(--tl-success);
+}
+
+.impact-overall-grid .metric-card:nth-child(3)::before {
+  background: var(--tl-secondary);
+}
+
+.impact-overall-grid .metric-card:nth-child(4)::before {
+  background: color-mix(in srgb, var(--tl-gold-dark) 72%, #ffffff 28%);
 }
 
 .impact-selection-summary strong {
   font-family: var(--tl-font-display);
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   color: var(--tl-text);
 }
 
@@ -3938,6 +3969,31 @@ body {
 .impact-selection-summary span {
   margin: 0;
   color: var(--tl-text-muted);
+}
+
+.impact-selection-summary p {
+  font-size: 0.95rem;
+}
+
+.impact-monthly-header {
+  display: block;
+  min-height: auto;
+}
+
+.impact-monthly-copy {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.impact-history-filter {
+  display: grid;
+  gap: 0.35rem;
+  width: min(100%, 320px);
+}
+
+.impact-static-shell {
+  margin-top: 0.75rem;
 }
 
 .impact-summary-grid .metric-card:nth-child(2)::before {
@@ -4172,13 +4228,24 @@ body {
   .impact-page-toolbar-shell {
     position: static;
     width: 100%;
-    margin-left: 0;
   }
 
   .impact-page-toolbar {
     width: 100%;
     min-width: 0;
     margin-left: 0;
+  }
+
+  .impact-monthly-header {
+    display: grid;
+  }
+
+  .impact-monthly-shell {
+    margin-top: 1.35rem;
+  }
+
+  .impact-static-shell {
+    margin-top: 1.1rem;
   }
 
   .impact-history-header,
