@@ -286,7 +286,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
         Assert.Equal(HttpStatusCode.Forbidden, summary.StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, breakdown.StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, prediction.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, prediction.StatusCode);
     }
 
     [Fact]
@@ -413,7 +413,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task LoginAndProtectedRoute_ReturnsTokenAndDonorHistory()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -437,9 +437,33 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.NotEmpty(donations!);
     }
 
+    [Fact]
+    public async Task AdminCanRegisterMultiRoleUser_WithDonorAndAdminRoles()
+    {
+        await LoginAsAdminAsync();
+
+        var email = $"multi-role-{Guid.NewGuid():N}@example.com";
+        var response = await _client.PostAsJsonAsync("/api/auth/register", new
+        {
+            email,
+            password = "MultiRole!2345",
+            fullName = "Multi Role User",
+            roles = new[] { "Admin", "Donor" },
+            supporterId = 1
+        });
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var auth = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        Assert.NotNull(auth);
+        Assert.Contains("Admin", auth!.User.Roles);
+        Assert.Contains("Donor", auth.User.Roles);
+        Assert.Equal(1, auth.User.SupporterId);
+    }
+
     private async Task LoginAsAdminAsync()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -448,7 +472,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsDonorAsync()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -457,7 +481,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsDonor2Async()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor2@intex.local", "Donor2!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor2@intex.local", "Donor2!2345678"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -466,7 +490,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsStaffAsync()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("staff@intex.local", "Staff!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("staff@intex.local", "Staff!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();

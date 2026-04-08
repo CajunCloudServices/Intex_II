@@ -187,6 +187,7 @@ export interface DonationImpactPrediction {
   amount: number;
   outcomes: DonationImpactPredictionOutcome[];
   assumptions: string;
+  estimatedVictimsImpacted: number;
 }
 
 export interface ResidentPlan {
@@ -599,6 +600,25 @@ export interface DonationRequest {
     allocationDate: string;
     allocationNotes?: string | null;
   }[];
+}
+
+export interface PublicDonationSubmissionRequest {
+  donorName: string;
+  donorEmail: string;
+  amount: number;
+  isRecurring: boolean;
+  recurringInterval?: string | null;
+  notes?: string | null;
+}
+
+export interface PublicDonationSubmissionResponse {
+  donationId: number;
+  supporterId: number;
+  supporterName: string;
+  amount: number;
+  isRecurring: boolean;
+  recurringInterval?: string | null;
+  message: string;
 }
 
 export interface ResidentRequest {

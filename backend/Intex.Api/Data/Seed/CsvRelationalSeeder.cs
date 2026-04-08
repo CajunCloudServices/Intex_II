@@ -25,10 +25,14 @@ public sealed class CsvRelationalSeeder(
 
         if (await dbContext.Safehouses.AnyAsync(cancellationToken))
         {
+            logger.LogInformation(
+                "CSV relational seed skipped: Safehouses already populated (idempotent). Resolved CSV root would be {CsvRoot}.",
+                ResolveCsvRoot());
             return new CsvSeedResult(true, importedCounts, errors);
         }
 
         var csvRoot = ResolveCsvRoot();
+        logger.LogInformation("CSV relational seed starting from directory {CsvRoot}.", csvRoot);
         var requiredFiles = new[]
         {
             "safehouses.csv", "partners.csv", "supporters.csv", "social_media_posts.csv",

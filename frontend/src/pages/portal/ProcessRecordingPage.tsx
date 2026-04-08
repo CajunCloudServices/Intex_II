@@ -4,33 +4,15 @@ import { api } from '../../api';
 import type { CounselingRiskSummary, ProcessRecording, ProcessRecordingRequest, Resident } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
-import { CheckboxField, FormGrid, FormSection } from '../../components/ui/FormPrimitives';
+import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHeader';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
-
-function createRecordingForm(residentId?: number): ProcessRecordingRequest {
-  const today = new Date().toISOString().slice(0, 10);
-  return {
-    residentId: residentId ?? 1,
-    sessionDate: today,
-    socialWorker: '',
-    sessionType: 'Individual',
-    sessionDurationMinutes: 60,
-    emotionalStateObserved: '',
-    emotionalStateEnd: '',
-    sessionNarrative: '',
-    interventionsApplied: '',
-    followUpActions: '',
-    progressNoted: false,
-    concernsFlagged: false,
-    referralMade: false,
-    restrictedNotes: '',
-  };
-}
+import { createRecordingForm } from './forms/processRecordingDefaults';
+import { ProcessRecordingForm } from './forms/ProcessRecordingForm';
 
 export function ProcessRecordingPage() {
   const { user } = useAuth();
@@ -108,18 +90,14 @@ export function ProcessRecordingPage() {
     setFeedback(null);
 
     try {
+      if (!editingRecordingId) return;
       const payload = {
         ...recordingForm,
         restrictedNotes: recordingForm.restrictedNotes || null,
       };
 
-      if (editingRecordingId) {
-        await api.updateProcessRecording(editingRecordingId, payload);
-        setFeedback({ tone: 'success', message: 'Process recording updated.' });
-      } else {
-        await api.createProcessRecording(payload);
-        setFeedback({ tone: 'success', message: 'Process recording created.' });
-      }
+      await api.updateProcessRecording(editingRecordingId, payload);
+      setFeedback({ tone: 'success', message: 'Process recording updated.' });
 
       resetForm();
       await loadRecordings();
@@ -142,15 +120,17 @@ export function ProcessRecordingPage() {
     }
   };
 
+  const headerActions =
+    isAdmin ? [{ label: 'New process recording', to: '/portal/process-recordings/new' }] : undefined;
+
   return (
     <div className="page-shell">
-      <div className="page-header">
-        <div>
-          <span className="eyebrow">Clinical notes</span>
-          <h1>Process recordings</h1>
-          <p>Document counseling sessions chronologically so staff can follow each resident&apos;s healing journey over time.</p>
-        </div>
-      </div>
+      <StaffPortalPageHeader
+        eyebrow="Clinical notes"
+        title="Process recordings"
+        description="Document counseling sessions chronologically so staff can follow each resident's healing journey over time."
+        actions={headerActions}
+      />
 
       <section className="page-grid three">
         <MetricCard label="Sessions" value={String(recordings.length)} detail="Loaded process recording rows." accent />
@@ -290,56 +270,24 @@ export function ProcessRecordingPage() {
             </DetailPanel>
           </section>
 
-          {isAdmin ? (
+          {isAdmin && editingRecordingId ? (
             <SectionCard
-              title={editingRecordingId ? 'Edit process recording' : 'Create process recording'}
+              title="Edit process recording"
               subtitle="Capture the full counseling narrative with enough structure to review progress over time."
-              actions={editingRecordingId ? <button className="ghost-button" onClick={resetForm} type="button">Cancel edit</button> : null}
+              actions={
+                <button className="ghost-button" onClick={resetForm} type="button">
+                  Cancel edit
+                </button>
+              }
             >
-              <form className="stack-form" onSubmit={handleSubmit}>
-                <FormSection title="Session metadata">
-                  <FormGrid>
-                    <label>
-                      <span>Resident</span>
-                      <select value={recordingForm.residentId} onChange={(event) => setRecordingForm({ ...recordingForm, residentId: Number(event.target.value) })}>
-                        {residents.map((resident) => (
-                          <option key={resident.id} value={resident.id}>
-                            {resident.caseControlNumber}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label><span>Session date</span><input type="date" value={recordingForm.sessionDate} onChange={(event) => setRecordingForm({ ...recordingForm, sessionDate: event.target.value })} required /></label>
-                    <label><span>Social worker</span><input value={recordingForm.socialWorker} onChange={(event) => setRecordingForm({ ...recordingForm, socialWorker: event.target.value })} required /></label>
-                    <label><span>Session type</span><input value={recordingForm.sessionType} onChange={(event) => setRecordingForm({ ...recordingForm, sessionType: event.target.value })} required /></label>
-                    <label><span>Duration (minutes)</span><input type="number" min="1" value={recordingForm.sessionDurationMinutes} onChange={(event) => setRecordingForm({ ...recordingForm, sessionDurationMinutes: Number(event.target.value) })} required /></label>
-                    <label><span>Observed state</span><input value={recordingForm.emotionalStateObserved} onChange={(event) => setRecordingForm({ ...recordingForm, emotionalStateObserved: event.target.value })} required /></label>
-                    <label><span>End state</span><input value={recordingForm.emotionalStateEnd} onChange={(event) => setRecordingForm({ ...recordingForm, emotionalStateEnd: event.target.value })} required /></label>
-                  </FormGrid>
-                </FormSection>
-
-                <FormSection title="Session narrative">
-                  <label><span>Narrative</span><textarea value={recordingForm.sessionNarrative} onChange={(event) => setRecordingForm({ ...recordingForm, sessionNarrative: event.target.value })} rows={4} required /></label>
-                  <FormGrid>
-                    <label><span>Interventions applied</span><textarea value={recordingForm.interventionsApplied} onChange={(event) => setRecordingForm({ ...recordingForm, interventionsApplied: event.target.value })} rows={3} required /></label>
-                    <label><span>Follow-up actions</span><textarea value={recordingForm.followUpActions} onChange={(event) => setRecordingForm({ ...recordingForm, followUpActions: event.target.value })} rows={3} required /></label>
-                  </FormGrid>
-                </FormSection>
-
-                <div className="check-grid">
-                  <CheckboxField label="Progress noted" checked={recordingForm.progressNoted} onChange={(checked) => setRecordingForm({ ...recordingForm, progressNoted: checked })} />
-                  <CheckboxField label="Concerns flagged" checked={recordingForm.concernsFlagged} onChange={(checked) => setRecordingForm({ ...recordingForm, concernsFlagged: checked })} />
-                  <CheckboxField label="Referral made" checked={recordingForm.referralMade} onChange={(checked) => setRecordingForm({ ...recordingForm, referralMade: checked })} />
-                </div>
-
-                <label><span>Restricted notes</span><textarea value={recordingForm.restrictedNotes ?? ''} onChange={(event) => setRecordingForm({ ...recordingForm, restrictedNotes: event.target.value })} rows={3} /></label>
-
-                <div className="form-actions">
-                  <button className="primary-button" disabled={submitting} type="submit">
-                    {submitting ? 'Saving...' : editingRecordingId ? 'Update process recording' : 'Create process recording'}
-                  </button>
-                </div>
-              </form>
+              <ProcessRecordingForm
+                recordingForm={recordingForm}
+                setRecordingForm={setRecordingForm}
+                residents={residents}
+                onSubmit={handleSubmit}
+                submitting={submitting}
+                submitLabel="Update process recording"
+              />
             </SectionCard>
           ) : null}
         </>

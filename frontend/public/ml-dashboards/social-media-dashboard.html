@@ -5,13 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Social Media to Donation Pipeline Analytics</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
+  <script>
+    if (new URLSearchParams(window.location.search).get("embed") === "1") {
+      document.documentElement.classList.add("portal-embed");
+    }
+  </script>
 </head>
 <body>
+  <script>
+    if (new URLSearchParams(location.search).get('embed') === '1') {
+      document.body.classList.add('embed');
+    }
+  </script>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        Tanglaw Project Admin
-        <span>Marketing · donation insights</span>
+        <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
+        <div>
+          Tanglaw Project Admin
+          <span>Marketing · donation insights</span>
+        </div>
       </div>
       <div>
         <div class="nav-label">Insight reports</div>
@@ -23,7 +36,7 @@
         </nav>
       </div>
       <p class="hint">
-        Data refresh: <code>python3 generate_social_dashboard_data.py</code>
+        Data refresh (from <code>ml-pipelines/</code>): <code>python3 scripts/generate_social_dashboard_data.py</code>
       </p>
     </aside>
 
@@ -38,29 +51,22 @@
         <div class="panel">
           <div class="panel-head">
             <h2>Timeframe & Filters</h2>
-            <div class="toolbar">
-              <label style="font-size:.82rem;color:var(--muted);min-width:260px">Timeline (days back)
-                <input id="timeframe-slider" type="range" min="1" max="365" step="1" value="90" list="timeframe-marks" style="width:100%" />
-                <datalist id="timeframe-marks">
-                  <option value="1"></option>
-                  <option value="7"></option>
-                  <option value="15"></option>
-                  <option value="30"></option>
-                  <option value="90"></option>
-                  <option value="180"></option>
-                  <option value="365"></option>
-                </datalist>
-                <div style="display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted)">
+            <div class="toolbar timeframe-toolbar">
+              <label class="timeframe-controls">Timeline (days back)
+                <input id="timeframe-slider" class="timeline-range" type="range" min="1" max="365" step="1" value="90" />
+                <div class="timeframe-scale">
                   <span>1</span><span id="timeframe-slider-value">90 days</span><span>365</span>
                 </div>
-                <div style="display:flex;gap:.75rem;margin-top:.35rem;align-items:center">
+                <div class="timeframe-quick-links">
+                  <button type="button" class="timeframe-link" id="days-7-btn">7 days</button>
+                  <button type="button" class="timeframe-link" id="days-30-btn">30 days</button>
+                  <button type="button" class="timeframe-link" id="days-90-btn">90 days</button>
                   <button type="button" class="timeframe-link" id="days-365-btn">365 days</button>
                   <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
                 </div>
               </label>
-              <div style="display:flex;flex-direction:column;gap:.25rem;min-width:260px;flex:1">
-                <input type="search" id="search" placeholder="Search platform, type, topic..." />
-                <div style="font-size:.74rem;color:var(--muted)">Try: <code>linkedin</code>, <code>ImpactStory</code>, <code>housing</code>, <code>498</code></div>
+              <div class="timeframe-aside">
+                Use quick timeframe links to compare short-term vs long-term performance.
               </div>
             </div>
           </div>
@@ -143,7 +149,7 @@
       const toDate = (s) => new Date(s + "T00:00:00");
       const fmtPhp = (x) => "₱" + Number(x || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
       const fmtPct = (x) => (100 * x).toFixed(1) + "%";
-      const infoIcon = (msg) => `<button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="How this metric is calculated">i</button>`;
+      const infoIcon = (msg) => `<span class="metric-info-wrap"><button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
 
       function escapeHtml(s) {
         const d = document.createElement("div");
@@ -153,7 +159,6 @@
 
       function getFilteredPosts() {
         const tfDays = Number(document.getElementById("timeframe-slider").value);
-        const q = document.getElementById("search").value.trim().toLowerCase();
         const posts = data.posts;
         if (!posts.length) return [];
         const latest = posts.reduce((m, p) => (p.created_at > m ? p.created_at : m), posts[0].created_at);
@@ -164,9 +169,7 @@
         return posts.filter((p) => {
           const d = toDate(p.created_at);
           if (!isAllTime && minDate && d < minDate) return false;
-          if (!q) return true;
-          const hay = [p.platform, p.post_type, p.content_topic, p.sentiment_tone, p.post_id].join(" ").toLowerCase();
-          return hay.includes(q);
+          return true;
         });
       }
 
@@ -185,22 +188,22 @@
 
         document.getElementById("kpis").innerHTML = `
           <div class="kpi">
-            <div class="label">Top post type in this timeframe ${infoIcon("Calculated as the post type with the highest total recorded donations (sum of Actual PHP) in the current filtered timeframe and search results.")}</div>
+            <div class="label">Top post type in this timeframe ${infoIcon("Calculated as the post type with the highest total recorded donations (sum of Actual PHP) in the current selected timeframe.")}</div>
             <div class="value">${escapeHtml(topType[0])}</div>
             <div class="sub">Generated ${fmtPhp(topType[1])} in recorded donations</div>
           </div>
           <div class="kpi">
-            <div class="label">Platform with the most donations ${infoIcon("Calculated as the platform with the highest total recorded donations (sum of Actual PHP) in the current filtered timeframe and search results.")}</div>
+            <div class="label">Platform with the most donations ${infoIcon("Calculated as the platform with the highest total recorded donations (sum of Actual PHP) in the current selected timeframe.")}</div>
             <div class="value">${escapeHtml(topPlatform[0])}</div>
             <div class="sub">${topPlatform[0] !== "N/A" ? `This platform generated ${fmtPhp(topPlatform[1])} in recorded donations.` : "No posts in this timeframe."}</div>
           </div>
           <div class="kpi">
-            <div class="label">Total recorded donations ${infoIcon("Calculated as the sum of Actual PHP across all posts currently visible under the selected timeframe and search filter.")}</div>
+            <div class="label">Total recorded donations ${infoIcon("Calculated as the sum of Actual PHP across all posts currently visible under the selected timeframe.")}</div>
             <div class="value">${fmtPhp(totalActual)}</div>
             <div class="sub">From ${rows.length} posts in selected timeframe</div>
           </div>
           <div class="kpi">
-            <div class="label">Expected donations from these posts ${infoIcon("Calculated as the sum of Predicted PHP across all posts currently visible under the selected timeframe and search filter.")}</div>
+            <div class="label">Expected donations from these posts ${infoIcon("Calculated as the sum of Predicted PHP across all posts currently visible under the selected timeframe.")}</div>
             <div class="value">${fmtPhp(totalPred)}</div>
             <div class="sub">Planning number: if performance stays similar, posts in this timeframe are expected to bring in about this much.</div>
           </div>
@@ -340,48 +343,47 @@
         renderTable();
       }
 
-      function setupMetricInfoPopup() {
-        const modal = document.createElement("div");
-        modal.id = "metric-info-modal";
-        modal.className = "metric-modal";
-        modal.style.display = "none";
-        modal.innerHTML = `
-          <div class="metric-modal-card" role="dialog" aria-modal="true" aria-label="Metric calculation">
-            <h3>How this metric is calculated</h3>
-            <p id="metric-info-text"></p>
-            <button type="button" id="metric-info-close">Close</button>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        const close = () => { modal.style.display = "none"; };
-        modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
-        modal.querySelector("#metric-info-close").addEventListener("click", close);
-        document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
-        document.addEventListener("click", (e) => {
-          const btn = e.target.closest(".metric-info");
-          if (!btn) return;
-          document.getElementById("metric-info-text").textContent = btn.dataset.info || "";
-          modal.style.display = "flex";
+
+      function setQuickActive(id) {
+        ["days-7-btn", "days-30-btn", "days-90-btn", "days-365-btn", "all-time-btn"].forEach((btnId) => {
+          document.getElementById(btnId).classList.toggle("active", btnId === id);
         });
       }
 
       document.getElementById("timeframe-slider").addEventListener("input", () => {
         isAllTime = false;
-        document.getElementById("all-time-btn").classList.remove("active");
+        setQuickActive("");
+        refresh();
+      });
+      document.getElementById("days-7-btn").addEventListener("click", () => {
+        isAllTime = false;
+        setQuickActive("days-7-btn");
+        document.getElementById("timeframe-slider").value = "7";
+        refresh();
+      });
+      document.getElementById("days-30-btn").addEventListener("click", () => {
+        isAllTime = false;
+        setQuickActive("days-30-btn");
+        document.getElementById("timeframe-slider").value = "30";
+        refresh();
+      });
+      document.getElementById("days-90-btn").addEventListener("click", () => {
+        isAllTime = false;
+        setQuickActive("days-90-btn");
+        document.getElementById("timeframe-slider").value = "90";
         refresh();
       });
       document.getElementById("days-365-btn").addEventListener("click", () => {
         isAllTime = false;
-        document.getElementById("all-time-btn").classList.remove("active");
+        setQuickActive("days-365-btn");
         document.getElementById("timeframe-slider").value = "365";
         refresh();
       });
       document.getElementById("all-time-btn").addEventListener("click", () => {
         isAllTime = true;
-        document.getElementById("all-time-btn").classList.add("active");
+        setQuickActive("all-time-btn");
         refresh();
       });
-      document.getElementById("search").addEventListener("input", refresh);
       document.querySelectorAll("th[data-sort]").forEach((th) => {
         th.addEventListener("click", () => {
           const k = th.dataset.sort;
@@ -407,9 +409,8 @@
           document.getElementById("load-state").style.display = "none";
           document.getElementById("error-state").style.display = "block";
           document.getElementById("error-state").innerHTML =
-            "Missing <code>social-dashboard-data.json</code>. Run <code>python3 generate_social_dashboard_data.py</code>.";
+            "Missing <code>json/social-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_social_dashboard_data.py</code>.";
         });
-      setupMetricInfoPopup();
     })();
   </script>
 </body>

@@ -20,4 +20,7 @@ public class DonationImpactOptions
         ["Operations"] = "meal equivalents",
         ["Transport"] = "home visitation trips"
     };
+
+    // Heuristic used for donor-facing "lives impacted" estimate.
+    public decimal AverageCostPerVictim { get; set; } = 250m;
 }

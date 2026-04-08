@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import { useAuth } from '../../hooks/useAuth';
+import { LogoMark } from '../../components/brand/LogoMark';
 import { SectionCard } from '../../components/ui/Cards';
 import { ErrorState } from '../../components/ui/PageState';
 
@@ -51,6 +52,9 @@ export function LoginPage() {
 
   return (
     <div className="page-shell narrow">
+      <div className="login-brand-mark">
+        <LogoMark variant="login" />
+      </div>
       <section className="section-card">
         <div className="section-card-header">
           <div>
@@ -118,9 +122,9 @@ export function LoginPage() {
         {showDemoAccess ? (
           <div className="credential-grid">
             {[
-              ['Admin', 'admin@intex.local', 'Admin!234567'],
-              ['Staff', 'staff@intex.local', 'Staff!234567'],
-              ['Donor', 'donor@intex.local', 'Donor!234567'],
+              ['Admin', 'admin@intex.local', 'Admin!23456789'],
+              ['Staff', 'staff@intex.local', 'Staff!23456789'],
+              ['Donor', 'donor@intex.local', 'Donor!23456789'],
             ].map(([label, valueEmail, valuePassword]) => (
               <button
                 key={label}

@@ -47,18 +47,34 @@ public class AppSeeder(
                     }
 
                     await SeedDomainDataAsync();
+                    logger.LogInformation(
+                        "DATA_SEED: Embedded fixture loaded (small demo row counts). Dashboards will show ~3 supporters / ~2 residents until CSV import succeeds. " +
+                        "Fix Seed:CsvPath, ensure all required CSV files exist, and reset domain data if needed. See docs/dashboard-data-troubleshooting.md.");
                 }
                 else
                 {
                     logger.LogInformation(
                         "CSV relational seed completed. Imported counts: {Counts}",
                         string.Join(", ", importResult.ImportedCounts.Select(x => $"{x.Key}={x.Value}")));
+                    logger.LogInformation(
+                        "DATA_SEED: Full CSV snapshot loaded; operational dashboards reflect imported tables.");
                 }
             }
             else
             {
+                var reason = !preferCsv ? "Seed:Mode is not Csv" : "Seed:ImportCsvOnStartup is false";
+                logger.LogInformation(
+                    "DATA_SEED: Skipping CSV file import ({Reason}); loading embedded fixture.", reason);
                 await SeedDomainDataAsync();
+                logger.LogInformation(
+                    "DATA_SEED: Embedded fixture loaded. For full data set Seed:Mode=Csv and Seed:ImportCsvOnStartup=true with valid Seed:CsvPath.");
             }
+        }
+        else
+        {
+            logger.LogInformation(
+                "DATA_SEED: Domain tables already contain Safehouses rows; skipping CSV and fixture import. " +
+                "To force a full CSV load, use an empty database or truncate domain tables (see docs/dashboard-data-troubleshooting.md).");
         }
 
         await SeedUsersAsync();
@@ -789,6 +805,7 @@ public class AppSeeder(
                 EstimatedDonationValuePhp = 5000m
             });
 
+        // SnapshotDate = first day of the reporting month (see PublicImpactSnapshot). Copy and headline describe that month.
         dbContext.PublicImpactSnapshots.AddRange(
             new PublicImpactSnapshot
             {
@@ -847,10 +864,10 @@ public class AppSeeder(
         // replace them with real admin-managed accounts and stronger secrets.
         var users = new[]
         {
-            new SeedUser("admin@intex.local", "Admin!234567", "Avery Admin", RoleNames.Admin, null),
-            new SeedUser("staff@intex.local", "Staff!234567", "Skyler Staff", RoleNames.Staff, null),
-            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor, donorSupporterId),
-            new SeedUser("donor2@intex.local", "Donor2!234567", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
+            new SeedUser("admin@intex.local", "Admin!23456789", "Avery Admin", RoleNames.Admin, null),
+            new SeedUser("staff@intex.local", "Staff!23456789", "Skyler Staff", RoleNames.Staff, null),
+            new SeedUser("donor@intex.local", "Donor!23456789", "Jordan Lee", RoleNames.Donor, donorSupporterId),
+            new SeedUser("donor2@intex.local", "Donor2!2345678", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
         };
 
         foreach (var seedUser in users)
@@ -878,10 +895,38 @@ public class AppSeeder(
             }
             else
             {
+                user.UserName = seedUser.Email;
+                user.Email = seedUser.Email;
                 user.FullName = seedUser.FullName;
                 user.SupporterId = seedUser.SupporterId;
                 user.EmailConfirmed = true;
-                await userManager.UpdateAsync(user);
+                user.AccessFailedCount = 0;
+                user.LockoutEnd = null;
+
+                var updateResult = await userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Failed to update seeded user {seedUser.Email}: {string.Join(", ", updateResult.Errors.Select(x => x.Description))}");
+                }
+
+                if (!await userManager.CheckPasswordAsync(user, seedUser.Password))
+                {
+                    IdentityResult passwordResult;
+                    if (await userManager.HasPasswordAsync(user))
+                    {
+                        var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                        passwordResult = await userManager.ResetPasswordAsync(user, resetToken, seedUser.Password);
+                    }
+                    else
+                    {
+                        passwordResult = await userManager.AddPasswordAsync(user, seedUser.Password);
+                    }
+
+                    if (!passwordResult.Succeeded)
+                    {
+                        throw new InvalidOperationException($"Failed to reconcile password for seeded user {seedUser.Email}: {string.Join(", ", passwordResult.Errors.Select(x => x.Description))}");
+                    }
+                }
             }
 
             if (!await userManager.IsInRoleAsync(user, seedUser.Role))

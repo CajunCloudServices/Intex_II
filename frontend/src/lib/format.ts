@@ -15,7 +15,25 @@ export function formatCompactMoney(value: number) {
   }).format(value);
 }
 
+/** Calendar dates from the API (YYYY-MM-DD / DateOnly) must not use UTC midnight parsing or US timezones show the wrong day. */
 export function formatDate(value: string) {
+  if (!value?.trim()) {
+    return '';
+  }
+  const dateOnly = value.length >= 10 ? value.slice(0, 10) : value;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOnly);
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+    if (Number.isFinite(y) && Number.isFinite(mo) && Number.isFinite(d)) {
+      return new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }).format(new Date(y, mo - 1, d));
+    }
+  }
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
     day: 'numeric',

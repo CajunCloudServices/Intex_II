@@ -20,7 +20,7 @@ If you are trying to understand the project quickly, read in this order:
 
 ## Tech Stack
 
-- Backend: `.NET 10`, `ASP.NET Core Web API`, `EF Core`, `ASP.NET Identity`, `JWT`
+- Backend: `.NET 10`, `ASP.NET Core Web API`, `EF Core`, `ASP.NET Identity`, cookie sessions
 - Frontend: `React 19`, `TypeScript`, `Vite`, `React Router`
 - Database: `PostgreSQL`
 - Dev environment: `Docker Compose`
@@ -34,6 +34,14 @@ If you are trying to understand the project quickly, read in this order:
 ├── docs/
 ├── frontend/
 ├── ml-pipelines/
+│   ├── notebooks/
+│   ├── dashboards/
+│   ├── scripts/
+│   ├── json/
+│   ├── images/
+│   ├── models/
+│   ├── data_loader.py
+│   └── lighthouse_csv_v7/
 ├── docker-compose.yml
 └── README.md
 ```
@@ -43,7 +51,7 @@ If you are trying to understand the project quickly, read in this order:
 - Clean frontend/backend separation
 - PostgreSQL-backed EF Core data model
 - ASP.NET Identity with seeded `Admin`, `Staff`, and `Donor` users
-- JWT authentication for React integration
+- ASP.NET Identity authentication with secure cookie sessions
 - Role-based authorization policies
 - Representative nonprofit domain entities:
   - `Safehouse`
@@ -75,7 +83,7 @@ If you are trying to understand the project quickly, read in this order:
 Implemented:
 
 - HTTPS redirection outside local development, with local HTTP kept enabled so React/Vite cross-origin dev still works
-- JWT auth
+- secure cookie-session auth
 - ASP.NET Identity username/password authentication
 - role-gated API access
 - stronger-than-default password and account lockout settings
@@ -111,9 +119,8 @@ The production values that stay outside source control include:
 - `POSTGRES_DB`
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
-- `JWT_KEY`
-- `JWT_ISSUER`
-- `JWT_AUDIENCE`
+- `AUTHENTICATION__GOOGLE__CLIENTID` if Google sign-in is enabled
+- `AUTHENTICATION__GOOGLE__CLIENTSECRET` if Google sign-in is enabled
 - `CORS_ALLOWED_ORIGIN_1`
 
 ### 2. Authenticated login with username/password using ASP.NET Identity
@@ -123,7 +130,7 @@ The production values that stay outside source control include:
 - Identity + password policy wiring: [backend/Intex.Api/Program.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs)
 - login/register/me endpoints: [backend/Intex.Api/Controllers/AuthController.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/Controllers/AuthController.cs)
 
-This project uses ASP.NET Identity for username/password authentication and then issues JWTs for the React frontend after a successful sign-in.
+This project uses ASP.NET Identity for username/password authentication and establishes secure cookie sessions for the browser after a successful sign-in.
 
 The password rules and account lockout settings in [backend/Intex.Api/Program.cs](/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs) are intentionally stronger than the minimum defaults so the security requirement is visible in code.
 
@@ -147,9 +154,9 @@ That private-database/public-API split is the correct security posture for a pro
 
 These are for local development only:
 
-- `admin@intex.local` / `Admin!234567`
-- `staff@intex.local` / `Staff!234567`
-- `donor@intex.local` / `Donor!234567`
+- `admin@intex.local` / `Admin!23456789`
+- `staff@intex.local` / `Staff!23456789`
+- `donor@intex.local` / `Donor!23456789`
 
 ## Environment Variables
 
@@ -159,9 +166,8 @@ Copy from [`.env.example`](/Users/lajicpajam/School/Intex II/.env.example) or ex
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
 - `CONNECTIONSTRINGS__DEFAULTCONNECTION`
-- `JWT__KEY` (use at least a 32-byte secret for HS256)
-- `JWT__ISSUER`
-- `JWT__AUDIENCE`
+- `AUTHENTICATION__GOOGLE__CLIENTID` (optional)
+- `AUTHENTICATION__GOOGLE__CLIENTSECRET` (optional)
 - `CORS__ALLOWEDORIGINS__0`
 - `PUBLIC_API_HOSTNAME`
 - `FRONTEND__BASEURL`
@@ -186,6 +192,8 @@ Services:
 - Frontend: [http://localhost:5173](http://localhost:5173)
 - Backend API: [http://localhost:8080/api/health](http://localhost:8080/api/health)
 - OpenAPI JSON in development: [http://localhost:8080/openapi/v1.json](http://localhost:8080/openapi/v1.json)
+
+The compose file mounts [`ml-pipelines/lighthouse_csv_v7`](ml-pipelines/lighthouse_csv_v7) into the API container for full startup CSV seed. If KPIs stay at demo-sized counts, see [docs/dashboard-data-troubleshooting.md](docs/dashboard-data-troubleshooting.md).
 
 ### Option 2: Run Services Directly
 

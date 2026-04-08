@@ -2,9 +2,9 @@ import { chromium } from 'playwright';
 
 const baseUrl = process.env.SMOKE_BASE_URL ?? 'http://localhost:5173';
 const donorEmail = process.env.SMOKE_DONOR_EMAIL ?? 'donor@intex.local';
-const donorPassword = process.env.SMOKE_DONOR_PASSWORD ?? 'Donor!234567';
+const donorPassword = process.env.SMOKE_DONOR_PASSWORD ?? 'Donor!23456789';
 const adminEmail = process.env.SMOKE_ADMIN_EMAIL ?? 'admin@intex.local';
-const adminPassword = process.env.SMOKE_ADMIN_PASSWORD ?? 'Admin!234567';
+const adminPassword = process.env.SMOKE_ADMIN_PASSWORD ?? 'Admin!23456789';
 
 function supporterRow(page, supporterName) {
   return page.locator('tr', { hasText: supporterName });
@@ -18,10 +18,6 @@ try {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: 'Providing safe homes and healing for survivors' }).waitFor();
   await page.getByRole('button', { name: 'Accept optional preference cookie' }).click();
-  await page.getByRole('button', { name: 'Standard theme' }).click();
-  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
-  await page.reload({ waitUntil: 'networkidle' });
-  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
 
   await page.goto(`${baseUrl}/impact`, { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: 'Impact overview' }).waitFor();
@@ -31,7 +27,7 @@ try {
 
   await page.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
   await page.getByLabel('Email').fill('donor@intex.local');
-  await page.getByLabel('Password').fill('Donor!234567');
+  await page.getByLabel('Password').fill('Donor!23456789');
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.waitForURL('**/portal/my-impact');
   await page.getByRole('heading', { name: 'My impact dashboard' }).waitFor();

@@ -556,7 +556,20 @@ textarea {
   gap: 0.1rem;
 }
 
-.brand-emblem,
+.brand-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.logo-mark--header {
+  width: 2.25rem;
+  height: 2.25rem;
+  object-fit: contain;
+  display: block;
+}
+
 .topbar-avatar {
   width: 2.7rem;
   height: 2.7rem;
@@ -568,6 +581,27 @@ textarea {
   font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: 0.08em;
+}
+
+.logo-mark {
+  display: block;
+}
+
+.logo-mark--hero {
+  width: min(22rem, 85vw);
+  height: auto;
+  max-height: min(50vh, 28rem);
+}
+
+.logo-mark--footer {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+}
+
+.logo-mark--login {
+  width: 3.35rem;
+  height: 3.35rem;
 }
 
 .brand-mark {
@@ -664,11 +698,14 @@ textarea {
 .shell-body {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
+  /* flex-basis auto (not 0%) so this row sizes from content and can grow past the viewport;
+     flex: 1 1 0% would force a definite height in the min-height:100vh app-shell column. */
+  grid-template-rows: auto;
   width: 100%;
   max-width: 1540px;
   margin: 0 auto;
-  align-items: start;
-  flex: 1;
+  align-items: stretch;
+  flex: 1 1 auto;
 }
 
 .shell-body-public {
@@ -680,6 +717,7 @@ textarea {
   background: var(--color-surface-low);
   padding: 1.75rem 1.25rem 1.25rem;
   min-height: calc(100vh - 81px);
+  align-self: stretch;
   position: sticky;
   top: 81px;
   display: grid;
@@ -778,6 +816,53 @@ textarea {
   color: var(--color-primary-ink);
 }
 
+.sidebar-subnav-group {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.sidebar-subnav-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 0.9rem;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-weight: 600;
+  width: 100%;
+  text-align: left;
+  border-radius: 0.85rem;
+  cursor: pointer;
+}
+
+.sidebar-subnav-toggle:hover,
+.sidebar-subnav-toggle.active {
+  background: var(--color-surface-container);
+  color: var(--color-text);
+}
+
+.sidebar-subnav-links {
+  display: grid;
+  gap: 0.25rem;
+  margin-left: 2.85rem;
+  margin-top: 0.15rem;
+}
+
+.sidebar-subnav-links a {
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-soft);
+}
+
+.sidebar-subnav-links a.active,
+.sidebar-subnav-links a:hover {
+  background: var(--color-surface-highest);
+  color: var(--color-text);
+}
+
 .sidebar-utility {
   display: grid;
   gap: 0.35rem;
@@ -806,12 +891,14 @@ textarea {
 
 .ml-insights-page {
   margin: -2.5rem -2.5rem -6rem -2.5rem;
-  min-height: calc(100vh - 73px);
+  /* Height comes from iframe content (see MlInsightsDashboardPage resize); avoid nested viewport scroll. */
+  min-height: 0;
 }
 
 .ml-insights-frame {
   width: 100%;
-  height: calc(100vh - 73px);
+  min-height: 12rem;
+  height: auto;
   border: 0;
   display: block;
   background: #fff;
@@ -1375,6 +1462,10 @@ textarea {
   position: relative;
   min-height: 24rem;
   background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
 }
 
 .home-hero-media::after {
@@ -1382,13 +1473,12 @@ textarea {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.3));
+  pointer-events: none;
 }
 
-.home-hero-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.home-hero-media .logo-mark {
+  position: relative;
+  z-index: 1;
 }
 
 .home-covenant {
@@ -1700,6 +1790,73 @@ textarea {
   margin-top: 0;
 }
 
+.donate-form-grid {
+  margin-top: 0.85rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.donate-form-field {
+  min-width: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.donate-form-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.donate-form-input {
+  width: 100%;
+  min-height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--color-outline-ghost);
+  padding: 0.6rem 0.75rem;
+  background: #fff;
+  color: var(--color-primary-ink);
+}
+
+.donate-form-actions {
+  display: flex;
+  align-items: flex-end;
+}
+
+.donate-form-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 42px;
+  font-weight: 600;
+  color: var(--color-primary-ink);
+}
+
+.donate-submit-row {
+  margin-top: 1rem;
+}
+
+.donate-success {
+  margin-top: 0.7rem;
+  color: #0f7a4b;
+  font-weight: 600;
+}
+
+.donate-impact-highlight {
+  margin: 0.35rem 0 0.75rem;
+  color: var(--color-primary-ink);
+}
+
+.donate-impact-table-wrap {
+  overflow-x: auto;
+}
+
+.donate-impact-table {
+  min-width: 760px;
+}
+
 .site-footer {
   margin-top: auto;
   padding: 2.5rem 2rem 2.75rem;
@@ -1727,8 +1884,21 @@ textarea {
   justify-items: center;
 }
 
+.site-footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
 .site-footer-brand .brand-mark {
   font-size: 1.3rem;
+}
+
+.login-brand-mark {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.1rem;
 }
 
 .site-footer-nav {
@@ -1790,6 +1960,15 @@ textarea {
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
+}
+
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-shrink: 0;
 }
 
 .page-header > div,
@@ -2051,10 +2230,6 @@ textarea {
   padding: 0.55rem 0.9rem;
   background: transparent;
   color: var(--color-text);
-}
-
-.theme-toggle {
-  white-space: nowrap;
 }
 
 .stack-form {
@@ -2798,6 +2973,50 @@ textarea {
   .form-grid-three,
   .check-grid {
     grid-template-columns: 1fr;
+  }
+
+  .donate-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Keep donation impact table readable with horizontal scroll on phones. */
+  .donate-impact-table caption,
+  .donate-impact-table thead {
+    display: table-caption;
+  }
+
+  .donate-impact-table thead {
+    display: table-header-group;
+  }
+
+  .donate-impact-table,
+  .donate-impact-table tbody,
+  .donate-impact-table tr,
+  .donate-impact-table td {
+    display: table;
+    width: auto;
+  }
+
+  .donate-impact-table tbody {
+    display: table-row-group;
+  }
+
+  .donate-impact-table tr {
+    display: table-row;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .donate-impact-table td {
+    display: table-cell;
+    grid-template-columns: none;
+    gap: 0;
+    padding: 0.65rem 0.8rem;
+    white-space: nowrap;
+  }
+
+  .donate-impact-table td::before {
+    content: none;
   }
 }
 

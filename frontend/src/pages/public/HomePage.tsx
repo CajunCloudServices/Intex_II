@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { LogoMark } from '../../components/brand/LogoMark';
 
 function ImpactIcon({ kind }: { kind: 'homes' | 'care' | 'hubs' | 'goal' }) {
   if (kind === 'homes') {
@@ -84,10 +85,7 @@ export function HomePage() {
         </div>
 
         <div className="home-hero-media" aria-hidden="true">
-          <img
-            alt=""
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY0Yw53Io-I9ILaSZR_WLpAQQE4lOunlwXvD-E6XES8xVGDX1uQZyycHuA_di9C7SQ2lyxcsNJJHSAmnBz1dNu2z8iKsxvhlp_yyLzwuHPcL793ceqwJqWM7gFwg5-5-55GheU-85V1hv2dofcJXueorCCp0mPGfDOiSozHQNs2gAizn87Cu4ree_Q4vD35cwV62pZ2V5UPxs9jxFbBBJrJ6Ychws-TuIJIZHFacDiVZoZtatltVRaWy27fWCS_ZpH5a2PU2LRpRQ"
-          />
+          <LogoMark variant="hero" />
         </div>
       </section>
 

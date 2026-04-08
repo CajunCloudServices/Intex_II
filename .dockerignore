@@ -1,0 +1,14 @@
+.git
+.github
+.vscode
+docs
+frontend/node_modules
+backend/**/bin
+backend/**/obj
+ml-pipelines/__pycache__
+ml-pipelines/images
+ml-pipelines/inference-service
+ml-pipelines/lighthouse_csv_v7
+ml-pipelines/logs
+ml-pipelines/models
+ml-pipelines/notebooks

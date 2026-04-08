@@ -15,8 +15,9 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/AppSeeder.cs`
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/CsvRelationalSeeder.cs`
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/ICsvRelationalSeeder.cs`
-- JWT creation:
-  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Services/JwtTokenService.cs`
+- Cookie/session auth wiring and external provider setup:
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs`
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Infrastructure/ApplicationUserClaimsPrincipalFactory.cs`
 - Production cloud deployment:
   - `/Users/lajicpajam/School/Intex II/docker-compose.production.yml`
   - `/Users/lajicpajam/School/Intex II/.github/workflows/deploy.yml`
@@ -120,10 +121,10 @@ This file maps the big INTEX requirements to the main places in the codebase.
 - Shared notebook data loader:
   - `ml-pipelines/data_loader.py`
 - Notebook pipelines:
-  - `ml-pipelines/counseling-effectiveness.ipynb`
-  - `ml-pipelines/donor-churn-prediction.ipynb`
-  - `ml-pipelines/social-media-conversion.ipynb`
-  - `ml-pipelines/reintegration-readiness.ipynb`
+  - `ml-pipelines/notebooks/counseling-effectiveness.ipynb`
+  - `ml-pipelines/notebooks/donor-churn-prediction.ipynb`
+  - `ml-pipelines/notebooks/social-media-conversion.ipynb`
+  - `ml-pipelines/notebooks/reintegration-readiness.ipynb`
 - New relational entities and FK wiring:
   - `backend/Intex.Api/Entities/`
   - `backend/Intex.Api/Data/ApplicationDbContext.cs`

@@ -1,18 +1,24 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { clearThemePreference, getConsentLevel, getSavedTheme, persistThemePreference, type ThemeMode } from '../../lib/browserPreferences';
+import { LogoMark } from '../brand/LogoMark';
 import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
 
 const staffLinks = [
   { to: '/portal/admin', label: 'Admin Dashboard', shortLabel: 'AD' },
-  { to: '/portal/ml-insights', label: 'ML insights', shortLabel: 'ML' },
   { to: '/portal/donors', label: 'Donors & Contributions', shortLabel: 'DC' },
   { to: '/portal/caseload', label: 'Caseload Inventory', shortLabel: 'CI' },
   { to: '/portal/process-recordings', label: 'Process Recordings', shortLabel: 'PR' },
   { to: '/portal/home-visitations', label: 'Home Visitations', shortLabel: 'HV' },
   { to: '/portal/reports', label: 'Reports & Analytics', shortLabel: 'RA' },
+];
+
+const mlDashboardLinks = [
+  { to: '/portal/ml-insights/counseling', label: 'Counseling sessions' },
+  { to: '/portal/ml-insights/donor', label: 'Donor lapse risk' },
+  { to: '/portal/ml-insights/reintegration', label: 'Reintegration outlook' },
+  { to: '/portal/ml-insights/social', label: 'Social media analytics' },
 ];
 
 const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions', shortLabel: 'MC' }];
@@ -27,11 +33,17 @@ export function AppShell() {
   const { user, logout, authMessage, clearAuthMessage } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [theme, setTheme] = useState<ThemeMode>(() => (getConsentLevel() === 'accepted' ? getSavedTheme() : 'default'));
+  const [mlNavExpanded, setMlNavExpanded] = useState(() => location.pathname.startsWith('/portal/ml-insights'));
 
   // Keep the drawer closed when navigation changes and stop the page from scrolling behind it.
   useEffect(() => {
     setMobileNavOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/portal/ml-insights')) {
+      setMlNavExpanded(true);
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -42,8 +54,8 @@ export function AppShell() {
   }, [mobileNavOpen]);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme === 'calm' ? 'calm' : 'default';
-  }, [theme]);
+    document.documentElement.dataset.theme = 'default';
+  }, []);
 
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
   const portalLinks = isDonorOnly ? donorLinks : staffLinks;
@@ -56,18 +68,6 @@ export function AppShell() {
   const headerLinks = user
     ? [...publicLinks, { to: '/portal', label: 'Portal' }]
     : [...publicLinks, { to: '/login', label: 'Login' }];
-  const themeLabel = theme === 'calm' ? 'Calm theme' : 'Standard theme';
-
-  const toggleTheme = () => {
-    const nextTheme: ThemeMode = theme === 'default' ? 'calm' : 'default';
-    setTheme(nextTheme);
-
-    if (getConsentLevel() === 'accepted') {
-      persistThemePreference(nextTheme);
-    } else {
-      clearThemePreference();
-    }
-  };
 
   return (
     <div className="app-shell">
@@ -75,7 +75,7 @@ export function AppShell() {
         <div className="topbar-inner">
           <NavLink className="brand-link" to="/">
             <div className="brand-emblem" aria-hidden="true">
-              TP
+              <LogoMark variant="header" />
             </div>
             <div className="header-stack">
               <div className="brand-mark">Tanglaw Project</div>
@@ -99,9 +99,6 @@ export function AppShell() {
                   Sign out
                 </button>
               ) : null}
-              <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
-                {themeLabel}
-              </button>
             </nav>
 
             {user ? (
@@ -148,9 +145,6 @@ export function AppShell() {
                   Sign out
                 </button>
               ) : null}
-              <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
-                {themeLabel}
-              </button>
             </nav>
           </div>
         ) : null}
@@ -174,9 +168,6 @@ export function AppShell() {
                     <StatusBadge key={role} value={role} />
                   ))}
                 </div>
-                <button className="ghost-button theme-toggle" onClick={toggleTheme} type="button">
-                  Toggle theme
-                </button>
               </div>
 
               <nav className="sidebar-nav">
@@ -188,6 +179,31 @@ export function AppShell() {
                     <span>{link.label}</span>
                   </NavLink>
                 ))}
+
+                {!isDonorOnly ? (
+                  <div className="sidebar-subnav-group">
+                    <button
+                      className={`sidebar-subnav-toggle${location.pathname.startsWith('/portal/ml-insights') ? ' active' : ''}`}
+                      type="button"
+                      onClick={() => setMlNavExpanded((open) => !open)}
+                      aria-expanded={mlNavExpanded}
+                    >
+                      <span className="sidebar-link-mark" aria-hidden="true">
+                        ML
+                      </span>
+                      <span>ML Insights</span>
+                    </button>
+                    {mlNavExpanded ? (
+                      <div className="sidebar-subnav-links">
+                        {mlDashboardLinks.map((mlLink) => (
+                          <NavLink key={mlLink.to} to={mlLink.to}>
+                            {mlLink.label}
+                          </NavLink>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </nav>
 
               <div className="sidebar-utility">
@@ -227,6 +243,7 @@ export function AppShell() {
       <footer className="site-footer" role="contentinfo">
         <div className="site-footer-inner">
           <div className="site-footer-brand">
+            <LogoMark variant="footer" />
             <div className="brand-mark">Tanglaw Project</div>
           </div>
           <div className="site-footer-grid">

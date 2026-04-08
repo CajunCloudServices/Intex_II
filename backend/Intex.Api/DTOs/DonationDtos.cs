@@ -76,4 +76,22 @@ public record DonationImpactPredictionOutcomeResponse(
 public record DonationImpactPredictionResponse(
     decimal Amount,
     IReadOnlyList<DonationImpactPredictionOutcomeResponse> Outcomes,
-    string Assumptions);
+    string Assumptions,
+    decimal EstimatedVictimsImpacted);
+
+public record PublicDonationSubmissionRequest(
+    [Required, StringLength(120)] string DonorName,
+    [Required, EmailAddress, StringLength(320)] string DonorEmail,
+    [Range(typeof(decimal), "0.01", "999999999.99")] decimal Amount,
+    bool IsRecurring,
+    [StringLength(30)] string? RecurringInterval,
+    [StringLength(2000)] string? Notes);
+
+public record PublicDonationSubmissionResponse(
+    int DonationId,
+    int SupporterId,
+    string SupporterName,
+    decimal Amount,
+    bool IsRecurring,
+    string? RecurringInterval,
+    string Message);

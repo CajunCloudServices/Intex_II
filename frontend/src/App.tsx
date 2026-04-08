@@ -6,9 +6,15 @@ import { useAuth } from './hooks/useAuth';
 import { AdminDashboardPage } from './pages/portal/AdminDashboardPage';
 import { AuditHistoryPage } from './pages/portal/AuditHistoryPage';
 import { CaseloadInventoryPage } from './pages/portal/CaseloadInventoryPage';
+import { CaseloadResidentNewPage } from './pages/portal/CaseloadResidentNewPage';
+import { CaseConferenceNewPage } from './pages/portal/CaseConferenceNewPage';
+import { DonorDonationNewPage } from './pages/portal/DonorDonationNewPage';
+import { DonorSupporterNewPage } from './pages/portal/DonorSupporterNewPage';
 import { DonorsContributionsPage } from './pages/portal/DonorsContributionsPage';
 import { DonorHistoryPage } from './pages/portal/DonorHistoryPage';
 import { HomeVisitationsPage } from './pages/portal/HomeVisitationsPage';
+import { HomeVisitationNewPage } from './pages/portal/HomeVisitationNewPage';
+import { ProcessRecordingNewPage } from './pages/portal/ProcessRecordingNewPage';
 import { ProcessRecordingPage } from './pages/portal/ProcessRecordingPage';
 import { MlInsightsDashboardPage } from './pages/portal/MlInsightsDashboardPage';
 import { ReportsAnalyticsPage } from './pages/portal/ReportsAnalyticsPage';
@@ -57,6 +63,16 @@ function App() {
             <Route path="portal/home-visitations" element={<HomeVisitationsPage />} />
             <Route path="portal/reports" element={<ReportsAnalyticsPage />} />
             <Route path="portal/ml-insights" element={<MlInsightsDashboardPage />} />
+            <Route path="portal/ml-insights/:dashboardKey" element={<MlInsightsDashboardPage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+            <Route path="portal/process-recordings/new" element={<ProcessRecordingNewPage />} />
+            <Route path="portal/donors/donations/new" element={<DonorDonationNewPage />} />
+            <Route path="portal/donors/supporters/new" element={<DonorSupporterNewPage />} />
+            <Route path="portal/caseload/new" element={<CaseloadResidentNewPage />} />
+            <Route path="portal/home-visitations/visits/new" element={<HomeVisitationNewPage />} />
+            <Route path="portal/home-visitations/conferences/new" element={<CaseConferenceNewPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

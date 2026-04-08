@@ -16,10 +16,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ConnectionStrings__DefaultConnection: ${CONNECTIONSTRINGS__DEFAULTCONNECTION}
+      # Published API image has no CSVs; mount the repo snapshot so CsvRelationalSeeder can load full data.
+      Seed__CsvPath: /data/lighthouse_csv_v7
       Jwt__Issuer: Intex.Api
       Jwt__Audience: Intex.Frontend
       Jwt__Key: ${JWT__KEY}
       Cors__AllowedOrigins__0: http://localhost:5173
+    volumes:
+      - ./ml-pipelines/lighthouse_csv_v7:/data/lighthouse_csv_v7:ro
     ports:
       - "8080:8080"
     depends_on:
@@ -27,7 +31,8 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: .
+      dockerfile: frontend/Dockerfile
     environment:
       VITE_API_URL: ${VITE_API_URL:-http://localhost:8080/api}
     ports:

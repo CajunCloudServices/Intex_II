@@ -1,6 +1,7 @@
 using Intex.Api.Data;
 using Intex.Api.Data.Seed;
 using Intex.Api.Models.Options;
+using Intex.Api.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +25,10 @@ public class CsvRelationalSeederTests
         Assert.NotEmpty(await dbContext.Safehouses.ToListAsync());
         Assert.NotEmpty(await dbContext.Residents.ToListAsync());
         Assert.NotEmpty(await dbContext.Donations.ToListAsync());
+
+        var firstSnapshot = await dbContext.PublicImpactSnapshots.OrderBy(x => x.Id).FirstAsync();
+        var parsed = PublicImpactMetricsParser.Parse(firstSnapshot.MetricPayloadJson);
+        Assert.NotEmpty(parsed);
     }
 
     [Fact]

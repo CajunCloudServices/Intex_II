@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Social Media to Donation Pipeline Analytics</title>
+  <link rel="stylesheet" href="ml-dashboard-shell.css" />
+</head>
+<body>
+  <script>
+    if (new URLSearchParams(location.search).get('embed') === '1') {
+      document.body.classList.add('embed');
+    }
+  </script>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
+        <div>
+          Tanglaw Project Admin
+          <span>Marketing · donation insights</span>
+        </div>
+      </div>
+      <div>
+        <div class="nav-label">Insight reports</div>
+        <nav class="nav-tabs" aria-label="Insight reports">
+          <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
+          <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
+          <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
+          <a class="nav-tab active" href="social-media-dashboard.html">Social media analytics</a>
+        </nav>
+      </div>
+      <p class="hint">
+        Data refresh (from <code>ml-pipelines/</code>): <code>python3 scripts/generate_social_dashboard_data.py</code>
+      </p>
+    </aside>
+
+    <main>
+      <h1 class="page-title">Social Media to Donation Pipeline Analytics</h1>
+      <p class="page-sub">Use this page to decide what to post next, where to post it, and which posts need review.</p>
+
+      <div id="load-state" class="loading">Loading…</div>
+      <div id="error-state" class="error-box" style="display:none"></div>
+
+      <div id="dashboard" style="display:none">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Timeframe & Filters</h2>
+            <div class="toolbar timeframe-toolbar">
+              <label class="timeframe-controls">Timeline (days back)
+                <input id="timeframe-slider" class="timeline-range" type="range" min="1" max="365" step="1" value="90" />
+                <div class="timeframe-scale">
+                  <span>1</span><span id="timeframe-slider-value">90 days</span><span>365</span>
+                </div>
+                <div class="timeframe-quick-links">
+                  <button type="button" class="timeframe-link" id="days-7-btn">7 days</button>
+                  <button type="button" class="timeframe-link" id="days-30-btn">30 days</button>
+                  <button type="button" class="timeframe-link" id="days-90-btn">90 days</button>
+                  <button type="button" class="timeframe-link" id="days-365-btn">365 days</button>
+                  <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
+                </div>
+              </label>
+              <div class="timeframe-aside">
+                Use quick timeframe links to compare short-term vs long-term performance.
+              </div>
+            </div>
+          </div>
+          <p id="timeframe-label" class="page-sub" style="margin:0"></p>
+        </div>
+
+        <div class="kpi-row" id="kpis"></div>
+
+        <div id="main-visuals"></div>
+
+        <div class="split" style="grid-template-columns:1.5fr 1fr">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Top-performing posts</h2>
+            </div>
+            <div class="table-wrap" style="max-height:58vh">
+              <table>
+                <thead>
+                  <tr>
+                    <th data-sort="post_id">Post ID</th>
+                    <th data-sort="created_at">Date</th>
+                    <th data-sort="platform">Platform</th>
+                    <th data-sort="post_type">Post type</th>
+                    <th data-sort="content_topic">Topic</th>
+                    <th data-sort="predicted_donation_php">Predicted PHP</th>
+                    <th data-sort="actual_donation_php">Actual PHP</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel detail-card">
+            <h3 id="detail-title">Click a post</h3>
+            <p class="page-sub" id="detail-empty" style="margin:0 0 .7rem">Select a post row to see what happened and what to do next.</p>
+            <dl class="meta-grid" id="detail-meta" style="display:none"></dl>
+            <div class="insight-cta" style="margin:0">
+              <h3 class="insight-cta-title">Suggested actions</h3>
+              <ul class="insight-cta-list" id="detail-actions"></ul>
+            </div>
+          </div>
+        </div>
+
+        <details class="data-fold" style="margin-top:1rem">
+          <summary>
+            Advanced details (optional)
+            <span class="fold-hint">For team members who want deeper analysis tables</span>
+          </summary>
+          <div class="fold-inner">
+            <div class="split" style="grid-template-columns:1fr 1fr">
+              <div class="coef-table-wrap">
+                <table>
+                  <thead><tr><th class="no-sort">Pattern found</th><th class="no-sort">Direction</th></tr></thead>
+                  <tbody id="ols-body"></tbody>
+                </table>
+              </div>
+              <div class="coef-table-wrap">
+                <table>
+                  <thead><tr><th class="no-sort">Top ranking signals</th><th class="no-sort">Weight</th></tr></thead>
+                  <tbody id="fi-body"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      let data = null;
+      let filtered = [];
+      let sortKey = "predicted_donation_php";
+      let sortDir = -1;
+      let selectedPostId = null;
+      let isAllTime = false;
+
+      const toDate = (s) => new Date(s + "T00:00:00");
+      const fmtPhp = (x) => "₱" + Number(x || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+      const fmtPct = (x) => (100 * x).toFixed(1) + "%";
+      const infoIcon = (msg) => `<span class="metric-info-wrap"><button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
+
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = String(s || "");
+        return d.innerHTML;
+      }
+
+      function getFilteredPosts() {
+        const tfDays = Number(document.getElementById("timeframe-slider").value);
+        const posts = data.posts;
+        if (!posts.length) return [];
+        const latest = posts.reduce((m, p) => (p.created_at > m ? p.created_at : m), posts[0].created_at);
+        const latestDate = toDate(latest);
+        const minDate = new Date(latestDate);
+        minDate.setDate(minDate.getDate() - tfDays);
+
+        return posts.filter((p) => {
+          const d = toDate(p.created_at);
+          if (!isAllTime && minDate && d < minDate) return false;
+          return true;
+        });
+      }
+
+      function renderKpis() {
+        const rows = filtered;
+        const totalPred = rows.reduce((s, r) => s + r.predicted_donation_php, 0);
+        const totalActual = rows.reduce((s, r) => s + r.actual_donation_php, 0);
+
+        const byType = {};
+        rows.forEach((r) => { byType[r.post_type] = (byType[r.post_type] || 0) + r.actual_donation_php; });
+        const topType = Object.entries(byType).sort((a, b) => b[1] - a[1])[0] || ["N/A", 0];
+
+        const byPlatform = {};
+        rows.forEach((r) => { byPlatform[r.platform] = (byPlatform[r.platform] || 0) + r.actual_donation_php; });
+        const topPlatform = Object.entries(byPlatform).sort((a, b) => b[1] - a[1])[0] || ["N/A", 0];
+
+        document.getElementById("kpis").innerHTML = `
+          <div class="kpi">
+            <div class="label">Top post type in this timeframe ${infoIcon("Calculated as the post type with the highest total recorded donations (sum of Actual PHP) in the current selected timeframe.")}</div>
+            <div class="value">${escapeHtml(topType[0])}</div>
+            <div class="sub">Generated ${fmtPhp(topType[1])} in recorded donations</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Platform with the most donations ${infoIcon("Calculated as the platform with the highest total recorded donations (sum of Actual PHP) in the current selected timeframe.")}</div>
+            <div class="value">${escapeHtml(topPlatform[0])}</div>
+            <div class="sub">${topPlatform[0] !== "N/A" ? `This platform generated ${fmtPhp(topPlatform[1])} in recorded donations.` : "No posts in this timeframe."}</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Total recorded donations ${infoIcon("Calculated as the sum of Actual PHP across all posts currently visible under the selected timeframe.")}</div>
+            <div class="value">${fmtPhp(totalActual)}</div>
+            <div class="sub">From ${rows.length} posts in selected timeframe</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Expected donations from these posts ${infoIcon("Calculated as the sum of Predicted PHP across all posts currently visible under the selected timeframe.")}</div>
+            <div class="value">${fmtPhp(totalPred)}</div>
+            <div class="sub">Planning number: if performance stays similar, posts in this timeframe are expected to bring in about this much.</div>
+          </div>
+        `;
+      }
+
+      function barList(title, items, formatter = (v) => v.toFixed(0)) {
+        const max = Math.max(...items.map((x) => x.value), 1);
+        return `
+          <div class="panel" style="margin:0">
+            <h2 style="margin:0 0 .55rem;font-size:.92rem">${title}</h2>
+            ${items.map((r) => `
+              <div style="margin:.42rem 0">
+                <div style="display:flex;justify-content:space-between;font-size:.78rem"><span>${escapeHtml(r.label)}</span><span>${formatter(r.value)}</span></div>
+                <div class="prob-bar"><i style="width:${(r.value / max) * 100}%"></i></div>
+              </div>
+            `).join("")}
+          </div>`;
+      }
+
+      function renderVisuals() {
+        const rows = filtered;
+
+        const byType = {};
+        const byTopic = {};
+        rows.forEach((r) => {
+          byType[r.post_type] = (byType[r.post_type] || 0) + r.actual_donation_php;
+          byTopic[r.content_topic] = (byTopic[r.content_topic] || 0) + r.actual_donation_php;
+        });
+
+        const topTypes = Object.entries(byType)
+          .map(([label, value]) => ({ label, value }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 6);
+
+        const topTopics = Object.entries(byTopic)
+          .map(([label, value]) => ({ label, value }))
+          .sort((a, b) => b.value - a.value)
+          .slice(0, 6);
+
+        const suggestionType = topTypes[0]?.label || "N/A";
+        const suggestionTopic = topTopics[0]?.label || "N/A";
+
+        document.getElementById("main-visuals").innerHTML = `
+          <div class="split" style="grid-template-columns:1fr 1fr; margin-bottom:1rem">
+            ${barList("Post types that drove the most donations", topTypes, fmtPhp)}
+            ${barList("Content topics that drove the most donations", topTopics, fmtPhp)}
+          </div>
+          <div class="panel" style="margin-bottom:1rem">
+            <h2 style="margin:0 0 .45rem;font-size:.95rem">Concrete suggestion</h2>
+            <p style="margin:0;font-size:.86rem;color:var(--text)">
+              In this timeframe, <strong>${escapeHtml(suggestionType)}</strong> posts with
+              <strong>${escapeHtml(suggestionTopic)}</strong> content brought in the most money.
+              Plan next week's content around that combination first.
+            </p>
+          </div>
+        `;
+      }
+
+      function renderTable() {
+        const rows = [...filtered].sort((a, b) => {
+          const av = a[sortKey], bv = b[sortKey];
+          if (typeof av === "number" && typeof bv === "number") return sortDir * (av - bv);
+          return sortDir * String(av || "").localeCompare(String(bv || ""));
+        });
+
+        document.getElementById("tbody").innerHTML = rows.map((r) => `
+          <tr class="interactive ${selectedPostId === r.post_id ? "selected" : ""}" data-id="${r.post_id}">
+            <td>${r.post_id}</td>
+            <td>${r.created_at}</td>
+            <td>${escapeHtml(r.platform)}</td>
+            <td>${escapeHtml(r.post_type)}</td>
+            <td>${escapeHtml(r.content_topic)}</td>
+            <td>${fmtPhp(r.predicted_donation_php)}</td>
+            <td>${fmtPhp(r.actual_donation_php)}</td>
+          </tr>
+        `).join("");
+
+        document.querySelectorAll("#tbody tr").forEach((tr) => {
+          tr.addEventListener("click", () => {
+            selectedPostId = Number(tr.dataset.id);
+            renderTable();
+            renderDetail(filtered.find((x) => x.post_id === selectedPostId));
+          });
+        });
+      }
+
+      function renderDetail(row) {
+        if (!row) return;
+        const gap = row.predicted_donation_php - row.actual_donation_php;
+        const action = gap > 500
+          ? "Review this post's timing, call-to-action, and message. Try a revised version this week."
+          : "Use this post as a template for next week. Keep the same post style and topic.";
+
+        document.getElementById("detail-title").textContent = `Post #${row.post_id} · ${row.platform}`;
+        document.getElementById("detail-empty").style.display = "none";
+        document.getElementById("detail-meta").style.display = "grid";
+        document.getElementById("detail-meta").innerHTML = `
+          <dt>Post type</dt><dd>${escapeHtml(row.post_type)}</dd>
+          <dt>Topic</dt><dd>${escapeHtml(row.content_topic)}</dd>
+          <dt>Predicted donation</dt><dd>${fmtPhp(row.predicted_donation_php)}</dd>
+          <dt>Recorded donation</dt><dd>${fmtPhp(row.actual_donation_php)}</dd>
+          <dt>Difference</dt><dd>${fmtPhp(gap)}</dd>
+          <dt>Posted on</dt><dd>${row.created_at}</dd>
+        `;
+        document.getElementById("detail-actions").innerHTML = `
+          <li>${action}</li>
+          <li>If repeating this post type, keep the same platform first.</li>
+          <li>Track next post result and compare to this one.</li>
+        `;
+      }
+
+      function renderAdvanced() {
+        document.getElementById("ols-body").innerHTML = data.ols_significant_coefficients.slice(0, 15).map((c) => `
+          <tr>
+            <td>${escapeHtml(c.feature)}</td>
+            <td class="${c.coefficient >= 0 ? "coef-pos" : "coef-neg"}">${c.coefficient >= 0 ? "Higher" : "Lower"}</td>
+          </tr>
+        `).join("");
+
+        document.getElementById("fi-body").innerHTML = data.gradient_boosting_importances.slice(0, 15).map((c) => `
+          <tr><td>${escapeHtml(c.feature)}</td><td>${(100 * c.importance).toFixed(1)}%</td></tr>
+        `).join("");
+      }
+
+      function refresh() {
+        filtered = getFilteredPosts();
+
+        const tfDays = Number(document.getElementById("timeframe-slider").value);
+        document.getElementById("timeframe-slider-value").textContent = isAllTime ? "All time" : `${tfDays} days`;
+        document.getElementById("timeframe-label").textContent = isAllTime
+          ? `Showing: All available dates · ${filtered.length} posts`
+          : `Showing: Last ${tfDays} days · ${filtered.length} posts`;
+
+        renderKpis();
+        renderVisuals();
+        renderTable();
+      }
+
+      function setQuickActive(id) {
+        ["days-7-btn", "days-30-btn", "days-90-btn", "days-365-btn", "all-time-btn"].forEach((btnId) => {
+          document.getElementById(btnId).classList.toggle("active", btnId === id);
+        });
+      }
+
+      document.getElementById("timeframe-slider").addEventListener("input", () => {
+        isAllTime = false;
+        setQuickActive("");
+        refresh();
+      });
+      document.getElementById("days-7-btn").addEventListener("click", () => {
+        isAllTime = false;
+        setQuickActive("days-7-btn");
+        document.getElementById("timeframe-slider").value = "7";
+        refresh();
+      });
+      document.getElementById("days-30-btn").addEventListener("click", () => {
+        isAllTime = false;
+        setQuickActive("days-30-btn");
+        document.getElementById("timeframe-slider").value = "30";
+        refresh();
+      });
+      document.getElementById("days-90-btn").addEventListener("click", () => {
+        isAllTime = false;
+        setQuickActive("days-90-btn");
+        document.getElementById("timeframe-slider").value = "90";
+        refresh();
+      });
+      document.getElementById("days-365-btn").addEventListener("click", () => {
+        isAllTime = false;
+        setQuickActive("days-365-btn");
+        document.getElementById("timeframe-slider").value = "365";
+        refresh();
+      });
+      document.getElementById("all-time-btn").addEventListener("click", () => {
+        isAllTime = true;
+        setQuickActive("all-time-btn");
+        refresh();
+      });
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sort;
+          if (sortKey === k) sortDir *= -1;
+          else {
+            sortKey = k;
+            sortDir = k === "platform" || k === "post_type" || k === "content_topic" ? 1 : -1;
+          }
+          renderTable();
+        });
+      });
+
+      fetch("../json/social-dashboard-data.json")
+        .then((r) => { if (!r.ok) throw 0; return r.json(); })
+        .then((json) => {
+          data = json;
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
+          renderAdvanced();
+          refresh();
+        })
+        .catch(() => {
+          document.getElementById("load-state").style.display = "none";
+          document.getElementById("error-state").style.display = "block";
+          document.getElementById("error-state").innerHTML =
+            "Missing <code>json/social-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_social_dashboard_data.py</code>.";
+        });
+    })();
+  </script>
+</body>
+</html>

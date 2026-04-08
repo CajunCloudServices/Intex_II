@@ -5,13 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Counseling sessions — Lighthouse</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
+  <script>
+    if (new URLSearchParams(window.location.search).get("embed") === "1") {
+      document.documentElement.classList.add("portal-embed");
+    }
+  </script>
 </head>
 <body>
+  <script>
+    if (new URLSearchParams(location.search).get('embed') === '1') {
+      document.body.classList.add('embed');
+    }
+  </script>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        Tanglaw Project Admin
-        <span>Case management · data insights</span>
+        <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
+        <div>
+          Tanglaw Project Admin
+          <span>Case management · data insights</span>
+        </div>
       </div>
       <div>
         <div class="nav-label">Insight reports</div>
@@ -23,10 +36,10 @@
         </nav>
       </div>
       <p class="hint">
-        Pipeline: <code>counseling-effectiveness.ipynb</code> + <code>p4_counseling_model.pkl</code>.
-        Regenerate: <code>python3 generate_counseling_dashboard_data.py</code> or
-        <code>python3 generate_all_dashboard_data.py</code>.
-        Preview: <code>python3 -m http.server 8765</code> → this file.
+        Pipeline: <code>notebooks/counseling-effectiveness.ipynb</code> + <code>models/p4_counseling_model.pkl</code>.
+        Regenerate (from <code>ml-pipelines/</code>): <code>python3 scripts/generate_counseling_dashboard_data.py</code> or
+        <code>python3 scripts/generate_all_dashboard_data.py</code>.
+        Preview: <code>python3 -m http.server 8765</code> in <code>ml-pipelines/</code> → <code>dashboards/counseling-admin-dashboard.html</code>.
       </p>
     </aside>
     <main>
@@ -461,11 +474,11 @@
         })
         .catch(() => {
           showError(
-            `<strong>Could not load <code>counseling-dashboard-data.json</code>.</strong><br/><br/>
-            Use a local server from this folder:<br/>
+            `<strong>Could not load <code>json/counseling-dashboard-data.json</code>.</strong><br/><br/>
+            Use a local server from <code>ml-pipelines/</code>:<br/>
             <code>python3 -m http.server 8765</code><br/>
-            Then open <code>http://localhost:8765/counseling-admin-dashboard.html</code><br/><br/>
-            Generate data: <code>python3 generate_counseling_dashboard_data.py</code>`
+            Then open <code>http://localhost:8765/dashboards/counseling-admin-dashboard.html</code><br/><br/>
+            Generate data: <code>python3 scripts/generate_counseling_dashboard_data.py</code>`
           );
         });
     })();

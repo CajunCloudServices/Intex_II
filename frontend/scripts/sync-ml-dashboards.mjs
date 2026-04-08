@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const frontendRoot = join(__dirname, '..');
 const repoRoot = join(frontendRoot, '..');
-const srcDir = join(repoRoot, 'ml-pipelines');
+const dashboardsDir = join(repoRoot, 'ml-pipelines', 'dashboards');
+const jsonSrcDir = join(repoRoot, 'ml-pipelines', 'json');
 const destDir = join(frontendRoot, 'public', 'ml-dashboards');
 const backendDataDir = join(repoRoot, 'backend', 'Intex.Api', 'Data', 'ml-dashboards');
 
@@ -27,10 +28,10 @@ const jsonFiles = [
 
 /** Same keys as MlDashboardController — load over cookies in deployed static HTML. */
 const fetchReplacements = [
-  ['fetch("counseling-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/counseling-dashboard-data", { credentials: "include" })'],
-  ['fetch("donor-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })'],
-  ['fetch("reintegration-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })'],
-  ['fetch("social-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/counseling-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/counseling-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/donor-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/reintegration-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/social-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-dashboard-data", { credentials: "include" })'],
 ];
 
 function transformHtml(content) {
@@ -45,13 +46,13 @@ mkdirSync(destDir, { recursive: true });
 mkdirSync(backendDataDir, { recursive: true });
 
 for (const name of staticFiles) {
-  const raw = readFileSync(join(srcDir, name), 'utf8');
+  const raw = readFileSync(join(dashboardsDir, name), 'utf8');
   const body = name.endsWith('.html') ? transformHtml(raw) : raw;
   writeFileSync(join(destDir, name), body);
 }
 
 for (const name of jsonFiles) {
-  cpSync(join(srcDir, name), join(backendDataDir, name), { force: true });
+  cpSync(join(jsonSrcDir, name), join(backendDataDir, name), { force: true });
 }
 
 console.log('Synced ml-pipelines → public/ml-dashboards (HTML fetch → /api/ml-dashboard/data/...)');

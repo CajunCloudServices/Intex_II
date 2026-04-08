@@ -5,7 +5,7 @@ This is the maintainer-facing summary of how authentication works in Tanglaw Pro
 ## Backend Auth Model
 
 - ASP.NET Identity handles user records, password validation, roles, and lockout behavior.
-- After a successful login, the backend issues a JWT for the frontend.
+- After a successful login, the backend establishes an authenticated cookie session for the browser.
 - Role policies gate access:
   - anonymous: public pages only
   - donor: donor-safe routes such as `GET /api/donations/my-history`
@@ -14,12 +14,12 @@ This is the maintainer-facing summary of how authentication works in Tanglaw Pro
 
 ## Frontend Session Model
 
-- the frontend stores the JWT in local storage
-- on refresh, `AuthContext` restores the token and calls `/api/auth/me`
+- the browser stores the secure auth cookie automatically
+- on refresh, `AuthContext` calls `/api/auth/me` to restore the signed-in user
 - the shared API client dispatches global `401` and `403` events
 - `AuthContext` reacts to those events so individual pages do not each manage session expiry
 
-This is intentionally simple and readable for the student team. It is not pretending to be an advanced cookie/session architecture.
+This is intentionally simple and readable for the student team. It uses ASP.NET Identity cookie sessions instead of a custom token-storage flow in the browser.
 
 ## Google Sign-In Readiness
 
