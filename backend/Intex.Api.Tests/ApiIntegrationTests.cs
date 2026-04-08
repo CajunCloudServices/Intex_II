@@ -401,6 +401,30 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.NotEmpty(donations!);
     }
 
+    [Fact]
+    public async Task AdminCanRegisterMultiRoleUser_WithDonorAndAdminRoles()
+    {
+        await LoginAsAdminAsync();
+
+        var email = $"multi-role-{Guid.NewGuid():N}@example.com";
+        var response = await _client.PostAsJsonAsync("/api/auth/register", new
+        {
+            email,
+            password = "MultiRole!2345",
+            fullName = "Multi Role User",
+            roles = new[] { "Admin", "Donor" },
+            supporterId = 1
+        });
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var auth = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        Assert.NotNull(auth);
+        Assert.Contains("Admin", auth!.User.Roles);
+        Assert.Contains("Donor", auth.User.Roles);
+        Assert.Equal(1, auth.User.SupporterId);
+    }
+
     private async Task LoginAsAdminAsync()
     {
         var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));

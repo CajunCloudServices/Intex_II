@@ -10,7 +10,8 @@ public record RegisterRequest(
     [Required, EmailAddress] string Email,
     [Required, MinLength(14)] string Password,
     [Required, StringLength(200, MinimumLength = 2)] string FullName,
-    [Required, StringLength(20)] string Role,
+    [StringLength(20)] string? Role,
+    string[]? Roles,
     int? SupporterId);
 
 /// <summary>Cookie session established server-side; no token is returned to the client.</summary>

@@ -15,8 +15,9 @@ This file maps the big INTEX requirements to the main places in the codebase.
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/AppSeeder.cs`
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/CsvRelationalSeeder.cs`
   - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Data/Seed/ICsvRelationalSeeder.cs`
-- JWT creation:
-  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Services/JwtTokenService.cs`
+- Cookie/session auth wiring and external provider setup:
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Program.cs`
+  - `/Users/lajicpajam/School/Intex II/backend/Intex.Api/Infrastructure/ApplicationUserClaimsPrincipalFactory.cs`
 - Production cloud deployment:
   - `/Users/lajicpajam/School/Intex II/docker-compose.production.yml`
   - `/Users/lajicpajam/School/Intex II/.github/workflows/deploy.yml`

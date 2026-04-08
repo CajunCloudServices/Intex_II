@@ -191,6 +191,25 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         Assert.Contains("password", payload, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task Register_WithSupporterIdButWithoutDonorRole_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/auth/register", new
+        {
+            email = $"staff-only-{Guid.NewGuid():N}@example.com",
+            password = "StrongPass!234",
+            fullName = "Staff Only User",
+            roles = new[] { "Staff" },
+            supporterId = 1
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await response.Content.ReadAsStringAsync();
+        Assert.Contains("donor role", payload, StringComparison.OrdinalIgnoreCase);
+    }
+
     private async Task LoginAsAdminAsync()
     {
         var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));

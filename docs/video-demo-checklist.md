@@ -67,6 +67,7 @@ Use this checklist as the exact walkthrough for the IS 413 and IS 414 grading vi
    - donors cannot access staff/admin pages
    - staff is read-only
    - admin can create, update, and delete data
+   - mention that the final clarified role model is `admin + donor`, with staff optional and multi-role users supported
 
 5. Show delete confirmation on one admin delete action.
 

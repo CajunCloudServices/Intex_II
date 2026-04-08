@@ -44,19 +44,39 @@ public class AuthController(
     [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<AuthResponse>> Register(RegisterRequest request)
     {
-        if (!RoleNames.All.Contains(request.Role))
+        var requestedRoles = request.Roles?
+            .Where(role => !string.IsNullOrWhiteSpace(role))
+            .Select(role => role.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        if (requestedRoles is null || requestedRoles.Length == 0)
+        {
+            requestedRoles = string.IsNullOrWhiteSpace(request.Role)
+                ? []
+                : [request.Role.Trim()];
+        }
+
+        if (requestedRoles.Length == 0)
+        {
+            return BadRequest(new { message = "At least one role is required." });
+        }
+
+        if (requestedRoles.Any(role => !RoleNames.All.Contains(role)))
         {
             return BadRequest(new { message = "Unsupported role." });
         }
 
-        if (request.Role == RoleNames.Donor && !request.SupporterId.HasValue)
+        var includesDonorRole = requestedRoles.Contains(RoleNames.Donor);
+
+        if (includesDonorRole && !request.SupporterId.HasValue)
         {
             return BadRequest(new { message = "Donor accounts require a supporterId." });
         }
 
-        if (request.Role != RoleNames.Donor && request.SupporterId.HasValue)
+        if (!includesDonorRole && request.SupporterId.HasValue)
         {
-            return BadRequest(new { message = "Only donor accounts may link a supporterId." });
+            return BadRequest(new { message = "Only accounts with the donor role may link a supporterId." });
         }
 
         var user = new ApplicationUser
@@ -75,7 +95,11 @@ public class AuthController(
             return BadRequest(new { errors = createResult.Errors.Select(x => x.Description) });
         }
 
-        await userManager.AddToRoleAsync(user, request.Role);
+        foreach (var role in requestedRoles)
+        {
+            await userManager.AddToRoleAsync(user, role);
+        }
+
         // Do not sign in as the new user — the admin's cookie session must remain active.
         return Created("/api/auth/me", new AuthResponse(await MapUserProfileAsync(user)));
     }
