@@ -16,5 +16,10 @@ jobs:
       - self-hosted
       - cajuncloud-prod
     steps:
+      - uses: actions/checkout@v4
+
       - name: Deploy on production runner
         run: /home/lajicpajam/bin/harborlight-deploy.sh
+
+      - name: Verify deployed app
+        run: bash scripts/verify-deploy.sh
