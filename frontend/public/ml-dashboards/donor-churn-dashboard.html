@@ -7,10 +7,15 @@
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
 </head>
 <body>
+  <script>
+    if (new URLSearchParams(location.search).get('embed') === '1') {
+      document.body.classList.add('embed');
+    }
+  </script>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-mark-icon" src="/logo.svg" alt="" width="40" height="40" decoding="async" />
+        <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
         <div>
           Tanglaw Project Admin
           <span>Fundraising · data insights</span>

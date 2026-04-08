@@ -16,7 +16,7 @@ export function LogoMark({ variant = 'header', className = '' }: LogoMarkProps) 
   const combined = [variantClass[variant], className].filter(Boolean).join(' ');
   return (
     <img
-      src="/logo.svg"
+      src="/tanglaw-lantern.svg"
       alt=""
       className={combined}
       decoding="async"

@@ -10,7 +10,7 @@ export function MlInsightsDashboardPage() {
     social: 'social-media-dashboard.html',
   };
   const selectedPath = dashboardPathByKey[dashboardKey ?? ''] ?? 'counseling-admin-dashboard.html';
-  const src = `${base}ml-dashboards/${selectedPath}`;
+  const src = `${base}ml-dashboards/${selectedPath}?embed=1`;
 
   return (
     <div className="ml-insights-page">
