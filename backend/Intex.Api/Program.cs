@@ -124,6 +124,7 @@ var defaultFrontendOrigins = new[]
     "http://127.0.0.1:4176",
     "http://127.0.0.1:5173"
 };
+var effectiveFrontendOrigins = ResolveAllowedCorsOrigins(builder.Configuration, defaultFrontendOrigins, isProductionLike);
 
 // Identity already registers the External cookie scheme; only add the Google handler when configured.
 if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
@@ -265,18 +266,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
-        var validConfiguredOrigins = configuredOrigins?
-            .Where(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
-                (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
-                (uri.AbsolutePath == "/" || string.IsNullOrEmpty(uri.AbsolutePath)) &&
-                (!isProductionLike || !uri.IsLoopback))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        if (validConfiguredOrigins is { Length: > 0 })
+        if (effectiveFrontendOrigins.Length > 0)
         {
-            policy.WithOrigins(validConfiguredOrigins)
+            policy.WithOrigins(effectiveFrontendOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
@@ -540,7 +532,7 @@ static string BuildContentSecurityPolicyImgSrc(IConfiguration configuration, IWe
 
 static string BuildProductionConnectSources(IConfiguration configuration)
 {
-    var configuredOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    var configuredOrigins = ResolveAllowedCorsOrigins(configuration, [], isProductionLike: true);
     var publicApiHostname = configuration["PUBLIC_API_HOSTNAME"];
 
     var sources = configuredOrigins
@@ -555,6 +547,34 @@ static string BuildProductionConnectSources(IConfiguration configuration)
 
     sources.Insert(0, "'self'");
     return string.Join(' ', sources);
+}
+
+static string[] ResolveAllowedCorsOrigins(
+    IConfiguration configuration,
+    string[] developmentDefaults,
+    bool isProductionLike)
+{
+    var configuredOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+    var validConfiguredOrigins = configuredOrigins
+        .Where(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+            (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps) &&
+            (uri.AbsolutePath == "/" || string.IsNullOrEmpty(uri.AbsolutePath)) &&
+            (!isProductionLike || !uri.IsLoopback))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    if (validConfiguredOrigins.Length > 0)
+    {
+        return validConfiguredOrigins;
+    }
+
+    if (isProductionLike)
+    {
+        return [];
+    }
+
+    return developmentDefaults;
 }
 
 static string? NormalizeProductionOrigin(string? value)
