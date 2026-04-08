@@ -92,9 +92,9 @@ Use this checklist as the exact walkthrough for the IS 413 and IS 414 grading vi
 
 ## Accounts to keep ready
 
-- Admin: `admin@intex.local` / `Admin!234567`
-- Staff: `staff@intex.local` / `Staff!234567`
-- Donor: `donor@intex.local` / `Donor!234567`
+- Admin: `admin@intex.local` / `Admin!23456789`
+- Staff: `staff@intex.local` / `Staff!23456789`
+- Donor: `donor@intex.local` / `Donor!23456789`
 
 ## Final reminder
 

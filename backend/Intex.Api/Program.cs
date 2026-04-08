@@ -60,7 +60,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services
     .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     {
-        options.Password.RequiredLength = 12;
+        options.Password.RequiredLength = 14;
         options.Password.RequireDigit = true;
         options.Password.RequireLowercase = true;
         options.Password.RequireUppercase = true;

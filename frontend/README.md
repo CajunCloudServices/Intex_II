@@ -26,9 +26,9 @@ This is the React + TypeScript + Vite client for Tanglaw Project. It is intentio
 
 ## Seeded Demo Accounts
 
-- `admin@intex.local` / `Admin!234567`
-- `staff@intex.local` / `Staff!234567`
-- `donor@intex.local` / `Donor!234567`
+- `admin@intex.local` / `Admin!23456789`
+- `staff@intex.local` / `Staff!23456789`
+- `donor@intex.local` / `Donor!23456789`
 
 ## Local Dev
 

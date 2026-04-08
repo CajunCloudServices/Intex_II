@@ -193,7 +193,7 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsAdminAsync()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));
         login.EnsureSuccessStatusCode();
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();

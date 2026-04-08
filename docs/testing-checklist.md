@@ -54,6 +54,6 @@ Use this order if you need a short recorded walkthrough:
 
 ## Seeded accounts
 
-- Admin: `admin@intex.local` / `Admin!234567`
-- Staff: `staff@intex.local` / `Staff!234567`
-- Donor: `donor@intex.local` / `Donor!234567`
+- Admin: `admin@intex.local` / `Admin!23456789`
+- Staff: `staff@intex.local` / `Staff!23456789`
+- Donor: `donor@intex.local` / `Donor!23456789`

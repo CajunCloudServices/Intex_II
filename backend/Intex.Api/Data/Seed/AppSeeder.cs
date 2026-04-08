@@ -847,10 +847,10 @@ public class AppSeeder(
         // replace them with real admin-managed accounts and stronger secrets.
         var users = new[]
         {
-            new SeedUser("admin@intex.local", "Admin!234567", "Avery Admin", RoleNames.Admin, null),
-            new SeedUser("staff@intex.local", "Staff!234567", "Skyler Staff", RoleNames.Staff, null),
-            new SeedUser("donor@intex.local", "Donor!234567", "Jordan Lee", RoleNames.Donor, donorSupporterId),
-            new SeedUser("donor2@intex.local", "Donor2!234567", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
+            new SeedUser("admin@intex.local", "Admin!23456789", "Avery Admin", RoleNames.Admin, null),
+            new SeedUser("staff@intex.local", "Staff!23456789", "Skyler Staff", RoleNames.Staff, null),
+            new SeedUser("donor@intex.local", "Donor!23456789", "Jordan Lee", RoleNames.Donor, donorSupporterId),
+            new SeedUser("donor2@intex.local", "Donor2!2345678", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
         };
 
         foreach (var seedUser in users)

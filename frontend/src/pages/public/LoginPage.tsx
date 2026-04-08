@@ -122,9 +122,9 @@ export function LoginPage() {
         {showDemoAccess ? (
           <div className="credential-grid">
             {[
-              ['Admin', 'admin@intex.local', 'Admin!234567'],
-              ['Staff', 'staff@intex.local', 'Staff!234567'],
-              ['Donor', 'donor@intex.local', 'Donor!234567'],
+              ['Admin', 'admin@intex.local', 'Admin!23456789'],
+              ['Staff', 'staff@intex.local', 'Staff!23456789'],
+              ['Donor', 'donor@intex.local', 'Donor!23456789'],
             ].map(([label, valueEmail, valuePassword]) => (
               <button
                 key={label}
