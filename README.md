@@ -34,6 +34,14 @@ If you are trying to understand the project quickly, read in this order:
 ├── docs/
 ├── frontend/
 ├── ml-pipelines/
+│   ├── notebooks/
+│   ├── dashboards/
+│   ├── scripts/
+│   ├── json/
+│   ├── images/
+│   ├── models/
+│   ├── data_loader.py
+│   └── lighthouse_csv_v7/
 ├── docker-compose.yml
 └── README.md
 ```

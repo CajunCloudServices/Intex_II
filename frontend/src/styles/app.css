@@ -556,7 +556,24 @@ textarea {
   gap: 0.1rem;
 }
 
-.brand-emblem,
+.brand-emblem {
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 0.85rem;
+  display: grid;
+  place-items: center;
+  padding: 0.2rem;
+  overflow: hidden;
+  background: var(--color-primary-container);
+}
+
+.brand-emblem .logo-mark {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .topbar-avatar {
   width: 2.7rem;
   height: 2.7rem;
@@ -568,6 +585,27 @@ textarea {
   font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: 0.08em;
+}
+
+.logo-mark {
+  display: block;
+}
+
+.logo-mark--hero {
+  width: min(22rem, 85vw);
+  height: auto;
+  max-height: min(50vh, 28rem);
+}
+
+.logo-mark--footer {
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+}
+
+.logo-mark--login {
+  width: 3.35rem;
+  height: 3.35rem;
 }
 
 .brand-mark {
@@ -1375,6 +1413,10 @@ textarea {
   position: relative;
   min-height: 24rem;
   background: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
 }
 
 .home-hero-media::after {
@@ -1382,13 +1424,12 @@ textarea {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.3));
+  pointer-events: none;
 }
 
-.home-hero-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+.home-hero-media .logo-mark {
+  position: relative;
+  z-index: 1;
 }
 
 .home-covenant {
@@ -1742,8 +1783,21 @@ textarea {
   justify-items: center;
 }
 
+.site-footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
 .site-footer-brand .brand-mark {
   font-size: 1.3rem;
+}
+
+.login-brand-mark {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.1rem;
 }
 
 .site-footer-nav {

@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import { useAuth } from '../../hooks/useAuth';
+import { LogoMark } from '../../components/brand/LogoMark';
 import { SectionCard } from '../../components/ui/Cards';
 import { ErrorState } from '../../components/ui/PageState';
 
@@ -51,6 +52,9 @@ export function LoginPage() {
 
   return (
     <div className="page-shell narrow">
+      <div className="login-brand-mark">
+        <LogoMark variant="login" />
+      </div>
       <section className="section-card">
         <div className="section-card-header">
           <div>

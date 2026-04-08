@@ -2,6 +2,11 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
+
+_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(_ROOT))
 
 from sqlalchemy import create_engine, text
 

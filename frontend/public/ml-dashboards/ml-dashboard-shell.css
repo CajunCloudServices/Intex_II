@@ -45,11 +45,24 @@ body {
   gap: 1rem;
 }
 .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   font-weight: 700;
   font-size: 1.08rem;
   letter-spacing: 0.02em;
   color: var(--text);
   font-family: var(--font-display);
+}
+.brand-mark-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  object-fit: contain;
+  display: block;
+}
+.brand > div {
+  min-width: 0;
 }
 .brand span {
   display: block;

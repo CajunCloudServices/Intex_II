@@ -10,9 +10,9 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent.parent
 CSV = HERE / "lighthouse_csv_v7"
-OUT = HERE / "donor-dashboard-data.json"
+OUT = HERE / "json" / "donor-dashboard-data.json"
 
 DATASET_CUTOFF = pd.Timestamp("2026-01-01")
 CHURN_WINDOW_DAYS = 180

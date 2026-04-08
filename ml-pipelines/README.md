@@ -2,7 +2,24 @@
 
 This folder contains notebook-based ML exploration and a production bridge for inference integration.
 
-## Notebooks
+## Folder layout
+
+| Subfolder | Contents |
+|-----------|----------|
+| `notebooks/` | All `.ipynb` workbooks (set Jupyter **working directory** to `ml-pipelines` or repo root so `data_loader.py` resolves) |
+| `dashboards/` | Static HTML admin views, shared `ml-dashboard-*.css/js` (load JSON from `../json/`) |
+| `scripts/` | `generate_*_dashboard_data.py`, `generate_all_dashboard_data.py`, `run_all_notebooks.py`, `import_csv_snapshot.py` |
+| `json/` | Generated dashboard data for the static HTML dashboards |
+| `images/` | Exported plots (`p*_*.png` from legacy pipeline notebooks) |
+| `models/` | Serialized sklearn pipelines (`p*_*.pkl`) |
+| `logs/` | Optional run logs (reserved) |
+| `lighthouse_csv_v7/` | Canonical CSV snapshot for loaders and seeding |
+
+**Root-level Python** (kept next to `data_loader.py` so notebooks can `import` them with the usual working directory): `data_loader.py`, `path_setup.py`, `trend_eval_helpers.py`.
+
+Batch runner (non-interactive plots, no pop-up windows), run from `ml-pipelines/`: `python scripts/run_all_notebooks.py`
+
+## Notebooks (`notebooks/`)
 
 - `counseling-effectiveness.ipynb`
 - `donor-churn-prediction.ipynb`
@@ -14,17 +31,18 @@ This folder contains notebook-based ML exploration and a production bridge for i
 - `intervention-mix-effectiveness.ipynb`
 - `incident-composition-archetypes.ipynb`
 - `resident-trajectory-archetypes.ipynb`
+- `donation-impact-predictor.ipynb`
 
 ## Deep trend workbook run order
 
-Run these six in sequence for the deep-trend program:
+Run these six in sequence for the deep-trend program (under `notebooks/`):
 
-1. `social-content-mix-efficiency.ipynb`
-2. `campaign-timing-seasonality.ipynb`
-3. `safehouse-operational-load-risk.ipynb`
-4. `intervention-mix-effectiveness.ipynb`
-5. `incident-composition-archetypes.ipynb`
-6. `resident-trajectory-archetypes.ipynb`
+1. `notebooks/social-content-mix-efficiency.ipynb`
+2. `notebooks/campaign-timing-seasonality.ipynb`
+3. `notebooks/safehouse-operational-load-risk.ipynb`
+4. `notebooks/intervention-mix-effectiveness.ipynb`
+5. `notebooks/incident-composition-archetypes.ipynb`
+6. `notebooks/resident-trajectory-archetypes.ipynb`
 
 ## Shared loader
 
@@ -44,10 +62,10 @@ Use `data_loader.py` for all table reads to avoid hardcoded paths.
 
 ## CSV snapshot import utility
 
-Use `import_csv_snapshot.py` to push all 17 CSV tables into a Postgres staging schema.
+Use `scripts/import_csv_snapshot.py` to push all 17 CSV tables into a Postgres staging schema.
 
 ```bash
-python ml-pipelines/import_csv_snapshot.py \
+python ml-pipelines/scripts/import_csv_snapshot.py \
   --connection-string "postgresql+psycopg://intex:<your-strong-local-password>@localhost:5432/intex" \
   --schema ml_snapshot
 ```

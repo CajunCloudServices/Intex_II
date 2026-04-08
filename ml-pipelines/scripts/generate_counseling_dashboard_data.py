@@ -4,16 +4,21 @@ from __future__ import annotations
 
 import json
 import pickle
+import sys
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
+_ROOT = Path(__file__).resolve().parent.parent
+if str(_ROOT) not in sys.path:
+    sys.path.insert(0, str(_ROOT))
+
 from data_loader import load_table
 
-HERE = Path(__file__).resolve().parent
-PKL = HERE / "p4_counseling_model.pkl"
-OUT = HERE / "counseling-dashboard-data.json"
+HERE = _ROOT
+PKL = HERE / "models" / "p4_counseling_model.pkl"
+OUT = HERE / "json" / "counseling-dashboard-data.json"
 
 EMOTION_MAP = {
     "Distressed": 1,

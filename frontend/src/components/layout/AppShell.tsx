@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { clearThemePreference, getConsentLevel, getSavedTheme, persistThemePreference, type ThemeMode } from '../../lib/browserPreferences';
+import { LogoMark } from '../brand/LogoMark';
 import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
 
@@ -75,7 +76,7 @@ export function AppShell() {
         <div className="topbar-inner">
           <NavLink className="brand-link" to="/">
             <div className="brand-emblem" aria-hidden="true">
-              TP
+              <LogoMark variant="header" />
             </div>
             <div className="header-stack">
               <div className="brand-mark">Tanglaw Project</div>
@@ -227,6 +228,7 @@ export function AppShell() {
       <footer className="site-footer" role="contentinfo">
         <div className="site-footer-inner">
           <div className="site-footer-brand">
+            <LogoMark variant="footer" />
             <div className="brand-mark">Tanglaw Project</div>
           </div>
           <div className="site-footer-grid">

@@ -5,7 +5,8 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const frontendRoot = join(__dirname, '..');
 const repoRoot = join(frontendRoot, '..');
-const srcDir = join(repoRoot, 'ml-pipelines');
+const dashboardsDir = join(repoRoot, 'ml-pipelines', 'dashboards');
+const jsonSrcDir = join(repoRoot, 'ml-pipelines', 'json');
 const destDir = join(frontendRoot, 'public', 'ml-dashboards');
 const backendDataDir = join(repoRoot, 'backend', 'Intex.Api', 'Data', 'ml-dashboards');
 
@@ -45,13 +46,13 @@ mkdirSync(destDir, { recursive: true });
 mkdirSync(backendDataDir, { recursive: true });
 
 for (const name of staticFiles) {
-  const raw = readFileSync(join(srcDir, name), 'utf8');
+  const raw = readFileSync(join(dashboardsDir, name), 'utf8');
   const body = name.endsWith('.html') ? transformHtml(raw) : raw;
   writeFileSync(join(destDir, name), body);
 }
 
 for (const name of jsonFiles) {
-  cpSync(join(srcDir, name), join(backendDataDir, name), { force: true });
+  cpSync(join(jsonSrcDir, name), join(backendDataDir, name), { force: true });
 }
 
 console.log('Synced ml-pipelines → public/ml-dashboards (HTML fetch → /api/ml-dashboard/data/...)');
