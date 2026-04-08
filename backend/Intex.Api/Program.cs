@@ -20,6 +20,13 @@ using System.Text.RegularExpressions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHsts(options =>
+{
+    options.MaxAge = TimeSpan.FromDays(365);
+    options.IncludeSubDomains = true;
+    options.Preload = true;
+});
+
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<MlInferenceOptions>(builder.Configuration.GetSection(MlInferenceOptions.SectionName));
 builder.Services.Configure<SeedOptions>(builder.Configuration.GetSection(SeedOptions.SectionName));
@@ -366,6 +373,7 @@ app.Use(async (context, next) =>
 
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
     context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin";
     context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
     context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
 
@@ -379,11 +387,11 @@ app.Use(async (context, next) =>
         "form-action 'self'; " +
         "frame-ancestors 'none'; " +
         "object-src 'none'; " +
-        "script-src 'self'; " +
+        "script-src 'self' https://static.cloudflareinsights.com; " +
         "style-src 'self' https://fonts.googleapis.com; " +
         "img-src 'self' data: https:; " +
         "font-src 'self' data: https://fonts.gstatic.com; " +
-        $"connect-src {cspConnectSources};";
+        $"connect-src {cspConnectSources} https://cloudflareinsights.com;";
 
     await next();
 });
