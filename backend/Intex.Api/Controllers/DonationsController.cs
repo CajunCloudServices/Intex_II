@@ -121,18 +121,12 @@ public class DonationsController(
     }
 
     [HttpGet("predict-impact")]
-    [Authorize(Policy = Policies.DonorOnly)]
+    [AllowAnonymous]
     public async Task<ActionResult<DonationImpactPredictionResponse>> PredictImpact([FromQuery] decimal amount)
     {
         if (amount <= 0)
         {
             return BadRequest(new { message = "Amount must be greater than 0." });
-        }
-
-        var supporterId = ResolveSupporterId();
-        if (supporterId is null)
-        {
-            return Forbid();
         }
 
         var monetaryAllocations = await dbContext.DonationAllocations
