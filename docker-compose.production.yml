@@ -1,6 +1,7 @@
 services:
   harborlight_nexus_db:
     image: postgres:17
+    container_name: harborlight_nexus_db
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -19,6 +20,7 @@ services:
   harborlight_nexus_api:
     build:
       context: ./backend/Intex.Api
+    container_name: harborlight_nexus_api
     restart: unless-stopped
     volumes:
       - harborlight_nexus_dataprotection_keys:/root/.aspnet/DataProtection-Keys
@@ -45,6 +47,7 @@ services:
       context: ./frontend
       args:
         VITE_API_URL: /api
+    container_name: harborlight_nexus_web
     restart: unless-stopped
     ports:
       - "127.0.0.1:${APP_HOST_PORT}:80"
