@@ -878,10 +878,38 @@ public class AppSeeder(
             }
             else
             {
+                user.UserName = seedUser.Email;
+                user.Email = seedUser.Email;
                 user.FullName = seedUser.FullName;
                 user.SupporterId = seedUser.SupporterId;
                 user.EmailConfirmed = true;
-                await userManager.UpdateAsync(user);
+                user.AccessFailedCount = 0;
+                user.LockoutEnd = null;
+
+                var updateResult = await userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    throw new InvalidOperationException($"Failed to update seeded user {seedUser.Email}: {string.Join(", ", updateResult.Errors.Select(x => x.Description))}");
+                }
+
+                if (!await userManager.CheckPasswordAsync(user, seedUser.Password))
+                {
+                    IdentityResult passwordResult;
+                    if (await userManager.HasPasswordAsync(user))
+                    {
+                        var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+                        passwordResult = await userManager.ResetPasswordAsync(user, resetToken, seedUser.Password);
+                    }
+                    else
+                    {
+                        passwordResult = await userManager.AddPasswordAsync(user, seedUser.Password);
+                    }
+
+                    if (!passwordResult.Succeeded)
+                    {
+                        throw new InvalidOperationException($"Failed to reconcile password for seeded user {seedUser.Email}: {string.Join(", ", passwordResult.Errors.Select(x => x.Description))}");
+                    }
+                }
             }
 
             if (!await userManager.IsInRoleAsync(user, seedUser.Role))
