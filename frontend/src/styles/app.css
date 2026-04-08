@@ -1962,6 +1962,15 @@ textarea {
   align-items: flex-start;
 }
 
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
 .page-header > div,
 .section-card-header > div,
 .section-card-actions,
@@ -2221,10 +2230,6 @@ textarea {
   padding: 0.55rem 0.9rem;
   background: transparent;
   color: var(--color-text);
-}
-
-.theme-toggle {
-  white-space: nowrap;
 }
 
 .stack-form {

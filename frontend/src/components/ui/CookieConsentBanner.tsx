@@ -17,8 +17,8 @@ export function CookieConsentBanner() {
       <div>
         <strong>Cookie settings</strong>
         <p>
-          This notice is functional, not cosmetic. Tanglaw Project always stores the minimum browser data needed to keep the secure portal signed in, and
-          it can optionally store a browser-accessible theme preference cookie if you accept non-essential settings.
+          This notice is functional, not cosmetic. Tanglaw Project always stores the minimum browser data needed to keep the secure portal signed in. If you
+          accept non-essential settings, we may store additional browser preference cookies when those features are available.
         </p>
       </div>
       <div className="cookie-actions">

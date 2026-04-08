@@ -1,77 +1,20 @@
 import { useDeferredValue, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import type { Resident, ResidentRequest, Safehouse } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
-import {
-  CheckboxField,
-  FormGrid,
-  FormSection,
-  ValidatedSelectField,
-  ValidatedTextField,
-  ValidatedTextareaField,
-} from '../../components/ui/FormPrimitives';
 import { SectionCard } from '../../components/ui/Cards';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
-import {
-  sanitizeOptionalText,
-  sanitizeText,
-  validateDateNotFuture,
-  validateDateRequired,
-  validateRequired,
-  withError,
-  type ValidationErrors,
-} from '../../lib/validation';
-
-function createResidentForm(safehouseId?: number): ResidentRequest {
-  const today = new Date().toISOString().slice(0, 10);
-  return {
-    caseControlNumber: '',
-    internalCode: '',
-    safehouseId: safehouseId ?? 1,
-    caseStatus: 'Active',
-    dateOfBirth: '2011-01-01',
-    placeOfBirth: '',
-    religion: '',
-    caseCategory: 'Neglected',
-    isTrafficked: false,
-    isPhysicalAbuseCase: false,
-    isSexualAbuseCase: false,
-    hasSpecialNeeds: false,
-    specialNeedsDiagnosis: '',
-    familyIs4Ps: false,
-    familySoloParent: false,
-    familyIndigenous: false,
-    familyInformalSettler: false,
-    dateOfAdmission: today,
-    referralSource: 'Government Agency',
-    referringAgencyPerson: '',
-    assignedSocialWorker: '',
-    initialCaseAssessment: '',
-    reintegrationType: '',
-    reintegrationStatus: '',
-    initialRiskLevel: 'Medium',
-    currentRiskLevel: 'Medium',
-    dateClosed: '',
-    restrictedNotes: '',
-    interventionPlans: [
-      {
-        planCategory: 'Psychosocial',
-        planDescription: '',
-        servicesProvided: '',
-        targetValue: null,
-        targetDate: today,
-        status: 'Open',
-        caseConferenceDate: '',
-      },
-    ],
-  };
-}
+import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
+import { createResidentForm } from './forms/residentFormDefaults';
+import { ResidentRecordForm } from './forms/ResidentRecordForm';
+import { validateResidentForm } from './forms/residentFormValidation';
 
 export function CaseloadInventoryPage() {
   const { user } = useAuth();
@@ -153,30 +96,6 @@ export function CaseloadInventoryPage() {
     setResidentForm(createResidentForm(safehouses[0]?.id));
   };
 
-  const validateResidentForm = (form: ResidentRequest): ValidationErrors => {
-    const firstPlan = form.interventionPlans[0];
-    let errors: ValidationErrors = {};
-    errors = withError(errors, 'caseControlNumber', validateRequired(form.caseControlNumber, 'Case control number'));
-    errors = withError(errors, 'internalCode', validateRequired(form.internalCode, 'Internal code'));
-    errors = withError(errors, 'caseStatus', validateRequired(form.caseStatus, 'Case status'));
-    errors = withError(errors, 'caseCategory', validateRequired(form.caseCategory, 'Case category'));
-    errors = withError(errors, 'dateOfBirth', validateDateNotFuture(form.dateOfBirth, 'Date of birth'));
-    errors = withError(errors, 'dateOfAdmission', validateDateRequired(form.dateOfAdmission, 'Date of admission'));
-    errors = withError(errors, 'placeOfBirth', validateRequired(form.placeOfBirth, 'Place of birth'));
-    errors = withError(errors, 'religion', validateRequired(form.religion, 'Religion'));
-    errors = withError(errors, 'referralSource', validateRequired(form.referralSource, 'Referral source'));
-    errors = withError(errors, 'assignedSocialWorker', validateRequired(form.assignedSocialWorker, 'Assigned social worker'));
-    errors = withError(errors, 'initialCaseAssessment', validateRequired(form.initialCaseAssessment, 'Initial case assessment'));
-    errors = withError(errors, 'initialRiskLevel', validateRequired(form.initialRiskLevel, 'Initial risk level'));
-    errors = withError(errors, 'currentRiskLevel', validateRequired(form.currentRiskLevel, 'Current risk level'));
-    errors = withError(errors, 'planCategory', validateRequired(firstPlan?.planCategory ?? '', 'Plan category'));
-    errors = withError(errors, 'planStatus', validateRequired(firstPlan?.status ?? '', 'Plan status'));
-    errors = withError(errors, 'planTargetDate', validateDateRequired(firstPlan?.targetDate ?? '', 'Plan target date'));
-    errors = withError(errors, 'servicesProvided', validateRequired(firstPlan?.servicesProvided ?? '', 'Services provided'));
-    errors = withError(errors, 'planDescription', validateRequired(firstPlan?.planDescription ?? '', 'Plan description'));
-    return errors;
-  };
-
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!user) return;
@@ -191,6 +110,7 @@ export function CaseloadInventoryPage() {
     }
 
     try {
+      if (!editingResidentId) return;
       const payload = {
         ...residentForm,
         caseControlNumber: sanitizeText(residentForm.caseControlNumber),
@@ -221,13 +141,8 @@ export function CaseloadInventoryPage() {
         })),
       };
 
-      if (editingResidentId) {
-        await api.updateResident(editingResidentId, payload);
-        setFeedback({ tone: 'success', message: 'Resident updated.' });
-      } else {
-        await api.createResident(payload);
-        setFeedback({ tone: 'success', message: 'Resident created.' });
-      }
+      await api.updateResident(editingResidentId, payload);
+      setFeedback({ tone: 'success', message: 'Resident updated.' });
 
       resetResidentForm();
       await loadResidents();
@@ -259,16 +174,11 @@ export function CaseloadInventoryPage() {
           <p>Manage resident records, risk signals, and one starter intervention plan directly in the portal.</p>
         </div>
         {isAdmin ? (
-          <button
-            className="primary-button"
-            onClick={() => {
-              resetResidentForm();
-              window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-            }}
-            type="button"
-          >
-            New Case
-          </button>
+          <div className="page-header-actions">
+            <Link className="ghost-button" to="/portal/caseload/new">
+              New case
+            </Link>
+          </div>
         ) : null}
       </div>
 
@@ -426,69 +336,25 @@ export function CaseloadInventoryPage() {
             </DetailPanel>
           </section>
 
-          {isAdmin ? (
+          {isAdmin && editingResidentId ? (
             <SectionCard
-              title={editingResidentId ? 'Edit resident' : 'Create resident'}
+              title="Edit resident"
               subtitle="Keep the current intervention direction visible while maintaining a focused resident intake and update workflow."
-              actions={editingResidentId ? <button className="ghost-button" onClick={resetResidentForm} type="button">Cancel edit</button> : null}
+              actions={
+                <button className="ghost-button" onClick={resetResidentForm} type="button">
+                  Cancel edit
+                </button>
+              }
             >
-              <form className="stack-form" onSubmit={handleSubmit}>
-                <FormSection title="Core case information">
-                  <FormGrid>
-                    <ValidatedTextField label="Case control number" required hint="Use letters, numbers, and dashes." value={residentForm.caseControlNumber} onChange={(e) => setResidentForm({ ...residentForm, caseControlNumber: e.target.value })} error={residentErrors.caseControlNumber} />
-                    <ValidatedTextField label="Internal code" required hint="Internal short code, ex: RBAC-001." value={residentForm.internalCode} onChange={(e) => setResidentForm({ ...residentForm, internalCode: e.target.value })} error={residentErrors.internalCode} />
-                    <ValidatedSelectField label="Safehouse" value={residentForm.safehouseId} onChange={(e) => setResidentForm({ ...residentForm, safehouseId: Number(e.target.value) })}>
-                      {safehouses.map((safehouse) => <option key={safehouse.id} value={safehouse.id}>{safehouse.name}</option>)}
-                    </ValidatedSelectField>
-                    <ValidatedTextField label="Case status" required hint="Examples: Active, Closed, Transferred." value={residentForm.caseStatus} onChange={(e) => setResidentForm({ ...residentForm, caseStatus: e.target.value })} error={residentErrors.caseStatus} />
-                    <ValidatedTextField label="Date of birth" type="date" required value={residentForm.dateOfBirth} onChange={(e) => setResidentForm({ ...residentForm, dateOfBirth: e.target.value })} error={residentErrors.dateOfBirth} />
-                    <ValidatedTextField label="Date of admission" type="date" required value={residentForm.dateOfAdmission} onChange={(e) => setResidentForm({ ...residentForm, dateOfAdmission: e.target.value })} error={residentErrors.dateOfAdmission} />
-                    <ValidatedTextField label="Place of birth" required value={residentForm.placeOfBirth} onChange={(e) => setResidentForm({ ...residentForm, placeOfBirth: e.target.value })} error={residentErrors.placeOfBirth} />
-                    <ValidatedTextField label="Religion" required value={residentForm.religion} onChange={(e) => setResidentForm({ ...residentForm, religion: e.target.value })} error={residentErrors.religion} />
-                    <ValidatedTextField label="Case category" required hint="Example: Neglected or Trafficking." value={residentForm.caseCategory} onChange={(e) => setResidentForm({ ...residentForm, caseCategory: e.target.value })} error={residentErrors.caseCategory} />
-                    <ValidatedTextField label="Referral source" required value={residentForm.referralSource} onChange={(e) => setResidentForm({ ...residentForm, referralSource: e.target.value })} error={residentErrors.referralSource} />
-                    <ValidatedTextField label="Assigned social worker" required value={residentForm.assignedSocialWorker} onChange={(e) => setResidentForm({ ...residentForm, assignedSocialWorker: e.target.value })} error={residentErrors.assignedSocialWorker} />
-                    <ValidatedTextField label="Referring person" value={residentForm.referringAgencyPerson ?? ''} onChange={(e) => setResidentForm({ ...residentForm, referringAgencyPerson: e.target.value })} />
-                  </FormGrid>
-                </FormSection>
-
-                <FormSection title="Risk and flags">
-                  <FormGrid>
-                    <ValidatedTextField label="Initial risk" required hint="Low, Medium, High, or Critical." value={residentForm.initialRiskLevel} onChange={(e) => setResidentForm({ ...residentForm, initialRiskLevel: e.target.value })} error={residentErrors.initialRiskLevel} />
-                    <ValidatedTextField label="Current risk" required hint="Low, Medium, High, or Critical." value={residentForm.currentRiskLevel} onChange={(e) => setResidentForm({ ...residentForm, currentRiskLevel: e.target.value })} error={residentErrors.currentRiskLevel} />
-                    <ValidatedTextField label="Reintegration type" value={residentForm.reintegrationType ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationType: e.target.value })} />
-                    <ValidatedTextField label="Reintegration status" value={residentForm.reintegrationStatus ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationStatus: e.target.value })} />
-                  </FormGrid>
-                  <div className="check-grid">
-                    <CheckboxField label="Trafficked" checked={residentForm.isTrafficked} onChange={(checked) => setResidentForm({ ...residentForm, isTrafficked: checked })} />
-                    <CheckboxField label="Physical abuse case" checked={residentForm.isPhysicalAbuseCase} onChange={(checked) => setResidentForm({ ...residentForm, isPhysicalAbuseCase: checked })} />
-                    <CheckboxField label="Sexual abuse case" checked={residentForm.isSexualAbuseCase} onChange={(checked) => setResidentForm({ ...residentForm, isSexualAbuseCase: checked })} />
-                    <CheckboxField label="Special needs" checked={residentForm.hasSpecialNeeds} onChange={(checked) => setResidentForm({ ...residentForm, hasSpecialNeeds: checked })} />
-                    <CheckboxField label="Family is 4Ps" checked={residentForm.familyIs4Ps} onChange={(checked) => setResidentForm({ ...residentForm, familyIs4Ps: checked })} />
-                    <CheckboxField label="Solo parent family" checked={residentForm.familySoloParent} onChange={(checked) => setResidentForm({ ...residentForm, familySoloParent: checked })} />
-                    <CheckboxField label="Indigenous family" checked={residentForm.familyIndigenous} onChange={(checked) => setResidentForm({ ...residentForm, familyIndigenous: checked })} />
-                    <CheckboxField label="Informal settler family" checked={residentForm.familyInformalSettler} onChange={(checked) => setResidentForm({ ...residentForm, familyInformalSettler: checked })} />
-                  </div>
-                </FormSection>
-
-                <FormSection title="Starter intervention plan">
-                  <FormGrid>
-                    <ValidatedTextField label="Plan category" required value={residentForm.interventionPlans[0]?.planCategory ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planCategory: e.target.value }] })} error={residentErrors.planCategory} />
-                    <ValidatedTextField label="Status" required value={residentForm.interventionPlans[0]?.status ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], status: e.target.value }] })} error={residentErrors.planStatus} />
-                    <ValidatedTextField label="Target date" type="date" required value={residentForm.interventionPlans[0]?.targetDate ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], targetDate: e.target.value }] })} error={residentErrors.planTargetDate} />
-                    <ValidatedTextField label="Services provided" required value={residentForm.interventionPlans[0]?.servicesProvided ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], servicesProvided: e.target.value }] })} error={residentErrors.servicesProvided} />
-                  </FormGrid>
-                  <ValidatedTextareaField label="Plan description" required rows={3} value={residentForm.interventionPlans[0]?.planDescription ?? ''} onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planDescription: e.target.value }] })} error={residentErrors.planDescription} />
-                </FormSection>
-
-                <ValidatedTextareaField label="Initial case assessment" required rows={3} value={residentForm.initialCaseAssessment} onChange={(e) => setResidentForm({ ...residentForm, initialCaseAssessment: e.target.value })} error={residentErrors.initialCaseAssessment} />
-                <ValidatedTextareaField label="Restricted notes" rows={3} hint="Optional: sensitive notes visible to authorized staff only." value={residentForm.restrictedNotes ?? ''} onChange={(e) => setResidentForm({ ...residentForm, restrictedNotes: e.target.value })} />
-                <div className="form-actions">
-                  <button className="primary-button" disabled={submitting} type="submit">
-                    {submitting ? 'Saving...' : editingResidentId ? 'Update resident' : 'Create resident'}
-                  </button>
-                </div>
-              </form>
+              <ResidentRecordForm
+                residentForm={residentForm}
+                setResidentForm={setResidentForm}
+                residentErrors={residentErrors}
+                safehouses={safehouses}
+                onSubmit={handleSubmit}
+                submitting={submitting}
+                submitLabel="Update resident"
+              />
             </SectionCard>
           ) : null}
         </>

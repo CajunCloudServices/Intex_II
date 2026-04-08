@@ -333,6 +333,11 @@ builder.Services.AddScoped<AppSeeder>();
 
 var app = builder.Build();
 
+if (app.Environment.IsProduction())
+{
+    ValidateProductionCorsOrigins(app.Configuration);
+}
+
 app.UseForwardedHeaders();
 
 app.Use(async (context, next) =>
@@ -413,6 +418,8 @@ app.Use(async (context, next) =>
         ? "'self' http://localhost:4173 http://localhost:4174 http://localhost:5173 http://localhost:5080 http://localhost:5081 http://localhost:5082 http://localhost:8080 https://localhost:4173 https://localhost:4174 https://localhost:5173"
         : BuildProductionConnectSources(app.Configuration);
 
+    var imgSrc = BuildContentSecurityPolicyImgSrc(app.Configuration, app.Environment);
+
     context.Response.Headers["Content-Security-Policy"] =
         "default-src 'self'; " +
         "base-uri 'self'; " +
@@ -421,7 +428,7 @@ app.Use(async (context, next) =>
         "object-src 'none'; " +
         "script-src 'self' https://static.cloudflareinsights.com; " +
         "style-src 'self' https://fonts.googleapis.com; " +
-        "img-src 'self' data: https:; " +
+        $"img-src {imgSrc}; " +
         "font-src 'self' data: https://fonts.gstatic.com; " +
         $"connect-src {cspConnectSources} https://cloudflareinsights.com;";
 
@@ -448,11 +455,40 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
+static void ValidateProductionCorsOrigins(IConfiguration configuration)
+{
+    var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+    if (origins is not { Length: > 0 })
+    {
+        throw new InvalidOperationException(
+            "Production requires Cors:AllowedOrigins with at least one origin. Set CORS__ALLOWEDORIGINS__0 (and further indices) to your deployed frontend origin(s), e.g. https://app.example.com");
+    }
+
+    foreach (var origin in origins)
+    {
+        if (string.IsNullOrWhiteSpace(origin) ||
+            !Uri.TryCreate(origin.Trim(), UriKind.Absolute, out var uri) ||
+            (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new InvalidOperationException(
+                $"Cors:AllowedOrigins must contain only absolute http(s) URLs. Invalid entry: '{origin}'.");
+        }
+
+        if (uri.IsLoopback)
+        {
+            throw new InvalidOperationException(
+                "Cors:AllowedOrigins cannot include loopback or localhost origins in Production. Remove development-only origins from deployment configuration.");
+        }
+    }
+}
+
 static void ConfigureForwardedHeaders(WebApplicationBuilder builder)
 {
     builder.Services.Configure<ForwardedHeadersOptions>(options =>
     {
         options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        // Limits how many proxy hops are honored from X-Forwarded-* chains (reduces header spoofing).
+        options.ForwardLimit = 1;
         var knownProxies = builder.Configuration.GetSection("ForwardedHeaders:KnownProxyIPs").Get<string[]>();
         if (knownProxies is { Length: > 0 })
         {
@@ -479,6 +515,27 @@ static void ConfigureForwardedHeaders(WebApplicationBuilder builder)
             }
         }
     });
+}
+
+static string BuildContentSecurityPolicyImgSrc(IConfiguration configuration, IWebHostEnvironment environment)
+{
+    var configured = configuration.GetSection("Csp:ImgSrcAllowlist").Get<string[]>() ?? [];
+    var parts = new List<string> { "'self'", "data:", "https://fonts.gstatic.com" };
+    foreach (var entry in configured)
+    {
+        if (!string.IsNullOrWhiteSpace(entry))
+        {
+            parts.Add(entry.Trim());
+        }
+    }
+
+    if (environment.IsDevelopment())
+    {
+        // Local testing may load images from arbitrary HTTPS origins (e.g. placeholder CDNs).
+        parts.Add("https:");
+    }
+
+    return string.Join(' ', parts.Distinct(StringComparer.Ordinal));
 }
 
 static string BuildProductionConnectSources(IConfiguration configuration)

@@ -18,10 +18,6 @@ try {
   await page.goto(baseUrl, { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: 'Providing safe homes and healing for survivors' }).waitFor();
   await page.getByRole('button', { name: 'Accept optional preference cookie' }).click();
-  await page.getByRole('button', { name: 'Standard theme' }).click();
-  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
-  await page.reload({ waitUntil: 'networkidle' });
-  await page.getByRole('button', { name: 'Calm theme' }).waitFor();
 
   await page.goto(`${baseUrl}/impact`, { waitUntil: 'networkidle' });
   await page.getByRole('heading', { name: 'Impact overview' }).waitFor();
