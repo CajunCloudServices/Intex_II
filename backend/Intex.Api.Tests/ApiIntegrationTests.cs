@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using Intex.Api.DTOs;
+using Intex.Api.Data;
+using Intex.Api.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Intex.Api.Tests;
@@ -37,11 +40,46 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         var response = await _client.GetAsync("/api/public-impact");
 
         response.EnsureSuccessStatusCode();
-        var snapshots = await response.Content.ReadFromJsonAsync<List<PublicImpactSnapshotResponse>>();
+        var payload = await response.Content.ReadFromJsonAsync<PublicImpactDashboardResponse>();
 
-        Assert.NotNull(snapshots);
-        Assert.NotEmpty(snapshots!);
-        Assert.Equal("March impact highlights", snapshots![0].Headline);
+        Assert.NotNull(payload);
+        Assert.NotNull(payload!.Snapshots);
+        Assert.NotEmpty(payload.Snapshots);
+        Assert.Equal("March impact highlights", payload.Snapshots[0].Headline);
+        Assert.NotNull(payload.ResourceUse);
+        Assert.NotNull(payload.CapacityRows);
+    }
+
+    [Fact]
+    public async Task PublicImpactEndpoint_WithMalformedMetricPayload_ReturnsSnapshotWithEmptyMetrics()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            dbContext.PublicImpactSnapshots.Add(new PublicImpactSnapshot
+            {
+                SnapshotDate = new DateOnly(2025, 1, 1),
+                Headline = "Malformed metrics snapshot",
+                SummaryText = "This row should not crash the public endpoint.",
+                MetricPayloadJson = "{not-valid-json",
+                IsPublished = true,
+                PublishedAt = new DateOnly(2025, 1, 31)
+            });
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        var response = await _client.GetAsync("/api/public-impact");
+
+        response.EnsureSuccessStatusCode();
+        var payload = await response.Content.ReadFromJsonAsync<PublicImpactDashboardResponse>();
+
+        Assert.NotNull(payload);
+        var malformed = payload!.Snapshots.Single(snapshot => snapshot.Headline == "Malformed metrics snapshot");
+        Assert.False(malformed.IsDisplayValid);
+        Assert.Null(malformed.TotalResidents);
+        Assert.Null(malformed.AvgHealthScore);
+        Assert.Null(malformed.AvgEducationProgress);
     }
 
     [Fact]

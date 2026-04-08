@@ -1,26 +1,86 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { api } from '../../api';
-import type { PublicImpactSnapshot } from '../../api/types';
+import type {
+  PublicImpactCapacityRow,
+  PublicImpactDashboard,
+  PublicImpactResourceUseItem,
+} from '../../api/types';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
-import { chartWidthClass } from '../../lib/charts';
-import { formatDate, formatMoney } from '../../lib/format';
-import impactOverviewImage from '../../assets/generated/impact-overview.webp';
+import { formatCompactMoney } from '../../lib/format';
+
+function formatMonthYear(value: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(value));
+}
+
+function formatPercent(value: number, maximumFractionDigits = 0) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'percent',
+    maximumFractionDigits,
+  }).format(value / 100);
+}
+
+function formatScore(value: number) {
+  return `${value.toFixed(1)} / 5`;
+}
+
+function clampPercent(value: number) {
+  return Math.max(0, Math.min(100, value));
+}
+
+function formatWholeMoney(value: number) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function selectResourceUseItems(resourceUse: PublicImpactResourceUseItem[]) {
+  const preferredOrder = ['education', 'wellbeing', 'operations', 'transport'];
+  const byKey = new Map(resourceUse.map((item) => [item.programArea.trim().toLowerCase(), item]));
+  const preferred = preferredOrder
+    .map((key) => byKey.get(key))
+    .filter((item): item is PublicImpactResourceUseItem => Boolean(item));
+
+  if (preferred.length >= 4) {
+    return preferred;
+  }
+
+  const preferredKeys = new Set(preferred.map((item) => item.programArea.trim().toLowerCase()));
+  const extras = resourceUse
+    .filter((item) => !preferredKeys.has(item.programArea.trim().toLowerCase()))
+    .slice(0, 4 - preferred.length);
+
+  return [...preferred, ...extras];
+}
+
+function summarizeCapacity(capacityRows: PublicImpactCapacityRow[]) {
+  return capacityRows.map((row) => ({
+    ...row,
+    occupancyPercent: row.capacityGirls > 0 ? (row.currentOccupancy / row.capacityGirls) * 100 : 0,
+  }));
+}
 
 export function ImpactDashboardPage() {
-  const [snapshots, setSnapshots] = useState<PublicImpactSnapshot[]>([]);
+  const [dashboard, setDashboard] = useState<PublicImpactDashboard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [selectedSnapshotId, setSelectedSnapshotId] = useState<number | null>(null);
+  const [capacityPage, setCapacityPage] = useState(0);
 
-  const loadSnapshots = async () => {
+  const loadDashboard = async () => {
     setLoading(true);
     setError(null);
 
     try {
       const response = await api.publicImpact();
-      setSnapshots(response);
-      setSelectedIndex(0);
+      setDashboard(response);
+      const latestValid = response.snapshots.find((snapshot) => snapshot.isDisplayValid) ?? response.snapshots[0] ?? null;
+      setSelectedSnapshotId(latestValid?.id ?? null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load public impact.');
     } finally {
@@ -29,115 +89,260 @@ export function ImpactDashboardPage() {
   };
 
   useEffect(() => {
-    void loadSnapshots();
+    void loadDashboard();
   }, []);
 
-  const latest = snapshots[0];
-  const selectedSnapshot = snapshots[selectedIndex] ?? latest;
-  const recentWins = snapshots.slice(0, 3);
+  useEffect(() => {
+    setCapacityPage(0);
+  }, [selectedSnapshotId]);
 
-  const donationTrend = snapshots
-    .map((snapshot) => {
-      const metric = snapshot.metrics.find((item) => item.label.toLowerCase().includes('donation'));
-      const value = Number((metric?.value ?? '0').replace(/[^\d.]/g, ''));
-      return {
-        label: formatDate(snapshot.snapshotDate),
-        value: Number.isFinite(value) ? value : 0,
-      };
-    })
-    .reverse();
-  const maxDonationTrend = Math.max(...donationTrend.map((point) => point.value), 1);
+  const validSnapshots = useMemo(
+    () => (dashboard?.snapshots ?? []).filter((snapshot) => snapshot.isDisplayValid),
+    [dashboard],
+  );
+
+  const selectedSnapshot = useMemo(
+    () => validSnapshots.find((snapshot) => snapshot.id === selectedSnapshotId) ?? validSnapshots[0] ?? null,
+    [selectedSnapshotId, validSnapshots],
+  );
+
+  const selectedSnapshotIndex = useMemo(
+    () => validSnapshots.findIndex((snapshot) => snapshot.id === selectedSnapshot?.id),
+    [selectedSnapshot, validSnapshots],
+  );
+
+  const trendSnapshots = useMemo(() => {
+    if (!selectedSnapshot || selectedSnapshotIndex < 0) {
+      return [];
+    }
+
+    const moreRecent = validSnapshots.slice(Math.max(0, selectedSnapshotIndex - 3), selectedSnapshotIndex);
+    const previous = validSnapshots.slice(selectedSnapshotIndex + 1, selectedSnapshotIndex + 4);
+    return [...moreRecent, selectedSnapshot, ...previous];
+  }, [selectedSnapshot, selectedSnapshotIndex, validSnapshots]);
+  const resourceUseItems = useMemo(() => selectResourceUseItems(dashboard?.resourceUse ?? []), [dashboard]);
+  const capacityRows = useMemo(() => summarizeCapacity(dashboard?.capacityRows ?? []), [dashboard]);
+  const displayedSupportTotal = useMemo(
+    () => resourceUseItems.reduce((sum, item) => sum + item.amountAllocated, 0),
+    [resourceUseItems],
+  );
+  const capacityPageSize = 4;
+  const totalCapacityPages = Math.max(1, Math.ceil(capacityRows.length / capacityPageSize));
+  const visibleCapacityRows = useMemo(() => {
+    const safePage = Math.min(capacityPage, Math.max(0, totalCapacityPages - 1));
+    const startIndex = safePage * capacityPageSize;
+    return capacityRows.slice(startIndex, startIndex + capacityPageSize);
+  }, [capacityPage, capacityRows, totalCapacityPages]);
+
+  const latestResidents = selectedSnapshot?.totalResidents ?? 0;
+  const latestEducationProgress = selectedSnapshot?.avgEducationProgress ?? 0;
+  const latestHealthScore = selectedSnapshot?.avgHealthScore ?? 0;
+  const selectedHomeVisits = selectedSnapshot?.homeVisitsThisMonth ?? 0;
+  const selectedMonthLabel = selectedSnapshot ? formatMonthYear(selectedSnapshot.snapshotDate) : 'selected month';
 
   return (
-    <div className="page-shell">
+    <div className="page-shell impact-dashboard-page">
       <div className="page-header">
         <div>
           <span className="eyebrow">Public dashboard</span>
           <h1>Impact overview</h1>
-          <p>Anonymous, donor-facing reporting that summarizes how services, capacity, and support are progressing over time.</p>
+          <p>Public-facing dashboard showcasing the impact of Tanglaw Project on the community</p>
         </div>
-      </div>
-
-      <section className="editorial-media editorial-media--wide">
-        <img
-          className="editorial-image"
-          src={impactOverviewImage}
-          alt="Care resources arranged with intention, including blankets, notebooks, pencils, tea, and a house key."
-        />
-      </section>
-
-      {loading ? (
-        <LoadingState label="Loading public impact snapshots..." />
-      ) : error ? (
-        <ErrorState message={error} onRetry={loadSnapshots} />
-      ) : selectedSnapshot ? (
-        <>
-          <SectionCard
-            title="Published snapshots"
-            subtitle="Use this selector to compare monthly public reports"
-            actions={
+        {selectedSnapshot ? (
+          <section className="impact-page-toolbar-shell" aria-label="Reporting month filter">
+            <div className="impact-page-toolbar">
+              <label className="impact-page-toolbar-label" htmlFor="impact-reporting-month">
+                Reporting month
+              </label>
               <select
-                aria-label="Select impact snapshot"
+                id="impact-reporting-month"
+                aria-label="Select reporting month"
                 className="inline-select"
-                value={selectedIndex}
-                onChange={(event) => setSelectedIndex(Number(event.target.value))}
+                value={selectedSnapshot.id}
+                onChange={(event) => setSelectedSnapshotId(Number(event.target.value))}
               >
-                {snapshots.map((snapshot, index) => (
-                  <option key={snapshot.id} value={index}>
-                    {formatDate(snapshot.snapshotDate)} - {snapshot.headline}
+                {validSnapshots.map((snapshot) => (
+                  <option key={snapshot.id} value={snapshot.id}>
+                    {formatMonthYear(snapshot.snapshotDate)}
                   </option>
                 ))}
               </select>
-            }
-          >
-            <p>{selectedSnapshot.summaryText}</p>
-          </SectionCard>
+            </div>
+          </section>
+        ) : null}
+      </div>
 
-          <section className="page-grid four">
-            {selectedSnapshot.metrics.map((metric, index) => (
-              <MetricCard
-                key={metric.label}
-                label={metric.label}
-                value={metric.value}
-                detail={index === 0 ? selectedSnapshot.headline : `Snapshot date: ${formatDate(selectedSnapshot.snapshotDate)}`}
-                accent={index === 0}
-              />
-            ))}
+      <section className="impact-transparency-note" aria-label="Transparency note">
+        <strong>All figures are aggregated to protect resident privacy.</strong>
+        <span>We publish high-level progress and resource-use trends without exposing personal case details.</span>
+      </section>
+
+      {loading ? (
+        <LoadingState label="Loading public impact dashboard..." />
+      ) : error ? (
+        <ErrorState message={error} onRetry={loadDashboard} />
+      ) : selectedSnapshot && dashboard ? (
+        <>
+          <section className="impact-selection-summary">
+            <strong>{selectedMonthLabel} snapshot</strong>
+            <p>{selectedSnapshot.summaryText}</p>
+            <span>Showing only reporting months with non-placeholder outcome metrics.</span>
           </section>
 
-          <SectionCard title="Recent wins" subtitle="Latest published OKR highlights">
-            <div className="chart-list">
-              {recentWins.map((snapshot) => (
-                <div key={snapshot.id}>
-                  <p className="win-headline">{snapshot.headline}</p>
-                  <p className="win-subtext muted-inline">
-                    {formatDate(snapshot.snapshotDate)} - {snapshot.summaryText}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </SectionCard>
+          <section className="page-grid four impact-summary-grid">
+            <MetricCard
+              label="Residents currently served"
+              value={String(latestResidents)}
+              detail={`Latest valid snapshot: ${formatMonthYear(selectedSnapshot.snapshotDate)}`}
+              accent
+            />
+            <MetricCard
+              label="Average education progress"
+              value={formatPercent(latestEducationProgress, 1)}
+              detail="Aggregate monthly progress across anonymized education records."
+            />
+            <MetricCard
+              label="Average wellbeing score"
+              value={formatScore(latestHealthScore)}
+              detail="A high-level wellbeing signal from anonymized monthly reporting."
+            />
+            <MetricCard
+              label="Home visits this month"
+              value={String(selectedHomeVisits)}
+              detail={`Operational activity for ${selectedMonthLabel}`}
+            />
+          </section>
 
-          <SectionCard title="Monthly donations trend" subtitle="High-level OKR momentum from published impact snapshots">
-            <div className="chart-list">
-              {donationTrend.map((point) => (
-                <div className="chart-row" key={point.label}>
-                  <span>{point.label}</span>
-                  <div className="chart-bar">
-                    <div className={chartWidthClass((point.value / maxDonationTrend) * 100)} />
+          <SectionCard title="Reporting history" subtitle={`Recent valid months ending ${selectedMonthLabel}`}>
+            <p className="impact-history-helper">
+              The selected month is highlighted in the middle so you can compare it with the three more recent valid months above and the three earlier months below.
+            </p>
+            <div className="impact-history-table" role="table" aria-label="Recent reporting history">
+              <div className="impact-history-header" role="row">
+                <span role="columnheader">Month</span>
+                <span role="columnheader">Residents served</span>
+                <span role="columnheader">Education progress</span>
+                <span role="columnheader">Wellbeing score</span>
+                <span role="columnheader">Home visits</span>
+              </div>
+              {trendSnapshots.map((snapshot) => {
+                const isSelected = snapshot.id === selectedSnapshot.id;
+                return (
+                  <div className={`impact-history-row${isSelected ? ' impact-history-row-selected' : ''}`} key={snapshot.id} role="row">
+                    <strong role="cell">{formatMonthYear(snapshot.snapshotDate)}</strong>
+                    <span role="cell">{snapshot.totalResidents ?? 0}</span>
+                    <span role="cell">{formatPercent(snapshot.avgEducationProgress ?? 0, 1)}</span>
+                    <span role="cell">{formatScore(snapshot.avgHealthScore ?? 0)}</span>
+                    <span role="cell">{snapshot.homeVisitsThisMonth}</span>
                   </div>
-                  <strong>{formatMoney(point.value)}</strong>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </SectionCard>
 
-          <SectionCard title={selectedSnapshot.headline} subtitle={formatDate(selectedSnapshot.snapshotDate)}>
-            <p>{selectedSnapshot.summaryText}</p>
-          </SectionCard>
+          <section className="impact-detail-grid" aria-label="Support allocation and capacity overview">
+            <div className="impact-detail-panel">
+              <SectionCard
+                title="Where support goes"
+                subtitle="Tracked donor allocations by program area"
+                actions={
+                  <div className="impact-support-total">
+                    <span>Total tracked support</span>
+                    <strong>{formatWholeMoney(displayedSupportTotal)}</strong>
+                  </div>
+                }
+              >
+                <div className="chart-list impact-support-chart-list">
+                  {resourceUseItems.map((item) => {
+                    const relativePercent =
+                      displayedSupportTotal > 0 ? (item.amountAllocated / displayedSupportTotal) * 100 : item.sharePercent;
+
+                    return (
+                      <div className="chart-row impact-resource-row" key={item.programArea}>
+                        <span>{item.programArea}</span>
+                        <div className="chart-bar">
+                          <div className="chart-fill" style={{ width: `${clampPercent(relativePercent)}%` }} />
+                        </div>
+                        <div className="impact-resource-meta">
+                          <strong>{formatCompactMoney(item.amountAllocated)}</strong>
+                          <span>{formatPercent(relativePercent, 0)}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </SectionCard>
+            </div>
+
+            <div className="impact-detail-panel">
+              <SectionCard
+                title="Capacity and care"
+                subtitle="Current occupancy plus care activity tied to the selected reporting month"
+                actions={
+                  totalCapacityPages > 1 ? (
+                    <div className="impact-pagination" aria-label="Capacity pagination">
+                      <button
+                        type="button"
+                        className="impact-page-button"
+                        onClick={() => setCapacityPage((page) => Math.max(0, page - 1))}
+                        disabled={capacityPage === 0}
+                      >
+                        Previous
+                      </button>
+                      <span>
+                        {capacityPage + 1} / {totalCapacityPages}
+                      </span>
+                      <button
+                        type="button"
+                        className="impact-page-button"
+                        onClick={() => setCapacityPage((page) => Math.min(totalCapacityPages - 1, page + 1))}
+                        disabled={capacityPage >= totalCapacityPages - 1}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  ) : null
+                }
+              >
+                <div className="impact-capacity-summary">
+                  <div>
+                    <span className="impact-capacity-kicker">Network occupancy</span>
+                    <strong>
+                      {dashboard.summary.totalOccupancy} / {dashboard.summary.totalCapacity}
+                    </strong>
+                    <p>{dashboard.summary.safehouseCount} homes are represented in this public summary.</p>
+                  </div>
+                  <div>
+                    <span className="impact-capacity-kicker">Home visits in {selectedMonthLabel}</span>
+                    <strong>{selectedHomeVisits}</strong>
+                    <p>Aggregated from the selected month so this section matches the rest of the page.</p>
+                  </div>
+                </div>
+
+                <div className="impact-capacity-list">
+                  {visibleCapacityRows.map((row) => (
+                    <div className="impact-capacity-row" key={row.safehouseName}>
+                      <div className="impact-capacity-row-top">
+                        <span>{row.safehouseName}</span>
+                        <strong>
+                          {row.currentOccupancy}/{row.capacityGirls}
+                        </strong>
+                      </div>
+                      <div className="chart-bar">
+                        <div className="chart-fill" style={{ width: `${clampPercent(row.occupancyPercent)}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+            </div>
+          </section>
         </>
       ) : (
-        <EmptyState title="No published snapshots" message="The public dashboard will show data once the backend has published impact reports." />
+        <EmptyState
+          title="No published public metrics"
+          message="The public dashboard will appear once valid anonymized reporting snapshots are available."
+        />
       )}
     </div>
   );

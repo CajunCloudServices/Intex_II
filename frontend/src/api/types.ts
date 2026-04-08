@@ -28,17 +28,44 @@ export interface AuthProvidersResponse {
   googleEnabled: boolean;
 }
 
-export interface PublicImpactMetric {
-  label: string;
-  value: string;
-}
-
 export interface PublicImpactSnapshot {
   id: number;
   snapshotDate: string;
   headline: string;
   summaryText: string;
-  metrics: PublicImpactMetric[];
+  totalResidents?: number | null;
+  avgHealthScore?: number | null;
+  avgEducationProgress?: number | null;
+  donationsTotalForMonth?: number | null;
+  homeVisitsThisMonth: number;
+  isDisplayValid: boolean;
+}
+
+export interface PublicImpactResourceUseItem {
+  programArea: string;
+  amountAllocated: number;
+  sharePercent: number;
+}
+
+export interface PublicImpactCapacityRow {
+  safehouseName: string;
+  currentOccupancy: number;
+  capacityGirls: number;
+}
+
+export interface PublicImpactSummary {
+  totalOccupancy: number;
+  totalCapacity: number;
+  safehouseCount: number;
+  homeVisitsThisMonth: number;
+  homeVisitsReportingMonth?: string | null;
+}
+
+export interface PublicImpactDashboard {
+  snapshots: PublicImpactSnapshot[];
+  resourceUse: PublicImpactResourceUseItem[];
+  capacityRows: PublicImpactCapacityRow[];
+  summary: PublicImpactSummary;
 }
 
 export interface DashboardSummary {

@@ -798,9 +798,10 @@ public class AppSeeder(
                 MetricPayloadJson = JsonSerializer.Serialize(new[]
                 {
                     new { label = "Active residents", value = "28" },
-                    new { label = "Process recordings", value = "41" },
+                    new { label = "Average wellbeing score", value = "3.8" },
+                    new { label = "Average education progress", value = "84%" },
                     new { label = "Home visits", value = "12" },
-                    new { label = "Donor-supported education plans", value = "19" }
+                    new { label = "Donations this month", value = "$18,400" }
                 }),
                 IsPublished = true,
                 PublishedAt = new DateOnly(2026, 3, 31)
