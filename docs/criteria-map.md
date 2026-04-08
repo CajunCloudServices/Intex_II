@@ -120,10 +120,10 @@ This file maps the big INTEX requirements to the main places in the codebase.
 - Shared notebook data loader:
   - `ml-pipelines/data_loader.py`
 - Notebook pipelines:
-  - `ml-pipelines/counseling-effectiveness.ipynb`
-  - `ml-pipelines/donor-churn-prediction.ipynb`
-  - `ml-pipelines/social-media-conversion.ipynb`
-  - `ml-pipelines/reintegration-readiness.ipynb`
+  - `ml-pipelines/notebooks/counseling-effectiveness.ipynb`
+  - `ml-pipelines/notebooks/donor-churn-prediction.ipynb`
+  - `ml-pipelines/notebooks/social-media-conversion.ipynb`
+  - `ml-pipelines/notebooks/reintegration-readiness.ipynb`
 - New relational entities and FK wiring:
   - `backend/Intex.Api/Entities/`
   - `backend/Intex.Api/Data/ApplicationDbContext.cs`

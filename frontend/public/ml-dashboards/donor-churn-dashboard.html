@@ -19,7 +19,7 @@
           <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
         </nav>
       </div>
-      <p class="hint">Pipeline: <code>donor-churn-prediction.ipynb</code>. Data: <code>python3 generate_donor_dashboard_data.py</code>.</p>
+      <p class="hint">Pipeline: <code>notebooks/donor-churn-prediction.ipynb</code>. Data (from <code>ml-pipelines/</code>): <code>python3 scripts/generate_donor_dashboard_data.py</code>.</p>
     </aside>
 
     <main>
@@ -287,7 +287,7 @@
       });
       document.getElementById("search").addEventListener("input", () => renderTable(data.supporters));
 
-      fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })
+      fetch("../json/donor-dashboard-data.json")
         .then((r) => { if (!r.ok) throw 0; return r.json(); })
         .then((json) => {
           data = json;
@@ -308,7 +308,7 @@
           document.getElementById("load-state").style.display = "none";
           document.getElementById("error-state").style.display = "block";
           document.getElementById("error-state").innerHTML =
-            "Missing <code>donor-dashboard-data.json</code>. Run <code>python3 generate_donor_dashboard_data.py</code>.";
+            "Missing <code>json/donor-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_donor_dashboard_data.py</code>.";
         });
     })();
   </script>

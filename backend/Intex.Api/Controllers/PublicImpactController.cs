@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,10 +25,7 @@ public class PublicImpactController(ApplicationDbContext dbContext) : Controller
             x.SnapshotDate,
             x.Headline,
             x.SummaryText,
-            JsonSerializer.Deserialize<List<PublicImpactMetricDto>>(x.MetricPayloadJson, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            }) ?? []));
+            PublicImpactMetricsParser.Parse(x.MetricPayloadJson)));
 
         return Ok(snapshots);
     }

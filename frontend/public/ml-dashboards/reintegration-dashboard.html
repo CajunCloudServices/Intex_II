@@ -23,8 +23,8 @@
         </nav>
       </div>
       <p class="hint">
-        Pipeline: <code>reintegration-readiness.ipynb</code>. Data:
-        <code>python3 generate_reintegration_dashboard_data.py</code>.
+        Pipeline: <code>notebooks/reintegration-readiness.ipynb</code>. Data (from <code>ml-pipelines/</code>):
+        <code>python3 scripts/generate_reintegration_dashboard_data.py</code>.
       </p>
     </aside>
     <main>
@@ -289,7 +289,7 @@
         refresh();
       });
 
-      fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })
+      fetch("../json/reintegration-dashboard-data.json")
         .then((r) => { if (!r.ok) throw 0; return r.json(); })
         .then((json) => {
           data = json;
@@ -302,7 +302,7 @@
           document.getElementById("load-state").style.display = "none";
           document.getElementById("error-state").style.display = "block";
           document.getElementById("error-state").innerHTML =
-            "Missing <code>reintegration-dashboard-data.json</code>. Run <code>python3 generate_reintegration_dashboard_data.py</code>.";
+            "Missing <code>json/reintegration-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_reintegration_dashboard_data.py</code>.";
         });
       setupMetricInfoPopup();
     })();

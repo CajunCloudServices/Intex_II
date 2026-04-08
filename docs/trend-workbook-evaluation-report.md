@@ -2,11 +2,11 @@
 
 Execution date: 2026-04-08  
 
-Scope: **All eleven** notebooks under `ml-pipelines/`, grouped into **Deep trend** (six shipped trend workbooks), **Original program pipelines** (four), and **Additional** (one). Metrics below reflect a fresh run of the six deep-trend books (code cells executed sequentially per notebook with a shared namespace) unless noted.
+Scope: **All eleven** notebooks under `ml-pipelines/notebooks/`, grouped into **Deep trend** (six shipped trend workbooks), **Original program pipelines** (four), and **Additional** (one). Metrics below reflect a fresh run of the six deep-trend books (code cells executed sequentially per notebook with a shared namespace) unless noted.
 
 Shared helpers: `ml-pipelines/trend_eval_helpers.py` (binned calibration, threshold scan, bootstrap percentile CIs on linear coefficients, slice AUC / slice MAE). Deep-trend books append a final **Evaluation artifacts** code cell that calls these helpers.
 
-Batch runner: `ml-pipelines/run_all_notebooks.py` executes every `.ipynb` in order; **`counseling-effectiveness.ipynb` and `reintegration-readiness.ipynb` are skipped by default** (long bootstrap / heavy cells)—run those in Jupyter when you need refreshed numbers. `donation-impact-predictor.ipynb` resolves CSV paths relative to `ml-pipelines/lighthouse_csv_v7/` so it runs from the `ml-pipelines` working directory.
+Batch runner: `ml-pipelines/scripts/run_all_notebooks.py` executes every `.ipynb` in order; **`counseling-effectiveness.ipynb` and `reintegration-readiness.ipynb` are skipped by default** (long bootstrap / heavy cells)—run those in Jupyter when you need refreshed numbers. `donation-impact-predictor.ipynb` resolves CSV paths relative to `ml-pipelines/lighthouse_csv_v7/` so it runs from the `ml-pipelines` working directory.
 
 ## Scoring method
 
@@ -37,7 +37,7 @@ Metrics summarized from **persisted notebook outputs** and documented methodolog
 | `social-media-conversion.ipynb` | Conversion modeling with multiple model families, segment analysis, uplift-style comparisons (see notebook outputs for latest AUC/accuracy) | B | 16.5 | Pass — tied to Post advisor / social flows |
 | `donor-churn-prediction.ipynb` | Random Forest holdout ROC-AUC ≈ **0.91** on n≈12 test rows; strong tree/RF comparison; RFM feature engineering; class imbalance called out in prose | B− | 16.0 | Pass — **small absolute test n**; use for triage not automation |
 | `reintegration-readiness.ipynb` | Stratified CV tables; persisted test ROC-AUC **1.0** with bootstrap CI [1,1] on small holdout; explicit small-*n* warnings in markdown | C+ | 16.0 | Conditional pass — rely on CV + uncertainty, not point holdout |
-| `counseling-effectiveness.ipynb` | Multi-block evaluation (including bootstrap CIs on operational metrics); explanatory-first positioning | B− | 16.5 | Pass — run notebook directly when refreshing (skipped in `run_all_notebooks.py`) |
+| `counseling-effectiveness.ipynb` | Multi-block evaluation (including bootstrap CIs on operational metrics); explanatory-first positioning | B− | 16.5 | Pass — run notebook directly when refreshing (skipped in `scripts/run_all_notebooks.py`) |
 
 ---
 
@@ -54,7 +54,7 @@ Metrics summarized from **persisted notebook outputs** and documented methodolog
 - Deep-trend notebooks: imports resolve via existing `data_loader.py` path bootstrap; second code cell on each trend book runs **`trend_eval_helpers`** without extra dependencies.
 - Safehouse: classification no longer blocked by global one-class `high_incident`; features exclude same-window `roll3_rate` to avoid trivial label leakage.
 - Incident / intervention / resident: group-aware splits documented in code comments or markdown.
-- `run_all_notebooks.py`: use for regression testing; extend `SKIP` if other notebooks gain long-running cells.
+- `scripts/run_all_notebooks.py`: use for regression testing; extend `SKIP` if other notebooks gain long-running cells.
 
 ## Cross-pipeline observations
 

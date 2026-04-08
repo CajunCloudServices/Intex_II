@@ -16,9 +16,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent.parent
 CSV = HERE / "lighthouse_csv_v7"
-OUT = HERE / "social-dashboard-data.json"
+OUT = HERE / "json" / "social-dashboard-data.json"
 
 PRE_POST_CAT = [
     "platform",

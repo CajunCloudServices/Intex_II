@@ -789,6 +789,7 @@ public class AppSeeder(
                 EstimatedDonationValuePhp = 5000m
             });
 
+        // SnapshotDate = first day of the reporting month (see PublicImpactSnapshot). Copy and headline describe that month.
         dbContext.PublicImpactSnapshots.AddRange(
             new PublicImpactSnapshot
             {

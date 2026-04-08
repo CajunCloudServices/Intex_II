@@ -15,9 +15,9 @@ from sklearn.model_selection import StratifiedKFold, cross_validate, train_test_
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-HERE = Path(__file__).resolve().parent
+HERE = Path(__file__).resolve().parent.parent
 CSV = HERE / "lighthouse_csv_v7"
-OUT = HERE / "reintegration-dashboard-data.json"
+OUT = HERE / "json" / "reintegration-dashboard-data.json"
 
 EXPLAIN_FEATURES = [
     "avg_health_score",

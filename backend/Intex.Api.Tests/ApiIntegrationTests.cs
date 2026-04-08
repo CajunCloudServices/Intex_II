@@ -42,6 +42,8 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.NotNull(snapshots);
         Assert.NotEmpty(snapshots!);
         Assert.Equal("March impact highlights", snapshots![0].Headline);
+        Assert.Equal(4, snapshots![0].Metrics.Count);
+        Assert.Equal("Active residents", snapshots![0].Metrics[0].Label);
     }
 
     [Fact]
@@ -248,7 +250,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
         Assert.Equal(HttpStatusCode.Forbidden, summary.StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, breakdown.StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, prediction.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, prediction.StatusCode);
     }
 
     [Fact]

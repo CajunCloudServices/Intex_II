@@ -6,6 +6,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+ROOT = Path(__file__).resolve().parent.parent
 HERE = Path(__file__).resolve().parent
 SCRIPTS = [
     "generate_counseling_dashboard_data.py",
@@ -19,7 +20,7 @@ def main() -> None:
     for name in SCRIPTS:
         path = HERE / name
         print("→", name, flush=True)
-        subprocess.run([sys.executable, str(path)], cwd=str(HERE), check=True)
+        subprocess.run([sys.executable, str(path)], cwd=str(ROOT), check=True)
     print("All dashboard data files updated.")
 
 

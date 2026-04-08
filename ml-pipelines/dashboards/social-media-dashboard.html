@@ -23,7 +23,7 @@
         </nav>
       </div>
       <p class="hint">
-        Data refresh: <code>python3 generate_social_dashboard_data.py</code>
+        Data refresh (from <code>ml-pipelines/</code>): <code>python3 scripts/generate_social_dashboard_data.py</code>
       </p>
     </aside>
 
@@ -394,7 +394,7 @@
         });
       });
 
-      fetch("social-dashboard-data.json")
+      fetch("../json/social-dashboard-data.json")
         .then((r) => { if (!r.ok) throw 0; return r.json(); })
         .then((json) => {
           data = json;
@@ -407,7 +407,7 @@
           document.getElementById("load-state").style.display = "none";
           document.getElementById("error-state").style.display = "block";
           document.getElementById("error-state").innerHTML =
-            "Missing <code>social-dashboard-data.json</code>. Run <code>python3 generate_social_dashboard_data.py</code>.";
+            "Missing <code>json/social-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_social_dashboard_data.py</code>.";
         });
       setupMetricInfoPopup();
     })();
