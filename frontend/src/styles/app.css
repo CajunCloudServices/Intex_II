@@ -557,19 +557,15 @@ textarea {
 }
 
 .brand-emblem {
-  width: 2.7rem;
-  height: 2.7rem;
-  border-radius: 0.85rem;
-  display: grid;
-  place-items: center;
-  padding: 0.2rem;
-  overflow: hidden;
-  background: var(--color-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-.brand-emblem .logo-mark {
-  width: 100%;
-  height: 100%;
+.logo-mark--header {
+  width: 2.25rem;
+  height: 2.25rem;
   object-fit: contain;
   display: block;
 }
@@ -702,11 +698,14 @@ textarea {
 .shell-body {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
+  /* Single row grows with tallest column (main); do not use flex:1 here — that caps height to
+     viewport minus header/footer and clips tall ML iframe content. */
+  grid-template-rows: auto;
   width: 100%;
   max-width: 1540px;
   margin: 0 auto;
   align-items: stretch;
-  flex: 1;
+  flex: 0 1 auto;
 }
 
 .shell-body-public {
