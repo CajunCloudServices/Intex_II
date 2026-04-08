@@ -2232,10 +2232,6 @@ textarea {
   color: var(--color-text);
 }
 
-.theme-toggle {
-  white-space: nowrap;
-}
-
 .stack-form {
   display: grid;
   gap: 1rem;

@@ -54,10 +54,9 @@ export function PrivacyPolicyPage() {
 
         <h2>Cookies, browser storage, and portal sessions</h2>
         <p>
-          The site stores a consent preference in a browser-accessible cookie. If you accept optional settings, Tanglaw Project may also store a
-          browser-accessible theme preference cookie so React can remember your display choice. For authenticated users, the portal session is kept in an
-          HttpOnly, Secure cookie issued by the server (not in browser storage or URL fragments). These values support site operation and are not used for
-          third-party ad tracking.
+          The site stores a consent preference in a browser-accessible cookie. If you accept optional settings, we may store additional preference cookies
+          for non-essential features. For authenticated users, the portal session is kept in an HttpOnly, Secure cookie issued by the server (not in browser
+          storage or URL fragments). These values support site operation and are not used for third-party ad tracking.
         </p>
 
         <h2>Public reporting and resident privacy</h2>
