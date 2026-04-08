@@ -24,6 +24,8 @@ services:
     restart: unless-stopped
     volumes:
       - harborlight_nexus_dataprotection_keys:/root/.aspnet/DataProtection-Keys
+      # Mount CSV snapshot at runtime so startup seed can load full tables (image has no ml-pipelines).
+      - ./ml-pipelines/lighthouse_csv_v7:/data/lighthouse_csv_v7:ro
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
       ASPNETCORE_URLS: ${ASPNETCORE_URLS}
@@ -32,6 +34,7 @@ services:
       Authentication__Google__ClientId: ${AUTHENTICATION__GOOGLE__CLIENTID}
       Authentication__Google__ClientSecret: ${AUTHENTICATION__GOOGLE__CLIENTSECRET}
       ConnectionStrings__DefaultConnection: Host=harborlight_nexus_db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      Seed__CsvPath: /data/lighthouse_csv_v7
       Jwt__Key: ${JWT_KEY}
       Jwt__Issuer: ${JWT_ISSUER}
       Jwt__Audience: ${JWT_AUDIENCE}

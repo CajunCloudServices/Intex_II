@@ -193,6 +193,8 @@ Services:
 - Backend API: [http://localhost:8080/api/health](http://localhost:8080/api/health)
 - OpenAPI JSON in development: [http://localhost:8080/openapi/v1.json](http://localhost:8080/openapi/v1.json)
 
+The compose file mounts [`ml-pipelines/lighthouse_csv_v7`](ml-pipelines/lighthouse_csv_v7) into the API container for full startup CSV seed. If KPIs stay at demo-sized counts, see [docs/dashboard-data-troubleshooting.md](docs/dashboard-data-troubleshooting.md).
+
 ### Option 2: Run Services Directly
 
 If `5432` or `5080` is already in use on your machine, use an alternate local port such as `55433` for Postgres and `5081` for the backend.

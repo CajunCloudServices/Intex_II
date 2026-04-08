@@ -70,6 +70,8 @@ python ml-pipelines/scripts/import_csv_snapshot.py \
   --schema ml_snapshot
 ```
 
+This populates **`ml_snapshot` only** (notebooks / ML). The web portal reads **application tables** populated by `CsvRelationalSeeder`, not this schema. If dashboards show only a few rows after loading CSVs, see [docs/dashboard-data-troubleshooting.md](../docs/dashboard-data-troubleshooting.md).
+
 ## Relational app seeding (authoritative path)
 
 The backend now supports startup relational seeding directly into the application schema from this folder:

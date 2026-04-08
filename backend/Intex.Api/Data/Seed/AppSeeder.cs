@@ -47,18 +47,34 @@ public class AppSeeder(
                     }
 
                     await SeedDomainDataAsync();
+                    logger.LogInformation(
+                        "DATA_SEED: Embedded fixture loaded (small demo row counts). Dashboards will show ~3 supporters / ~2 residents until CSV import succeeds. " +
+                        "Fix Seed:CsvPath, ensure all required CSV files exist, and reset domain data if needed. See docs/dashboard-data-troubleshooting.md.");
                 }
                 else
                 {
                     logger.LogInformation(
                         "CSV relational seed completed. Imported counts: {Counts}",
                         string.Join(", ", importResult.ImportedCounts.Select(x => $"{x.Key}={x.Value}")));
+                    logger.LogInformation(
+                        "DATA_SEED: Full CSV snapshot loaded; operational dashboards reflect imported tables.");
                 }
             }
             else
             {
+                var reason = !preferCsv ? "Seed:Mode is not Csv" : "Seed:ImportCsvOnStartup is false";
+                logger.LogInformation(
+                    "DATA_SEED: Skipping CSV file import ({Reason}); loading embedded fixture.", reason);
                 await SeedDomainDataAsync();
+                logger.LogInformation(
+                    "DATA_SEED: Embedded fixture loaded. For full data set Seed:Mode=Csv and Seed:ImportCsvOnStartup=true with valid Seed:CsvPath.");
             }
+        }
+        else
+        {
+            logger.LogInformation(
+                "DATA_SEED: Domain tables already contain Safehouses rows; skipping CSV and fixture import. " +
+                "To force a full CSV load, use an empty database or truncate domain tables (see docs/dashboard-data-troubleshooting.md).");
         }
 
         await SeedUsersAsync();
