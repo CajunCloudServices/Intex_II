@@ -52,16 +52,15 @@ function ImpactIcon({ kind }: { kind: 'homes' | 'care' | 'hubs' | 'goal' }) {
   }
 
   return (
-      <svg aria-hidden="true" viewBox="0 0 24 24">
-      <rect x="3.5" y="3.5" width="17" height="17" rx="3.2" fill="currentColor" />
+    <svg aria-hidden="true" viewBox="0 0 24 24">
       <path
         d="M8 16.5V13M12 16.5V10M16 16.5V7.5"
         fill="none"
-        stroke="#fbf9f5"
+        stroke="currentColor"
         strokeLinecap="square"
         strokeWidth="2.3"
       />
-      </svg>
+    </svg>
   );
 }
 
@@ -133,16 +132,11 @@ export function HomePage() {
             <span>Regional Partnerships</span>
           </article>
           <article className="impact-card impact-card-featured">
-            <div className="impact-card-featured-top">
-              <div className="impact-card-icon impact-card-icon-featured impact-card-icon-box">
-                <ImpactIcon kind="goal" />
-              </div>
-              <div className="impact-card-feature-value">85%</div>
+            <div className="impact-card-icon impact-card-icon-featured impact-card-icon-box">
+              <ImpactIcon kind="goal" />
             </div>
+            <div className="impact-card-feature-value">85%</div>
             <div className="impact-card-featured-bottom">
-              <div className="impact-progress-bar" aria-hidden="true">
-                <div />
-              </div>
               <div className="impact-card-feature-title">Quarterly Impact Goal</div>
             </div>
           </article>
@@ -152,6 +146,7 @@ export function HomePage() {
       <section className="home-section" aria-labelledby="cta-heading">
         <div className="cta-band">
           <div className="cta-band-copy">
+            <span className="cta-band-kicker">Support the work</span>
             <h2 id="cta-heading">Join the legacy of intentional change.</h2>
             <p>
               Every contribution funds beds, counseling hours, and the daily work of keeping a home safe,
@@ -167,25 +162,59 @@ export function HomePage() {
       </section>
 
       <div id="about" className="home-section" role="region" aria-labelledby="about-heading">
-        <SectionCard
-          titleId="about-heading"
-          title="About Tanglaw Project"
-          subtitle="People, place, and how we work"
-        >
-          <p>
-            Tanglaw Project is led by a nonprofit board and an experienced program director. We operate
-            primarily in the Mountain West and partner with licensed therapists, schools, and local agencies so
-            care stays coordinated and accountable.
+        <section className="home-about-card">
+          <div className="home-about-header">
+            <div>
+              <span className="eyebrow">About Tanglaw Project</span>
+              <h2 id="about-heading">People, place, and how we work</h2>
+            </div>
+            <p className="home-about-summary">
+              A quick guide to who leads the work, how care is coordinated, and how supporters can follow along.
+            </p>
+          </div>
+
+          <div className="home-about-flow" aria-label="About Tanglaw Project overview">
+            <article className="home-about-step">
+              <span className="home-about-step-number">01</span>
+              <div className="home-about-step-copy">
+                <h3>Who leads the work</h3>
+                <p>
+                  Tanglaw Project is led by a nonprofit board and an experienced program director, giving the
+                  organization both community oversight and day-to-day operational leadership.
+                </p>
+              </div>
+            </article>
+
+            <article className="home-about-step">
+              <span className="home-about-step-number">02</span>
+              <div className="home-about-step-copy">
+                <h3>How care stays coordinated</h3>
+                <p>
+                  We operate primarily in the Mountain West and partner with licensed therapists, schools, and
+                  local agencies so each resident’s support network remains connected and accountable.
+                </p>
+              </div>
+            </article>
+
+            <article className="home-about-step">
+              <span className="home-about-step-number">03</span>
+              <div className="home-about-step-copy">
+                <h3>How transparency shows up</h3>
+                <p>
+                  Funding comes from individual donors, foundations, and community events. We publish high-level
+                  impact updates so supporters can see how resources are used without exposing private resident
+                  details.
+                </p>
+              </div>
+            </article>
+          </div>
+
+          <p className="home-about-links">
+            <Link to="/impact">View our Impact</Link>
+            <span aria-hidden="true">|</span>
+            <a href="mailto:hello@tanglawproject.example.org">Contact Us</a>
           </p>
-          <p>
-            Funding comes from individual donors, foundations, and community events. We publish high-level impact
-            updates so supporters can see how resources are used—without exposing private resident details.
-          </p>
-          <p className="home-muted">
-            <Link to="/impact">View the public impact dashboard</Link> for recent snapshots, or{' '}
-            <a href="mailto:hello@tanglawproject.example.org">contact us</a> to learn about partnership opportunities.
-          </p>
-        </SectionCard>
+        </section>
       </div>
     </div>
   );
