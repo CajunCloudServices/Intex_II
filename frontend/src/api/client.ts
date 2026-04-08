@@ -59,6 +59,8 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     try {
       const parsed = JSON.parse(text) as {
         message?: string;
+        title?: string;
+        detail?: string;
         errors?: Array<string | { field?: string; message?: string }>;
       };
       const formattedErrors = parsed.errors
@@ -73,7 +75,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
         })
         .filter(Boolean)
         .join(', ');
-      message = parsed.message ?? formattedErrors ?? message;
+      message = parsed.message ?? formattedErrors ?? parsed.detail ?? parsed.title ?? message;
     } catch {
       if (text) {
         message = text;
