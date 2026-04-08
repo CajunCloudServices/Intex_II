@@ -107,7 +107,7 @@
       const activeOnly = document.getElementById("active-only");
 
       function fmtPct(x) { return (100 * x).toFixed(1) + "%"; }
-      const infoIcon = (msg) => `<button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button>`;
+      const infoIcon = (msg) => `<span class="metric-info-wrap"><button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
       function escapeHtml(s) {
         if (!s) return "";
         const d = document.createElement("div");

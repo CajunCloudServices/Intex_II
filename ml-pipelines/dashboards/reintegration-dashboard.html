@@ -102,7 +102,7 @@
       const activeOnly = document.getElementById("active-only");
 
       function fmtPct(x) { return (100 * x).toFixed(1) + "%"; }
-      const infoIcon = (msg) => `<button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="How this metric is calculated">i</button>`;
+      const infoIcon = (msg) => `<span class="metric-info-wrap"><button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
       function escapeHtml(s) {
         if (!s) return "";
         const d = document.createElement("div");
@@ -250,30 +250,6 @@
         render();
       }
 
-      function setupMetricInfoPopup() {
-        const modal = document.createElement("div");
-        modal.id = "metric-info-modal";
-        modal.className = "metric-modal";
-        modal.style.display = "none";
-        modal.innerHTML = `
-          <div class="metric-modal-card" role="dialog" aria-modal="true" aria-label="Metric calculation">
-            <h3>How this metric is calculated</h3>
-            <p id="metric-info-text"></p>
-            <button type="button" id="metric-info-close">Close</button>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        const close = () => { modal.style.display = "none"; };
-        modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
-        modal.querySelector("#metric-info-close").addEventListener("click", close);
-        document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
-        document.addEventListener("click", (e) => {
-          const btn = e.target.closest(".metric-info");
-          if (!btn) return;
-          document.getElementById("metric-info-text").textContent = btn.dataset.info || "";
-          modal.style.display = "flex";
-        });
-      }
 
       document.querySelectorAll("th[data-sort]").forEach((th) => {
         th.addEventListener("click", () => {
@@ -312,7 +288,6 @@
           document.getElementById("error-state").innerHTML =
             "Missing <code>json/reintegration-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_reintegration_dashboard_data.py</code>.";
         });
-      setupMetricInfoPopup();
     })();
   </script>
 </body>
