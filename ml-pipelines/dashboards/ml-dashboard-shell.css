@@ -287,8 +287,9 @@ input[type="checkbox"] { accent-color: var(--accent); }
   .split { grid-template-columns: 1fr; }
 }
 .table-wrap {
-  overflow: auto;
-  max-height: min(52vh, 520px);
+  overflow-x: auto;
+  overflow-y: visible;
+  max-height: none;
   border-radius: 8px;
   border: 1px solid var(--border);
   background: #fff;
@@ -376,14 +377,16 @@ tbody tr.selected { background: #fdd48e55; }
 .meta-grid dt { color: var(--muted); margin: 0; }
 .meta-grid dd { margin: 0 0 0.35rem; font-weight: 500; }
 .session-table-wrap {
-  max-height: min(40vh, 360px);
-  overflow: auto;
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: visible;
   border: 1px solid var(--border);
   border-radius: 8px;
 }
 .coef-table-wrap {
-  max-height: 280px;
-  overflow: auto;
+  max-height: none;
+  overflow-x: auto;
+  overflow-y: visible;
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 0.78rem;

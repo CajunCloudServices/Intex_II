@@ -892,12 +892,14 @@ textarea {
 
 .ml-insights-page {
   margin: -2.5rem -2.5rem -6rem -2.5rem;
-  min-height: calc(100vh - 73px);
+  /* Height comes from iframe content (see MlInsightsDashboardPage resize); avoid nested viewport scroll. */
+  min-height: 0;
 }
 
 .ml-insights-frame {
   width: 100%;
-  height: calc(100vh - 73px);
+  min-height: 12rem;
+  height: auto;
   border: 0;
   display: block;
   background: #fff;
