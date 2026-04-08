@@ -210,6 +210,23 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
         Assert.Contains("donor role", payload, StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public async Task PublicRegisterDonor_WithWeakPassword_ReturnsBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/api/auth/register-donor", new
+        {
+            email = $"public-weak-{Guid.NewGuid():N}@example.com",
+            password = "Weakpass1",
+            fullName = "Public Weak User",
+            region = "Mountain West",
+            country = "United States"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await response.Content.ReadAsStringAsync();
+        Assert.Contains("password", payload, StringComparison.OrdinalIgnoreCase);
+    }
+
     private async Task LoginAsAdminAsync()
     {
         var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));

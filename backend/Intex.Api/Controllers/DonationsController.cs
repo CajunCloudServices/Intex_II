@@ -229,21 +229,18 @@ public class DonationsController(
             return BadRequest(new { message = "Recurring interval is required when recurring is selected." });
         }
 
-        var normalizedEmail = request.DonorEmail.Trim().ToLowerInvariant();
-        var donorName = request.DonorName.Trim();
-
-        var supporter = await dbContext.Supporters.FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail);
-        if (supporter is null)
+        Supporter supporter;
+        if (request.IsAnonymous)
         {
             supporter = new Supporter
             {
                 SupporterType = "Individual",
-                DisplayName = donorName,
-                FirstName = donorName,
+                DisplayName = "Anonymous donor",
+                FirstName = "Anonymous",
                 RelationshipType = "Donor",
                 Region = "Unknown",
                 Country = "Unknown",
-                Email = normalizedEmail,
+                Email = $"anonymous+{Guid.NewGuid():N}@tanglaw.demo",
                 Status = "Active",
                 FirstDonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 AcquisitionChannel = "Web",
@@ -252,9 +249,47 @@ public class DonationsController(
             dbContext.Supporters.Add(supporter);
             await dbContext.SaveChangesAsync();
         }
-        else if (!string.Equals(supporter.DisplayName, donorName, StringComparison.Ordinal))
+        else
         {
-            supporter.DisplayName = donorName;
+            var donorName = request.DonorName?.Trim() ?? string.Empty;
+            var donorEmail = request.DonorEmail?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(donorName))
+            {
+                return BadRequest(new { message = "Please enter your name for a tracked donation." });
+            }
+
+            if (string.IsNullOrWhiteSpace(donorEmail))
+            {
+                return BadRequest(new { message = "Please enter your email for a tracked donation." });
+            }
+
+            var normalizedEmail = donorEmail.ToLowerInvariant();
+            supporter = await dbContext.Supporters.FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail)
+                ?? new Supporter
+                {
+                    SupporterType = "Individual",
+                    DisplayName = donorName,
+                    FirstName = donorName,
+                    RelationshipType = "Donor",
+                    Region = "Unknown",
+                    Country = "Unknown",
+                    Email = normalizedEmail,
+                    Status = "Active",
+                    FirstDonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                    AcquisitionChannel = "Web",
+                    CreatedAtUtc = DateTime.UtcNow
+                };
+
+            if (supporter.Id == 0)
+            {
+                dbContext.Supporters.Add(supporter);
+                await dbContext.SaveChangesAsync();
+            }
+            else if (!string.Equals(supporter.DisplayName, donorName, StringComparison.Ordinal))
+            {
+                supporter.DisplayName = donorName;
+            }
         }
 
         var donation = new Donation
@@ -280,10 +315,11 @@ public class DonationsController(
             donation.Id,
             supporter.Id,
             supporter.DisplayName,
+            request.IsAnonymous,
             request.Amount,
             request.IsRecurring,
             recurringInterval,
-            "Donation submitted successfully."));
+            request.IsAnonymous ? "Anonymous donation submitted successfully." : "Tracked donation submitted successfully."));
     }
 
     [HttpPut("{id:int}")]
