@@ -53,20 +53,14 @@
             <h2>Timeframe & Filters</h2>
             <div class="toolbar">
               <label style="font-size:.82rem;color:var(--muted);min-width:260px">Timeline (days back)
-                <input id="timeframe-slider" type="range" min="1" max="365" step="1" value="90" list="timeframe-marks" style="width:100%" />
-                <datalist id="timeframe-marks">
-                  <option value="1"></option>
-                  <option value="7"></option>
-                  <option value="15"></option>
-                  <option value="30"></option>
-                  <option value="90"></option>
-                  <option value="180"></option>
-                  <option value="365"></option>
-                </datalist>
+                <input id="timeframe-slider" type="range" min="1" max="365" step="1" value="90" style="width:100%" />
                 <div style="display:flex;justify-content:space-between;font-size:.74rem;color:var(--muted)">
                   <span>1</span><span id="timeframe-slider-value">90 days</span><span>365</span>
                 </div>
-                <div style="display:flex;gap:.75rem;margin-top:.35rem;align-items:center">
+                <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.35rem;align-items:center">
+                  <button type="button" class="timeframe-link" id="days-7-btn">7 days</button>
+                  <button type="button" class="timeframe-link" id="days-30-btn">30 days</button>
+                  <button type="button" class="timeframe-link" id="days-90-btn">90 days</button>
                   <button type="button" class="timeframe-link" id="days-365-btn">365 days</button>
                   <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
                 </div>
@@ -156,7 +150,7 @@
       const toDate = (s) => new Date(s + "T00:00:00");
       const fmtPhp = (x) => "₱" + Number(x || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
       const fmtPct = (x) => (100 * x).toFixed(1) + "%";
-      const infoIcon = (msg) => `<button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="How this metric is calculated">i</button>`;
+      const infoIcon = (msg) => `<button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button>`;
 
       function escapeHtml(s) {
         const d = document.createElement("div");
@@ -353,34 +347,28 @@
         renderTable();
       }
 
-      function setupMetricInfoPopup() {
-        const modal = document.createElement("div");
-        modal.id = "metric-info-modal";
-        modal.className = "metric-modal";
-        modal.style.display = "none";
-        modal.innerHTML = `
-          <div class="metric-modal-card" role="dialog" aria-modal="true" aria-label="Metric calculation">
-            <h3>How this metric is calculated</h3>
-            <p id="metric-info-text"></p>
-            <button type="button" id="metric-info-close">Close</button>
-          </div>
-        `;
-        document.body.appendChild(modal);
-        const close = () => { modal.style.display = "none"; };
-        modal.addEventListener("click", (e) => { if (e.target === modal) close(); });
-        modal.querySelector("#metric-info-close").addEventListener("click", close);
-        document.addEventListener("keydown", (e) => { if (e.key === "Escape") close(); });
-        document.addEventListener("click", (e) => {
-          const btn = e.target.closest(".metric-info");
-          if (!btn) return;
-          document.getElementById("metric-info-text").textContent = btn.dataset.info || "";
-          modal.style.display = "flex";
-        });
-      }
 
       document.getElementById("timeframe-slider").addEventListener("input", () => {
         isAllTime = false;
         document.getElementById("all-time-btn").classList.remove("active");
+        refresh();
+      });
+      document.getElementById("days-7-btn").addEventListener("click", () => {
+        isAllTime = false;
+        document.getElementById("all-time-btn").classList.remove("active");
+        document.getElementById("timeframe-slider").value = "7";
+        refresh();
+      });
+      document.getElementById("days-30-btn").addEventListener("click", () => {
+        isAllTime = false;
+        document.getElementById("all-time-btn").classList.remove("active");
+        document.getElementById("timeframe-slider").value = "30";
+        refresh();
+      });
+      document.getElementById("days-90-btn").addEventListener("click", () => {
+        isAllTime = false;
+        document.getElementById("all-time-btn").classList.remove("active");
+        document.getElementById("timeframe-slider").value = "90";
         refresh();
       });
       document.getElementById("days-365-btn").addEventListener("click", () => {
@@ -422,7 +410,6 @@
           document.getElementById("error-state").innerHTML =
             "Missing <code>json/social-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_social_dashboard_data.py</code>.";
         });
-      setupMetricInfoPopup();
     })();
   </script>
 </body>
