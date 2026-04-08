@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet test:*)",
+      "Bash(sed -n '110,145p' AdminDashboardPage.tsx)",
+      "Bash(sed -n '115,125p' AuditHistoryPage.tsx)",
+      "Bash(sed -n '365,380p' DonorsContributionsPage.tsx)",
+      "Bash(sed -n '290,305p' HomeVisitationsPage.tsx)",
+      "Bash(sed -n '385,400p' HomeVisitationsPage.tsx)"
+    ]
+  }
+}
