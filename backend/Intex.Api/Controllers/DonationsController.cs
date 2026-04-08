@@ -171,10 +171,14 @@ public class DonationsController(
             })
             .ToList();
 
+        var averageCostPerVictim = options.AverageCostPerVictim <= 0 ? 250m : options.AverageCostPerVictim;
+        var estimatedVictimsImpacted = Math.Round(amount / averageCostPerVictim, 2);
+
         return Ok(new DonationImpactPredictionResponse(
             amount,
             outcomes,
-            "Prediction uses weighted historical monetary allocation mix and configured program-area unit costs."));
+            "Prediction uses weighted historical monetary allocation mix and configured program-area unit costs.",
+            estimatedVictimsImpacted));
     }
 
     [HttpPost]
@@ -210,6 +214,76 @@ public class DonationsController(
 
         var createdDonation = await QueryDonations().FirstAsync(x => x.Id == donation.Id);
         return CreatedAtAction(nameof(GetById), new { id = donation.Id }, MapDonation(createdDonation));
+    }
+
+    [HttpPost("public-submit")]
+    [AllowAnonymous]
+    public async Task<ActionResult<PublicDonationSubmissionResponse>> PublicSubmit(PublicDonationSubmissionRequest request)
+    {
+        var recurringInterval = string.IsNullOrWhiteSpace(request.RecurringInterval)
+            ? null
+            : request.RecurringInterval.Trim();
+
+        if (request.IsRecurring && string.IsNullOrWhiteSpace(recurringInterval))
+        {
+            return BadRequest(new { message = "Recurring interval is required when recurring is selected." });
+        }
+
+        var normalizedEmail = request.DonorEmail.Trim().ToLowerInvariant();
+        var donorName = request.DonorName.Trim();
+
+        var supporter = await dbContext.Supporters.FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail);
+        if (supporter is null)
+        {
+            supporter = new Supporter
+            {
+                SupporterType = "Individual",
+                DisplayName = donorName,
+                FirstName = donorName,
+                RelationshipType = "Donor",
+                Region = "Unknown",
+                Country = "Unknown",
+                Email = normalizedEmail,
+                Status = "Active",
+                FirstDonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                AcquisitionChannel = "Web",
+                CreatedAtUtc = DateTime.UtcNow
+            };
+            dbContext.Supporters.Add(supporter);
+            await dbContext.SaveChangesAsync();
+        }
+        else if (!string.Equals(supporter.DisplayName, donorName, StringComparison.Ordinal))
+        {
+            supporter.DisplayName = donorName;
+        }
+
+        var donation = new Donation
+        {
+            SupporterId = supporter.Id,
+            DonationType = "Monetary",
+            DonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            ChannelSource = "Online",
+            CurrencyCode = "USD",
+            Amount = request.Amount,
+            EstimatedValue = request.Amount,
+            ImpactUnit = "outcome units",
+            IsRecurring = request.IsRecurring,
+            Notes = recurringInterval is null
+                ? request.Notes
+                : $"Recurring interval: {recurringInterval}. {request.Notes}".Trim(),
+        };
+
+        dbContext.Donations.Add(donation);
+        await dbContext.SaveChangesAsync();
+
+        return Ok(new PublicDonationSubmissionResponse(
+            donation.Id,
+            supporter.Id,
+            supporter.DisplayName,
+            request.Amount,
+            request.IsRecurring,
+            recurringInterval,
+            "Donation submitted successfully."));
     }
 
     [HttpPut("{id:int}")]

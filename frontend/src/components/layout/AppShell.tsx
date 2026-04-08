@@ -8,12 +8,18 @@ import { StatusBadge } from '../ui/StatusBadge';
 
 const staffLinks = [
   { to: '/portal/admin', label: 'Admin Dashboard', shortLabel: 'AD' },
-  { to: '/portal/ml-insights', label: 'ML insights', shortLabel: 'ML' },
   { to: '/portal/donors', label: 'Donors & Contributions', shortLabel: 'DC' },
   { to: '/portal/caseload', label: 'Caseload Inventory', shortLabel: 'CI' },
   { to: '/portal/process-recordings', label: 'Process Recordings', shortLabel: 'PR' },
   { to: '/portal/home-visitations', label: 'Home Visitations', shortLabel: 'HV' },
   { to: '/portal/reports', label: 'Reports & Analytics', shortLabel: 'RA' },
+];
+
+const mlDashboardLinks = [
+  { to: '/portal/ml-insights/counseling', label: 'Counseling sessions' },
+  { to: '/portal/ml-insights/donor', label: 'Donor lapse risk' },
+  { to: '/portal/ml-insights/reintegration', label: 'Reintegration outlook' },
+  { to: '/portal/ml-insights/social', label: 'Social media analytics' },
 ];
 
 const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions', shortLabel: 'MC' }];
@@ -28,11 +34,18 @@ export function AppShell() {
   const { user, logout, authMessage, clearAuthMessage } = useAuth();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mlNavExpanded, setMlNavExpanded] = useState(() => location.pathname.startsWith('/portal/ml-insights'));
   const [theme, setTheme] = useState<ThemeMode>(() => (getConsentLevel() === 'accepted' ? getSavedTheme() : 'default'));
 
   // Keep the drawer closed when navigation changes and stop the page from scrolling behind it.
   useEffect(() => {
     setMobileNavOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/portal/ml-insights')) {
+      setMlNavExpanded(true);
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -189,6 +202,31 @@ export function AppShell() {
                     <span>{link.label}</span>
                   </NavLink>
                 ))}
+
+                {!isDonorOnly ? (
+                  <div className="sidebar-subnav-group">
+                    <button
+                      className={`sidebar-subnav-toggle${location.pathname.startsWith('/portal/ml-insights') ? ' active' : ''}`}
+                      type="button"
+                      onClick={() => setMlNavExpanded((open) => !open)}
+                      aria-expanded={mlNavExpanded}
+                    >
+                      <span className="sidebar-link-mark" aria-hidden="true">
+                        ML
+                      </span>
+                      <span>ML Insights</span>
+                    </button>
+                    {mlNavExpanded ? (
+                      <div className="sidebar-subnav-links">
+                        {mlDashboardLinks.map((mlLink) => (
+                          <NavLink key={mlLink.to} to={mlLink.to}>
+                            {mlLink.label}
+                          </NavLink>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </nav>
 
               <div className="sidebar-utility">
