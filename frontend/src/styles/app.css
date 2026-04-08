@@ -1962,6 +1962,15 @@ textarea {
   align-items: flex-start;
 }
 
+.page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
 .page-header > div,
 .section-card-header > div,
 .section-card-actions,

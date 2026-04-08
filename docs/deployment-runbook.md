@@ -28,6 +28,8 @@ This document describes the current production deployment shape used by Tanglaw 
 - optional Google auth:
   - `AUTHENTICATION__GOOGLE__CLIENTID`
   - `AUTHENTICATION__GOOGLE__CLIENTSECRET`
+- host filtering: `AllowedHosts__0` (and further indices) or semicolon-separated `AllowedHosts` — see [production-environment.md](production-environment.md#allowedhosts-api-hostname-filtering)
+- behind a reverse proxy: `ForwardedHeaders__KnownProxyIPs__*` / `ForwardedHeaders__KnownNetworks__*` — see [production-environment.md](production-environment.md#forwarded-headers-reverse-proxy-trust)
 
 ## Deploy Backend
 

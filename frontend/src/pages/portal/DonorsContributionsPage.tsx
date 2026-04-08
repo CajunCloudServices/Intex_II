@@ -2,74 +2,20 @@ import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from '../../api';
 import type { Donation, DonationRequest, DonorChurnRiskSummary, Safehouse, Supporter, SupporterRequest } from '../../api/types';
+import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHeader';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
-import {
-  FormGrid,
-  FormSection,
-  ValidatedSelectField,
-  ValidatedTextField,
-  ValidatedTextareaField,
-} from '../../components/ui/FormPrimitives';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
-import {
-  sanitizeOptionalText,
-  sanitizeText,
-  validateCurrency,
-  validateDateRequired,
-  validateEmail,
-  validatePhone,
-  validateRequired,
-  withError,
-  type ValidationErrors,
-} from '../../lib/validation';
-
-const defaultSupporterForm: SupporterRequest = {
-  supporterType: 'MonetaryDonor',
-  displayName: '',
-  organizationName: '',
-  firstName: '',
-  lastName: '',
-  relationshipType: 'International',
-  region: '',
-  country: 'Philippines',
-  email: '',
-  phone: '',
-  status: 'Active',
-  firstDonationDate: '',
-  acquisitionChannel: 'Website',
-};
-
-function createDonationForm(safehouseId?: number): DonationRequest {
-  const today = new Date().toISOString().slice(0, 10);
-  return {
-    supporterId: 1,
-    donationType: 'Monetary',
-    donationDate: today,
-    channelSource: 'Direct',
-    currencyCode: 'USD',
-    amount: 100,
-    estimatedValue: 100,
-    impactUnit: 'pesos',
-    isRecurring: false,
-    campaignName: '',
-    notes: '',
-    allocations: [
-      {
-        safehouseId: safehouseId ?? 1,
-        programArea: 'Wellbeing',
-        amountAllocated: 100,
-        allocationDate: today,
-        allocationNotes: '',
-      },
-    ],
-  };
-}
+import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
+import { createDonationForm, defaultSupporterForm } from './forms/donorFormDefaults';
+import { DonationRecordForm } from './forms/DonationRecordForm';
+import { validateDonationForm, validateSupporterForm } from './forms/donorsFormValidation';
+import { SupporterRecordForm } from './forms/SupporterRecordForm';
 
 export function DonorsContributionsPage() {
   const { user } = useAuth();
@@ -172,35 +118,6 @@ export function DonorsContributionsPage() {
     setDonationForm(createDonationForm(safehouses[0]?.id));
   };
 
-  const validateSupporterForm = (form: SupporterRequest): ValidationErrors => {
-    let errors: ValidationErrors = {};
-    errors = withError(errors, 'displayName', validateRequired(form.displayName, 'Display name'));
-    errors = withError(errors, 'email', validateEmail(form.email));
-    errors = withError(errors, 'supporterType', validateRequired(form.supporterType, 'Supporter type'));
-    errors = withError(errors, 'status', validateRequired(form.status, 'Status'));
-    errors = withError(errors, 'relationshipType', validateRequired(form.relationshipType, 'Relationship type'));
-    errors = withError(errors, 'acquisitionChannel', validateRequired(form.acquisitionChannel, 'Acquisition channel'));
-    errors = withError(errors, 'region', validateRequired(form.region, 'Region'));
-    errors = withError(errors, 'country', validateRequired(form.country, 'Country'));
-    errors = withError(errors, 'phone', validatePhone(form.phone ?? ''));
-    return errors;
-  };
-
-  const validateDonationForm = (form: DonationRequest): ValidationErrors => {
-    const firstAllocation = form.allocations[0];
-    let errors: ValidationErrors = {};
-    errors = withError(errors, 'supporterId', form.supporterId > 0 ? null : 'Supporter is required.');
-    errors = withError(errors, 'donationType', validateRequired(form.donationType, 'Donation type'));
-    errors = withError(errors, 'donationDate', validateDateRequired(form.donationDate, 'Donation date'));
-    errors = withError(errors, 'channelSource', validateRequired(form.channelSource, 'Channel'));
-    errors = withError(errors, 'estimatedValue', validateCurrency(form.estimatedValue, 'Estimated value'));
-    errors = withError(errors, 'impactUnit', validateRequired(form.impactUnit, 'Impact unit'));
-    errors = withError(errors, 'programArea', validateRequired(firstAllocation?.programArea ?? '', 'Program area'));
-    errors = withError(errors, 'amountAllocated', validateCurrency(firstAllocation?.amountAllocated, 'Allocated amount'));
-    errors = withError(errors, 'allocationDate', validateDateRequired(firstAllocation?.allocationDate ?? '', 'Allocation date'));
-    return errors;
-  };
-
   const handleSupporterSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!user) return;
@@ -215,6 +132,7 @@ export function DonorsContributionsPage() {
     }
 
     try {
+      if (!editingSupporterId) return;
       const payload = {
         ...supporterForm,
         displayName: sanitizeText(supporterForm.displayName),
@@ -232,13 +150,8 @@ export function DonorsContributionsPage() {
         firstDonationDate: supporterForm.firstDonationDate || null,
       };
 
-      if (editingSupporterId) {
-        await api.updateSupporter(editingSupporterId, payload);
-        setFeedback({ tone: 'success', message: 'Supporter updated.' });
-      } else {
-        await api.createSupporter(payload);
-        setFeedback({ tone: 'success', message: 'Supporter created.' });
-      }
+      await api.updateSupporter(editingSupporterId, payload);
+      setFeedback({ tone: 'success', message: 'Supporter updated.' });
 
       resetSupporterForm();
       await loadData();
@@ -263,6 +176,7 @@ export function DonorsContributionsPage() {
     }
 
     try {
+      if (!editingDonationId) return;
       const payload = {
         ...donationForm,
         donationType: sanitizeText(donationForm.donationType),
@@ -277,13 +191,8 @@ export function DonorsContributionsPage() {
           allocationNotes: sanitizeOptionalText(allocation.allocationNotes ?? ''),
         })),
       };
-      if (editingDonationId) {
-        await api.updateDonation(editingDonationId, payload);
-        setFeedback({ tone: 'success', message: 'Donation updated.' });
-      } else {
-        await api.createDonation(payload);
-        setFeedback({ tone: 'success', message: 'Donation created.' });
-      }
+      await api.updateDonation(editingDonationId, payload);
+      setFeedback({ tone: 'success', message: 'Donation updated.' });
 
       resetDonationForm();
       await loadData();
@@ -318,15 +227,21 @@ export function DonorsContributionsPage() {
     }
   };
 
+  const donorHeaderActions = isAdmin
+    ? [
+        { label: 'Add donation', to: '/portal/donors/donations/new' },
+        { label: 'New supporter', to: '/portal/donors/supporters/new' },
+      ]
+    : undefined;
+
   return (
     <div className="page-shell">
-      <div className="page-header">
-        <div>
-          <span className="eyebrow">Fundraising operations</span>
-          <h1>Donors & contributions</h1>
-          <p>Manage supporters, all contribution types, and donation allocations across safehouses and program areas.</p>
-        </div>
-      </div>
+      <StaffPortalPageHeader
+        eyebrow="Fundraising operations"
+        title="Donors & contributions"
+        description="Manage supporters, all contribution types, and donation allocations across safehouses and program areas."
+        actions={donorHeaderActions}
+      />
 
       <section className="page-grid three">
         <MetricCard label="Supporters" value={String(supporters.length)} detail="Directory records loaded for the team." accent />
@@ -453,33 +368,24 @@ export function DonorsContributionsPage() {
             </DetailPanel>
           </section>
 
-          {isAdmin ? (
+          {isAdmin && editingSupporterId ? (
             <SectionCard
-              title={editingSupporterId ? 'Edit supporter' : 'Create supporter'}
+              title="Edit supporter"
               subtitle="Maintain supporter records with a straightforward operational form that matches the current donor workflow."
-              actions={editingSupporterId ? <button className="ghost-button" onClick={resetSupporterForm} type="button">Cancel edit</button> : null}
+              actions={
+                <button className="ghost-button" onClick={resetSupporterForm} type="button">
+                  Cancel edit
+                </button>
+              }
             >
-              <form className="stack-form" onSubmit={handleSupporterSubmit}>
-                <FormGrid>
-                  <ValidatedTextField label="Display name" required hint="How this supporter appears in lists and reports." value={supporterForm.displayName} onChange={(e) => setSupporterForm({ ...supporterForm, displayName: e.target.value })} error={supporterErrors.displayName} />
-                  <ValidatedTextField label="Email" required type="email" hint="Format: name@example.org" value={supporterForm.email} onChange={(e) => setSupporterForm({ ...supporterForm, email: e.target.value })} error={supporterErrors.email} />
-                  <ValidatedTextField label="Supporter type" required hint="Examples: MonetaryDonor, CorporatePartner." value={supporterForm.supporterType} onChange={(e) => setSupporterForm({ ...supporterForm, supporterType: e.target.value })} error={supporterErrors.supporterType} />
-                  <ValidatedTextField label="Status" required hint="Active or Inactive." value={supporterForm.status} onChange={(e) => setSupporterForm({ ...supporterForm, status: e.target.value })} error={supporterErrors.status} />
-                  <ValidatedTextField label="Relationship type" required value={supporterForm.relationshipType} onChange={(e) => setSupporterForm({ ...supporterForm, relationshipType: e.target.value })} error={supporterErrors.relationshipType} />
-                  <ValidatedTextField label="Acquisition channel" required hint="Examples: Website, Referral, Event." value={supporterForm.acquisitionChannel} onChange={(e) => setSupporterForm({ ...supporterForm, acquisitionChannel: e.target.value })} error={supporterErrors.acquisitionChannel} />
-                  <ValidatedTextField label="First name" value={supporterForm.firstName ?? ''} onChange={(e) => setSupporterForm({ ...supporterForm, firstName: e.target.value })} />
-                  <ValidatedTextField label="Last name" value={supporterForm.lastName ?? ''} onChange={(e) => setSupporterForm({ ...supporterForm, lastName: e.target.value })} />
-                  <ValidatedTextField label="Organization" value={supporterForm.organizationName ?? ''} onChange={(e) => setSupporterForm({ ...supporterForm, organizationName: e.target.value })} />
-                  <ValidatedTextField label="Phone" hint="Optional: include country code if available." value={supporterForm.phone ?? ''} onChange={(e) => setSupporterForm({ ...supporterForm, phone: e.target.value })} error={supporterErrors.phone} />
-                  <ValidatedTextField label="Region" required value={supporterForm.region} onChange={(e) => setSupporterForm({ ...supporterForm, region: e.target.value })} error={supporterErrors.region} />
-                  <ValidatedTextField label="Country" required value={supporterForm.country} onChange={(e) => setSupporterForm({ ...supporterForm, country: e.target.value })} error={supporterErrors.country} />
-                </FormGrid>
-                <div className="form-actions">
-                  <button className="primary-button" disabled={submitting === 'supporter'} type="submit">
-                    {submitting === 'supporter' ? 'Saving...' : editingSupporterId ? 'Update supporter' : 'Create supporter'}
-                  </button>
-                </div>
-              </form>
+              <SupporterRecordForm
+                supporterForm={supporterForm}
+                setSupporterForm={setSupporterForm}
+                supporterErrors={supporterErrors}
+                onSubmit={handleSupporterSubmit}
+                submitting={submitting === 'supporter'}
+                submitLabel="Update supporter"
+              />
             </SectionCard>
           ) : null}
 
@@ -560,54 +466,26 @@ export function DonorsContributionsPage() {
             </DetailPanel>
           </section>
 
-          {isAdmin ? (
+          {isAdmin && editingDonationId ? (
             <SectionCard
-              title={editingDonationId ? 'Edit donation' : 'Create donation'}
+              title="Edit donation"
               subtitle="Capture the full contribution while keeping the primary safehouse allocation visible for review."
-              actions={editingDonationId ? <button className="ghost-button" onClick={resetDonationForm} type="button">Cancel edit</button> : null}
+              actions={
+                <button className="ghost-button" onClick={resetDonationForm} type="button">
+                  Cancel edit
+                </button>
+              }
             >
-              <form className="stack-form" onSubmit={handleDonationSubmit}>
-                <FormSection title="Donation details">
-                  <FormGrid>
-                    <ValidatedSelectField label="Supporter" required error={donationErrors.supporterId} value={donationForm.supporterId} onChange={(e) => setDonationForm({ ...donationForm, supporterId: Number(e.target.value) })}>
-                        {supporterOptions.map((supporter) => <option key={supporter.value} value={supporter.value}>{supporter.label}</option>)}
-                    </ValidatedSelectField>
-                    <ValidatedTextField label="Donation type" required hint="Monetary, InKind, Time, Skills, or SocialMedia." value={donationForm.donationType} onChange={(e) => setDonationForm({ ...donationForm, donationType: e.target.value })} error={donationErrors.donationType} />
-                    <ValidatedTextField label="Donation date" required type="date" value={donationForm.donationDate} onChange={(e) => setDonationForm({ ...donationForm, donationDate: e.target.value })} error={donationErrors.donationDate} />
-                    <ValidatedTextField label="Channel" required hint="Direct, Website, Campaign, SocialMedia, or Event." value={donationForm.channelSource} onChange={(e) => setDonationForm({ ...donationForm, channelSource: e.target.value })} error={donationErrors.channelSource} />
-                    <ValidatedTextField label="Currency" hint="3-letter ISO code, ex: USD or PHP." value={donationForm.currencyCode ?? ''} onChange={(e) => setDonationForm({ ...donationForm, currencyCode: e.target.value })} />
-                    <ValidatedTextField label="Amount" type="number" min="0" step="0.01" hint="Optional when estimated value is used." value={donationForm.amount ?? ''} onChange={(e) => setDonationForm({ ...donationForm, amount: e.target.value ? Number(e.target.value) : null })} />
-                    <ValidatedTextField label="Estimated value" required type="number" min="0.01" step="0.01" hint="Currency amount greater than 0." value={donationForm.estimatedValue} onChange={(e) => setDonationForm({ ...donationForm, estimatedValue: Number(e.target.value) })} error={donationErrors.estimatedValue} />
-                    <ValidatedTextField label="Impact unit" required hint="Example: pesos, meals, kits, sessions." value={donationForm.impactUnit} onChange={(e) => setDonationForm({ ...donationForm, impactUnit: e.target.value })} error={donationErrors.impactUnit} />
-                    <ValidatedTextField label="Campaign" value={donationForm.campaignName ?? ''} onChange={(e) => setDonationForm({ ...donationForm, campaignName: e.target.value })} />
-                    <label className="checkbox-field"><input type="checkbox" checked={donationForm.isRecurring} onChange={(e) => setDonationForm({ ...donationForm, isRecurring: e.target.checked })} /><span>Recurring</span></label>
-                  </FormGrid>
-                </FormSection>
-
-                <FormSection title="Primary allocation">
-                  <FormGrid>
-                    <ValidatedSelectField label="Safehouse"
-                        value={donationForm.allocations[0]?.safehouseId ?? 0}
-                        onChange={(e) => setDonationForm({
-                          ...donationForm,
-                          allocations: [{ ...donationForm.allocations[0], safehouseId: Number(e.target.value) }],
-                        })}
-                    >
-                        {safehouses.map((safehouse) => <option key={safehouse.id} value={safehouse.id}>{safehouse.name}</option>)}
-                    </ValidatedSelectField>
-                    <ValidatedTextField label="Program area" required value={donationForm.allocations[0]?.programArea ?? ''} onChange={(e) => setDonationForm({ ...donationForm, allocations: [{ ...donationForm.allocations[0], programArea: e.target.value }] })} error={donationErrors.programArea} />
-                    <ValidatedTextField label="Allocated amount" required type="number" min="0.01" step="0.01" value={donationForm.allocations[0]?.amountAllocated ?? 0} onChange={(e) => setDonationForm({ ...donationForm, allocations: [{ ...donationForm.allocations[0], amountAllocated: Number(e.target.value) }] })} error={donationErrors.amountAllocated} />
-                    <ValidatedTextField label="Allocation date" required type="date" value={donationForm.allocations[0]?.allocationDate ?? ''} onChange={(e) => setDonationForm({ ...donationForm, allocations: [{ ...donationForm.allocations[0], allocationDate: e.target.value }] })} error={donationErrors.allocationDate} />
-                  </FormGrid>
-                </FormSection>
-
-                <ValidatedTextareaField label="Notes" rows={3} hint="Optional operational details for the contribution record." value={donationForm.notes ?? ''} onChange={(e) => setDonationForm({ ...donationForm, notes: e.target.value })} />
-                <div className="form-actions">
-                  <button className="primary-button" disabled={submitting === 'donation'} type="submit">
-                    {submitting === 'donation' ? 'Saving...' : editingDonationId ? 'Update donation' : 'Create donation'}
-                  </button>
-                </div>
-              </form>
+              <DonationRecordForm
+                donationForm={donationForm}
+                setDonationForm={setDonationForm}
+                donationErrors={donationErrors}
+                supporterOptions={supporterOptions}
+                safehouses={safehouses}
+                onSubmit={handleDonationSubmit}
+                submitting={submitting === 'donation'}
+                submitLabel="Update donation"
+              />
             </SectionCard>
           ) : null}
         </>
