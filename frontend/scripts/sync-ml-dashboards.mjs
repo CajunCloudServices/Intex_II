@@ -17,6 +17,7 @@ const staticFiles = [
   'social-media-dashboard.html',
   'ml-dashboard-shell.css',
   'ml-dashboard-insights.js',
+  'ml-metric-tooltip.js',
 ];
 
 const jsonFiles = [
