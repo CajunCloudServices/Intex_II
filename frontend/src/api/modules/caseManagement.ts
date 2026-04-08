@@ -13,128 +13,98 @@ import type {
 } from '../types';
 
 export const caseManagementApi = {
-  residents: (token: string) =>
-    apiRequest<Resident[]>('/residents', {
-      token,
-    }),
+  residents: () => apiRequest<Resident[]>('/residents'),
 
-  createResident: (token: string, payload: ResidentRequest) =>
+  createResident: (payload: ResidentRequest) =>
     apiRequest<Resident>('/residents', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateResident: (token: string, id: number, payload: ResidentRequest) =>
+  updateResident: (id: number, payload: ResidentRequest) =>
     apiRequest<Resident>(`/residents/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteResident: (token: string, id: number) =>
+  deleteResident: (id: number) =>
     apiRequest<void>(`/residents/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 
-  processRecordings: (token: string) =>
-    apiRequest<ProcessRecording[]>('/process-recordings', {
-      token,
-    }),
+  processRecordings: () => apiRequest<ProcessRecording[]>('/process-recordings'),
 
-  createProcessRecording: (token: string, payload: ProcessRecordingRequest) =>
+  createProcessRecording: (payload: ProcessRecordingRequest) =>
     apiRequest<ProcessRecording>('/process-recordings', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateProcessRecording: (token: string, id: number, payload: ProcessRecordingRequest) =>
+  updateProcessRecording: (id: number, payload: ProcessRecordingRequest) =>
     apiRequest<ProcessRecording>(`/process-recordings/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteProcessRecording: (token: string, id: number) =>
+  deleteProcessRecording: (id: number) =>
     apiRequest<void>(`/process-recordings/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 
-  homeVisitations: (token: string) =>
-    apiRequest<HomeVisitation[]>('/home-visitations', {
-      token,
-    }),
+  homeVisitations: () => apiRequest<HomeVisitation[]>('/home-visitations'),
 
-  createHomeVisitation: (token: string, payload: HomeVisitationRequest) =>
+  createHomeVisitation: (payload: HomeVisitationRequest) =>
     apiRequest<HomeVisitation>('/home-visitations', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateHomeVisitation: (token: string, id: number, payload: HomeVisitationRequest) =>
+  updateHomeVisitation: (id: number, payload: HomeVisitationRequest) =>
     apiRequest<HomeVisitation>(`/home-visitations/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteHomeVisitation: (token: string, id: number) =>
+  deleteHomeVisitation: (id: number) =>
     apiRequest<void>(`/home-visitations/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 
-  safehouses: (token: string) =>
-    apiRequest<Safehouse[]>('/safehouses', {
-      token,
-    }),
+  safehouses: () => apiRequest<Safehouse[]>('/safehouses'),
 
-  createSafehouse: (token: string, payload: SafehouseRequest) =>
+  createSafehouse: (payload: SafehouseRequest) =>
     apiRequest<Safehouse>('/safehouses', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateSafehouse: (token: string, id: number, payload: SafehouseRequest) =>
+  updateSafehouse: (id: number, payload: SafehouseRequest) =>
     apiRequest<Safehouse>(`/safehouses/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteSafehouse: (token: string, id: number) =>
+  deleteSafehouse: (id: number) =>
     apiRequest<void>(`/safehouses/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 
-  incidents: (token: string) =>
-    apiRequest<IncidentReport[]>('/incidents', {
-      token,
-    }),
+  incidents: () => apiRequest<IncidentReport[]>('/incidents'),
 
-  createIncident: (token: string, payload: IncidentReportRequest) =>
+  createIncident: (payload: IncidentReportRequest) =>
     apiRequest<IncidentReport>('/incidents', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateIncident: (token: string, id: number, payload: IncidentReportRequest) =>
+  updateIncident: (id: number, payload: IncidentReportRequest) =>
     apiRequest<IncidentReport>(`/incidents/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteIncident: (token: string, id: number) =>
+  deleteIncident: (id: number) =>
     apiRequest<void>(`/incidents/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 };

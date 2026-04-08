@@ -17,6 +17,7 @@ import type {
   SocialPostAdvisorRequest,
   SafehouseRequest,
   SocialAnalytics,
+  TrendDeploymentSummary,
 } from '../../api/types';
 import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
@@ -78,7 +79,7 @@ function createSocialAdvisorForm(): SocialPostAdvisorRequest {
 }
 
 export function ReportsAnalyticsPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [donationTrends, setDonationTrends] = useState<DonationTrends | null>(null);
   const [residentOutcomes, setResidentOutcomes] = useState<ResidentOutcomeSummary | null>(null);
   const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
@@ -87,6 +88,7 @@ export function ReportsAnalyticsPage() {
   const [outreachPerformance, setOutreachPerformance] = useState<OutreachPerformanceSummary | null>(null);
   const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
   const [counselingRiskSummary, setCounselingRiskSummary] = useState<CounselingRiskSummary | null>(null);
+  const [trendDeployments, setTrendDeployments] = useState<TrendDeploymentSummary | null>(null);
   const [socialAdvisorForm, setSocialAdvisorForm] = useState<SocialPostAdvisorRequest>(createSocialAdvisorForm());
   const [socialAdvisorPrediction, setSocialAdvisorPrediction] = useState<SocialPostAdvisorPrediction | null>(null);
   const [socialAdvisorLoading, setSocialAdvisorLoading] = useState(false);
@@ -111,7 +113,7 @@ export function ReportsAnalyticsPage() {
   const isAdmin = user?.roles.includes('Admin') ?? false;
 
   const loadAnalytics = async () => {
-    if (!token) return;
+    if (!user) return;
 
     // Reports come from several purpose-specific endpoints instead of one giant payload.
     // That keeps the backend query logic easier to understand and lets each report evolve
@@ -120,18 +122,19 @@ export function ReportsAnalyticsPage() {
     setError(null);
 
     try {
-      const [trendData, outcomeData, safehouseReport, reintegrationData, reintegrationRiskData, outreachData, socialData, counselingRiskData, safehouseData, incidentData, residentData] = await Promise.all([
-        api.donationTrends(token),
-        api.residentOutcomes(token),
-        api.safehousePerformance(token),
-        api.reintegrationSummary(token),
-        api.reintegrationRiskSummary(token, 12),
-        api.outreachPerformance(token),
-        api.socialAnalytics(token),
-        api.counselingRiskSummary(token, 12),
-        api.safehouses(token),
-        api.incidents(token),
-        api.residents(token),
+      const [trendData, outcomeData, safehouseReport, reintegrationData, reintegrationRiskData, outreachData, socialData, counselingRiskData, trendDeploymentData, safehouseData, incidentData, residentData] = await Promise.all([
+        api.donationTrends(),
+        api.residentOutcomes(),
+        api.safehousePerformance(),
+        api.reintegrationSummary(),
+        api.reintegrationRiskSummary(12),
+        api.outreachPerformance(),
+        api.socialAnalytics(),
+        api.counselingRiskSummary(12),
+        api.trendDeployments(),
+        api.safehouses(),
+        api.incidents(),
+        api.residents(),
       ]);
       setDonationTrends(trendData);
       setResidentOutcomes(outcomeData);
@@ -141,6 +144,7 @@ export function ReportsAnalyticsPage() {
       setOutreachPerformance(outreachData);
       setSocialAnalytics(socialData);
       setCounselingRiskSummary(counselingRiskData);
+      setTrendDeployments(trendDeploymentData);
       setSafehouses(safehouseData);
       setIncidents(incidentData);
       setResidents(residentData);
@@ -156,9 +160,9 @@ export function ReportsAnalyticsPage() {
 
   useEffect(() => {
     void loadAnalytics();
-  }, [token]);
+  }, [user]);
 
-  if (!token) return null;
+  if (!user) return null;
 
   const performanceRows = safehousePerformance?.safehouses ?? [];
   const totalRaised = donationTrends?.monthlyTotals.reduce((sum, point) => sum + point.totalAmount, 0) ?? 0;
@@ -191,17 +195,17 @@ export function ReportsAnalyticsPage() {
 
   const handleSafehouseSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting('safehouse');
     setFeedback(null);
 
     try {
       const payload = { ...safehouseForm, notes: safehouseForm.notes || null };
       if (editingSafehouseId) {
-        await api.updateSafehouse(token, editingSafehouseId, payload);
+        await api.updateSafehouse(editingSafehouseId, payload);
         setFeedback({ tone: 'success', message: 'Safehouse updated.' });
       } else {
-        await api.createSafehouse(token, payload);
+        await api.createSafehouse(payload);
         setFeedback({ tone: 'success', message: 'Safehouse created.' });
       }
 
@@ -216,7 +220,7 @@ export function ReportsAnalyticsPage() {
 
   const handleIncidentSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting('incident');
     setFeedback(null);
 
@@ -226,10 +230,10 @@ export function ReportsAnalyticsPage() {
         resolutionDate: incidentForm.resolutionDate || null,
       };
       if (editingIncidentId) {
-        await api.updateIncident(token, editingIncidentId, payload);
+        await api.updateIncident(editingIncidentId, payload);
         setFeedback({ tone: 'success', message: 'Incident updated.' });
       } else {
-        await api.createIncident(token, payload);
+        await api.createIncident(payload);
         setFeedback({ tone: 'success', message: 'Incident created.' });
       }
 
@@ -243,9 +247,9 @@ export function ReportsAnalyticsPage() {
   };
 
   const deleteSafehouse = async (id: number) => {
-    if (!token || !window.confirm('Delete this safehouse? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this safehouse? This action requires confirmation.')) return;
     try {
-      await api.deleteSafehouse(token, id);
+      await api.deleteSafehouse(id);
       setFeedback({ tone: 'success', message: 'Safehouse deleted.' });
       await loadAnalytics();
     } catch (err) {
@@ -254,9 +258,9 @@ export function ReportsAnalyticsPage() {
   };
 
   const deleteIncident = async (id: number) => {
-    if (!token || !window.confirm('Delete this incident? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this incident? This action requires confirmation.')) return;
     try {
-      await api.deleteIncident(token, id);
+      await api.deleteIncident(id);
       setFeedback({ tone: 'success', message: 'Incident deleted.' });
       if (selectedIncidentId === id) setSelectedIncidentId(null);
       await loadAnalytics();
@@ -267,7 +271,7 @@ export function ReportsAnalyticsPage() {
 
   const runSocialAdvisor = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSocialAdvisorLoading(true);
     setFeedback(null);
     try {
@@ -277,7 +281,7 @@ export function ReportsAnalyticsPage() {
         numHashtags: Math.max(0, Number(socialAdvisorForm.numHashtags)),
         boostBudgetPhp: Math.max(0, Number(socialAdvisorForm.boostBudgetPhp)),
       };
-      const prediction = await api.socialPostAdvisor(token, payload);
+      const prediction = await api.socialPostAdvisor(payload);
       setSocialAdvisorPrediction(prediction);
     } catch (err) {
       setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Post advisor request failed.' });
@@ -311,6 +315,23 @@ export function ReportsAnalyticsPage() {
         <ErrorState message={error} onRetry={loadAnalytics} />
       ) : (
         <>
+          <section className="page-grid one">
+            <SectionCard title="Deep trend deployment scorecards" subtitle="Operational bridge for all six new exploratory/explanatory trend pipelines.">
+              <DataTable
+                columns={['Pipeline', 'Primary metric', 'Current value', 'Endpoint', 'Recommendation']}
+                rows={(trendDeployments?.rows ?? []).map((row) => [
+                  row.pipelineKey,
+                  row.primaryMetric,
+                  Number.isFinite(row.currentValue) ? row.currentValue.toFixed(4) : '0.0000',
+                  row.endpointPath,
+                  row.recommendation,
+                ])}
+                emptyMessage="Trend deployment rows are not available."
+                caption="Trend pipeline deployment bridge"
+              />
+            </SectionCard>
+          </section>
+
           <section className="page-grid two dashboard-split">
             <SectionCard title="Donation trends" subtitle="Monthly giving totals, campaign activity, and contribution mix">
               {donationTrends ? (

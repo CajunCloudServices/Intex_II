@@ -8,13 +8,15 @@ export const authApi = {
       body: JSON.stringify({ email, password }),
     }),
 
+  logout: () =>
+    apiRequest<void>('/auth/logout', {
+      method: 'POST',
+    }),
+
   authProviders: () => apiRequest<AuthProvidersResponse>('/auth/providers'),
 
   googleLoginUrl: (returnUrl = '/portal') =>
     buildApiUrl(`/auth/google/login?returnUrl=${encodeURIComponent(returnUrl)}`),
 
-  me: (token: string) =>
-    apiRequest<UserProfile>('/auth/me', {
-      token,
-    }),
+  me: () => apiRequest<UserProfile>('/auth/me'),
 };

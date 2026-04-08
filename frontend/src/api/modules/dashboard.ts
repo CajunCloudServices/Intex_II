@@ -10,43 +10,28 @@ import type {
 export const dashboardApi = {
   publicImpact: () => apiRequest<PublicImpactSnapshot[]>('/public-impact'),
 
-  auditLog: (token: string) =>
-    apiRequest<AuditEvent[]>('/audit-log', {
-      token,
-    }),
+  auditLog: () => apiRequest<AuditEvent[]>('/audit-log'),
 
-  dashboardSummary: (token: string) =>
-    apiRequest<DashboardSummary>('/dashboard/summary', {
-      token,
-    }),
+  dashboardSummary: () => apiRequest<DashboardSummary>('/dashboard/summary'),
 
-  dashboardAnalytics: (token: string) =>
-    apiRequest<Record<string, unknown>>('/dashboard/analytics', {
-      token,
-    }),
+  dashboardAnalytics: () => apiRequest<Record<string, unknown>>('/dashboard/analytics'),
 
-  caseConferences: (token: string) =>
-    apiRequest<CaseConference[]>('/case-conferences', {
-      token,
-    }),
+  caseConferences: () => apiRequest<CaseConference[]>('/case-conferences'),
 
-  createCaseConference: (token: string, payload: CaseConferenceRequest) =>
+  createCaseConference: (payload: CaseConferenceRequest) =>
     apiRequest<CaseConference>('/case-conferences', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateCaseConference: (token: string, id: number, payload: CaseConferenceRequest) =>
+  updateCaseConference: (id: number, payload: CaseConferenceRequest) =>
     apiRequest<CaseConference>(`/case-conferences/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteCaseConference: (token: string, id: number) =>
+  deleteCaseConference: (id: number) =>
     apiRequest<void>(`/case-conferences/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 };

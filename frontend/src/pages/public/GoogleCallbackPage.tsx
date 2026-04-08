@@ -12,15 +12,14 @@ function normalizeReturnUrl(returnUrl: string | null) {
 }
 
 export function GoogleCallbackPage() {
-  const { completeGoogleLogin } = useAuth();
+  const { refreshSession } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [error, setError] = useState<string | null>(null);
 
-  const callbackParams = useMemo(() => new URLSearchParams(location.hash.startsWith('#') ? location.hash.slice(1) : location.hash), [location.hash]);
+  const callbackParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
 
   useEffect(() => {
-    const token = callbackParams.get('token');
     const remoteError = callbackParams.get('error');
     const returnUrl = normalizeReturnUrl(callbackParams.get('returnUrl'));
 
@@ -29,23 +28,18 @@ export function GoogleCallbackPage() {
       return;
     }
 
-    if (!token) {
-      setError('Google sign-in did not return a valid session token.');
-      return;
-    }
-
     const complete = async () => {
       try {
-        const profile = await completeGoogleLogin(token);
-        const defaultRoute = profile.roles.includes('Donor') && profile.roles.length === 1 ? '/portal/donor-history' : '/portal/admin';
+        const profile = await refreshSession();
+        const defaultRoute = profile.roles.includes('Donor') && profile.roles.length === 1 ? '/portal/my-impact' : '/portal/admin';
         navigate(returnUrl === '/portal' ? defaultRoute : returnUrl, { replace: true });
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Google sign-in could not be completed.');
+      } catch {
+        setError('Google sign-in could not be completed.');
       }
     };
 
     void complete();
-  }, [callbackParams, completeGoogleLogin, navigate]);
+  }, [callbackParams, refreshSession, navigate]);
 
   return (
     <div className="page-shell narrow">

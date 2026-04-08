@@ -11,7 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { formatDateTime, normalizeText } from '../../lib/format';
 
 export function AuditHistoryPage() {
-  const { token } = useAuth();
+  const { user } = useAuth();
   const [events, setEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -23,12 +23,12 @@ export function AuditHistoryPage() {
 
   useEffect(() => {
     const loadAuditHistory = async () => {
-      if (!token) return;
+      if (!user) return;
       setLoading(true);
       setError(null);
 
       try {
-        const data = await api.auditLog(token);
+        const data = await api.auditLog();
         setEvents(data);
         setSelectedEventId((current) => current ?? data[0]?.id ?? null);
       } catch (err) {
@@ -39,9 +39,9 @@ export function AuditHistoryPage() {
     };
 
     void loadAuditHistory();
-  }, [token]);
+  }, [user]);
 
-  if (!token) return null;
+  if (!user) return null;
 
   const normalizedSearch = normalizeText(deferredSearch);
   const filteredEvents = events.filter((event) => {

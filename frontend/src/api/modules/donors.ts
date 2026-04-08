@@ -11,78 +11,53 @@ import type {
 } from '../types';
 
 export const donorApi = {
-  supporters: (token: string) =>
-    apiRequest<Supporter[]>('/supporters', {
-      token,
-    }),
+  supporters: () => apiRequest<Supporter[]>('/supporters'),
 
-  createSupporter: (token: string, payload: SupporterRequest) =>
+  createSupporter: (payload: SupporterRequest) =>
     apiRequest<Supporter>('/supporters', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateSupporter: (token: string, id: number, payload: SupporterRequest) =>
+  updateSupporter: (id: number, payload: SupporterRequest) =>
     apiRequest<Supporter>(`/supporters/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteSupporter: (token: string, id: number) =>
+  deleteSupporter: (id: number) =>
     apiRequest<void>(`/supporters/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 
-  donations: (token: string) =>
-    apiRequest<Donation[]>('/donations', {
-      token,
-    }),
+  donations: () => apiRequest<Donation[]>('/donations'),
 
-  createDonation: (token: string, payload: DonationRequest) =>
+  createDonation: (payload: DonationRequest) =>
     apiRequest<Donation>('/donations', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  updateDonation: (token: string, id: number, payload: DonationRequest) =>
+  updateDonation: (id: number, payload: DonationRequest) =>
     apiRequest<Donation>(`/donations/${id}`, {
       method: 'PUT',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  deleteDonation: (token: string, id: number) =>
+  deleteDonation: (id: number) =>
     apiRequest<void>(`/donations/${id}?confirm=true`, {
       method: 'DELETE',
-      token,
     }),
 
-  donorHistory: (token: string) =>
-    apiRequest<Donation[]>('/donations/my-history', {
-      token,
-    }),
+  donorHistory: () => apiRequest<Donation[]>('/donations/my-history'),
 
-  donorImpactSummary: (token: string) =>
-    apiRequest<DonorImpactSummary>('/donations/my-impact-summary', {
-      token,
-    }),
+  donorImpactSummary: () => apiRequest<DonorImpactSummary>('/donations/my-impact-summary'),
 
-  donorAllocationBreakdown: (token: string) =>
-    apiRequest<DonorAllocationBreakdown>('/donations/my-allocation-breakdown', {
-      token,
-    }),
+  donorAllocationBreakdown: () => apiRequest<DonorAllocationBreakdown>('/donations/my-allocation-breakdown'),
 
-  donorImpactPrediction: (token: string, amount: number) =>
-    apiRequest<DonationImpactPrediction>(`/donations/predict-impact?amount=${encodeURIComponent(String(amount))}`, {
-      token,
-    }),
+  donorImpactPrediction: (amount: number) =>
+    apiRequest<DonationImpactPrediction>(`/donations/predict-impact?amount=${encodeURIComponent(String(amount))}`),
 
-  donorChurnRiskSummary: (token: string, top = 15) =>
-    apiRequest<DonorChurnRiskSummary>(`/supporters/churn-risk-summary?top=${encodeURIComponent(String(top))}`, {
-      token,
-    }),
+  donorChurnRiskSummary: (top = 15) =>
+    apiRequest<DonorChurnRiskSummary>(`/supporters/churn-risk-summary?top=${encodeURIComponent(String(top))}`),
 };

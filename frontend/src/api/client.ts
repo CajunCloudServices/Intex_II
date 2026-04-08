@@ -4,11 +4,9 @@ function resolveApiBaseUrl() {
     return configured.replace(/\/+$/, '');
   }
 
-  // Local development is allowed to fall back to localhost so teammates can boot the repo
-  // without setting env vars first. Production should fail loudly instead of silently
-  // calling a wrong origin.
+  // Dev: same-origin `/api` so HttpOnly auth cookies stay first-party (Vite proxies to the API).
   if (import.meta.env.DEV) {
-    return 'http://localhost:5080/api';
+    return '/api';
   }
 
   throw new Error('Missing VITE_API_URL. Set the frontend API base URL for this deployment.');
@@ -32,21 +30,24 @@ export class ApiError extends Error {
   }
 }
 
-type RequestOptions = RequestInit & {
-  token?: string | null;
-};
+type RequestOptions = RequestInit;
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const headers = new Headers(options.headers);
-  headers.set('Content-Type', 'application/json');
 
-  if (options.token) {
-    headers.set('Authorization', `Bearer ${options.token}`);
+  const body = options.body;
+  const shouldSetJsonContentType =
+    !headers.has('Content-Type') &&
+    typeof body === 'string' &&
+    body.length > 0 &&
+    !(options.method && options.method.toUpperCase() === 'GET');
+
+  if (shouldSetJsonContentType) {
+    headers.set('Content-Type', 'application/json');
   }
 
-  // Every frontend API helper funnels through this function so authentication, error parsing,
-  // and global auth-expiry handling stay centralized instead of being reimplemented per page.
   const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: 'include',
     ...options,
     headers,
   });
@@ -55,7 +56,6 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     const text = await response.text();
     let message = `Request failed with ${response.status}`;
 
-    // The API often returns JSON error payloads, but we still want a readable fallback.
     try {
       const parsed = JSON.parse(text) as {
         message?: string;
@@ -80,8 +80,6 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       }
     }
 
-    // These window events let AuthContext respond in one place instead of forcing every page
-    // to duplicate session-expiry and permission-denied handling.
     if (response.status === 401) {
       window.dispatchEvent(new CustomEvent('intex:unauthorized'));
     }

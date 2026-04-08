@@ -74,7 +74,7 @@ function createResidentForm(safehouseId?: number): ResidentRequest {
 }
 
 export function CaseloadInventoryPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [residents, setResidents] = useState<Resident[]>([]);
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,12 +95,12 @@ export function CaseloadInventoryPage() {
   const isAdmin = user?.roles.includes('Admin') ?? false;
 
   const loadResidents = async () => {
-    if (!token) return;
+    if (!user) return;
     setLoading(true);
     setError(null);
 
     try {
-      const [residentData, safehouseData] = await Promise.all([api.residents(token), api.safehouses(token)]);
+      const [residentData, safehouseData] = await Promise.all([api.residents(), api.safehouses()]);
       setResidents(residentData);
       setSafehouses(safehouseData);
       setSelectedResidentId((current) => current ?? residentData[0]?.id ?? null);
@@ -114,9 +114,9 @@ export function CaseloadInventoryPage() {
 
   useEffect(() => {
     void loadResidents();
-  }, [token]);
+  }, [user]);
 
-  if (!token) return null;
+  if (!user) return null;
 
   const selectedResident = residents.find((resident) => resident.id === selectedResidentId) ?? residents[0] ?? null;
   const normalizedSearch = normalizeText(deferredSearch);
@@ -179,7 +179,7 @@ export function CaseloadInventoryPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting(true);
     setFeedback(null);
     const formErrors = validateResidentForm(residentForm);
@@ -222,10 +222,10 @@ export function CaseloadInventoryPage() {
       };
 
       if (editingResidentId) {
-        await api.updateResident(token, editingResidentId, payload);
+        await api.updateResident(editingResidentId, payload);
         setFeedback({ tone: 'success', message: 'Resident updated.' });
       } else {
-        await api.createResident(token, payload);
+        await api.createResident(payload);
         setFeedback({ tone: 'success', message: 'Resident created.' });
       }
 
@@ -239,9 +239,9 @@ export function CaseloadInventoryPage() {
   };
 
   const deleteResident = async (id: number) => {
-    if (!token || !window.confirm('Delete this resident record? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this resident record? This action requires confirmation.')) return;
     try {
-      await api.deleteResident(token, id);
+      await api.deleteResident(id);
       setFeedback({ tone: 'success', message: 'Resident deleted.' });
       if (selectedResidentId === id) setSelectedResidentId(null);
       await loadResidents();

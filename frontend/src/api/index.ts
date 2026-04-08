@@ -2,6 +2,7 @@ import { authApi } from './modules/auth';
 import { dashboardApi } from './modules/dashboard';
 import { donorApi } from './modules/donors';
 import { caseManagementApi } from './modules/caseManagement';
+import { mlDashboardApi } from './modules/mlDashboard';
 import { reportsApi } from './modules/reports';
 
 // Keep a single `api` export for the rest of the app so pages do not need to care how the
@@ -12,5 +13,6 @@ export const api = {
   ...dashboardApi,
   ...donorApi,
   ...caseManagementApi,
+  ...mlDashboardApi,
   ...reportsApi,
 };

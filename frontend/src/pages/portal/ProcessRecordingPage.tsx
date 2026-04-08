@@ -33,7 +33,7 @@ function createRecordingForm(residentId?: number): ProcessRecordingRequest {
 }
 
 export function ProcessRecordingPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [recordings, setRecordings] = useState<ProcessRecording[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
   const [counselingRiskSummary, setCounselingRiskSummary] = useState<CounselingRiskSummary | null>(null);
@@ -50,16 +50,16 @@ export function ProcessRecordingPage() {
   const isAdmin = user?.roles.includes('Admin') ?? false;
 
   const loadRecordings = async () => {
-    if (!token) return;
+    if (!user) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const [recordingData, residentData, counselingRiskData] = await Promise.all([
-        api.processRecordings(token),
-        api.residents(token),
-        api.counselingRiskSummary(token, 10),
+        api.processRecordings(),
+        api.residents(),
+        api.counselingRiskSummary(10),
       ]);
       setRecordings(recordingData);
       setResidents(residentData);
@@ -75,9 +75,9 @@ export function ProcessRecordingPage() {
 
   useEffect(() => {
     void loadRecordings();
-  }, [token]);
+  }, [user]);
 
-  if (!token) return null;
+  if (!user) return null;
 
   const normalizedSearch = normalizeText(deferredSearch);
   const selectedRecording = recordings.find((recording) => recording.id === selectedRecordingId) ?? recordings[0] ?? null;
@@ -103,7 +103,7 @@ export function ProcessRecordingPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting(true);
     setFeedback(null);
 
@@ -114,10 +114,10 @@ export function ProcessRecordingPage() {
       };
 
       if (editingRecordingId) {
-        await api.updateProcessRecording(token, editingRecordingId, payload);
+        await api.updateProcessRecording(editingRecordingId, payload);
         setFeedback({ tone: 'success', message: 'Process recording updated.' });
       } else {
-        await api.createProcessRecording(token, payload);
+        await api.createProcessRecording(payload);
         setFeedback({ tone: 'success', message: 'Process recording created.' });
       }
 
@@ -131,9 +131,9 @@ export function ProcessRecordingPage() {
   };
 
   const deleteRecording = async (id: number) => {
-    if (!token || !window.confirm('Delete this process recording? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this process recording? This action requires confirmation.')) return;
     try {
-      await api.deleteProcessRecording(token, id);
+      await api.deleteProcessRecording(id);
       setFeedback({ tone: 'success', message: 'Process recording deleted.' });
       if (selectedRecordingId === id) setSelectedRecordingId(null);
       await loadRecordings();

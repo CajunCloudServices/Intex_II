@@ -198,7 +198,7 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(auth);
-        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
+        Assert.NotNull(auth!.User);
     }
 
     private static async Task AssertHasValidationErrorShapeAsync(HttpResponseMessage response, string expectedFieldName)

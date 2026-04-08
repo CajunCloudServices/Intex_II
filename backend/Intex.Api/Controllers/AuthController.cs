@@ -1,12 +1,13 @@
 using System.Security.Claims;
 using Intex.Api.Authorization;
 using Intex.Api.DTOs;
-using Intex.Api.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Intex.Api.Controllers;
 
@@ -15,13 +16,13 @@ namespace Intex.Api.Controllers;
 public class AuthController(
     IConfiguration configuration,
     UserManager<ApplicationUser> userManager,
-    SignInManager<ApplicationUser> signInManager,
-    IJwtTokenService jwtTokenService) : ControllerBase
+    SignInManager<ApplicationUser> signInManager) : ControllerBase
 {
     private const string GoogleCallbackRoute = "/login/google/callback";
 
     [HttpPost("login")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth-login")]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request)
     {
         var user = await userManager.FindByEmailAsync(request.Email);
@@ -30,13 +31,13 @@ public class AuthController(
             return Unauthorized(new { message = "Invalid email or password." });
         }
 
-        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+        var result = await signInManager.PasswordSignInAsync(user, request.Password, isPersistent: false, lockoutOnFailure: true);
         if (!result.Succeeded)
         {
             return Unauthorized(new { message = "Invalid email or password." });
         }
 
-        return Ok(await jwtTokenService.CreateAuthResponseAsync(user));
+        return Ok(new AuthResponse(await MapUserProfileAsync(user)));
     }
 
     [HttpPost("register")]
@@ -75,7 +76,16 @@ public class AuthController(
         }
 
         await userManager.AddToRoleAsync(user, request.Role);
-        return CreatedAtAction(nameof(Me), await jwtTokenService.CreateAuthResponseAsync(user));
+        // Do not sign in as the new user — the admin's cookie session must remain active.
+        return Created("/api/auth/me", new AuthResponse(await MapUserProfileAsync(user)));
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        await signInManager.SignOutAsync();
+        return NoContent();
     }
 
     [HttpGet("me")]
@@ -88,8 +98,7 @@ public class AuthController(
             return Unauthorized();
         }
 
-        var roles = await userManager.GetRolesAsync(user);
-        return Ok(new UserProfileDto(user.Id, user.Email ?? string.Empty, user.FullName, roles.ToArray(), user.SupporterId));
+        return Ok(await MapUserProfileAsync(user));
     }
 
     [HttpGet("providers")]
@@ -184,31 +193,34 @@ public class AuthController(
             await userManager.UpdateAsync(user);
         }
 
-        var authResponse = await jwtTokenService.CreateAuthResponseAsync(user);
         await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        await signInManager.SignInAsync(user, isPersistent: false);
 
-        return Redirect(BuildFrontendGoogleCallbackUrl(returnUrl, token: authResponse.Token));
+        return Redirect(BuildFrontendGoogleCallbackUrl(returnUrl, error: null));
     }
 
-    private string BuildFrontendGoogleCallbackUrl(string? returnUrl, string? token = null, string? error = null)
+    private async Task<UserProfileDto> MapUserProfileAsync(ApplicationUser user)
     {
-        var frontendBaseUrl = ResolveFrontendBaseUrl();
-        var sanitizedReturnUrl = NormalizeReturnUrl(returnUrl);
+        var roles = await userManager.GetRolesAsync(user);
+        return new UserProfileDto(user.Id, user.Email ?? string.Empty, user.FullName, roles.ToArray(), user.SupporterId);
+    }
 
-        var values = new List<string>();
-        if (!string.IsNullOrWhiteSpace(token))
-        {
-            values.Add($"token={Uri.EscapeDataString(token)}");
-        }
+    private string BuildFrontendGoogleCallbackUrl(string? returnUrl, string? error)
+    {
+        var frontendBaseUrl = ResolveFrontendBaseUrl().TrimEnd('/');
+        var sanitizedReturnUrl = NormalizeReturnUrl(returnUrl);
+        var path = $"{frontendBaseUrl}{GoogleCallbackRoute}";
 
         if (!string.IsNullOrWhiteSpace(error))
         {
-            values.Add($"error={Uri.EscapeDataString(error)}");
+            return QueryHelpers.AddQueryString(path, new Dictionary<string, string?>
+            {
+                ["returnUrl"] = sanitizedReturnUrl,
+                ["error"] = error
+            });
         }
 
-        values.Add($"returnUrl={Uri.EscapeDataString(sanitizedReturnUrl)}");
-
-        return $"{frontendBaseUrl.TrimEnd('/')}{GoogleCallbackRoute}#{string.Join('&', values)}";
+        return QueryHelpers.AddQueryString(path, "returnUrl", sanitizedReturnUrl);
     }
 
     private string ResolveFrontendBaseUrl()

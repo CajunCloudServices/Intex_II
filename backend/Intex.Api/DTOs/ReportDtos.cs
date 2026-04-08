@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Intex.Api.DTOs;
 
 public record DonationTrendPointDto(string PeriodLabel, decimal TotalAmount, int DonationCount);
@@ -105,23 +107,25 @@ public record SocialAnalyticsTotalsDto(
     decimal TotalEstimatedValuePhp,
     decimal AvgEngagementRate);
 
-// TODO: Add optional ?platform=&type=&from=&to=&page=&pageSize= query params when post volumes grow.
 public record SocialAnalyticsResponse(
     SocialAnalyticsTotalsDto Totals,
     IReadOnlyList<PlatformPerformanceDto> PlatformSummaries,
-    IReadOnlyList<SocialPostDetailDto> Posts);
+    IReadOnlyList<SocialPostDetailDto> Posts,
+    int Page,
+    int PageSize,
+    int TotalPosts);
 
 public record SocialPostAdvisorRequestDto(
-    string Platform,
-    string PostType,
-    string MediaType,
-    string SentimentTone,
-    int PostHour,
-    int NumHashtags,
+    [Required, StringLength(40)] string Platform,
+    [Required, StringLength(40)] string PostType,
+    [Required, StringLength(40)] string MediaType,
+    [Required, StringLength(40)] string SentimentTone,
+    [Range(0, 23)] int PostHour,
+    [Range(0, 20)] int NumHashtags,
     bool HasCallToAction,
     bool FeaturesResidentStory,
     bool IsBoosted,
-    decimal BoostBudgetPhp);
+    [Range(typeof(decimal), "0", "1000000")] decimal BoostBudgetPhp);
 
 public record SocialPostAdvisorFeatureContributionDto(
     string Feature,
@@ -182,3 +186,16 @@ public record ReintegrationRiskSummaryResponse(
     int MediumRiskCount,
     int LowRiskCount,
     IReadOnlyList<ReintegrationRiskRowDto> TopRiskResidents);
+
+public record TrendDeploymentRowDto(
+    string PipelineKey,
+    string BusinessQuestion,
+    string EndpointPath,
+    string UiSurface,
+    string PrimaryMetric,
+    decimal CurrentValue,
+    string Recommendation);
+
+public record TrendDeploymentSummaryResponse(
+    DateTime GeneratedAtUtc,
+    IReadOnlyList<TrendDeploymentRowDto> Rows);

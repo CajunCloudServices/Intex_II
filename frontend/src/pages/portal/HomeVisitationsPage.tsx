@@ -55,7 +55,7 @@ const visitTypeOptions = [
 ];
 
 export function HomeVisitationsPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [visitations, setVisitations] = useState<HomeVisitation[]>([]);
   const [conferences, setConferences] = useState<CaseConference[]>([]);
   const [residents, setResidents] = useState<Resident[]>([]);
@@ -76,7 +76,7 @@ export function HomeVisitationsPage() {
   const isAdmin = user?.roles.includes('Admin') ?? false;
 
   const loadData = async () => {
-    if (!token) return;
+    if (!user) return;
 
     // This page combines two related workflows on purpose: home visit notes and case
     // conferences are usually reviewed together when staff are checking follow-up readiness.
@@ -85,9 +85,9 @@ export function HomeVisitationsPage() {
 
     try {
       const [visitationData, conferenceData, residentData] = await Promise.all([
-        api.homeVisitations(token),
-        api.caseConferences(token),
-        api.residents(token),
+        api.homeVisitations(),
+        api.caseConferences(),
+        api.residents(),
       ]);
 
       setVisitations(visitationData);
@@ -106,9 +106,9 @@ export function HomeVisitationsPage() {
 
   useEffect(() => {
     void loadData();
-  }, [token]);
+  }, [user]);
 
-  if (!token) return null;
+  if (!user) return null;
 
   const normalizedSearch = normalizeText(deferredSearch);
   const filteredVisitations = visitations.filter((visit) => {
@@ -155,7 +155,7 @@ export function HomeVisitationsPage() {
 
   const handleVisitSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting('visit');
     setFeedback(null);
 
@@ -166,10 +166,10 @@ export function HomeVisitationsPage() {
       };
 
       if (editingVisitId) {
-        await api.updateHomeVisitation(token, editingVisitId, payload);
+        await api.updateHomeVisitation(editingVisitId, payload);
         setFeedback({ tone: 'success', message: 'Home visitation updated.' });
       } else {
-        await api.createHomeVisitation(token, payload);
+        await api.createHomeVisitation(payload);
         setFeedback({ tone: 'success', message: 'Home visitation created.' });
       }
 
@@ -184,7 +184,7 @@ export function HomeVisitationsPage() {
 
   const handleConferenceSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting('conference');
     setFeedback(null);
 
@@ -195,10 +195,10 @@ export function HomeVisitationsPage() {
       };
 
       if (editingConferenceId) {
-        await api.updateCaseConference(token, editingConferenceId, payload);
+        await api.updateCaseConference(editingConferenceId, payload);
         setFeedback({ tone: 'success', message: 'Case conference updated.' });
       } else {
-        await api.createCaseConference(token, payload);
+        await api.createCaseConference(payload);
         setFeedback({ tone: 'success', message: 'Case conference created.' });
       }
 
@@ -212,9 +212,9 @@ export function HomeVisitationsPage() {
   };
 
   const deleteVisit = async (id: number) => {
-    if (!token || !window.confirm('Delete this home visitation? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this home visitation? This action requires confirmation.')) return;
     try {
-      await api.deleteHomeVisitation(token, id);
+      await api.deleteHomeVisitation(id);
       setFeedback({ tone: 'success', message: 'Home visitation deleted.' });
       if (selectedVisitId === id) setSelectedVisitId(null);
       await loadData();
@@ -224,9 +224,9 @@ export function HomeVisitationsPage() {
   };
 
   const deleteConference = async (id: number) => {
-    if (!token || !window.confirm('Delete this case conference? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this case conference? This action requires confirmation.')) return;
     try {
-      await api.deleteCaseConference(token, id);
+      await api.deleteCaseConference(id);
       setFeedback({ tone: 'success', message: 'Case conference deleted.' });
       if (selectedConferenceId === id) setSelectedConferenceId(null);
       await loadData();

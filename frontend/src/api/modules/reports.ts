@@ -10,53 +10,33 @@ import type {
   SocialAnalytics,
   SocialPostAdvisorPrediction,
   SocialPostAdvisorRequest,
+  TrendDeploymentSummary,
 } from '../types';
 
 export const reportsApi = {
-  donationTrends: (token: string) =>
-    apiRequest<DonationTrends>('/reports/donation-trends', {
-      token,
-    }),
+  donationTrends: () => apiRequest<DonationTrends>('/reports/donation-trends'),
 
-  residentOutcomes: (token: string) =>
-    apiRequest<ResidentOutcomeSummary>('/reports/resident-outcomes', {
-      token,
-    }),
+  residentOutcomes: () => apiRequest<ResidentOutcomeSummary>('/reports/resident-outcomes'),
 
-  safehousePerformance: (token: string) =>
-    apiRequest<SafehousePerformanceSummary>('/reports/safehouse-performance', {
-      token,
-    }),
+  safehousePerformance: () => apiRequest<SafehousePerformanceSummary>('/reports/safehouse-performance'),
 
-  reintegrationSummary: (token: string) =>
-    apiRequest<ReintegrationSummary>('/reports/reintegration-summary', {
-      token,
-    }),
+  reintegrationSummary: () => apiRequest<ReintegrationSummary>('/reports/reintegration-summary'),
 
-  outreachPerformance: (token: string) =>
-    apiRequest<OutreachPerformanceSummary>('/reports/outreach-performance', {
-      token,
-    }),
+  outreachPerformance: () => apiRequest<OutreachPerformanceSummary>('/reports/outreach-performance'),
 
-  socialAnalytics: (token: string) =>
-    apiRequest<SocialAnalytics>('/reports/social-analytics', {
-      token,
-    }),
+  socialAnalytics: () => apiRequest<SocialAnalytics>('/reports/social-analytics'),
 
-  socialPostAdvisor: (token: string, payload: SocialPostAdvisorRequest) =>
+  socialPostAdvisor: (payload: SocialPostAdvisorRequest) =>
     apiRequest<SocialPostAdvisorPrediction>('/reports/social-post-advisor', {
       method: 'POST',
-      token,
       body: JSON.stringify(payload),
     }),
 
-  counselingRiskSummary: (token: string, top = 15) =>
-    apiRequest<CounselingRiskSummary>(`/reports/counseling-risk?top=${encodeURIComponent(String(top))}`, {
-      token,
-    }),
+  counselingRiskSummary: (top = 15) =>
+    apiRequest<CounselingRiskSummary>(`/reports/counseling-risk?top=${encodeURIComponent(String(top))}`),
 
-  reintegrationRiskSummary: (token: string, top = 12) =>
-    apiRequest<ReintegrationRiskSummary>(`/ml/reintegration-risk-summary?top=${encodeURIComponent(String(top))}`, {
-      token,
-    }),
+  reintegrationRiskSummary: (top = 12) =>
+    apiRequest<ReintegrationRiskSummary>(`/ml/reintegration-risk-summary?top=${encodeURIComponent(String(top))}`),
+
+  trendDeployments: () => apiRequest<TrendDeploymentSummary>('/reports/trend-deployments'),
 };

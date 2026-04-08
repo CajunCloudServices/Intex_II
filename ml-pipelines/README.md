@@ -8,6 +8,23 @@ This folder contains notebook-based ML exploration and a production bridge for i
 - `donor-churn-prediction.ipynb`
 - `social-media-conversion.ipynb`
 - `reintegration-readiness.ipynb`
+- `social-content-mix-efficiency.ipynb`
+- `campaign-timing-seasonality.ipynb`
+- `safehouse-operational-load-risk.ipynb`
+- `intervention-mix-effectiveness.ipynb`
+- `incident-composition-archetypes.ipynb`
+- `resident-trajectory-archetypes.ipynb`
+
+## Deep trend workbook run order
+
+Run these six in sequence for the deep-trend program:
+
+1. `social-content-mix-efficiency.ipynb`
+2. `campaign-timing-seasonality.ipynb`
+3. `safehouse-operational-load-risk.ipynb`
+4. `intervention-mix-effectiveness.ipynb`
+5. `incident-composition-archetypes.ipynb`
+6. `resident-trajectory-archetypes.ipynb`
 
 ## Shared loader
 

@@ -72,7 +72,7 @@ function createDonationForm(safehouseId?: number): DonationRequest {
 }
 
 export function DonorsContributionsPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [supporters, setSupporters] = useState<Supporter[]>([]);
   const [donations, setDonations] = useState<Donation[]>([]);
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
@@ -95,17 +95,17 @@ export function DonorsContributionsPage() {
   const isAdmin = user?.roles.includes('Admin') ?? false;
 
   const loadData = async () => {
-    if (!token) return;
+    if (!user) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const [supportersData, donationsData, safehouseData, churnRiskData] = await Promise.all([
-        api.supporters(token),
-        api.donations(token),
-        api.safehouses(token),
-        api.donorChurnRiskSummary(token, 12),
+        api.supporters(),
+        api.donations(),
+        api.safehouses(),
+        api.donorChurnRiskSummary(12),
       ]);
       setSupporters(supportersData);
       setDonations(donationsData);
@@ -123,7 +123,7 @@ export function DonorsContributionsPage() {
 
   useEffect(() => {
     void loadData();
-  }, [token]);
+  }, [user]);
 
   const selectedSupporter = supporters.find((supporter) => supporter.id === selectedSupporterId) ?? supporters[0] ?? null;
   const selectedDonation = donations.find((donation) => donation.id === selectedDonationId) ?? donations[0] ?? null;
@@ -158,7 +158,7 @@ export function DonorsContributionsPage() {
     [supporters],
   );
 
-  if (!token) return null;
+  if (!user) return null;
 
   const resetSupporterForm = () => {
     setEditingSupporterId(null);
@@ -203,7 +203,7 @@ export function DonorsContributionsPage() {
 
   const handleSupporterSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting('supporter');
     setFeedback(null);
     const formErrors = validateSupporterForm(supporterForm);
@@ -233,10 +233,10 @@ export function DonorsContributionsPage() {
       };
 
       if (editingSupporterId) {
-        await api.updateSupporter(token, editingSupporterId, payload);
+        await api.updateSupporter(editingSupporterId, payload);
         setFeedback({ tone: 'success', message: 'Supporter updated.' });
       } else {
-        await api.createSupporter(token, payload);
+        await api.createSupporter(payload);
         setFeedback({ tone: 'success', message: 'Supporter created.' });
       }
 
@@ -251,7 +251,7 @@ export function DonorsContributionsPage() {
 
   const handleDonationSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!token) return;
+    if (!user) return;
     setSubmitting('donation');
     setFeedback(null);
     const formErrors = validateDonationForm(donationForm);
@@ -278,10 +278,10 @@ export function DonorsContributionsPage() {
         })),
       };
       if (editingDonationId) {
-        await api.updateDonation(token, editingDonationId, payload);
+        await api.updateDonation(editingDonationId, payload);
         setFeedback({ tone: 'success', message: 'Donation updated.' });
       } else {
-        await api.createDonation(token, payload);
+        await api.createDonation(payload);
         setFeedback({ tone: 'success', message: 'Donation created.' });
       }
 
@@ -295,9 +295,9 @@ export function DonorsContributionsPage() {
   };
 
   const deleteSupporter = async (id: number) => {
-    if (!token || !window.confirm('Delete this supporter? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this supporter? This action requires confirmation.')) return;
     try {
-      await api.deleteSupporter(token, id);
+      await api.deleteSupporter(id);
       setFeedback({ tone: 'success', message: 'Supporter deleted.' });
       if (selectedSupporterId === id) setSelectedSupporterId(null);
       await loadData();
@@ -307,9 +307,9 @@ export function DonorsContributionsPage() {
   };
 
   const deleteDonation = async (id: number) => {
-    if (!token || !window.confirm('Delete this donation? This action requires confirmation.')) return;
+    if (!user || !window.confirm('Delete this donation? This action requires confirmation.')) return;
     try {
-      await api.deleteDonation(token, id);
+      await api.deleteDonation(id);
       setFeedback({ tone: 'success', message: 'Donation deleted.' });
       if (selectedDonationId === id) setSelectedDonationId(null);
       await loadData();

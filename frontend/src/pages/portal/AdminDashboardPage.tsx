@@ -9,7 +9,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { formatDateTime, formatMoney } from '../../lib/format';
 
 export function AdminDashboardPage() {
-  const { token } = useAuth();
+  const { user } = useAuth();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
   const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
@@ -18,16 +18,16 @@ export function AdminDashboardPage() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   const loadSummary = async () => {
-    if (!token) return;
+    if (!user) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const [dashboard, safehouses, social] = await Promise.all([
-        api.dashboardSummary(token),
-        api.safehousePerformance(token),
-        api.socialAnalytics(token),
+        api.dashboardSummary(),
+        api.safehousePerformance(),
+        api.socialAnalytics(),
       ]);
       setSummary(dashboard);
       setSafehousePerformance(safehouses);
@@ -42,9 +42,9 @@ export function AdminDashboardPage() {
 
   useEffect(() => {
     void loadSummary();
-  }, [token]);
+  }, [user]);
 
-  if (!token) return null;
+  if (!user) return null;
 
   return (
     <div className="page-shell dashboard-page">

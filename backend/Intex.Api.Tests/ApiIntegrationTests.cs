@@ -9,9 +9,11 @@ namespace Intex.Api.Tests;
 public class ApiIntegrationTests : IClassFixture<ApiFactory>
 {
     private readonly HttpClient _client;
+    private readonly ApiFactory _factory;
 
     public ApiIntegrationTests(ApiFactory factory)
     {
+        _factory = factory;
         _client = factory.CreateClient(new WebApplicationFactoryClientOptions
         {
             AllowAutoRedirect = false
@@ -381,11 +383,15 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.Equal("donor@intex.local", auth!.User.Email);
         Assert.Contains("Donor", auth.User.Roles);
 
-        var donorHistory = await _client.GetAsync("/api/donations/my-history");
-        Assert.Equal(HttpStatusCode.Unauthorized, donorHistory.StatusCode);
+        using var anon = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = false,
+        });
+        var anonymousDonorHistory = await anon.GetAsync("/api/donations/my-history");
+        Assert.Equal(HttpStatusCode.Unauthorized, anonymousDonorHistory.StatusCode);
 
-        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth.Token);
-        donorHistory = await _client.GetAsync("/api/donations/my-history");
+        var donorHistory = await _client.GetAsync("/api/donations/my-history");
 
         Assert.True(donorHistory.IsSuccessStatusCode, await donorHistory.Content.ReadAsStringAsync());
         var donations = await donorHistory.Content.ReadFromJsonAsync<List<DonationResponse>>();
@@ -400,7 +406,6 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(auth);
-        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
     }
 
     private async Task LoginAsDonorAsync()
@@ -410,7 +415,6 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(auth);
-        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
     }
 
     private async Task LoginAsDonor2Async()
@@ -420,7 +424,6 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(auth);
-        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
     }
 
     private async Task LoginAsStaffAsync()
@@ -430,7 +433,6 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(auth);
-        _client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", auth!.Token);
     }
 
     public static IEnumerable<object[]> AdminOnlyMutationCases()

@@ -1,4 +1,4 @@
-using System.Text;
+using System.Net;
 using Intex.Api;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
@@ -7,16 +7,16 @@ using Intex.Api.Infrastructure;
 using Intex.Api.Models.Options;
 using Intex.Api.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,14 +27,13 @@ builder.Services.AddHsts(options =>
     options.Preload = true;
 });
 
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 builder.Services.Configure<MlInferenceOptions>(builder.Configuration.GetSection(MlInferenceOptions.SectionName));
+builder.Services.Configure<MlDashboardOptions>(builder.Configuration.GetSection(MlDashboardOptions.SectionName));
 builder.Services.Configure<SeedOptions>(builder.Configuration.GetSection(SeedOptions.SectionName));
 builder.Services.Configure<DonationImpactOptions>(builder.Configuration.GetSection(DonationImpactOptions.SectionName));
 
-// The API can run against Postgres for normal app usage or an in-memory database for tests
-// and quick local verification. Keeping that choice in one place makes the rest of the app
-// behave the same regardless of which provider is active.
+ConfigureForwardedHeaders(builder);
+
 var useInMemoryDatabase = builder.Environment.IsEnvironment("Test") ||
     string.Equals(builder.Configuration["Database:Provider"], "InMemory", StringComparison.OrdinalIgnoreCase);
 
@@ -59,10 +58,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 });
 
 builder.Services
-    .AddIdentityCore<ApplicationUser>(options =>
+    .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
     {
-        // Password rules are intentionally stricter than the bare defaults so the project
-        // can point to a concrete security control during review.
         options.Password.RequiredLength = 12;
         options.Password.RequireDigit = true;
         options.Password.RequireLowercase = true;
@@ -73,23 +70,42 @@ builder.Services
         options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         options.Lockout.AllowedForNewUsers = true;
     })
-    .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddSignInManager()
     .AddDefaultTokenProviders();
 
-var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() ?? new JwtOptions();
-var isProductionLike = !(builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Test"));
-if (isProductionLike &&
-    (string.IsNullOrWhiteSpace(jwtOptions.Key) ||
-     jwtOptions.Key.Length < 32 ||
-     jwtOptions.Key == JwtOptions.DevelopmentPlaceholderKey))
-{
-    throw new InvalidOperationException(
-        "Production startup requires a strong Jwt:Key value from environment variables or secret storage.");
-}
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, ApplicationUserClaimsPrincipalFactory>();
 
-var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key));
+var isProductionLike = !(builder.Environment.IsDevelopment() || builder.Environment.IsEnvironment("Test"));
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.Name = "Intex.Auth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = isProductionLike ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = isProductionLike ? SameSiteMode.None : SameSiteMode.Lax;
+    options.SlidingExpiration = true;
+    options.ExpireTimeSpan = TimeSpan.FromHours(2);
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
+});
+
+builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme, options =>
+{
+    options.Cookie.Name = "Intex.External";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = isProductionLike ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = isProductionLike ? SameSiteMode.None : SameSiteMode.Lax;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(15);
+});
+
 var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
 var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 var publicApiHostname = builder.Configuration["PUBLIC_API_HOSTNAME"];
@@ -109,28 +125,11 @@ var defaultFrontendOrigins = new[]
     "http://127.0.0.1:5173"
 };
 
-var authenticationBuilder = builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddCookie(IdentityConstants.ExternalScheme)
-    .AddJwtBearer(options =>
-    {
-        options.RequireHttpsMetadata = isProductionLike;
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = true,
-            ValidIssuer = jwtOptions.Issuer,
-            ValidAudience = jwtOptions.Audience,
-            IssuerSigningKey = signingKey,
-            ClockSkew = TimeSpan.FromMinutes(2)
-        };
-    });
-
+// Identity already registers the External cookie scheme; only add the Google handler when configured.
 if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
 {
-    authenticationBuilder.AddGoogle(options =>
+    builder.Services.AddAuthentication()
+        .AddGoogle(options =>
     {
         static string NormalizeReturnUrl(string? returnUrl)
         {
@@ -146,16 +145,18 @@ if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(goo
         {
             var resolvedFrontendBaseUrl = frontendBaseUrl ?? publicApiHostname ?? string.Empty;
             var sanitizedReturnUrl = NormalizeReturnUrl(returnUrl);
-            var values = new List<string>();
+            var path = $"{resolvedFrontendBaseUrl.TrimEnd('/')}/login/google/callback";
 
             if (!string.IsNullOrWhiteSpace(error))
             {
-                values.Add($"error={Uri.EscapeDataString(error)}");
+                return QueryHelpers.AddQueryString(path, new Dictionary<string, string?>
+                {
+                    ["returnUrl"] = sanitizedReturnUrl,
+                    ["error"] = error
+                });
             }
 
-            values.Add($"returnUrl={Uri.EscapeDataString(sanitizedReturnUrl)}");
-
-            return $"{resolvedFrontendBaseUrl.TrimEnd('/')}/login/google/callback#{string.Join('&', values)}";
+            return QueryHelpers.AddQueryString(path, "returnUrl", sanitizedReturnUrl);
         }
 
         options.SignInScheme = IdentityConstants.ExternalScheme;
@@ -220,13 +221,50 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(Policies.DonorOnly, policy => policy.RequireRole(RoleNames.Donor));
 });
 
+var isTestEnvironment = builder.Environment.IsEnvironment("Test");
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: remoteIp,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = isTestEnvironment ? 1_000_000 : 120,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
+    });
+
+    options.AddFixedWindowLimiter("auth-login", limiterOptions =>
+    {
+        // Integration tests perform many sequential logins; keep strict limits for non-test environments only.
+        limiterOptions.PermitLimit = isTestEnvironment ? 1_000_000 : 10;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+        limiterOptions.AutoReplenishment = true;
+    });
+
+    options.AddFixedWindowLimiter("reports-heavy", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = isTestEnvironment ? 1_000_000 : 60;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+        limiterOptions.AutoReplenishment = true;
+    });
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        // In production, CORS should come from environment variables so the deployed frontend
-        // can be changed without editing code. These localhost entries are only the fallback
-        // for local development when no explicit deployment origin has been provided yet.
         var configuredOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
         var validConfiguredOrigins = configuredOrigins?
             .Where(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
@@ -240,14 +278,15 @@ builder.Services.AddCors(options =>
         {
             policy.WithOrigins(validConfiguredOrigins)
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
             return;
         }
 
-        policy.WithOrigins(
-                defaultFrontendOrigins)
+        policy.WithOrigins(defaultFrontendOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -281,7 +320,6 @@ builder.Services
         };
     });
 builder.Services.AddOpenApi();
-builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<IReintegrationFeatureBuilder, ReintegrationFeatureBuilder>();
 builder.Services.AddScoped<ICsvRelationalSeeder, CsvRelationalSeeder>();
 builder.Services.AddHttpClient<IMlInferenceClient, MlInferenceClient>((serviceProvider, client) =>
@@ -295,14 +333,7 @@ builder.Services.AddScoped<AppSeeder>();
 
 var app = builder.Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-    // Tanglaw Project is deployed behind a local reverse proxy in Docker and an external TLS proxy.
-    // Clear the defaults so forwarded scheme/host data from that chain is honored consistently.
-    KnownIPNetworks = { },
-    KnownProxies = { }
-});
+app.UseForwardedHeaders();
 
 app.Use(async (context, next) =>
 {
@@ -346,13 +377,13 @@ else
     app.UseHsts();
 }
 
-// Keep HTTPS redirection for deployed environments, but avoid breaking local React/Vite development with cross-origin preflight redirects.
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
 app.UseRouting();
+app.UseRateLimiter();
 
 app.Use(async (context, next) =>
 {
@@ -361,6 +392,7 @@ app.Use(async (context, next) =>
     {
         context.Response.Headers["Access-Control-Allow-Origin"] = origin;
         context.Response.Headers["Vary"] = "Origin";
+        context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
         context.Response.Headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type";
         context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS";
 
@@ -405,19 +437,49 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // Keep automated tests fast and deterministic by skipping migrations when the host is running under the Test environment.
     if (!app.Environment.IsEnvironment("Test") && !useInMemoryDatabase)
     {
         await dbContext.Database.MigrateAsync();
     }
 
-    // Seed data gives the frontend meaningful records immediately after startup. The seeder is
-    // written to be idempotent, so repeated boots do not keep inserting duplicates.
     var seeder = scope.ServiceProvider.GetRequiredService<AppSeeder>();
     await seeder.SeedAsync();
 }
 
 app.Run();
+
+static void ConfigureForwardedHeaders(WebApplicationBuilder builder)
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        var knownProxies = builder.Configuration.GetSection("ForwardedHeaders:KnownProxyIPs").Get<string[]>();
+        if (knownProxies is { Length: > 0 })
+        {
+            options.KnownProxies.Clear();
+            foreach (var ip in knownProxies)
+            {
+                if (IPAddress.TryParse(ip, out var address))
+                {
+                    options.KnownProxies.Add(address);
+                }
+            }
+        }
+
+        var knownNetworks = builder.Configuration.GetSection("ForwardedHeaders:KnownNetworks").Get<string[]>();
+        if (knownNetworks is { Length: > 0 })
+        {
+            options.KnownIPNetworks.Clear();
+            foreach (var cidr in knownNetworks)
+            {
+                if (System.Net.IPNetwork.TryParse(cidr, out var network))
+                {
+                    options.KnownIPNetworks.Add(network);
+                }
+            }
+        }
+    });
+}
 
 static string BuildProductionConnectSources(IConfiguration configuration)
 {

@@ -35,4 +35,13 @@ function preloadBuiltCssPlugin(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), preloadBuiltCssPlugin()],
+  server: {
+    proxy: {
+      // Same-origin `/api` in dev so HttpOnly session cookies work with the Vite dev server.
+      '/api': {
+        target: 'http://localhost:5080',
+        changeOrigin: true,
+      },
+    },
+  },
 })

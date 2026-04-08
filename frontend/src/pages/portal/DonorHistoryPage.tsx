@@ -9,7 +9,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageSt
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
 
 export function DonorHistoryPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth();
   const [donations, setDonations] = useState<Donation[]>([]);
   const [impactSummary, setImpactSummary] = useState<DonorImpactSummary | null>(null);
   const [allocationBreakdown, setAllocationBreakdown] = useState<DonorAllocationBreakdown | null>(null);
@@ -23,16 +23,16 @@ export function DonorHistoryPage() {
   const deferredSearch = useDeferredValue(search);
 
   const loadDonations = async () => {
-    if (!token) return;
+    if (!user) return;
 
     setLoading(true);
     setError(null);
 
     try {
       const [history, summary, breakdown] = await Promise.all([
-        api.donorHistory(token),
-        api.donorImpactSummary(token),
-        api.donorAllocationBreakdown(token),
+        api.donorHistory(),
+        api.donorImpactSummary(),
+        api.donorAllocationBreakdown(),
       ]);
       setDonations(history);
       setImpactSummary(summary);
@@ -45,7 +45,7 @@ export function DonorHistoryPage() {
   };
 
   const estimateImpact = async () => {
-    if (!token) return;
+    if (!user) return;
     const amount = Number(predictionAmount);
     if (!Number.isFinite(amount) || amount <= 0) {
       setPrediction(null);
@@ -54,7 +54,7 @@ export function DonorHistoryPage() {
 
     setPredicting(true);
     try {
-      setPrediction(await api.donorImpactPrediction(token, amount));
+      setPrediction(await api.donorImpactPrediction(amount));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to estimate donation impact.');
     } finally {
@@ -64,9 +64,13 @@ export function DonorHistoryPage() {
 
   useEffect(() => {
     void loadDonations();
-  }, [token]);
+  }, [user]);
 
-  if (!user || !token) {
+  useEffect(() => {
+    void estimateImpact();
+  }, [user]);
+
+  if (!user) {
     return null;
   }
 
@@ -84,10 +88,6 @@ export function DonorHistoryPage() {
 
   const totalGiven = donations.reduce((sum, donation) => sum + (donation.amount ?? donation.estimatedValue), 0);
   const recurringCount = donations.filter((donation) => donation.isRecurring).length;
-
-  useEffect(() => {
-    void estimateImpact();
-  }, [token]);
 
   return (
     <div className="page-shell">

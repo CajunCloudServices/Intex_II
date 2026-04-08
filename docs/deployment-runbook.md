@@ -22,9 +22,6 @@ This document describes the current production deployment shape used by Tanglaw 
 - `POSTGRES_USER`
 - `POSTGRES_PASSWORD`
 - `CONNECTIONSTRINGS__DEFAULTCONNECTION`
-- `JWT__KEY`
-- `JWT__ISSUER`
-- `JWT__AUDIENCE`
 - `CORS__ALLOWEDORIGINS__0`
 - `FRONTEND__BASEURL`
 - `PUBLIC_API_HOSTNAME`

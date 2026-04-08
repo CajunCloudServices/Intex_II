@@ -13,6 +13,7 @@ public record RegisterRequest(
     [Required, StringLength(20)] string Role,
     int? SupporterId);
 
-public record AuthResponse(string Token, DateTime ExpiresAtUtc, UserProfileDto User);
+/// <summary>Cookie session established server-side; no token is returned to the client.</summary>
+public record AuthResponse(UserProfileDto User);
 
 public record UserProfileDto(Guid Id, string Email, string FullName, string[] Roles, int? SupporterId);

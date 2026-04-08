@@ -67,3 +67,58 @@ This checklist maps rubric expectations to concrete notebook and app evidence.
   - `frontend/src/api/types.ts`
 - Criteria map:
   - `docs/criteria-map.md`
+
+## Deep Trend Pipeline 5: Social Content Mix Efficiency
+
+- Notebook: `ml-pipelines/social-content-mix-efficiency.ipynb`
+  - Explicit prediction vs explanation framing
+  - Reproducible prep pipeline and feature-selection outputs
+  - Baseline vs predictive comparison and CV reporting
+- Deployment evidence:
+  - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
+  - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx` ("Deep trend deployment scorecards")
+
+## Deep Trend Pipeline 6: Campaign Timing and Seasonality
+
+- Notebook: `ml-pipelines/campaign-timing-seasonality.ipynb`
+  - Time-aware split, baseline, explanatory and predictive tracks
+  - Campaign and calendar feature interpretation for planning decisions
+- Deployment evidence:
+  - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
+  - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
+
+## Deep Trend Pipeline 7: Safehouse Operational Load Risk
+
+- Notebook: `ml-pipelines/safehouse-operational-load-risk.ipynb`
+  - Incident-rate explanatory model and guarded predictive path
+  - Handles one-class snapshot condition without pipeline failure
+- Deployment evidence:
+  - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
+  - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
+
+## Deep Trend Pipeline 8: Intervention Mix Effectiveness
+
+- Notebook: `ml-pipelines/intervention-mix-effectiveness.ipynb`
+  - Emotional trajectory explanation + escalation prediction
+  - Baseline/CV metrics and actionable intervention guidance
+- Deployment evidence:
+  - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
+  - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
+
+## Deep Trend Pipeline 9: Incident Composition Archetypes
+
+- Notebook: `ml-pipelines/incident-composition-archetypes.ipynb`
+  - Severity explanation and multiclass incident-type prediction
+  - Macro-F1/accuracy discipline and prevention-playbook recommendations
+- Deployment evidence:
+  - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
+  - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`
+
+## Deep Trend Pipeline 10: Resident Trajectory Archetypes
+
+- Notebook: `ml-pipelines/resident-trajectory-archetypes.ipynb`
+  - Cross-domain trajectory explanatory + predictive tracks
+  - Feature importance and decision prioritization outputs
+- Deployment evidence:
+  - Endpoint included in trend bridge: `GET /api/reports/trend-deployments`
+  - UI integration: `frontend/src/pages/portal/ReportsAnalyticsPage.tsx`

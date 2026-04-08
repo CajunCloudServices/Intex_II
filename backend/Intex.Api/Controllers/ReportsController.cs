@@ -3,6 +3,7 @@ using Intex.Api.Data;
 using Intex.Api.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Intex.Api.Controllers;
@@ -10,54 +11,70 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/reports")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
+[EnableRateLimiting("reports-heavy")]
 public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
 {
     [HttpGet("donation-trends")]
     public async Task<ActionResult<DonationTrendsResponse>> GetDonationTrends()
     {
-        var donations = await dbContext.Donations.ToListAsync();
-        var totals = donations
+        var monthlyRows = await dbContext.Donations
             .GroupBy(x => new { x.DonationDate.Year, x.DonationDate.Month })
-            .OrderBy(x => x.Key.Year)
-            .ThenBy(x => x.Key.Month)
-            .Select(group => new DonationTrendPointDto(
-                $"{group.Key.Year}-{group.Key.Month:D2}",
-                group.Sum(x => x.Amount ?? x.EstimatedValue),
-                group.Count()))
+            .Select(group => new
+            {
+                group.Key.Year,
+                group.Key.Month,
+                Total = group.Sum(x => x.Amount ?? x.EstimatedValue),
+                Count = group.Count()
+            })
+            .OrderBy(x => x.Year)
+            .ThenBy(x => x.Month)
+            .ToListAsync();
+
+        var totals = monthlyRows
+            .Select(x => new DonationTrendPointDto(
+                $"{x.Year}-{x.Month:D2}",
+                x.Total,
+                x.Count))
             .ToList();
 
-        var contributionMix = donations
+        var contributionMix = (await dbContext.Donations
             .GroupBy(x => x.DonationType)
-            .OrderByDescending(x => x.Sum(y => y.Amount ?? y.EstimatedValue))
             .Select(group => new ContributionMixDto(
                 group.Key,
                 group.Sum(x => x.Amount ?? x.EstimatedValue),
                 group.Count()))
+            .ToListAsync())
+            .OrderByDescending(x => x.TotalAmount)
             .ToList();
 
-        var campaignSummaries = donations
+        var campaignSummaries = (await dbContext.Donations
             .Where(x => !string.IsNullOrWhiteSpace(x.CampaignName))
             .GroupBy(x => x.CampaignName!)
-            .OrderByDescending(x => x.Sum(y => y.Amount ?? y.EstimatedValue))
             .Select(group => new CampaignSummaryDto(
                 group.Key,
                 group.Sum(x => x.Amount ?? x.EstimatedValue),
                 group.Count()))
+            .ToListAsync())
+            .OrderByDescending(x => x.TotalAmount)
             .ToList();
 
-        var channelSummaries = donations
+        var channelSummaries = (await dbContext.Donations
             .GroupBy(x => x.ChannelSource)
-            .OrderByDescending(x => x.Sum(y => y.Amount ?? y.EstimatedValue))
             .Select(group => new ChannelSummaryDto(
                 group.Key,
                 group.Sum(x => x.Amount ?? x.EstimatedValue),
                 group.Count()))
+            .ToListAsync())
+            .OrderByDescending(x => x.TotalAmount)
             .ToList();
+
+        var recurring = await dbContext.Donations.CountAsync(x => x.IsRecurring);
+        var oneTime = await dbContext.Donations.CountAsync(x => !x.IsRecurring);
 
         return Ok(new DonationTrendsResponse(
             totals,
-            donations.Count(x => x.IsRecurring),
-            donations.Count(x => !x.IsRecurring),
+            recurring,
+            oneTime,
             contributionMix,
             campaignSummaries,
             channelSummaries));
@@ -214,57 +231,163 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
     }
 
     [HttpGet("social-analytics")]
-    public async Task<ActionResult<SocialAnalyticsResponse>> GetSocialAnalytics()
+    public async Task<ActionResult<SocialAnalyticsResponse>> GetSocialAnalytics([FromQuery] int page = 1, [FromQuery] int pageSize = 25)
     {
-        // TODO: Add optional ?platform=&type=&from=&to=&page=&pageSize= query params when post volumes grow.
-        var posts = await dbContext.SocialMediaPosts
-            .OrderByDescending(x => x.CreatedAtUtc)
-            .ToListAsync();
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var totalPosts = await dbContext.SocialMediaPosts.AsNoTracking().CountAsync();
 
         var totals = new SocialAnalyticsTotalsDto(
-            posts.Count,
-            posts.Sum(x => x.Impressions),
-            posts.Sum(x => x.Reach),
-            posts.Sum(x => x.DonationReferrals),
-            posts.Sum(x => x.EstimatedDonationValuePhp),
-            posts.Count > 0 ? posts.Average(x => x.EngagementRate) : 0m);
+            totalPosts,
+            await dbContext.SocialMediaPosts.AsNoTracking().SumAsync(x => x.Impressions),
+            await dbContext.SocialMediaPosts.AsNoTracking().SumAsync(x => x.Reach),
+            await dbContext.SocialMediaPosts.AsNoTracking().SumAsync(x => x.DonationReferrals),
+            await dbContext.SocialMediaPosts.AsNoTracking().SumAsync(x => x.EstimatedDonationValuePhp),
+            totalPosts == 0
+                ? 0m
+                : await dbContext.SocialMediaPosts.AsNoTracking().AverageAsync(x => x.EngagementRate));
 
-        var platformSummaries = posts
+        var platformSummaries = (await dbContext.SocialMediaPosts
+            .AsNoTracking()
             .GroupBy(x => x.Platform)
-            .OrderByDescending(x => x.Sum(p => p.DonationReferrals))
             .Select(group => new PlatformPerformanceDto(
                 group.Key,
                 group.Average(x => x.EngagementRate),
                 group.Sum(x => x.DonationReferrals),
                 group.Sum(x => x.EstimatedDonationValuePhp)))
+            .ToListAsync())
+            .OrderByDescending(x => x.TotalDonationReferrals)
             .ToList();
 
-        var postDetails = posts.Select(x => new SocialPostDetailDto(
-            x.Id,
-            x.Platform,
-            x.PostType,
-            x.Caption,
-            x.CreatedAtUtc,
-            x.CampaignName,
-            x.Impressions,
-            x.Reach,
-            x.Likes,
-            x.Comments,
-            x.Shares,
-            x.ClickThroughs,
-            x.EngagementRate,
-            x.DonationReferrals,
-            x.EstimatedDonationValuePhp,
-            x.IsBoosted))
-            .ToList();
+        var postDetails = await dbContext.SocialMediaPosts
+            .AsNoTracking()
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(x => new SocialPostDetailDto(
+                x.Id,
+                x.Platform,
+                x.PostType,
+                x.Caption,
+                x.CreatedAtUtc,
+                x.CampaignName,
+                x.Impressions,
+                x.Reach,
+                x.Likes,
+                x.Comments,
+                x.Shares,
+                x.ClickThroughs,
+                x.EngagementRate,
+                x.DonationReferrals,
+                x.EstimatedDonationValuePhp,
+                x.IsBoosted))
+            .ToListAsync();
 
-        return Ok(new SocialAnalyticsResponse(totals, platformSummaries, postDetails));
+        return Ok(new SocialAnalyticsResponse(totals, platformSummaries, postDetails, page, pageSize, totalPosts));
+    }
+
+    [HttpGet("trend-deployments")]
+    public async Task<ActionResult<TrendDeploymentSummaryResponse>> GetTrendDeployments()
+    {
+        var socialImpactStoryPosts = await dbContext.SocialMediaPosts
+            .AsNoTracking()
+            .Where(x => x.PostType == "ImpactStory")
+            .ToListAsync();
+        var socialImpactStoryReferralRate = socialImpactStoryPosts.Count == 0
+            ? 0m
+            : socialImpactStoryPosts.Average(x => (decimal)x.DonationReferrals);
+
+        var donations = await dbContext.Donations.AsNoTracking().ToListAsync();
+        var totalDonationAmount = donations.Sum(x => x.Amount ?? x.EstimatedValue);
+        var q4DonationAmount = donations
+            .Where(x => x.DonationDate.Month is 10 or 11 or 12)
+            .Sum(x => x.Amount ?? x.EstimatedValue);
+        var q4Share = totalDonationAmount <= 0m ? 0m : q4DonationAmount / totalDonationAmount;
+
+        var monthlyMetrics = await dbContext.SafehouseMonthlyMetrics.AsNoTracking().ToListAsync();
+        var avgIncidentRate = monthlyMetrics.Count == 0
+            ? 0m
+            : monthlyMetrics.Average(x => x.ActiveResidents > 0 ? (decimal)x.IncidentCount / x.ActiveResidents : 0m);
+
+        var processRecordings = await dbContext.ProcessRecordings.AsNoTracking().ToListAsync();
+        var concernRate = processRecordings.Count == 0
+            ? 0m
+            : (decimal)processRecordings.Count(x => x.ConcernsFlagged) / processRecordings.Count;
+
+        var incidents = await dbContext.IncidentReports.AsNoTracking().ToListAsync();
+        var highSeverityRate = incidents.Count == 0
+            ? 0m
+            : (decimal)incidents.Count(x => x.Severity == "High" || x.Severity == "Critical") / incidents.Count;
+
+        var residents = await dbContext.Residents.AsNoTracking().ToListAsync();
+        var positiveTrajectoryRate = residents.Count == 0
+            ? 0m
+            : (decimal)residents.Count(x =>
+                x.ReintegrationStatus == "Completed" ||
+                x.ReintegrationStatus == "In Progress" ||
+                (x.InitialRiskLevel == "High" && x.CurrentRiskLevel is "Medium" or "Low") ||
+                (x.InitialRiskLevel == "Critical" && x.CurrentRiskLevel != "Critical")) / residents.Count;
+
+        var rows = new List<TrendDeploymentRowDto>
+        {
+            new(
+                "social-content-mix-efficiency",
+                "Which content/media/platform combinations maximize referrals and value per post?",
+                "/api/reports/trend-deployments#social-content-mix-efficiency",
+                "Reports & analytics -> Trend deployment scorecards",
+                "Avg referrals per ImpactStory post",
+                Math.Round(socialImpactStoryReferralRate, 3),
+                "Prioritize high-referral post mixes and validate with controlled posting experiments."),
+            new(
+                "campaign-timing-seasonality",
+                "When should campaigns run to maximize donation volume and amount?",
+                "/api/reports/trend-deployments#campaign-timing-seasonality",
+                "Reports & analytics -> Trend deployment scorecards",
+                "Share of donation amount in Q4",
+                Math.Round(q4Share, 4),
+                "Front-load campaign planning for Q4 windows while testing shoulder months for incremental lift."),
+            new(
+                "safehouse-operational-load-risk",
+                "How does operational intensity relate to incident burden per resident?",
+                "/api/reports/trend-deployments#safehouse-operational-load-risk",
+                "Reports & analytics -> Trend deployment scorecards",
+                "Average incidents per resident-month",
+                Math.Round(avgIncidentRate, 4),
+                "Allocate staffing and visits proactively in months with elevated load-per-resident signals."),
+            new(
+                "intervention-mix-effectiveness",
+                "Which intervention bundles are associated with improved emotional trajectory and fewer escalations?",
+                "/api/reports/trend-deployments#intervention-mix-effectiveness",
+                "Reports & analytics -> Trend deployment scorecards",
+                "Counseling concern flag rate",
+                Math.Round(concernRate, 4),
+                "Escalate high-risk sessions early and monitor intervention bundle consistency by worker."),
+            new(
+                "incident-composition-archetypes",
+                "Are there recurring incident profiles requiring different prevention playbooks?",
+                "/api/reports/trend-deployments#incident-composition-archetypes",
+                "Reports & analytics -> Trend deployment scorecards",
+                "High-severity incident rate",
+                Math.Round(highSeverityRate, 4),
+                "Use incident archetype trends to shape prevention drills and supervisor review priorities."),
+            new(
+                "resident-trajectory-archetypes",
+                "Which longitudinal cross-domain patterns align with favorable reintegration progression?",
+                "/api/reports/trend-deployments#resident-trajectory-archetypes",
+                "Reports & analytics -> Trend deployment scorecards",
+                "Estimated positive trajectory rate",
+                Math.Round(positiveTrajectoryRate, 4),
+                "Prioritize residents below trend thresholds for targeted case conferencing and support.")
+        };
+
+        return Ok(new TrendDeploymentSummaryResponse(DateTime.UtcNow, rows));
     }
 
     [HttpPost("social-post-advisor")]
     public async Task<ActionResult<SocialPostAdvisorResponseDto>> PredictSocialPostConversion(SocialPostAdvisorRequestDto request)
     {
-        var posts = await dbContext.SocialMediaPosts.AsNoTracking().ToListAsync();
+        var posts = await dbContext.SocialMediaPosts.AsNoTracking().OrderBy(x => x.Id).Take(5000).ToListAsync();
         if (posts.Count == 0)
         {
             return Ok(new SocialPostAdvisorResponseDto(
@@ -355,6 +478,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .AsNoTracking()
             .Include(x => x.Resident)
             .OrderByDescending(x => x.SessionDate)
+            .Take(4000)
             .ToListAsync();
 
         if (recordings.Count == 0)

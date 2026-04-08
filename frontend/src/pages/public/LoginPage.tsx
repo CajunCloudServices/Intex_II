@@ -40,7 +40,7 @@ export function LoginPage() {
 
     try {
       const account = await login(email, password);
-      const defaultRoute = account.roles.includes('Donor') && account.roles.length === 1 ? '/portal/donor-history' : '/portal/admin';
+      const defaultRoute = account.roles.includes('Donor') && account.roles.length === 1 ? '/portal/my-impact' : '/portal/admin';
       navigate(redirectTo ?? defaultRoute, { replace: true });
     } catch {
       setError('Login failed. Check your email and password, then try again.');

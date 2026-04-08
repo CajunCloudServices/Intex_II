@@ -19,9 +19,8 @@ export interface AuditEvent {
   summary: string;
 }
 
+/** Cookie session is issued by the server; no bearer token is returned. */
 export interface AuthResponse {
-  token: string;
-  expiresAtUtc: string;
   user: UserProfile;
 }
 
@@ -437,6 +436,9 @@ export interface SocialAnalytics {
     estimatedDonationValuePhp: number;
   }[];
   posts: SocialPostDetail[];
+  page: number;
+  pageSize: number;
+  totalPosts: number;
 }
 
 export interface SocialPostAdvisorRequest {
@@ -518,6 +520,21 @@ export interface ReintegrationRiskSummary {
   mediumRiskCount: number;
   lowRiskCount: number;
   topRiskResidents: ReintegrationRiskRow[];
+}
+
+export interface TrendDeploymentRow {
+  pipelineKey: string;
+  businessQuestion: string;
+  endpointPath: string;
+  uiSurface: string;
+  primaryMetric: string;
+  currentValue: number;
+  recommendation: string;
+}
+
+export interface TrendDeploymentSummary {
+  generatedAtUtc: string;
+  rows: TrendDeploymentRow[];
 }
 
 export interface SupporterRequest {

@@ -4,6 +4,7 @@ using Intex.Api.DTOs;
 using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 namespace Intex.Api.Controllers;
@@ -11,6 +12,7 @@ namespace Intex.Api.Controllers;
 [ApiController]
 [Route("api/ml")]
 [Authorize(Policy = Policies.StaffOrAdmin)]
+[EnableRateLimiting("reports-heavy")]
 public class MlController(
     ApplicationDbContext dbContext,
     IReintegrationFeatureBuilder featureBuilder,

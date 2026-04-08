@@ -1,6 +1,10 @@
 import { chromium } from 'playwright';
 
 const baseUrl = process.env.SMOKE_BASE_URL ?? 'http://localhost:5173';
+const donorEmail = process.env.SMOKE_DONOR_EMAIL ?? 'donor@intex.local';
+const donorPassword = process.env.SMOKE_DONOR_PASSWORD ?? 'Donor!234567';
+const adminEmail = process.env.SMOKE_ADMIN_EMAIL ?? 'admin@intex.local';
+const adminPassword = process.env.SMOKE_ADMIN_PASSWORD ?? 'Admin!234567';
 
 function supporterRow(page, supporterName) {
   return page.locator('tr', { hasText: supporterName });
@@ -45,8 +49,8 @@ try {
   const adminContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const adminPage = await adminContext.newPage();
   await adminPage.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
-  await adminPage.getByLabel('Email').fill('admin@intex.local');
-  await adminPage.getByLabel('Password').fill('Admin!234567');
+  await adminPage.getByLabel('Email').fill(adminEmail);
+  await adminPage.getByLabel('Password').fill(adminPassword);
   await adminPage.getByRole('button', { name: 'Sign in' }).click();
   await adminPage.waitForURL('**/portal/admin');
   await adminPage.getByRole('heading', { name: 'Admin dashboard' }).waitFor();

@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Intex.Api.Data;
 using Intex.Api.Entities;
@@ -10,9 +9,7 @@ public class AuditLogService(ApplicationDbContext dbContext) : IAuditLogService
     public async Task LogAsync(string actionType, string entityType, int entityId, string summary, ClaimsPrincipal user)
     {
         var actorUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
-        var actorEmail = user.FindFirstValue(ClaimTypes.Email)
-            ?? user.FindFirstValue(JwtRegisteredClaimNames.Email)
-            ?? "unknown";
+        var actorEmail = user.FindFirstValue(ClaimTypes.Email) ?? "unknown";
 
         dbContext.AuditLogs.Add(new AuditLog
         {
