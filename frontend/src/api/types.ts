@@ -24,6 +24,15 @@ export interface AuthResponse {
   user: UserProfile;
 }
 
+export interface PublicDonorRegisterRequest {
+  email: string;
+  password: string;
+  fullName: string;
+  region: string;
+  country: string;
+  phone?: string | null;
+}
+
 export interface AuthProvidersResponse {
   googleEnabled: boolean;
 }
@@ -613,8 +622,9 @@ export interface DonationRequest {
 }
 
 export interface PublicDonationSubmissionRequest {
-  donorName: string;
-  donorEmail: string;
+  isAnonymous: boolean;
+  donorName?: string | null;
+  donorEmail?: string | null;
   amount: number;
   isRecurring: boolean;
   recurringInterval?: string | null;
@@ -625,6 +635,7 @@ export interface PublicDonationSubmissionResponse {
   donationId: number;
   supporterId: number;
   supporterName: string;
+  isAnonymous: boolean;
   amount: number;
   isRecurring: boolean;
   recurringInterval?: string | null;

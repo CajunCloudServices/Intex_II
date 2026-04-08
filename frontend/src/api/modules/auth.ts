@@ -1,11 +1,17 @@
 import { apiRequest, buildApiUrl } from '../client';
-import type { AuthProvidersResponse, AuthResponse, UserProfile } from '../types';
+import type { AuthProvidersResponse, AuthResponse, PublicDonorRegisterRequest, UserProfile } from '../types';
 
 export const authApi = {
   login: (email: string, password: string) =>
     apiRequest<AuthResponse>('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+    }),
+
+  registerDonor: (payload: PublicDonorRegisterRequest) =>
+    apiRequest<AuthResponse>('/auth/register-donor', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     }),
 
   logout: () =>

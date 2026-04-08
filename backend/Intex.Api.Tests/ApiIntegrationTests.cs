@@ -276,6 +276,59 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task PublicDonationSubmit_AllowsAnonymousDonations()
+    {
+        var response = await _client.PostAsJsonAsync("/api/donations/public-submit", new PublicDonationSubmissionRequest(
+            true,
+            null,
+            null,
+            125m,
+            false,
+            null,
+            "Anonymous demo gift"));
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var payload = await response.Content.ReadFromJsonAsync<PublicDonationSubmissionResponse>();
+
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsAnonymous);
+        Assert.Equal("Anonymous donor", payload.SupporterName);
+        Assert.Equal(125m, payload.Amount);
+    }
+
+    [Fact]
+    public async Task PublicDonationSubmit_RequiresIdentityForTrackedDonations()
+    {
+        var missingIdentityResponse = await _client.PostAsJsonAsync("/api/donations/public-submit", new PublicDonationSubmissionRequest(
+            false,
+            null,
+            null,
+            75m,
+            false,
+            null,
+            null));
+
+        Assert.Equal(HttpStatusCode.BadRequest, missingIdentityResponse.StatusCode);
+
+        var trackedResponse = await _client.PostAsJsonAsync("/api/donations/public-submit", new PublicDonationSubmissionRequest(
+            false,
+            "Jamie Rivera",
+            "jamie.rivera@example.org",
+            75m,
+            true,
+            "Monthly",
+            "Tracked demo gift"));
+
+        Assert.True(trackedResponse.IsSuccessStatusCode, await trackedResponse.Content.ReadAsStringAsync());
+        var trackedPayload = await trackedResponse.Content.ReadFromJsonAsync<PublicDonationSubmissionResponse>();
+
+        Assert.NotNull(trackedPayload);
+        Assert.False(trackedPayload!.IsAnonymous);
+        Assert.Equal("Jamie Rivera", trackedPayload.SupporterName);
+        Assert.Equal("Monthly", trackedPayload.RecurringInterval);
+    }
+
+    [Fact]
     public async Task StaffCannotAccessDonorOnlyImpactEndpoints()
     {
         await LoginAsStaffAsync();
@@ -435,6 +488,63 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         var donations = await donorHistory.Content.ReadFromJsonAsync<List<DonationResponse>>();
         Assert.NotNull(donations);
         Assert.NotEmpty(donations!);
+    }
+
+    [Fact]
+    public async Task PublicDonorRegistration_CreatesSupporterAndSignsIn()
+    {
+        var email = $"new-donor-{Guid.NewGuid():N}@example.com";
+        var response = await _client.PostAsJsonAsync("/api/auth/register-donor", new
+        {
+            email,
+            password = "DonorPortal!234",
+            fullName = "New Donor",
+            region = "Mountain West",
+            country = "United States",
+            phone = "+1 801 555 0199"
+        });
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var auth = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        Assert.NotNull(auth);
+        Assert.NotNull(auth!.User);
+        Assert.Contains("Donor", auth.User.Roles);
+        Assert.NotNull(auth.User.SupporterId);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var supporter = await dbContext.Supporters.FindAsync(auth.User.SupporterId);
+            Assert.NotNull(supporter);
+            Assert.Equal(email, supporter!.Email);
+            Assert.Equal("MonetaryDonor", supporter.SupporterType);
+            Assert.Equal("Donor", supporter.RelationshipType);
+            Assert.Equal("Website", supporter.AcquisitionChannel);
+        }
+
+        var donorHistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        Assert.True(donorHistoryResponse.IsSuccessStatusCode, await donorHistoryResponse.Content.ReadAsStringAsync());
+        var donorHistory = await donorHistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(donorHistory);
+        Assert.Empty(donorHistory!);
+    }
+
+    [Fact]
+    public async Task PublicDonorRegistration_WithExistingEmail_ReturnsBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/api/auth/register-donor", new
+        {
+            email = "donor@intex.local",
+            password = "DonorPortal!234",
+            fullName = "Duplicate Donor",
+            region = "Mountain West",
+            country = "United States"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await response.Content.ReadAsStringAsync();
+        Assert.Contains("already exists", payload, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
