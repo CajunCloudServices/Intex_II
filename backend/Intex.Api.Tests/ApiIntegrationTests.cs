@@ -137,6 +137,40 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task MlDashboardData_WhenAuthenticated_Returns200AndJsonPayloads()
+    {
+        await LoginAsAdminAsync();
+
+        var keys = new[]
+        {
+            "counseling-dashboard-data",
+            "donor-dashboard-data",
+            "reintegration-dashboard-data",
+            "social-dashboard-data",
+        };
+
+        foreach (var key in keys)
+        {
+            var response = await _client.GetAsync($"/api/ml-dashboard/data/{key}");
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Equal("application/json", response.Content.Headers.ContentType?.MediaType);
+
+            var body = await response.Content.ReadAsStringAsync();
+            Assert.False(string.IsNullOrWhiteSpace(body));
+            using var doc = System.Text.Json.JsonDocument.Parse(body);
+            Assert.Equal(System.Text.Json.JsonValueKind.Object, doc.RootElement.ValueKind);
+        }
+    }
+
+    [Fact]
+    public async Task MlDashboardData_WhenAnonymous_Returns401()
+    {
+        using var anon = _factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        var response = await anon.GetAsync("/api/ml-dashboard/data/counseling-dashboard-data");
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
     public async Task SafehousePerformance_IncludesMonthlyTrends()
     {
         await LoginAsAdminAsync();
