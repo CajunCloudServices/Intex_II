@@ -155,9 +155,9 @@ That private-database/public-API split is the correct security posture for a pro
 
 These are for local development only:
 
-- `admin@intex.local` / `Admin!234567`
-- `staff@intex.local` / `Staff!234567`
-- `donor@intex.local` / `Donor!234567`
+- `admin@intex.local` / `Admin!23456789`
+- `staff@intex.local` / `Staff!23456789`
+- `donor@intex.local` / `Donor!23456789`
 
 ## Environment Variables
 

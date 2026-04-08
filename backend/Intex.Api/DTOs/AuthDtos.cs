@@ -4,11 +4,11 @@ namespace Intex.Api.DTOs;
 
 public record LoginRequest(
     [Required, EmailAddress] string Email,
-    [Required, MinLength(12)] string Password);
+    [Required, MinLength(14)] string Password);
 
 public record RegisterRequest(
     [Required, EmailAddress] string Email,
-    [Required, MinLength(12)] string Password,
+    [Required, MinLength(14)] string Password,
     [Required, StringLength(200, MinimumLength = 2)] string FullName,
     [Required, StringLength(20)] string Role,
     int? SupporterId);

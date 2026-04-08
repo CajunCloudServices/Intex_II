@@ -57,9 +57,9 @@ lsof -i :5102
 
 ## Seeded Local Accounts
 
-- `admin@intex.local` / `Admin!234567`
-- `staff@intex.local` / `Staff!234567`
-- `donor@intex.local` / `Donor!234567`
+- `admin@intex.local` / `Admin!23456789`
+- `staff@intex.local` / `Staff!23456789`
+- `donor@intex.local` / `Donor!23456789`
 
 ## Local Google Sign-In Readiness
 

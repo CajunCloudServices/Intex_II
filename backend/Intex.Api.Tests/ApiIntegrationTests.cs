@@ -377,7 +377,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task LoginAndProtectedRoute_ReturnsTokenAndDonorHistory()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -403,7 +403,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsAdminAsync()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -412,7 +412,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsDonorAsync()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor@intex.local", "Donor!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -421,7 +421,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsDonor2Async()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor2@intex.local", "Donor2!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("donor2@intex.local", "Donor2!2345678"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -430,7 +430,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
 
     private async Task LoginAsStaffAsync()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("staff@intex.local", "Staff!234567"));
+        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("staff@intex.local", "Staff!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
