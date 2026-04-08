@@ -698,14 +698,14 @@ textarea {
 .shell-body {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
-  /* Single row grows with tallest column (main); do not use flex:1 here — that caps height to
-     viewport minus header/footer and clips tall ML iframe content. */
+  /* flex-basis auto (not 0%) so this row sizes from content and can grow past the viewport;
+     flex: 1 1 0% would force a definite height in the min-height:100vh app-shell column. */
   grid-template-rows: auto;
   width: 100%;
   max-width: 1540px;
   margin: 0 auto;
   align-items: stretch;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
 }
 
 .shell-body-public {
