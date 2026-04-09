@@ -23,6 +23,8 @@ const staticFiles = [
   'resident-trajectory-dashboard.html',
   'ml-dashboard-shell.css',
   'ml-dashboard-insights.js',
+  'ml-dashboard-helpers.js',
+  'ml-timeframe-filter.js',
   'ml-metric-tooltip.js',
 ];
 

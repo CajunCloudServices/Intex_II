@@ -113,16 +113,41 @@ def main() -> None:
             f"About {100 * float(y_clf.mean()):.0f}% of rows are top-quartile by amount."
         ),
         "prediction_cards": [
-            {"kicker": "Predictive (holdout)", "label": "ROC-AUC — high value", "value": safe_round(auc_g, 3), "hint": f"F1: {safe_round(f1_g, 3)}"},
-            {"kicker": "Explanatory (holdout)", "label": "R² log amount", "value": safe_round(r2, 3), "hint": f"MAE log: {safe_round(mae, 3)}"},
-            {"kicker": "Seasonality snapshot", "label": "Share of donations in Oct–Dec", "value": f"{100 * q4_share:.1f}%", "hint": "Calendar month from donation_date"},
-            {"kicker": "CV signal", "label": "5-fold ROC-AUC mean", "value": safe_round(cv_auc_m, 3), "hint": "Gradient boosting classifier"},
+            {
+                "kicker": "Predictive (holdout)",
+                "label": "ROC-AUC — high value",
+                "value": safe_round(auc_g, 3),
+                "hint": f"F1: {safe_round(f1_g, 3)}",
+                "definition": "Area under the ROC curve on held-out rows for predicting top-quartile gift size (1 = perfect rank, 0.5 = random).",
+            },
+            {
+                "kicker": "Explanatory (holdout)",
+                "label": "R² log amount",
+                "value": safe_round(r2, 3),
+                "hint": f"MAE log: {safe_round(mae, 3)}",
+                "definition": "How much variance in log donation amount the explanatory model explains on holdout data.",
+            },
+            {
+                "kicker": "Seasonality snapshot",
+                "label": "Share of donations in Oct–Dec",
+                "value": f"{100 * q4_share:.1f}%",
+                "hint": "Calendar month from donation_date",
+                "definition": "Share of gifts in this export that fall in October–December using each row’s donation_date.",
+            },
+            {
+                "kicker": "CV signal",
+                "label": "5-fold ROC-AUC mean",
+                "value": safe_round(cv_auc_m, 3),
+                "hint": "Gradient boosting classifier",
+                "definition": "Mean ROC-AUC across five cross-validation folds on the same high-value target (stability check).",
+            },
         ],
         "cause_cards": [
             {
                 "kicker": "Association",
                 "title": "Quarter and channel patterns",
                 "body": "Coefficients reflect historical correlations—use for planning windows, not causal guarantees.",
+                "definition": "These cards summarize correlations in past data, not proof that a factor caused larger gifts.",
             }
         ],
         "model_drivers": drivers,

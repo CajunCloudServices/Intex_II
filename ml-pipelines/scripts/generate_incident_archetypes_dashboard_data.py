@@ -239,16 +239,41 @@ def main() -> None:
         "headline": "High or critical severity risk from incident context and resident history",
         "lede": f"Multiclass accuracy (holdout) {safe_round(acc, 3)}; macro-F1 {safe_round(f1_macro, 3)}. Binary High/Critical AUC {safe_round(auc_bin, 3)}.",
         "prediction_cards": [
-            {"kicker": "Archetype model", "label": "Holdout accuracy", "value": safe_round(acc, 3), "hint": f"Macro-F1: {safe_round(f1_macro, 3)}"},
-            {"kicker": "Binary High/Critical", "label": "ROC-AUC", "value": safe_round(auc_bin, 3), "hint": f"F1: {safe_round(f1_bin, 3)}"},
-            {"kicker": "Severity regression", "label": "R² severity_num", "value": safe_round(r2, 3), "hint": f"MAE: {safe_round(mae, 3)}"},
-            {"kicker": "CV archetype", "label": "5-fold accuracy mean", "value": safe_round(cv_acc_m, 3), "hint": "Multiclass RandomForest"},
+            {
+                "kicker": "Archetype model",
+                "label": "Holdout accuracy",
+                "value": safe_round(acc, 3),
+                "hint": f"Macro-F1: {safe_round(f1_macro, 3)}",
+                "definition": "Share of holdout rows where predicted archetype matches the actual label (multiclass).",
+            },
+            {
+                "kicker": "Binary High/Critical",
+                "label": "ROC-AUC",
+                "value": safe_round(auc_bin, 3),
+                "hint": f"F1: {safe_round(f1_bin, 3)}",
+                "definition": "Discrimination for high/critical severity vs other levels on held-out incidents.",
+            },
+            {
+                "kicker": "Severity regression",
+                "label": "R² severity_num",
+                "value": safe_round(r2, 3),
+                "hint": f"MAE: {safe_round(mae, 3)}",
+                "definition": "Explanatory fit for numeric severity on holdout data (variance explained).",
+            },
+            {
+                "kicker": "CV archetype",
+                "label": "5-fold accuracy mean",
+                "value": safe_round(cv_acc_m, 3),
+                "hint": "Multiclass RandomForest",
+                "definition": "Mean multiclass accuracy across cross-validation folds (stability of archetype model).",
+            },
         ],
         "cause_cards": [
             {
                 "kicker": "No future leakage",
                 "title": "Prior-window features",
                 "body": "Counts and entropy use only incidents before each row's date.",
+                "definition": "Feature policy: nothing after the incident’s own date is used when building history features.",
             }
         ],
         "model_drivers": drivers,

@@ -46,6 +46,28 @@
       <div id="dashboard" style="display: none">
         <div id="insight-root" aria-live="polite"></div>
         <div class="panel" style="margin-bottom: 1rem">
+          <div class="panel-head">
+            <h2>Timeframe &amp; filters</h2>
+            <div class="toolbar timeframe-toolbar">
+              <label class="timeframe-controls">History window (months back)
+                <input id="timeframe-slider" class="timeline-range" type="range" min="1" max="36" step="1" value="12" />
+                <div class="timeframe-scale">
+                  <span>1</span><span id="timeframe-slider-value">12 months</span><span>36</span>
+                </div>
+                <div class="timeframe-quick-links">
+                  <button type="button" class="timeframe-link" id="months-3-btn">3 mo</button>
+                  <button type="button" class="timeframe-link" id="months-6-btn">6 mo</button>
+                  <button type="button" class="timeframe-link" id="months-12-btn">12 mo</button>
+                  <button type="button" class="timeframe-link" id="months-24-btn">24 mo</button>
+                  <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
+                </div>
+              </label>
+              <div class="timeframe-aside">Filters safehouse-month rows by month_start (first of month).</div>
+            </div>
+          </div>
+          <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
+        </div>
+        <div class="panel" style="margin-bottom: 1rem">
           <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Score meaning</h2>
           <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
             <strong>P(elevated load)</strong> reflects the notebook’s random forest on lagged rolling rates and operational counts—not the raw same-month rate alone.
@@ -81,7 +103,9 @@
       </div>
     </main>
   </div>
+  <script src="ml-dashboard-helpers.js"></script>
   <script src="ml-dashboard-insights.js"></script>
+  <script src="ml-timeframe-filter.js"></script>
   <script>
     (function () {
       const loadState = document.getElementById("load-state");
@@ -90,6 +114,7 @@
       const tbody = document.getElementById("tbody");
       const search = document.getElementById("search");
       let data = null;
+      let tfRows = null;
       let sortKey = "elevated_load_probability";
       let sortDir = -1;
       function showError(html) {
@@ -114,7 +139,8 @@
       }
       function render() {
         const q = (search.value || "").toLowerCase().trim();
-        let rows = (data.rows || []).filter((r) => {
+        const base = tfRows !== null ? tfRows : data.rows || [];
+        let rows = base.filter((r) => {
           if (!q) return true;
           return [r.safehouse_id, r.month_start].join(" ").toLowerCase().includes(q);
         });
@@ -160,6 +186,31 @@
               followupsFirst: true,
               predSectionTitle: "Scores and predictions",
               causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
+            });
+          }
+          if (typeof initTimeframeFilter === "function") {
+            initTimeframeFilter({
+              mode: "month",
+              sliderId: "timeframe-slider",
+              sliderValueId: "timeframe-slider-value",
+              labelId: "timeframe-label",
+              getAllRows: function () {
+                return data.rows || [];
+              },
+              getRowDate: function (r) {
+                return new Date(String(r.month_start) + "T12:00:00");
+              },
+              quickLinks: [
+                { id: "months-3-btn", months: 3 },
+                { id: "months-6-btn", months: 6 },
+                { id: "months-12-btn", months: 12 },
+                { id: "months-24-btn", months: 24 },
+                { id: "all-time-btn", allTime: true },
+              ],
+              onApply: function (filtered) {
+                tfRows = filtered;
+                render();
+              },
             });
           }
           render();

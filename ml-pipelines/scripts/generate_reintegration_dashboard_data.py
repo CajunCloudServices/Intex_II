@@ -352,30 +352,36 @@ def main() -> None:
                 "label": "Gap between stronger and harder cases",
                 "value": f"+{100 * gap:.0f} points",
                 "hint": "Bigger gap means clearer separation",
+                "definition": "Difference in average readiness score between residents labeled positive vs not in this file.",
             },
             {
                 "label": "Biggest case signal",
                 "value": _pf(top_fi["feature"])[:40],
                 "hint": "This showed up most in the ranking",
+                "definition": "Random forest feature with highest importance when ranking readiness—association, not a single cause.",
             },
             {
                 "label": "Reliability check",
                 "value": f"{cv_rows['Random Forest']['ROC-AUC']:.2f}",
                 "hint": "Higher is better",
+                "definition": "Cross-validated ROC-AUC for the random forest on the positive-trajectory target (discrimination quality).",
             },
         ],
         "cause_cards": [
             {
                 "title": f"Better outcomes are linked with: {_pf(top_prot['feature'])}",
                 "body": "This pattern appears more in residents on a positive path.",
+                "definition": "Descriptive pattern: this feature differs more among residents on a positive path.",
             },
             {
                 "title": f"Harder outcomes are linked with: {_pf(top_risk['feature'])}",
                 "body": "This pattern appears more in residents needing extra support.",
+                "definition": "Descriptive pattern: this feature differs more among residents who need more support.",
             },
             {
                 "title": "How to use this screen",
                 "body": "Top cards give a quick planning summary. Open the fold below for resident-by-resident detail.",
+                "definition": "Use hero metrics for triage; use the table for individual follow-up.",
             },
         ],
         "model_drivers": [

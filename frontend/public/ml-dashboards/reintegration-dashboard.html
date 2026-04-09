@@ -61,6 +61,7 @@
       <div id="load-state" class="loading">Loading…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
         <div class="kpi-row" id="kpis"></div>
         <div id="reint-visuals"></div>
 
@@ -101,6 +102,8 @@
       </div>
     </main>
   </div>
+  <script src="ml-dashboard-helpers.js"></script>
+  <script src="ml-dashboard-insights.js"></script>
   <script>
     (function () {
       let data = null;
@@ -110,7 +113,10 @@
       const activeOnly = document.getElementById("active-only");
 
       function fmtPct(x) { return (100 * x).toFixed(1) + "%"; }
-      const infoIcon = (msg) => `<span class="metric-info-wrap"><button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : "";
       function escapeHtml(s) {
         if (!s) return "";
         const d = document.createElement("div");
@@ -288,6 +294,12 @@
           data.residents = data.residents.map(withDerived);
           document.getElementById("load-state").style.display = "none";
           document.getElementById("dashboard").style.display = "block";
+          if (typeof renderInsightStory === "function" && data.insights) {
+            renderInsightStory(document.getElementById("insight-root"), data.insights, {
+              predSectionTitle: "Scores and predictions",
+              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
+            });
+          }
           refresh();
         })
         .catch(() => {

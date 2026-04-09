@@ -550,12 +550,22 @@ export function DonorsContributionsPage() {
                     value={supporterSearch}
                     onChange={(event) => setSupporterSearch(event.target.value)}
                   />
-                  <select className="inline-select" value={supporterStatusFilter} onChange={(event) => setSupporterStatusFilter(event.target.value)}>
+                  <select
+                    aria-label="Filter supporters by status"
+                    className="inline-select"
+                    value={supporterStatusFilter}
+                    onChange={(event) => setSupporterStatusFilter(event.target.value)}
+                  >
                     <option>All</option>
                     <option>Active</option>
                     <option>Inactive</option>
                   </select>
-                  <select className="inline-select" value={supporterTypeFilter} onChange={(event) => setSupporterTypeFilter(event.target.value)}>
+                  <select
+                    aria-label="Filter supporters by type"
+                    className="inline-select"
+                    value={supporterTypeFilter}
+                    onChange={(event) => setSupporterTypeFilter(event.target.value)}
+                  >
                     {supporterTypeOptions.map((option) => (
                       <option key={option} value={option}>
                         {option}
@@ -756,14 +766,24 @@ export function DonorsContributionsPage() {
                     value={donationSearch}
                     onChange={(event) => setDonationSearch(event.target.value)}
                   />
-                  <select className="inline-select" value={donationTypeFilter} onChange={(event) => setDonationTypeFilter(event.target.value)}>
+                  <select
+                    aria-label="Filter contributions by type"
+                    className="inline-select"
+                    value={donationTypeFilter}
+                    onChange={(event) => setDonationTypeFilter(event.target.value)}
+                  >
                     {donationTypeOptions.map((option) => (
                       <option key={option} value={option}>
                         {option}
                       </option>
                     ))}
                   </select>
-                  <select className="inline-select" value={donationSupporterFilter} onChange={(event) => setDonationSupporterFilter(event.target.value)}>
+                  <select
+                    aria-label="Filter contributions by supporter"
+                    className="inline-select"
+                    value={donationSupporterFilter}
+                    onChange={(event) => setDonationSupporterFilter(event.target.value)}
+                  >
                     {donationSupporterOptions.map((option) => (
                       <option key={option} value={option}>
                         {option}

@@ -57,6 +57,29 @@
       <div id="error-state" class="error-box" style="display:none"></div>
 
       <div id="dashboard" style="display:none">
+        <div id="insight-root" aria-live="polite"></div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <div class="panel-head">
+            <h2>Timeframe &amp; filters</h2>
+            <div class="toolbar timeframe-toolbar">
+              <label class="timeframe-controls">Timeline (days back, by last donation)
+                <input id="timeframe-slider" class="timeline-range" type="range" min="1" max="365" step="1" value="90" />
+                <div class="timeframe-scale">
+                  <span>1</span><span id="timeframe-slider-value">90 days</span><span>365</span>
+                </div>
+                <div class="timeframe-quick-links">
+                  <button type="button" class="timeframe-link" id="days-7-btn">7 days</button>
+                  <button type="button" class="timeframe-link" id="days-30-btn">30 days</button>
+                  <button type="button" class="timeframe-link" id="days-90-btn">90 days</button>
+                  <button type="button" class="timeframe-link" id="days-365-btn">365 days</button>
+                  <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
+                </div>
+              </label>
+              <div class="timeframe-aside">Keeps donors whose last gift falls in the window (derived from recency).</div>
+            </div>
+          </div>
+          <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
+        </div>
         <div class="kpi-row" id="kpis"></div>
 
         <div class="split" style="grid-template-columns:1fr 1fr; margin-bottom:1rem">
@@ -108,12 +131,23 @@
     </main>
   </div>
 
+  <script src="ml-dashboard-helpers.js"></script>
+  <script src="ml-dashboard-insights.js"></script>
+  <script src="ml-timeframe-filter.js"></script>
   <script>
     (function () {
       let data = null;
       let sortKey = "churn_probability";
       let sortDir = -1;
       let selectedId = null;
+      let tfSupporters = null;
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : "";
+      function getSupporters() {
+        return tfSupporters !== null ? tfSupporters : data.supporters;
+      }
 
       const DAY_MS = 24 * 60 * 60 * 1000;
       const today = new Date();
@@ -161,10 +195,10 @@
         const avgDays = rows.reduce((s, r) => s + r.recency, 0) / Math.max(rows.length, 1);
 
         document.getElementById("kpis").innerHTML = `
-          <div class="kpi"><div class="label">% donors at high risk of churn</div><div class="value">${fmtPct(highRisk / Math.max(rows.length, 1))}</div></div>
-          <div class="kpi"><div class="label">Average churn probability</div><div class="value">${fmtPct(avgRisk)}</div></div>
-          <div class="kpi"><div class="label">Total revenue at risk</div><div class="value">${fmtPhp(revRisk)}</div></div>
-          <div class="kpi"><div class="label">Avg days since last donation</div><div class="value">${avgDays.toFixed(0)} days</div></div>
+          <div class="kpi"><div class="label">% donors at high risk of churn ${infoIcon("Share of in-scope donors with churn probability ≥ 60%.")}</div><div class="value">${fmtPct(highRisk / Math.max(rows.length, 1))}</div></div>
+          <div class="kpi"><div class="label">Average churn probability ${infoIcon("Mean model churn probability across donors in the current timeframe.")}</div><div class="value">${fmtPct(avgRisk)}</div></div>
+          <div class="kpi"><div class="label">Total revenue at risk ${infoIcon("Sum of churn_probability × total_value (LTV) for donors in scope.")}</div><div class="value">${fmtPhp(revRisk)}</div></div>
+          <div class="kpi"><div class="label">Avg days since last donation ${infoIcon("Mean recency (days since last gift) for donors in scope.")}</div><div class="value">${avgDays.toFixed(0)} days</div></div>
         `;
       }
 
@@ -236,7 +270,8 @@
         `;
       }
 
-      function renderTable(rows) {
+      function renderTable() {
+        const rows = getSupporters();
         const q = document.getElementById("search").value.trim().toLowerCase();
         let filtered = rows.filter((r) => {
           if (!q) return true;
@@ -258,8 +293,8 @@
         document.querySelectorAll("#tbody tr").forEach((tr) => {
           tr.addEventListener("click", () => {
             selectedId = Number(tr.dataset.id);
-            renderTable(rows);
-            renderDetail(rows.find((x) => x.supporter_id === selectedId));
+            renderTable();
+            renderDetail(getSupporters().find((x) => x.supporter_id === selectedId));
           });
         });
       }
@@ -301,10 +336,10 @@
             sortDir = k === "acquisition_channel" || k === "last_donation_date" ? 1 : -1;
             if (k === "churn_probability") sortDir = -1;
           }
-          renderTable(data.supporters);
+          renderTable();
         });
       });
-      document.getElementById("search").addEventListener("input", () => renderTable(data.supporters));
+      document.getElementById("search").addEventListener("input", () => renderTable());
 
       fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })
         .then((r) => { if (!r.ok) throw 0; return r.json(); })
@@ -318,10 +353,46 @@
           document.getElementById("load-state").style.display = "none";
           document.getElementById("dashboard").style.display = "block";
 
-          renderKpis(data.supporters);
-          renderTopCards(data.supporters);
-          renderVisuals(data.supporters);
-          renderTable(data.supporters);
+          if (typeof renderInsightStory === "function" && data.insights) {
+            renderInsightStory(document.getElementById("insight-root"), data.insights, {
+              omitCallsToAction: true,
+              predSectionTitle: "Scores and predictions",
+              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
+            });
+          }
+          if (typeof initTimeframeFilter === "function") {
+            initTimeframeFilter({
+              mode: "day",
+              sliderId: "timeframe-slider",
+              sliderValueId: "timeframe-slider-value",
+              labelId: "timeframe-label",
+              getAllRows: function () {
+                return data.supporters || [];
+              },
+              getRowDate: function (r) {
+                return new Date(String(r.last_donation_date) + "T12:00:00");
+              },
+              quickLinks: [
+                { id: "days-7-btn", days: 7 },
+                { id: "days-30-btn", days: 30 },
+                { id: "days-90-btn", days: 90 },
+                { id: "days-365-btn", days: 365 },
+                { id: "all-time-btn", allTime: true },
+              ],
+              onApply: function (filtered) {
+                tfSupporters = filtered;
+                selectedId = null;
+                renderKpis(getSupporters());
+                renderTopCards(getSupporters());
+                renderVisuals(getSupporters());
+                renderTable();
+              },
+            });
+          }
+          renderKpis(getSupporters());
+          renderTopCards(getSupporters());
+          renderVisuals(getSupporters());
+          renderTable();
         })
         .catch(() => {
           document.getElementById("load-state").style.display = "none";
