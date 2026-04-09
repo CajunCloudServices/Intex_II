@@ -183,15 +183,34 @@ def main() -> None:
         "headline": "Who shows positive trajectory signals without peeking at current risk?",
         "lede": f"Positive trajectory rate {100 * pos_rate:.0f}% in file. Holdout ROC-AUC {safe_round(auc_rf, 3)} (baseline {safe_round(auc_b, 3)}).",
         "prediction_cards": [
-            {"kicker": "Predictive", "label": "ROC-AUC positive trajectory", "value": safe_round(auc_rf, 3), "hint": f"F1: {safe_round(f1_rf, 3)}"},
-            {"kicker": "Explanatory proxy", "label": "R² on current risk_num", "value": safe_round(r2, 3), "hint": f"MAE: {safe_round(mae, 3)} (leakage-controlled label excluded from X)"},
-            {"kicker": "Grouped CV", "label": "Mean ROC-AUC", "value": safe_round(cv_auc_m, 3), "hint": "GroupKFold by resident"},
+            {
+                "kicker": "Predictive",
+                "label": "ROC-AUC positive trajectory",
+                "value": safe_round(auc_rf, 3),
+                "hint": f"F1: {safe_round(f1_rf, 3)}",
+                "definition": "Holdout discrimination for the positive-trajectory label using only allowed features.",
+            },
+            {
+                "kicker": "Explanatory proxy",
+                "label": "R² on current risk_num",
+                "value": safe_round(r2, 3),
+                "hint": f"MAE: {safe_round(mae, 3)} (leakage-controlled label excluded from X)",
+                "definition": "Secondary fit metric on risk level; label for trajectory is kept separate from features to limit leakage.",
+            },
+            {
+                "kicker": "Grouped CV",
+                "label": "Mean ROC-AUC",
+                "value": safe_round(cv_auc_m, 3),
+                "hint": "GroupKFold by resident",
+                "definition": "Cross-validation with residents kept whole across folds.",
+            },
         ],
         "cause_cards": [
             {
                 "kicker": "Leakage control",
                 "title": "current_risk_num not in features",
                 "body": "Trajectory label uses improvement/reintegration status; cross-domain aggregates only in X.",
+                "definition": "Explains which outcomes are modeled and what is excluded from predictors by design.",
             }
         ],
         "model_drivers": drivers,

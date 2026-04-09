@@ -140,6 +140,7 @@
     </main>
   </div>
 
+  <script src="ml-dashboard-helpers.js"></script>
   <script>
     (function () {
       let data = null;
@@ -152,7 +153,10 @@
       const toDate = (s) => new Date(s + "T00:00:00");
       const fmtPhp = (x) => "₱" + Number(x || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
       const fmtPct = (x) => (100 * x).toFixed(1) + "%";
-      const infoIcon = (msg) => `<span class="metric-info-wrap"><button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : `<span class="metric-info-wrap"><button type="button" class="metric-info" data-info="${escapeHtml(msg)}" aria-label="${escapeHtml(msg)}" title="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
 
       function escapeHtml(s) {
         const d = document.createElement("div");

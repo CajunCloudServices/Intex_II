@@ -9,26 +9,30 @@
         "kicker": "Predictive (holdout)",
         "label": "ROC-AUC elevated load",
         "value": "0.983",
-        "hint": "F1: 0.846"
+        "hint": "F1: 0.846",
+        "definition": "Discrimination for predicting elevated operational load vs baseline for a safehouse-month row."
       },
       {
         "kicker": "GroupKFold CV",
         "label": "Mean ROC-AUC",
         "value": "0.973",
-        "hint": "Mean F1: 0.888"
+        "hint": "Mean F1: 0.888",
+        "definition": "Mean ROC-AUC across grouped CV folds (stability of the load-risk model)."
       },
       {
         "kicker": "Explanatory",
         "label": "R\u00b2 log incident rate",
         "value": "0.968",
-        "hint": "MAE: 0.006"
+        "hint": "MAE: 0.006",
+        "definition": "Explanatory fit for log incident rate on held-out months."
       }
     ],
     "cause_cards": [
       {
         "kicker": "Benchmark",
         "title": "House-specific rolling median",
-        "body": "Elevated load compares this month to prior rolling signals\u2014associations only."
+        "body": "Elevated load compares this month to prior rolling signals\u2014associations only.",
+        "definition": "Load is compared to each house\u2019s own rolling history\u2014not a single national threshold."
       }
     ],
     "model_drivers": [

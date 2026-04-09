@@ -9,26 +9,30 @@
         "kicker": "Predictive",
         "label": "ROC-AUC positive trajectory",
         "value": "1.0",
-        "hint": "F1: 1.0"
+        "hint": "F1: 1.0",
+        "definition": "Holdout discrimination for the positive-trajectory label using only allowed features."
       },
       {
         "kicker": "Explanatory proxy",
         "label": "R\u00b2 on current risk_num",
         "value": "-2.49",
-        "hint": "MAE: 1.049 (leakage-controlled label excluded from X)"
+        "hint": "MAE: 1.049 (leakage-controlled label excluded from X)",
+        "definition": "Secondary fit metric on risk level; label for trajectory is kept separate from features to limit leakage."
       },
       {
         "kicker": "Grouped CV",
         "label": "Mean ROC-AUC",
         "value": "0.838",
-        "hint": "GroupKFold by resident"
+        "hint": "GroupKFold by resident",
+        "definition": "Cross-validation with residents kept whole across folds."
       }
     ],
     "cause_cards": [
       {
         "kicker": "Leakage control",
         "title": "current_risk_num not in features",
-        "body": "Trajectory label uses improvement/reintegration status; cross-domain aggregates only in X."
+        "body": "Trajectory label uses improvement/reintegration status; cross-domain aggregates only in X.",
+        "definition": "Explains which outcomes are modeled and what is excluded from predictors by design."
       }
     ],
     "model_drivers": [

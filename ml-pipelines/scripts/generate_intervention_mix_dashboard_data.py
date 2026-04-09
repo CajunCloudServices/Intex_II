@@ -180,15 +180,34 @@ def main() -> None:
         "headline": "Which sessions look likely to need concern follow-up (pre-session features only)?",
         "lede": f"Holdout ROC-AUC {safe_round(auc_rf, 3)} vs baseline {safe_round(auc_b, 3)}. Emotional delta R²={safe_round(r2, 3)}.",
         "prediction_cards": [
-            {"kicker": "Predictive", "label": "ROC-AUC concern flagged", "value": safe_round(auc_rf, 3), "hint": f"F1: {safe_round(f1_rf, 3)}"},
-            {"kicker": "Explanatory", "label": "R² emotional delta", "value": safe_round(r2, 3), "hint": f"MAE: {safe_round(mae, 3)}"},
-            {"kicker": "CV", "label": "GroupKFold ROC-AUC mean", "value": safe_round(cv_auc_m, 3), "hint": "Grouped by resident"},
+            {
+                "kicker": "Predictive",
+                "label": "ROC-AUC concern flagged",
+                "value": safe_round(auc_rf, 3),
+                "hint": f"F1: {safe_round(f1_rf, 3)}",
+                "definition": "Holdout ROC-AUC for predicting whether a session will have a concern flag (pre-session features only).",
+            },
+            {
+                "kicker": "Explanatory",
+                "label": "R² emotional delta",
+                "value": safe_round(r2, 3),
+                "hint": f"MAE: {safe_round(mae, 3)}",
+                "definition": "Variance explained for emotional delta outcome on holdout sessions.",
+            },
+            {
+                "kicker": "CV",
+                "label": "GroupKFold ROC-AUC mean",
+                "value": safe_round(cv_auc_m, 3),
+                "hint": "Grouped by resident",
+                "definition": "Cross-validated ROC-AUC with folds grouped by resident so one person does not span train and test.",
+            },
         ],
         "cause_cards": [
             {
                 "kicker": "History policy",
                 "title": "Prior sessions only",
                 "body": "Features use recordings strictly before each session date—mirrors the notebook leakage guard.",
+                "definition": "Leakage control: only information from before the session’s date enters the feature vector.",
             }
         ],
         "model_drivers": drivers,

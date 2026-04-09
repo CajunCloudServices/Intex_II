@@ -9,26 +9,30 @@
         "kicker": "Predictive",
         "label": "ROC-AUC concern flagged",
         "value": "0.509",
-        "hint": "F1: 0.07"
+        "hint": "F1: 0.07",
+        "definition": "Holdout ROC-AUC for predicting whether a session will have a concern flag (pre-session features only)."
       },
       {
         "kicker": "Explanatory",
         "label": "R\u00b2 emotional delta",
         "value": "0.471",
-        "hint": "MAE: 0.603"
+        "hint": "MAE: 0.603",
+        "definition": "Variance explained for emotional delta outcome on holdout sessions."
       },
       {
         "kicker": "CV",
         "label": "GroupKFold ROC-AUC mean",
         "value": "0.52",
-        "hint": "Grouped by resident"
+        "hint": "Grouped by resident",
+        "definition": "Cross-validated ROC-AUC with folds grouped by resident so one person does not span train and test."
       }
     ],
     "cause_cards": [
       {
         "kicker": "History policy",
         "title": "Prior sessions only",
-        "body": "Features use recordings strictly before each session date\u2014mirrors the notebook leakage guard."
+        "body": "Features use recordings strictly before each session date\u2014mirrors the notebook leakage guard.",
+        "definition": "Leakage control: only information from before the session\u2019s date enters the feature vector."
       }
     ],
     "model_drivers": [

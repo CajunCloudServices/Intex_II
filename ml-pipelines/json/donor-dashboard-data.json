@@ -8,31 +8,37 @@
       {
         "label": "Active supporters who need outreach now",
         "value": "1",
-        "hint": "High chance of lapsing without follow-up"
+        "hint": "High chance of lapsing without follow-up",
+        "definition": "Count of non-churned supporters whose churn probability exceeds the high-risk threshold used on this page."
       },
       {
         "label": "Biggest warning sign",
         "value": "recency",
-        "hint": "People with this pattern were more likely to lapse"
+        "hint": "People with this pattern were more likely to lapse",
+        "definition": "Random forest split that mattered most for churn ranking in this export."
       },
       {
         "label": "How reliable this ranking is",
         "value": "0.91",
-        "hint": "Higher is better"
+        "hint": "Higher is better",
+        "definition": "ROC-AUC for the churn model on held-out supporters (0.5 = random, 1 = perfect)."
       }
     ],
     "cause_cards": [
       {
         "title": "Most at-risk donor source: Church",
-        "body": "About 50% lapsed among 6 people from that channel. The calmest channel in this export is SocialMedia at 38%."
+        "body": "About 50% lapsed among 6 people from that channel. The calmest channel in this export is SocialMedia at 38%.",
+        "definition": "Historical lapse rate by acquisition channel in this file\u2014use for prioritization, not guarantees."
       },
       {
         "title": "Lower lapse is linked with: recency",
-        "body": "This pattern appears more in supporters who keep giving."
+        "body": "This pattern appears more in supporters who keep giving.",
+        "definition": "Coefficient direction from the explanatory model: values associated with lower churn risk."
       },
       {
         "title": "Higher lapse is linked with: total value",
-        "body": "This pattern appears more in supporters who drift away."
+        "body": "This pattern appears more in supporters who drift away.",
+        "definition": "Coefficient direction from the explanatory model: values associated with higher churn risk."
       }
     ],
     "model_drivers": [

@@ -9,37 +9,43 @@
         "kicker": "Predictive model (holdout)",
         "label": "ROC-AUC \u2014 top referral quartile",
         "value": "0.982",
-        "hint": "F1 at 0.5 threshold: 0.84"
+        "hint": "F1 at 0.5 threshold: 0.84",
+        "definition": "Discrimination for predicting whether a post lands in the top quartile of donation_referrals."
       },
       {
         "kicker": "Explanatory model (holdout)",
         "label": "R\u00b2 on log donation value",
         "value": "0.7",
-        "hint": "MAE on log scale: 2.128"
+        "hint": "MAE on log scale: 2.128",
+        "definition": "How much variance in log-linked donation value the explanatory model explains on holdout posts."
       },
       {
         "kicker": "Portfolio",
         "label": "Share of posts in top referral quartile",
         "value": "25.5%",
-        "hint": "Based on donation_referrals distribution"
+        "hint": "Based on donation_referrals distribution",
+        "definition": "Baseline share of posts in the top referral quartile in this export."
       },
       {
         "kicker": "Top signal",
         "label": "Strongest driver in permutation test",
         "value": "post type",
-        "hint": "See table for per-post probabilities"
+        "hint": "See table for per-post probabilities",
+        "definition": "Feature with highest permutation importance in this run\u2014inspect drivers table for detail."
       }
     ],
     "cause_cards": [
       {
         "kicker": "Association",
         "title": "Content mix links to referrals and value",
-        "body": "Coefficients and importances describe patterns in historical posts\u2014not guarantees for the next post."
+        "body": "Coefficients and importances describe patterns in historical posts\u2014not guarantees for the next post.",
+        "definition": "Summaries are historical associations; they do not guarantee the next post will perform the same."
       },
       {
         "kicker": "How to use",
         "title": "Plan before publish",
-        "body": "Use predicted top-quartile probability to prioritize review of mixes that look like past high-referral posts."
+        "body": "Use predicted top-quartile probability to prioritize review of mixes that look like past high-referral posts.",
+        "definition": "Suggested workflow: prioritize editorial review for posts with high predicted top-quartile probability."
       }
     ],
     "model_drivers": [

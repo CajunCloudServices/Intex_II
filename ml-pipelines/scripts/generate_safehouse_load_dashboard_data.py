@@ -186,15 +186,34 @@ def main() -> None:
         "headline": "Months where rolling incident load clears the house baseline",
         "lede": f"Classification target: {cls_name}. Explanatory holdout R²={safe_round(r2, 3)} on log incident rate.",
         "prediction_cards": [
-            {"kicker": "Predictive (holdout)", "label": "ROC-AUC elevated load", "value": safe_round(auc_rf, 3), "hint": f"F1: {safe_round(f1_rf, 3)}"},
-            {"kicker": "GroupKFold CV", "label": "Mean ROC-AUC", "value": safe_round(cv_auc_m, 3), "hint": f"Mean F1: {safe_round(cv_f1_m, 3)}"},
-            {"kicker": "Explanatory", "label": "R² log incident rate", "value": safe_round(r2, 3), "hint": f"MAE: {safe_round(mae, 3)}"},
+            {
+                "kicker": "Predictive (holdout)",
+                "label": "ROC-AUC elevated load",
+                "value": safe_round(auc_rf, 3),
+                "hint": f"F1: {safe_round(f1_rf, 3)}",
+                "definition": "Discrimination for predicting elevated operational load vs baseline for a safehouse-month row.",
+            },
+            {
+                "kicker": "GroupKFold CV",
+                "label": "Mean ROC-AUC",
+                "value": safe_round(cv_auc_m, 3),
+                "hint": f"Mean F1: {safe_round(cv_f1_m, 3)}",
+                "definition": "Mean ROC-AUC across grouped CV folds (stability of the load-risk model).",
+            },
+            {
+                "kicker": "Explanatory",
+                "label": "R² log incident rate",
+                "value": safe_round(r2, 3),
+                "hint": f"MAE: {safe_round(mae, 3)}",
+                "definition": "Explanatory fit for log incident rate on held-out months.",
+            },
         ],
         "cause_cards": [
             {
                 "kicker": "Benchmark",
                 "title": "House-specific rolling median",
                 "body": "Elevated load compares this month to prior rolling signals—associations only.",
+                "definition": "Load is compared to each house’s own rolling history—not a single national threshold.",
             }
         ],
         "model_drivers": drivers if drivers else [{"feature": "safehouse context", "importance": 1.0, "share_top5_pct": 100}],
