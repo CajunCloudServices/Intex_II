@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { api } from '../../api';
 import type { MfaSetupResponse } from '../../api/types';
-import { PageHeader } from '../../components/ui/PageHeader';
+import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHeader';
 import { SectionCard } from '../../components/ui/Cards';
 import { ErrorState, SuccessState } from '../../components/ui/PageState';
 
@@ -51,9 +51,10 @@ export function MfaSettingsPage() {
 
   return (
     <div className="page-shell">
-      <PageHeader 
-        title="Security Settings" 
-        subtitle="Manage your Two-Factor Authentication (2FA) preferences here." 
+      <StaffPortalPageHeader
+        eyebrow="Security"
+        title="Security settings"
+        description="Manage your multi-factor authentication preferences and verify a new authenticator app."
       />
 
       {message && <SuccessState message={message} />}

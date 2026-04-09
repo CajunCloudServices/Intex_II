@@ -19,6 +19,7 @@ export function LoginPage() {
   const [googleEnabled, setGoogleEnabled] = useState(false);
   const [requiresMfa, setRequiresMfa] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
+  const [showDemoAccess, setShowDemoAccess] = useState(false);
 
   const redirectTo = (location.state as { from?: string } | undefined)?.from;
 

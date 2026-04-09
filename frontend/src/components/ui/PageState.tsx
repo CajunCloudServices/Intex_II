@@ -48,3 +48,20 @@ export function ErrorState({
     </div>
   );
 }
+
+export function SuccessState({
+  title = 'Success',
+  message,
+}: {
+  title?: string;
+  message: string;
+}) {
+  return (
+    <div className="state-panel state-success" role="status" aria-live="polite">
+      <div>
+        <strong>{title}</strong>
+        <p>{message}</p>
+      </div>
+    </div>
+  );
+}

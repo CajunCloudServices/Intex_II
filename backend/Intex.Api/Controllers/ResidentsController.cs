@@ -44,7 +44,7 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ResidentResponse>> Create(ResidentRequest request)
     {
         var resident = MapResident(new Resident { CreatedAtUtc = DateTime.UtcNow }, request);
@@ -57,7 +57,7 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ResidentResponse>> Update(int id, ResidentRequest request)
     {
         var resident = await dbContext.Residents
@@ -91,7 +91,7 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<IActionResult> Delete(int id, [FromQuery] bool confirm = false)
     {
         if (!confirm)
