@@ -384,9 +384,16 @@ export function DonatePage() {
                   />
                 </div>
               </div>
-              <p className="donate-submit-note">
-                Already have an account? <Link to="/login" state={{ from: '/portal/my-impact' }}>Sign in</Link> to view your donor dashboard.
-              </p>
+              <div className="donate-login-callout">
+                <strong>Already have an account?</strong>
+                <Link
+                  className="donate-login-button ghost-button"
+                  to="/login"
+                  state={{ from: '/portal/my-impact' }}
+                >
+                  Sign in to your donor dashboard →
+                </Link>
+              </div>
             </div>
           )}
 
