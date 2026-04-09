@@ -61,12 +61,6 @@ export function AppShell() {
   const isAdminOnly = Boolean(user?.roles.includes('Admin'));
   const portalTitle = isDonorOnly ? 'Donor Portal' : isAdminOnly ? 'Admin Portal' : 'Staff Portal';
   const portalLinks = isDonorOnly ? donorLinks : staffLinks;
-  const userInitials = user?.fullName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('');
   const headerLinks = user
     ? [...publicLinks, { to: '/portal', label: 'Portal' }]
     : [...publicLinks, { to: '/login', label: 'Login' }];
