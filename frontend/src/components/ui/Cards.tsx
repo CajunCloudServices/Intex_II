@@ -13,7 +13,7 @@ export function MetricCard({
 }) {
   return (
     <article className={`metric-card${accent ? ' metric-card-accent' : ''}`}>
-      <h3 className="metric-card-label">{label}</h3>
+      <p className="metric-card-label">{label}</p>
       <strong>{value}</strong>
       <p>{detail}</p>
     </article>

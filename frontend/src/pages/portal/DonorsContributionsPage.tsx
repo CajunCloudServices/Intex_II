@@ -291,7 +291,12 @@ export function DonorsContributionsPage() {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                   />
-                  <select className="inline-select" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+                  <select
+                    aria-label="Filter supporters by status"
+                    className="inline-select"
+                    value={statusFilter}
+                    onChange={(event) => setStatusFilter(event.target.value)}
+                  >
                     <option>All</option>
                     <option>Active</option>
                     <option>Inactive</option>
