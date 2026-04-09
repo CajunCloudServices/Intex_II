@@ -21,6 +21,17 @@ export function MlInsightsDashboardPage() {
     donor: 'donor-churn-dashboard.html',
     reintegration: 'reintegration-dashboard.html',
     social: 'social-media-dashboard.html',
+    'social-content-mix': 'social-content-mix-dashboard.html',
+    'campaign-timing': 'campaign-timing-dashboard.html',
+    'safehouse-load': 'safehouse-load-dashboard.html',
+    'intervention-mix': 'intervention-mix-dashboard.html',
+    'incident-archetypes': 'incident-archetypes-dashboard.html',
+    'resident-trajectory': 'resident-trajectory-dashboard.html',
+    campaign: 'campaign-timing-dashboard.html',
+    incidents: 'incident-archetypes-dashboard.html',
+    intervention: 'intervention-mix-dashboard.html',
+    'content-mix': 'social-content-mix-dashboard.html',
+    safehouse: 'safehouse-load-dashboard.html',
   };
   const selectedPath = dashboardPathByKey[dashboardKey ?? ''] ?? 'counseling-admin-dashboard.html';
   const cacheBuster = useMemo(() => Date.now().toString(), []);

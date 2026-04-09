@@ -199,16 +199,19 @@ def main() -> None:
                 "label": "Active supporters who need outreach now",
                 "value": str(high_risk_active),
                 "hint": "High chance of lapsing without follow-up",
+                "definition": "Count of non-churned supporters whose churn probability exceeds the high-risk threshold used on this page.",
             },
             {
                 "label": "Biggest warning sign",
                 "value": _pretty_coef_feat(top_fi["feature"])[:42],
                 "hint": "People with this pattern were more likely to lapse",
+                "definition": "Random forest split that mattered most for churn ranking in this export.",
             },
             {
                 "label": "How reliable this ranking is",
                 "value": f"{auc:.2f}",
                 "hint": "Higher is better",
+                "definition": "ROC-AUC for the churn model on held-out supporters (0.5 = random, 1 = perfect).",
             },
         ],
         "cause_cards": [
@@ -216,14 +219,17 @@ def main() -> None:
                 "title": f"Most at-risk donor source: {worst_ch['channel']}",
                 "body": f"About {100 * float(worst_ch['churn_rate']):.0f}% lapsed among {int(worst_ch['n'])} people from that channel. "
                 f"The calmest channel in this export is {best_ch['channel']} at {100 * float(best_ch['churn_rate']):.0f}%.",
+                "definition": "Historical lapse rate by acquisition channel in this file—use for prioritization, not guarantees.",
             },
             {
                 "title": f"Lower lapse is linked with: {_pretty_coef_feat(top_pos_c['feature'])[:50]}",
                 "body": "This pattern appears more in supporters who keep giving.",
+                "definition": "Coefficient direction from the explanatory model: values associated with lower churn risk.",
             },
             {
                 "title": f"Higher lapse is linked with: {_pretty_coef_feat(top_neg_c['feature'])[:50]}",
                 "body": "This pattern appears more in supporters who drift away.",
+                "definition": "Coefficient direction from the explanatory model: values associated with higher churn risk.",
             },
         ],
         "model_drivers": [

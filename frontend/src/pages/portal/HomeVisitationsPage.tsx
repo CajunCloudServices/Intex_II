@@ -190,8 +190,8 @@ export function HomeVisitationsPage() {
 
   const homeVisitHeaderActions = isAdmin
     ? [
-        { label: 'Log home visit', to: '/portal/home-visitations/visits/new' },
-        { label: 'New case conference', to: '/portal/home-visitations/conferences/new' },
+        { label: 'Log Home Visit', to: '/portal/home-visitations/visits/new' },
+        { label: 'Log Conference', to: '/portal/home-visitations/conferences/new' },
       ]
     : undefined;
 

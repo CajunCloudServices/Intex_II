@@ -2628,6 +2628,18 @@ textarea {
   flex-shrink: 0;
 }
 
+.report-tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.report-tab-bar .ghost-button.active {
+  background: var(--color-primary-container);
+  color: var(--color-primary-ink);
+  border-color: var(--color-primary-container);
+}
+
 .page-header > div,
 .section-card-header > div,
 .section-card-actions,
@@ -4482,7 +4494,7 @@ body {
 /* Case/resident status badge variants */
 .status-active {
   background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
-  color: color-mix(in srgb, var(--tl-success) 85%, #10342d 15%);
+  color: #082a24;
 }
 
 .status-closed {
@@ -4508,7 +4520,7 @@ body {
 
 .status-low {
   background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
-  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+  color: #082a24;
 }
 
 .status-inactive {
@@ -4523,7 +4535,7 @@ body {
 
 .status-completed {
   background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
-  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+  color: #082a24;
 }
 
 .status-deferred {
@@ -4533,7 +4545,7 @@ body {
 
 .status-create {
   background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
-  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+  color: #082a24;
 }
 
 .status-update {
@@ -4554,7 +4566,7 @@ body {
 .status-resolved,
 .status-reintegrated {
   background: color-mix(in srgb, #ffffff 68%, var(--tl-success) 32%);
-  color: color-mix(in srgb, var(--tl-success) 80%, #10342d 20%);
+  color: #082a24;
 }
 
 /* Detail panel inner label / list utility (used inline-style replacements) */

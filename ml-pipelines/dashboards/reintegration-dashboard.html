@@ -23,12 +23,19 @@
         </div>
       </div>
       <div>
-        <div class="nav-label">Insight reports</div>
-        <nav class="nav-tabs" aria-label="Insight reports">
+        <nav class="nav-tabs scrollable" aria-label="ML insight dashboards">
+          <div class="nav-label">Core pipelines</div>
           <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
           <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
           <a class="nav-tab active" href="reintegration-dashboard.html">Reintegration outlook</a>
           <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+          <div class="nav-label">Trend pipelines</div>
+          <a class="nav-tab" href="social-content-mix-dashboard.html">Content mix &amp; referrals</a>
+          <a class="nav-tab" href="campaign-timing-dashboard.html">Campaign timing</a>
+          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse load risk</a>
+          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix</a>
+          <a class="nav-tab" href="incident-archetypes-dashboard.html">Incident archetypes</a>
+          <a class="nav-tab" href="resident-trajectory-dashboard.html">Resident trajectory</a>
         </nav>
       </div>
       <p class="hint">
@@ -54,6 +61,7 @@
       <div id="load-state" class="loading">Loading…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
         <div class="kpi-row" id="kpis"></div>
         <div id="reint-visuals"></div>
 
@@ -94,6 +102,8 @@
       </div>
     </main>
   </div>
+  <script src="ml-dashboard-helpers.js"></script>
+  <script src="ml-dashboard-insights.js"></script>
   <script>
     (function () {
       let data = null;
@@ -103,7 +113,10 @@
       const activeOnly = document.getElementById("active-only");
 
       function fmtPct(x) { return (100 * x).toFixed(1) + "%"; }
-      const infoIcon = (msg) => `<span class="metric-info-wrap"><button type="button" class="metric-info" aria-label="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : "";
       function escapeHtml(s) {
         if (!s) return "";
         const d = document.createElement("div");
@@ -281,6 +294,12 @@
           data.residents = data.residents.map(withDerived);
           document.getElementById("load-state").style.display = "none";
           document.getElementById("dashboard").style.display = "block";
+          if (typeof renderInsightStory === "function" && data.insights) {
+            renderInsightStory(document.getElementById("insight-root"), data.insights, {
+              predSectionTitle: "Scores and predictions",
+              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
+            });
+          }
           refresh();
         })
         .catch(() => {

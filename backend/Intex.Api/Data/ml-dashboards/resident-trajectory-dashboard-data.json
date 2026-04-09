@@ -1,0 +1,617 @@
+{
+  "generated_note": "resident-trajectory-archetypes.ipynb \u2192 generate_resident_trajectory_dashboard_data.py",
+  "insights": {
+    "eyebrow": "RESIDENT TRAJECTORY ARCHETYPES",
+    "headline": "Who shows positive trajectory signals without peeking at current risk?",
+    "lede": "Positive trajectory rate 82% in file. Holdout ROC-AUC 1.0 (baseline 0.5).",
+    "prediction_cards": [
+      {
+        "kicker": "Predictive",
+        "label": "ROC-AUC positive trajectory",
+        "value": "1.0",
+        "hint": "F1: 1.0",
+        "definition": "Holdout discrimination for the positive-trajectory label using only allowed features."
+      },
+      {
+        "kicker": "Explanatory proxy",
+        "label": "R\u00b2 on current risk_num",
+        "value": "-2.49",
+        "hint": "MAE: 1.049 (leakage-controlled label excluded from X)",
+        "definition": "Secondary fit metric on risk level; label for trajectory is kept separate from features to limit leakage."
+      },
+      {
+        "kicker": "Grouped CV",
+        "label": "Mean ROC-AUC",
+        "value": "0.838",
+        "hint": "GroupKFold by resident",
+        "definition": "Cross-validation with residents kept whole across folds."
+      }
+    ],
+    "cause_cards": [
+      {
+        "kicker": "Leakage control",
+        "title": "current_risk_num not in features",
+        "body": "Trajectory label uses improvement/reintegration status; cross-domain aggregates only in X.",
+        "definition": "Explains which outcomes are modeled and what is excluded from predictors by design."
+      }
+    ],
+    "model_drivers": [
+      {
+        "feature": "visits",
+        "importance": 0.2954545454545454,
+        "share_top5_pct": 55
+      },
+      {
+        "feature": "referral source",
+        "importance": 0.09090909090909088,
+        "share_top5_pct": 17
+      },
+      {
+        "feature": "attendance mean",
+        "importance": 0.0681818181818182,
+        "share_top5_pct": 13
+      },
+      {
+        "feature": "progress mean",
+        "importance": 0.04545454545454547,
+        "share_top5_pct": 9
+      },
+      {
+        "feature": "health mean",
+        "importance": 0.0340909090909091,
+        "share_top5_pct": 6
+      }
+    ],
+    "calls_to_action": [
+      "Case conference candidate: resident 30 \u2014 P(positive trajectory)=97%.",
+      "Case conference candidate: resident 3 \u2014 P(positive trajectory)=97%.",
+      "Case conference candidate: resident 14 \u2014 P(positive trajectory)=96%."
+    ]
+  },
+  "portfolio": {
+    "n_residents": 60,
+    "positive_trajectory_rate": 0.8166666666666667
+  },
+  "rows": [
+    {
+      "resident_id": 30,
+      "safehouse_id": 5,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.971192105665795,
+      "positive_trajectory_actual": true,
+      "process_count": 74.0,
+      "health_mean": 3.022727272727273
+    },
+    {
+      "resident_id": 3,
+      "safehouse_id": 1,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.9664892659785713,
+      "positive_trajectory_actual": true,
+      "process_count": 53.0,
+      "health_mean": 3.1818181818181817
+    },
+    {
+      "resident_id": 14,
+      "safehouse_id": 7,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.9592036349726395,
+      "positive_trajectory_actual": true,
+      "process_count": 41.0,
+      "health_mean": 2.90875
+    },
+    {
+      "resident_id": 20,
+      "safehouse_id": 1,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.9539492569726434,
+      "positive_trajectory_actual": true,
+      "process_count": 41.0,
+      "health_mean": 3.288888888888889
+    },
+    {
+      "resident_id": 58,
+      "safehouse_id": 8,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.9474691288456887,
+      "positive_trajectory_actual": true,
+      "process_count": 43.0,
+      "health_mean": 3.157777777777778
+    },
+    {
+      "resident_id": 27,
+      "safehouse_id": 2,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.9378825866251369,
+      "positive_trajectory_actual": true,
+      "process_count": 54.0,
+      "health_mean": 3.1109999999999998
+    },
+    {
+      "resident_id": 6,
+      "safehouse_id": 5,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.9305986991308445,
+      "positive_trajectory_actual": true,
+      "process_count": 79.0,
+      "health_mean": 3.274545454545454
+    },
+    {
+      "resident_id": 7,
+      "safehouse_id": 6,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.9286435940841172,
+      "positive_trajectory_actual": true,
+      "process_count": 25.0,
+      "health_mean": 3.1422222222222222
+    },
+    {
+      "resident_id": 60,
+      "safehouse_id": 7,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.9238449945846959,
+      "positive_trajectory_actual": true,
+      "process_count": 49.0,
+      "health_mean": 2.9949999999999997
+    },
+    {
+      "resident_id": 10,
+      "safehouse_id": 1,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.9221247603353305,
+      "positive_trajectory_actual": true,
+      "process_count": 79.0,
+      "health_mean": 3.175
+    },
+    {
+      "resident_id": 19,
+      "safehouse_id": 4,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.9220633678370284,
+      "positive_trajectory_actual": true,
+      "process_count": 71.0,
+      "health_mean": 2.703333333333333
+    },
+    {
+      "resident_id": 25,
+      "safehouse_id": 1,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.9190381934055858,
+      "positive_trajectory_actual": true,
+      "process_count": 118.0,
+      "health_mean": 3.046666666666667
+    },
+    {
+      "resident_id": 16,
+      "safehouse_id": 8,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.9174671560546153,
+      "positive_trajectory_actual": true,
+      "process_count": 50.0,
+      "health_mean": 3.1733333333333333
+    },
+    {
+      "resident_id": 36,
+      "safehouse_id": 1,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.9153671703034834,
+      "positive_trajectory_actual": true,
+      "process_count": 81.0,
+      "health_mean": 3.295
+    },
+    {
+      "resident_id": 12,
+      "safehouse_id": 3,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.9129622457145236,
+      "positive_trajectory_actual": true,
+      "process_count": 42.0,
+      "health_mean": 3.250833333333333
+    },
+    {
+      "resident_id": 41,
+      "safehouse_id": 9,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.9128644444817124,
+      "positive_trajectory_actual": true,
+      "process_count": 86.0,
+      "health_mean": 2.5525
+    },
+    {
+      "resident_id": 22,
+      "safehouse_id": 6,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.9109241454389473,
+      "positive_trajectory_actual": true,
+      "process_count": 57.0,
+      "health_mean": 3.0475
+    },
+    {
+      "resident_id": 21,
+      "safehouse_id": 5,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.903185420643981,
+      "positive_trajectory_actual": true,
+      "process_count": 87.0,
+      "health_mean": 3.14625
+    },
+    {
+      "resident_id": 59,
+      "safehouse_id": 3,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.8987017715024653,
+      "positive_trajectory_actual": true,
+      "process_count": 82.0,
+      "health_mean": 3.4066666666666667
+    },
+    {
+      "resident_id": 33,
+      "safehouse_id": 7,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.8967294763207125,
+      "positive_trajectory_actual": true,
+      "process_count": 22.0,
+      "health_mean": 3.03875
+    },
+    {
+      "resident_id": 2,
+      "safehouse_id": 3,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.8909085708868084,
+      "positive_trajectory_actual": true,
+      "process_count": 51.0,
+      "health_mean": 3.4490000000000003
+    },
+    {
+      "resident_id": 52,
+      "safehouse_id": 2,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.8864663785062536,
+      "positive_trajectory_actual": true,
+      "process_count": 26.0,
+      "health_mean": 3.025714285714286
+    },
+    {
+      "resident_id": 23,
+      "safehouse_id": 5,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.8856371761818019,
+      "positive_trajectory_actual": true,
+      "process_count": 59.0,
+      "health_mean": 3.3536363636363635
+    },
+    {
+      "resident_id": 11,
+      "safehouse_id": 1,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.882635283103878,
+      "positive_trajectory_actual": true,
+      "process_count": 37.0,
+      "health_mean": 2.945555555555556
+    },
+    {
+      "resident_id": 49,
+      "safehouse_id": 5,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.8796572570792082,
+      "positive_trajectory_actual": true,
+      "process_count": 39.0,
+      "health_mean": 3.1885714285714286
+    },
+    {
+      "resident_id": 53,
+      "safehouse_id": 6,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.877971608910494,
+      "positive_trajectory_actual": true,
+      "process_count": 75.0,
+      "health_mean": 3.3708333333333336
+    },
+    {
+      "resident_id": 1,
+      "safehouse_id": 4,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.8774921211693383,
+      "positive_trajectory_actual": true,
+      "process_count": 106.0,
+      "health_mean": 3.1033333333333335
+    },
+    {
+      "resident_id": 29,
+      "safehouse_id": 8,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.8634251744716274,
+      "positive_trajectory_actual": true,
+      "process_count": 46.0,
+      "health_mean": 3.115
+    },
+    {
+      "resident_id": 44,
+      "safehouse_id": 9,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.8605566743842655,
+      "positive_trajectory_actual": true,
+      "process_count": 30.0,
+      "health_mean": 2.6933333333333334
+    },
+    {
+      "resident_id": 26,
+      "safehouse_id": 3,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.8565899477148833,
+      "positive_trajectory_actual": true,
+      "process_count": 49.0,
+      "health_mean": 3.23375
+    },
+    {
+      "resident_id": 47,
+      "safehouse_id": 4,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.8565234145406426,
+      "positive_trajectory_actual": true,
+      "process_count": 17.0,
+      "health_mean": 2.9711111111111115
+    },
+    {
+      "resident_id": 13,
+      "safehouse_id": 2,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.8498515946641643,
+      "positive_trajectory_actual": true,
+      "process_count": 35.0,
+      "health_mean": 3.1799999999999997
+    },
+    {
+      "resident_id": 54,
+      "safehouse_id": 7,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.8491703864921344,
+      "positive_trajectory_actual": true,
+      "process_count": 42.0,
+      "health_mean": 2.910833333333333
+    },
+    {
+      "resident_id": 5,
+      "safehouse_id": 4,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.8416802797520054,
+      "positive_trajectory_actual": true,
+      "process_count": 18.0,
+      "health_mean": 3.0877777777777777
+    },
+    {
+      "resident_id": 55,
+      "safehouse_id": 2,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.8286956795203898,
+      "positive_trajectory_actual": true,
+      "process_count": 25.0,
+      "health_mean": 3.184285714285714
+    },
+    {
+      "resident_id": 35,
+      "safehouse_id": 3,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.823571431941679,
+      "positive_trajectory_actual": true,
+      "process_count": 35.0,
+      "health_mean": 3.16
+    },
+    {
+      "resident_id": 18,
+      "safehouse_id": 8,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.815817243212466,
+      "positive_trajectory_actual": true,
+      "process_count": 33.0,
+      "health_mean": 3.0637499999999998
+    },
+    {
+      "resident_id": 9,
+      "safehouse_id": 7,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.8047744248889002,
+      "positive_trajectory_actual": true,
+      "process_count": 28.0,
+      "health_mean": 3.157777777777778
+    },
+    {
+      "resident_id": 17,
+      "safehouse_id": 1,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.8031056487454686,
+      "positive_trajectory_actual": true,
+      "process_count": 39.0,
+      "health_mean": 3.3322222222222226
+    },
+    {
+      "resident_id": 43,
+      "safehouse_id": 2,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.7766107143000015,
+      "positive_trajectory_actual": true,
+      "process_count": 22.0,
+      "health_mean": 3.37
+    },
+    {
+      "resident_id": 50,
+      "safehouse_id": 4,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.7731402003108485,
+      "positive_trajectory_actual": true,
+      "process_count": 110.0,
+      "health_mean": 3.6041666666666665
+    },
+    {
+      "resident_id": 46,
+      "safehouse_id": 7,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.7558309143281295,
+      "positive_trajectory_actual": true,
+      "process_count": 89.0,
+      "health_mean": 3.14625
+    },
+    {
+      "resident_id": 34,
+      "safehouse_id": 7,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.7362597948593635,
+      "positive_trajectory_actual": true,
+      "process_count": 30.0,
+      "health_mean": 2.9490909090909088
+    },
+    {
+      "resident_id": 31,
+      "safehouse_id": 1,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.7330424498824027,
+      "positive_trajectory_actual": true,
+      "process_count": 18.0,
+      "health_mean": 3.247777777777778
+    },
+    {
+      "resident_id": 37,
+      "safehouse_id": 4,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.7226854584470028,
+      "positive_trajectory_actual": true,
+      "process_count": 25.0,
+      "health_mean": 3.109166666666667
+    },
+    {
+      "resident_id": 56,
+      "safehouse_id": 1,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.72203712317605,
+      "positive_trajectory_actual": true,
+      "process_count": 22.0,
+      "health_mean": 3.293
+    },
+    {
+      "resident_id": 4,
+      "safehouse_id": 2,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.7170861147561484,
+      "positive_trajectory_actual": true,
+      "process_count": 57.0,
+      "health_mean": 3.157272727272727
+    },
+    {
+      "resident_id": 45,
+      "safehouse_id": 3,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.575294036895484,
+      "positive_trajectory_actual": true,
+      "process_count": 26.0,
+      "health_mean": 3.3644444444444446
+    },
+    {
+      "resident_id": 24,
+      "safehouse_id": 4,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.5556884715458703,
+      "positive_trajectory_actual": true,
+      "process_count": 42.0,
+      "health_mean": 3.2585714285714285
+    },
+    {
+      "resident_id": 8,
+      "safehouse_id": 4,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.40027553538703825,
+      "positive_trajectory_actual": false,
+      "process_count": 92.0,
+      "health_mean": 3.1750000000000003
+    },
+    {
+      "resident_id": 15,
+      "safehouse_id": 8,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.3479337757152881,
+      "positive_trajectory_actual": false,
+      "process_count": 35.0,
+      "health_mean": 3.5025
+    },
+    {
+      "resident_id": 57,
+      "safehouse_id": 7,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.32375169366925377,
+      "positive_trajectory_actual": false,
+      "process_count": 35.0,
+      "health_mean": 3.1042857142857145
+    },
+    {
+      "resident_id": 39,
+      "safehouse_id": 8,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.30145249217071696,
+      "positive_trajectory_actual": false,
+      "process_count": 17.0,
+      "health_mean": 3.2809090909090908
+    },
+    {
+      "resident_id": 48,
+      "safehouse_id": 5,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.2806460244164075,
+      "positive_trajectory_actual": false,
+      "process_count": 37.0,
+      "health_mean": 3.1314285714285717
+    },
+    {
+      "resident_id": 32,
+      "safehouse_id": 6,
+      "case_category": "Foundling",
+      "positive_trajectory_probability": 0.24837741136806965,
+      "positive_trajectory_actual": false,
+      "process_count": 35.0,
+      "health_mean": 3.2577777777777777
+    },
+    {
+      "resident_id": 42,
+      "safehouse_id": 6,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.22758455640637967,
+      "positive_trajectory_actual": false,
+      "process_count": 27.0,
+      "health_mean": 3.2028571428571433
+    },
+    {
+      "resident_id": 38,
+      "safehouse_id": 2,
+      "case_category": "Neglected",
+      "positive_trajectory_probability": 0.2235580049652267,
+      "positive_trajectory_actual": false,
+      "process_count": 29.0,
+      "health_mean": 3.5119999999999996
+    },
+    {
+      "resident_id": 28,
+      "safehouse_id": 3,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.21101761216511927,
+      "positive_trajectory_actual": false,
+      "process_count": 15.0,
+      "health_mean": 3.75
+    },
+    {
+      "resident_id": 51,
+      "safehouse_id": 2,
+      "case_category": "Surrendered",
+      "positive_trajectory_probability": 0.21072564605961464,
+      "positive_trajectory_actual": false,
+      "process_count": 11.0,
+      "health_mean": 3.3966666666666665
+    },
+    {
+      "resident_id": 40,
+      "safehouse_id": 1,
+      "case_category": "Abandoned",
+      "positive_trajectory_probability": 0.18302719603281792,
+      "positive_trajectory_actual": false,
+      "process_count": 21.0,
+      "health_mean": 3.5866666666666664
+    }
+  ]
+}

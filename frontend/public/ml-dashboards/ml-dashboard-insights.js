@@ -15,13 +15,21 @@
     const opts = options || {};
     const predKickerDefault = opts.predKickerDefault || "Predictive signal";
     const causeKickerDefault = opts.causeKickerDefault || "Pattern in records";
+    const H = global.MlDashboardHelpers;
+    function infoHtml(msg) {
+      if (!msg) return "";
+      return H && typeof H.infoIcon === "function" ? H.infoIcon(msg) : "";
+    }
 
     const predCards = (insights.prediction_cards || [])
       .map(
         (c) => `
       <article class="insight-stat-card">
         <p class="insight-stat-kicker">${esc(c.kicker || predKickerDefault)}</p>
-        <p class="insight-stat-label">${esc(c.label)}</p>
+        <div class="insight-stat-label-row">
+          <p class="insight-stat-label">${esc(c.label)}</p>
+          ${infoHtml(c.definition)}
+        </div>
         <p class="insight-stat-value">${esc(c.value)}</p>
         <p class="insight-stat-hint">${esc(c.hint)}</p>
       </article>
@@ -34,7 +42,10 @@
         (c) => `
       <article class="insight-cause-card">
         <p class="insight-cause-kicker">${esc(c.kicker || causeKickerDefault)}</p>
-        <h3 class="insight-cause-title">${esc(c.title)}</h3>
+        <div class="insight-cause-title-row">
+          <h3 class="insight-cause-title">${esc(c.title)}</h3>
+          ${infoHtml(c.definition)}
+        </div>
         <p class="insight-cause-body">${esc(c.body)}</p>
       </article>
     `
@@ -55,7 +66,7 @@
       })
       .join("");
 
-    const ctas = (insights.calls_to_action || [])
+    const ctas = (opts.omitCallsToAction ? [] : insights.calls_to_action || [])
       .map((t) => `<li>${esc(t)}</li>`)
       .join("");
 

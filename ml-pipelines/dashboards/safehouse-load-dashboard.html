@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Safehouse load risk — ML Insights</title>
+  <link rel="stylesheet" href="ml-dashboard-shell.css" />
+  <script src="ml-metric-tooltip.js" defer></script>
+</head>
+<body>
+  <script>
+    if (new URLSearchParams(location.search).get("embed") === "1") document.body.classList.add("embed");
+  </script>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
+        <div>
+          Tanglaw Project Admin
+          <span>Operations · load risk</span>
+        </div>
+      </div>
+      <div>
+        <nav class="nav-tabs scrollable" aria-label="ML insight dashboards">
+          <div class="nav-label">Core pipelines</div>
+          <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
+          <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
+          <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
+          <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+          <div class="nav-label">Trend pipelines</div>
+          <a class="nav-tab" href="social-content-mix-dashboard.html">Content mix &amp; referrals</a>
+          <a class="nav-tab" href="campaign-timing-dashboard.html">Campaign timing</a>
+          <a class="nav-tab active" href="safehouse-load-dashboard.html">Safehouse load risk</a>
+          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix</a>
+          <a class="nav-tab" href="incident-archetypes-dashboard.html">Incident archetypes</a>
+          <a class="nav-tab" href="resident-trajectory-dashboard.html">Resident trajectory</a>
+        </nav>
+      </div>
+      <p class="hint">Notebook: <code>safehouse-operational-load-risk.ipynb</code>. Regenerate: <code>python3 scripts/generate_safehouse_load_dashboard_data.py</code></p>
+    </aside>
+    <main>
+      <h1 class="page-title">Safehouse operational load</h1>
+      <p class="page-sub">Elevated rolling incident load vs house-specific benchmark (see notebook target definition).</p>
+      <div id="load-state" class="loading">Loading…</div>
+      <div id="error-state" class="error-box" style="display: none"></div>
+      <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <div class="panel-head">
+            <h2>Timeframe &amp; filters</h2>
+            <div class="toolbar timeframe-toolbar">
+              <label class="timeframe-controls">History window (months back)
+                <input id="timeframe-slider" class="timeline-range" type="range" min="1" max="36" step="1" value="12" />
+                <div class="timeframe-scale">
+                  <span>1</span><span id="timeframe-slider-value">12 months</span><span>36</span>
+                </div>
+                <div class="timeframe-quick-links">
+                  <button type="button" class="timeframe-link" id="months-3-btn">3 mo</button>
+                  <button type="button" class="timeframe-link" id="months-6-btn">6 mo</button>
+                  <button type="button" class="timeframe-link" id="months-12-btn">12 mo</button>
+                  <button type="button" class="timeframe-link" id="months-24-btn">24 mo</button>
+                  <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
+                </div>
+              </label>
+              <div class="timeframe-aside">Filters safehouse-month rows by month_start (first of month).</div>
+            </div>
+          </div>
+          <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
+        </div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Score meaning</h2>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
+            <strong>P(elevated load)</strong> reflects the notebook’s random forest on lagged rolling rates and operational counts—not the raw same-month rate alone.
+          </p>
+        </div>
+        <details class="data-fold" open>
+          <summary>Safehouse-month scores <span class="fold-hint">Sort · search</span></summary>
+          <div class="fold-inner">
+            <div class="panel">
+              <div class="panel-head">
+                <h2>Months</h2>
+                <div class="toolbar"><input type="search" id="search" placeholder="Safehouse id, date…" /></div>
+              </div>
+              <div class="table-wrap" style="max-height: 58vh">
+                <table>
+                  <thead>
+                    <tr>
+                      <th data-sort="safehouse_id">House</th>
+                      <th data-sort="month_start">Month</th>
+                      <th data-sort="incident_rate">Incidents / resident</th>
+                      <th data-sort="active_residents">Residents</th>
+                      <th data-sort="elevated_load_probability">P(elevated)</th>
+                      <th data-sort="above_bench_actual">Elevated (actual)</th>
+                      <th data-sort="incident_count">Incidents</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </main>
+  </div>
+  <script src="ml-dashboard-helpers.js"></script>
+  <script src="ml-dashboard-insights.js"></script>
+  <script src="ml-timeframe-filter.js"></script>
+  <script>
+    (function () {
+      const loadState = document.getElementById("load-state");
+      const errorState = document.getElementById("error-state");
+      const dashboard = document.getElementById("dashboard");
+      const tbody = document.getElementById("tbody");
+      const search = document.getElementById("search");
+      let data = null;
+      let tfRows = null;
+      let sortKey = "elevated_load_probability";
+      let sortDir = -1;
+      function showError(html) {
+        loadState.style.display = "none";
+        errorState.style.display = "block";
+        errorState.innerHTML = html;
+      }
+      function escapeHtml(s) {
+        const d = document.createElement("div");
+        d.textContent = String(s ?? "");
+        return d.innerHTML;
+      }
+      function fmtPct(x) {
+        return (100 * Number(x || 0)).toFixed(1) + "%";
+      }
+      function cmp(a, b, key) {
+        const va = a[key];
+        const vb = b[key];
+        if (typeof va === "boolean" && typeof vb === "boolean") return va === vb ? 0 : va ? 1 : -1;
+        if (typeof va === "number" && typeof vb === "number") return va - vb;
+        return String(va).localeCompare(String(vb));
+      }
+      function render() {
+        const q = (search.value || "").toLowerCase().trim();
+        const base = tfRows !== null ? tfRows : data.rows || [];
+        let rows = base.filter((r) => {
+          if (!q) return true;
+          return [r.safehouse_id, r.month_start].join(" ").toLowerCase().includes(q);
+        });
+        rows = rows.slice().sort((a, b) => cmp(a, b, sortKey) * sortDir);
+        tbody.innerHTML = rows
+          .map(
+            (r) => `
+          <tr>
+            <td>${r.safehouse_id}</td>
+            <td>${escapeHtml(r.month_start)}</td>
+            <td>${Number(r.incident_rate).toFixed(4)}</td>
+            <td>${r.active_residents}</td>
+            <td>${fmtPct(r.elevated_load_probability)}</td>
+            <td>${r.above_bench_actual ? '<span class="badge badge-alert">Yes</span>' : '<span class="badge badge-ok">No</span>'}</td>
+            <td>${r.incident_count}</td>
+          </tr>`
+          )
+          .join("");
+      }
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sort;
+          if (sortKey === k) sortDir *= -1;
+          else {
+            sortKey = k;
+            sortDir = k === "safehouse_id" || k === "month_start" ? 1 : -1;
+          }
+          render();
+        });
+      });
+      search.addEventListener("input", render);
+      fetch("../json/safehouse-load-dashboard-data.json")
+        .then((res) => {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        })
+        .then((json) => {
+          data = json;
+          loadState.style.display = "none";
+          dashboard.style.display = "block";
+          if (typeof renderInsightStory === "function" && data.insights) {
+            renderInsightStory(document.getElementById("insight-root"), data.insights, {
+              followupsFirst: true,
+              predSectionTitle: "Scores and predictions",
+              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
+            });
+          }
+          if (typeof initTimeframeFilter === "function") {
+            initTimeframeFilter({
+              mode: "month",
+              sliderId: "timeframe-slider",
+              sliderValueId: "timeframe-slider-value",
+              labelId: "timeframe-label",
+              getAllRows: function () {
+                return data.rows || [];
+              },
+              getRowDate: function (r) {
+                return new Date(String(r.month_start) + "T12:00:00");
+              },
+              quickLinks: [
+                { id: "months-3-btn", months: 3 },
+                { id: "months-6-btn", months: 6 },
+                { id: "months-12-btn", months: 12 },
+                { id: "months-24-btn", months: 24 },
+                { id: "all-time-btn", allTime: true },
+              ],
+              onApply: function (filtered) {
+                tfRows = filtered;
+                render();
+              },
+            });
+          }
+          render();
+        })
+        .catch(() => showError("<strong>Could not load JSON.</strong> Run <code>generate_safehouse_load_dashboard_data.py</code>."));
+    })();
+  </script>
+</body>
+</html>

@@ -8,37 +8,43 @@
       {
         "label": "How reliable this estimate is",
         "value": "0.62",
-        "hint": "Higher is better"
+        "hint": "Higher is better",
+        "definition": "R\u00b2 for predicted vs actual donation amount on holdout posts (higher = more variance explained)."
       },
       {
         "label": "Typical miss size",
-        "value": "3.056",
-        "hint": "Lower is better"
+        "value": "3.055",
+        "hint": "Lower is better",
+        "definition": "Root mean squared error of predictions on the holdout set (same units as the target)."
       },
       {
         "label": "Biggest post signal",
         "value": "post type ImpactStory",
-        "hint": "This mattered most in the ranking"
+        "hint": "This mattered most in the ranking",
+        "definition": "Gradient boosting feature with highest importance for ranking predicted donation amounts."
       }
     ],
     "cause_cards": [
       {
         "title": "One strong pattern: post type EventPromotion",
-        "body": "This factor shows a clear link with higher or lower donation amounts in the data."
+        "body": "This factor shows a clear link with higher or lower donation amounts in the data.",
+        "definition": "OLS-style association in historical posts\u2014helpful for themes, not a guarantee for the next post."
       },
       {
         "title": "Uses only info you know before posting",
-        "body": "This keeps the guidance useful during planning, not after results are in."
+        "body": "This keeps the guidance useful during planning, not after results are in.",
+        "definition": "Features are limited to what staff would know when scheduling or drafting a post."
       },
       {
         "title": "How to use this page",
-        "body": "Use top cards for planning. Use tables below for post-by-post review."
+        "body": "Use top cards for planning. Use tables below for post-by-post review.",
+        "definition": "Hero metrics summarize the model; tables and detail panels are for individual post decisions."
       }
     ],
     "model_drivers": [
       {
         "feature": "post type ImpactStory",
-        "importance": 0.23521941176624558,
+        "importance": 0.2352194117662456,
         "share_top5_pct": 36
       },
       {
@@ -48,17 +54,17 @@
       },
       {
         "feature": "post type FundraisingAppeal",
-        "importance": 0.08047064493756176,
+        "importance": 0.08047064493756177,
         "share_top5_pct": 12
       },
       {
         "feature": "post type Campaign",
-        "importance": 0.07165534639745773,
+        "importance": 0.0716553463974577,
         "share_top5_pct": 11
       },
       {
         "feature": "caption length",
-        "importance": 0.06059842567375631,
+        "importance": 0.06064676643138163,
         "share_top5_pct": 9
       }
     ],
@@ -70,112 +76,112 @@
   },
   "portfolio": {
     "n_posts": 812,
-    "test_r2_log": 0.6175988550255216,
-    "test_rmse_log": 3.0557139210196804,
-    "test_mae_log": 2.4169304967902896,
+    "test_r2_log": 0.6178912628026758,
+    "test_rmse_log": 3.054545402826698,
+    "test_mae_log": 2.4153552838941104,
     "mean_actual_php": 39772.093669950744
   },
   "ols_significant_coefficients": [
     {
       "feature": "post_type_EventPromotion",
-      "coefficient": -4.666584367810202,
-      "p_value": 2.7750215625915475e-28
+      "coefficient": -4.666584367810201,
+      "p_value": 2.775021562591743e-28
     },
     {
       "feature": "post_type_ThankYou",
-      "coefficient": -4.635520675210739,
-      "p_value": 1.7311263579961863e-21
+      "coefficient": -4.63552067521074,
+      "p_value": 1.7311263579961867e-21
     },
     {
       "feature": "post_type_EducationalContent",
-      "coefficient": -4.313682833062176,
-      "p_value": 9.410559093490854e-24
+      "coefficient": -4.313682833062173,
+      "p_value": 9.410559093489775e-24
     },
     {
       "feature": "is_morning",
-      "coefficient": 2.5195325536188022,
-      "p_value": 2.3174945253927814e-19
+      "coefficient": 2.5195325536188076,
+      "p_value": 2.317494525392676e-19
     },
     {
       "feature": "sentiment_tone_Informative",
-      "coefficient": -2.2918050903324554,
-      "p_value": 2.2557572959941132e-09
+      "coefficient": -2.291805090332455,
+      "p_value": 2.2557572959941827e-09
     },
     {
       "feature": "features_resident_story",
-      "coefficient": 1.9271338206054902,
-      "p_value": 0.000550979380229276
+      "coefficient": 1.9271338206054924,
+      "p_value": 0.0005509793802292543
     },
     {
       "feature": "platform_YouTube",
-      "coefficient": 1.3539176515407916,
-      "p_value": 0.0038938098154149476
+      "coefficient": 1.3539176515407911,
+      "p_value": 0.0038938098154149407
     },
     {
       "feature": "media_type_Text",
-      "coefficient": -1.168830924012982,
-      "p_value": 0.006157288039632503
+      "coefficient": -1.168830924012979,
+      "p_value": 0.006157288039632698
     },
     {
       "feature": "is_evening",
-      "coefficient": 1.1207281006257794,
-      "p_value": 0.0005018354437357355
+      "coefficient": 1.12072810062578,
+      "p_value": 0.0005018354437357227
     },
     {
       "feature": "sentiment_tone_Grateful",
-      "coefficient": -1.0470748150428322,
-      "p_value": 0.00915456631890492
+      "coefficient": -1.0470748150428326,
+      "p_value": 0.009154566318904921
     },
     {
       "feature": "is_boosted",
-      "coefficient": 1.0458482971112615,
-      "p_value": 0.0658833214983223
+      "coefficient": 1.0458482971112082,
+      "p_value": 0.06588332149833645
     },
     {
       "feature": "content_topic_CampaignLaunch",
-      "coefficient": 1.0371800710160126,
-      "p_value": 0.03547215276773483
+      "coefficient": 1.0371800710160035,
+      "p_value": 0.03547215276773596
     },
     {
       "feature": "post_type_ImpactStory",
-      "coefficient": 1.02064715224158,
-      "p_value": 0.08766813167351911
+      "coefficient": 1.020647152241572,
+      "p_value": 0.08766813167352165
     },
     {
       "feature": "day_of_week_Monday",
-      "coefficient": 0.7218246920035973,
-      "p_value": 0.07528963721125997
+      "coefficient": 0.7218246920035942,
+      "p_value": 0.07528963721126132
     },
     {
       "feature": "sentiment_tone_Hopeful",
-      "coefficient": -0.6860846065302263,
-      "p_value": 0.07629212635204818
+      "coefficient": -0.6860846065302256,
+      "p_value": 0.07629212635204827
     },
     {
       "feature": "has_call_to_action",
-      "coefficient": 0.6838707853556991,
-      "p_value": 0.009714424905948036
+      "coefficient": 0.6838707853556959,
+      "p_value": 0.009714424905948383
     },
     {
       "feature": "has_campaign",
-      "coefficient": 0.49276440469749727,
-      "p_value": 0.045756788374928525
+      "coefficient": 0.49276440469749344,
+      "p_value": 0.045756788374930434
     },
     {
       "feature": "post_hour",
-      "coefficient": 0.20873146161161105,
-      "p_value": 1.8542101338625037e-19
+      "coefficient": 0.20873146161160477,
+      "p_value": 1.8542101338674588e-19
     },
     {
       "feature": "boost_budget_php",
-      "coefficient": 0.0005175107673147122,
-      "p_value": 0.009646601844063558
+      "coefficient": 0.0005175107673093784,
+      "p_value": 0.009646601844881848
     }
   ],
   "gradient_boosting_importances": [
     {
       "feature": "post_type_ImpactStory",
-      "importance": 0.23521941176624558
+      "importance": 0.2352194117662456
     },
     {
       "feature": "post_hour",
@@ -183,55 +189,55 @@
     },
     {
       "feature": "post_type_FundraisingAppeal",
-      "importance": 0.08047064493756176
+      "importance": 0.08047064493756177
     },
     {
       "feature": "post_type_Campaign",
-      "importance": 0.07165534639745773
+      "importance": 0.0716553463974577
     },
     {
       "feature": "caption_length",
-      "importance": 0.06059842567375631
+      "importance": 0.06064676643138163
     },
     {
       "feature": "boost_budget_php",
-      "importance": 0.04571623349506669
+      "importance": 0.04571623349506667
     },
     {
       "feature": "sentiment_tone_Informative",
-      "importance": 0.02826540356142091
+      "importance": 0.0282654035614209
     },
     {
       "feature": "post_type_EducationalContent",
-      "importance": 0.024874676230816607
+      "importance": 0.024842176208986582
     },
     {
       "feature": "media_type_Text",
-      "importance": 0.02103818850150234
+      "importance": 0.021038188501502342
     },
     {
       "feature": "platform_LinkedIn",
-      "importance": 0.018031583809317554
+      "importance": 0.017973869050763217
     },
     {
       "feature": "features_resident_story",
-      "importance": 0.017671374767791896
+      "importance": 0.017671374767791907
     },
     {
       "feature": "media_type_Reel",
-      "importance": 0.01413698357816954
+      "importance": 0.014136983578169553
     },
     {
       "feature": "has_campaign",
-      "importance": 0.013499998628587988
+      "importance": 0.013499998628587985
     },
     {
       "feature": "sentiment_tone_Emotional",
-      "importance": 0.012283124016138746
+      "importance": 0.012283124016138739
     },
     {
       "feature": "post_type_EventPromotion",
-      "importance": 0.011786190223197449
+      "importance": 0.011786190223197454
     },
     {
       "feature": "num_hashtags",
@@ -239,7 +245,7 @@
     },
     {
       "feature": "platform_YouTube",
-      "importance": 0.009939014485932271
+      "importance": 0.009939014485932266
     },
     {
       "feature": "post_type_ThankYou",
@@ -247,31 +253,31 @@
     },
     {
       "feature": "is_evening",
-      "importance": 0.008446328501270329
+      "importance": 0.008446328501270344
     },
     {
       "feature": "sentiment_tone_Celebratory",
-      "importance": 0.006665226476091006
+      "importance": 0.006665226476090998
     },
     {
       "feature": "mentions_count",
-      "importance": 0.006281588316229636
+      "importance": 0.00628158831622964
     },
     {
       "feature": "sentiment_tone_Hopeful",
-      "importance": 0.006000396971162963
+      "importance": 0.006000396971162973
     },
     {
       "feature": "sentiment_tone_Grateful",
-      "importance": 0.005573219789543774
+      "importance": 0.005573219789543767
     },
     {
       "feature": "content_topic_EventRecap",
-      "importance": 0.005520436805176046
+      "importance": 0.005520436805176037
     },
     {
       "feature": "platform_Twitter",
-      "importance": 0.004982206572308163
+      "importance": 0.004982206572308153
     }
   ],
   "posts": [
@@ -313,7 +319,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 81.88248678921278
+      "predicted_donation_php": 81.8824867892127
     },
     {
       "post_id": 245,
@@ -323,7 +329,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 62.830305219697436
+      "predicted_donation_php": 62.83030521969738
     },
     {
       "post_id": 498,
@@ -363,7 +369,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.576657510502897
+      "predicted_donation_php": 4.576657510502898
     },
     {
       "post_id": 280,
@@ -373,7 +379,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 3703.21,
-      "predicted_donation_php": 241.87514066797596
+      "predicted_donation_php": 241.87514066797573
     },
     {
       "post_id": 429,
@@ -383,7 +389,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.17976216846117385
+      "predicted_donation_php": 0.179762168461174
     },
     {
       "post_id": 444,
@@ -413,7 +419,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 4513.149999999999,
-      "predicted_donation_php": 26.19639420498402
+      "predicted_donation_php": 26.196394204984006
     },
     {
       "post_id": 186,
@@ -423,7 +429,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.0455291262684603
+      "predicted_donation_php": 3.0455291262684607
     },
     {
       "post_id": 93,
@@ -443,7 +449,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 283414.5800000002,
-      "predicted_donation_php": 188934.09318223837
+      "predicted_donation_php": 188934.09318223802
     },
     {
       "post_id": 171,
@@ -453,7 +459,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 19641.92000000001,
-      "predicted_donation_php": 5498.749162670788
+      "predicted_donation_php": 5498.749162670778
     },
     {
       "post_id": 45,
@@ -473,7 +479,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 34553.48000000001,
-      "predicted_donation_php": 337.4940764365963
+      "predicted_donation_php": 337.494076436596
     },
     {
       "post_id": 474,
@@ -483,7 +489,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.8655709139273877
+      "predicted_donation_php": 0.8655709139273882
     },
     {
       "post_id": 551,
@@ -503,7 +509,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 149192.73999999987,
-      "predicted_donation_php": 10526.074572597317
+      "predicted_donation_php": 10526.074572597336
     },
     {
       "post_id": 484,
@@ -533,7 +539,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Informative",
       "actual_donation_php": 9515.140000000005,
-      "predicted_donation_php": 14814.914582361265
+      "predicted_donation_php": 14814.914582361213
     },
     {
       "post_id": 769,
@@ -543,7 +549,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 12883.82000000001,
-      "predicted_donation_php": 1348.712101251073
+      "predicted_donation_php": 1348.7121012510706
     },
     {
       "post_id": 479,
@@ -563,7 +569,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 70.53890820303151
+      "predicted_donation_php": 70.53890820303144
     },
     {
       "post_id": 167,
@@ -573,7 +579,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.6834087945154306
+      "predicted_donation_php": 1.6834087945154304
     },
     {
       "post_id": 138,
@@ -583,7 +589,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 140544.67999999996,
-      "predicted_donation_php": 57014.72341542931
+      "predicted_donation_php": 57014.72341542922
     },
     {
       "post_id": 745,
@@ -593,7 +599,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 9738.589999999993,
-      "predicted_donation_php": 38725.93554074585
+      "predicted_donation_php": 38725.93554074578
     },
     {
       "post_id": 55,
@@ -603,7 +609,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 2815.0,
-      "predicted_donation_php": 3.342296448976447
+      "predicted_donation_php": 3.3422964489764464
     },
     {
       "post_id": 785,
@@ -623,7 +629,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 4636.379999999997,
-      "predicted_donation_php": 2301.436893295462
+      "predicted_donation_php": 2301.43689329546
     },
     {
       "post_id": 526,
@@ -633,7 +639,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.641911822174572
+      "predicted_donation_php": 7.641911822174576
     },
     {
       "post_id": 239,
@@ -653,7 +659,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.277392119680554
+      "predicted_donation_php": 5.2773921196805516
     },
     {
       "post_id": 375,
@@ -663,7 +669,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.7684966635114029
+      "predicted_donation_php": 0.7684966635114028
     },
     {
       "post_id": 651,
@@ -693,7 +699,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 25119.960000000006,
-      "predicted_donation_php": 29674.478620011432
+      "predicted_donation_php": 29674.478620011327
     },
     {
       "post_id": 396,
@@ -703,7 +709,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.911748894346735
+      "predicted_donation_php": 2.911748894346736
     },
     {
       "post_id": 707,
@@ -713,7 +719,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.10007503916905287
+      "predicted_donation_php": -0.10007503916905272
     },
     {
       "post_id": 217,
@@ -743,7 +749,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 8.546388374032686
+      "predicted_donation_php": 8.546388374032674
     },
     {
       "post_id": 107,
@@ -753,7 +759,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.114044832547277
+      "predicted_donation_php": 5.114044832547278
     },
     {
       "post_id": 450,
@@ -783,7 +789,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.0657667905478485
+      "predicted_donation_php": 3.0657667905478503
     },
     {
       "post_id": 219,
@@ -793,7 +799,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 20158.650000000016,
-      "predicted_donation_php": 24.210545343069967
+      "predicted_donation_php": 24.210545343069978
     },
     {
       "post_id": 41,
@@ -833,7 +839,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 95.73297447545269
+      "predicted_donation_php": 95.73297447545278
     },
     {
       "post_id": 187,
@@ -853,7 +859,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 11067.910000000005,
-      "predicted_donation_php": 2683.9362470866777
+      "predicted_donation_php": 2683.936247086675
     },
     {
       "post_id": 310,
@@ -913,7 +919,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 40829.15000000004,
-      "predicted_donation_php": 2478.6703295034345
+      "predicted_donation_php": 2873.5234516832415
     },
     {
       "post_id": 289,
@@ -943,7 +949,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 43618.189999999995,
-      "predicted_donation_php": 7108.674646778391
+      "predicted_donation_php": 7108.674646778379
     },
     {
       "post_id": 497,
@@ -953,7 +959,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 319382.54999999993,
-      "predicted_donation_php": 126739.07450221769
+      "predicted_donation_php": 126739.07450221723
     },
     {
       "post_id": 399,
@@ -993,7 +999,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 45343.19999999998,
-      "predicted_donation_php": 139079.09741893312
+      "predicted_donation_php": 139079.09741893288
     },
     {
       "post_id": 624,
@@ -1003,7 +1009,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.10748674858858447
+      "predicted_donation_php": -0.10748674858858437
     },
     {
       "post_id": 398,
@@ -1033,7 +1039,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 9.326550247333582
+      "predicted_donation_php": 9.326550247333577
     },
     {
       "post_id": 653,
@@ -1043,7 +1049,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 7485.190000000003,
-      "predicted_donation_php": 12493.676713498104
+      "predicted_donation_php": 12493.676713498126
     },
     {
       "post_id": 271,
@@ -1063,7 +1069,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.067825642104667
+      "predicted_donation_php": 7.067825642104671
     },
     {
       "post_id": 200,
@@ -1123,7 +1129,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 4291.87,
-      "predicted_donation_php": 718.4704705444238
+      "predicted_donation_php": 718.4704705444225
     },
     {
       "post_id": 698,
@@ -1133,7 +1139,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.7120035447722093
+      "predicted_donation_php": 3.7120035447722097
     },
     {
       "post_id": 601,
@@ -1143,7 +1149,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.1461813860735562
+      "predicted_donation_php": -0.14618138607355605
     },
     {
       "post_id": 27,
@@ -1183,7 +1189,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 99467.32000000002,
-      "predicted_donation_php": 134416.21691386568
+      "predicted_donation_php": 134416.21691386544
     },
     {
       "post_id": 307,
@@ -1193,7 +1199,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 46.725851541240814
+      "predicted_donation_php": 46.72585154124077
     },
     {
       "post_id": 668,
@@ -1213,7 +1219,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.2946358432875358
+      "predicted_donation_php": 1.2946358432875367
     },
     {
       "post_id": 394,
@@ -1223,7 +1229,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.745655557368602
+      "predicted_donation_php": 7.745655557368599
     },
     {
       "post_id": 544,
@@ -1243,7 +1249,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.4722438226686265
+      "predicted_donation_php": 1.472243822668628
     },
     {
       "post_id": 58,
@@ -1283,7 +1289,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.3688768252625803
+      "predicted_donation_php": 3.3688768252625794
     },
     {
       "post_id": 83,
@@ -1313,7 +1319,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.8239280639098043
+      "predicted_donation_php": 0.8239280639098048
     },
     {
       "post_id": 753,
@@ -1323,7 +1329,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 101.69150227633634
+      "predicted_donation_php": 101.69150227633624
     },
     {
       "post_id": 534,
@@ -1343,7 +1349,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 12049.649999999996,
-      "predicted_donation_php": 21329.6714128169
+      "predicted_donation_php": 21329.671412816824
     },
     {
       "post_id": 155,
@@ -1353,7 +1359,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.3915779906519368
+      "predicted_donation_php": 3.3915779906519408
     },
     {
       "post_id": 74,
@@ -1403,7 +1409,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.7057677236104826
+      "predicted_donation_php": 0.705767723610484
     },
     {
       "post_id": 286,
@@ -1413,7 +1419,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.585207431515555
+      "predicted_donation_php": 5.585207431515559
     },
     {
       "post_id": 583,
@@ -1423,7 +1429,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 5408.8499999999985,
-      "predicted_donation_php": 127.95777523724962
+      "predicted_donation_php": 127.9577752372495
     },
     {
       "post_id": 56,
@@ -1443,7 +1449,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.6523999946789205
+      "predicted_donation_php": 0.6523999946789201
     },
     {
       "post_id": 147,
@@ -1453,7 +1459,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 21.496486140708324
+      "predicted_donation_php": 21.496486140708345
     },
     {
       "post_id": 366,
@@ -1493,7 +1499,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 54535.809999999954,
-      "predicted_donation_php": 46222.38993919976
+      "predicted_donation_php": 46222.38993919968
     },
     {
       "post_id": 546,
@@ -1503,7 +1509,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 59679.37000000002,
-      "predicted_donation_php": 13206.578363928049
+      "predicted_donation_php": 13206.578363928025
     },
     {
       "post_id": 543,
@@ -1513,7 +1519,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.421006194001475
+      "predicted_donation_php": 4.421006194001473
     },
     {
       "post_id": 501,
@@ -1523,7 +1529,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 3644.909999999998,
-      "predicted_donation_php": 530.5423306849833
+      "predicted_donation_php": 530.5423306849829
     },
     {
       "post_id": 316,
@@ -1533,7 +1539,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 9181.270000000004,
-      "predicted_donation_php": 1393.620637664876
+      "predicted_donation_php": 1393.6206376648747
     },
     {
       "post_id": 793,
@@ -1553,7 +1559,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 6.788590064165201
+      "predicted_donation_php": 6.7885900641652075
     },
     {
       "post_id": 679,
@@ -1563,7 +1569,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 13.515508807690543
+      "predicted_donation_php": 13.515508807690562
     },
     {
       "post_id": 729,
@@ -1573,7 +1579,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 1896.6600000000005,
-      "predicted_donation_php": 276.3237760830195
+      "predicted_donation_php": 276.3237760830192
     },
     {
       "post_id": 803,
@@ -1583,7 +1589,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.7106278743395996
+      "predicted_donation_php": 0.7106278743396006
     },
     {
       "post_id": 283,
@@ -1593,7 +1599,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.7336370112782875
+      "predicted_donation_php": 4.733637011278289
     },
     {
       "post_id": 687,
@@ -1653,7 +1659,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 104887.10000000008,
-      "predicted_donation_php": 21379.37135332842
+      "predicted_donation_php": 21379.371353328384
     },
     {
       "post_id": 575,
@@ -1673,7 +1679,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 14832.17000000001,
-      "predicted_donation_php": 717.9486074585107
+      "predicted_donation_php": 717.94860745851
     },
     {
       "post_id": 95,
@@ -1683,7 +1689,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 16869.78,
-      "predicted_donation_php": 1718.2569176241443
+      "predicted_donation_php": 1718.256917624143
     },
     {
       "post_id": 19,
@@ -1693,7 +1699,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 3026.400000000002,
-      "predicted_donation_php": 481.021226415636
+      "predicted_donation_php": 481.02122641563557
     },
     {
       "post_id": 216,
@@ -1703,7 +1709,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.889612429748797
+      "predicted_donation_php": 7.8896124297488015
     },
     {
       "post_id": 483,
@@ -1713,7 +1719,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 11716.500000000002,
-      "predicted_donation_php": 1518.543345058985
+      "predicted_donation_php": 1518.5433450589837
     },
     {
       "post_id": 140,
@@ -1723,7 +1729,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 36089.79000000001,
-      "predicted_donation_php": 127392.05702335823
+      "predicted_donation_php": 127392.05702335801
     },
     {
       "post_id": 158,
@@ -1753,7 +1759,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.4221934716894187
+      "predicted_donation_php": 3.4221934716894173
     },
     {
       "post_id": 81,
@@ -1763,7 +1769,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 4543.789999999997,
-      "predicted_donation_php": 154.86039201928375
+      "predicted_donation_php": 154.8603920192836
     },
     {
       "post_id": 700,
@@ -1773,7 +1779,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 80761.47000000006,
-      "predicted_donation_php": 22276.92166561534
+      "predicted_donation_php": 22276.921665615264
     },
     {
       "post_id": 130,
@@ -1783,7 +1789,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.0923467470203279
+      "predicted_donation_php": 1.0923467470203287
     },
     {
       "post_id": 514,
@@ -1793,7 +1799,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.8189724941279304
+      "predicted_donation_php": 1.8189724941279306
     },
     {
       "post_id": 755,
@@ -1813,7 +1819,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 35422.20000000002,
-      "predicted_donation_php": 79490.88696589264
+      "predicted_donation_php": 79490.8869658925
     },
     {
       "post_id": 494,
@@ -1853,7 +1859,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 6999.780000000001,
-      "predicted_donation_php": 269.0894565308253
+      "predicted_donation_php": 269.08945653082503
     },
     {
       "post_id": 382,
@@ -1873,7 +1879,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 40628.06999999999,
-      "predicted_donation_php": 4640.023382729128
+      "predicted_donation_php": 4640.0233827291195
     },
     {
       "post_id": 136,
@@ -1883,7 +1889,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 3066.369999999999,
-      "predicted_donation_php": 1640.043626791816
+      "predicted_donation_php": 1640.0436267918146
     },
     {
       "post_id": 574,
@@ -1903,7 +1909,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 109113.87000000004,
-      "predicted_donation_php": 100533.83513573083
+      "predicted_donation_php": 100533.83513573046
     },
     {
       "post_id": 448,
@@ -1913,7 +1919,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 21324.40999999999,
-      "predicted_donation_php": 4756.17026487008
+      "predicted_donation_php": 4756.170264870072
     },
     {
       "post_id": 378,
@@ -1923,7 +1929,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.9853875954303823
+      "predicted_donation_php": 1.985387595430383
     },
     {
       "post_id": 202,
@@ -1953,7 +1959,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.187694672415154
+      "predicted_donation_php": 4.187694672415152
     },
     {
       "post_id": 414,
@@ -1993,7 +1999,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 26793.53999999998,
-      "predicted_donation_php": 4860.271472127318
+      "predicted_donation_php": 4860.271472127309
     },
     {
       "post_id": 550,
@@ -2003,7 +2009,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 2028.3500000000006,
-      "predicted_donation_php": 342.31367278857357
+      "predicted_donation_php": 342.31367278857294
     },
     {
       "post_id": 85,
@@ -2013,7 +2019,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.429258965050243
+      "predicted_donation_php": 7.42925896505024
     },
     {
       "post_id": 99,
@@ -2023,7 +2029,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1544.7921416401684
+      "predicted_donation_php": 1544.792141640167
     },
     {
       "post_id": 744,
@@ -2053,7 +2059,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 12.364682528051198
+      "predicted_donation_php": 12.36468252805119
     },
     {
       "post_id": 230,
@@ -2063,7 +2069,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 216950.7899999999,
-      "predicted_donation_php": 35036.7667351613
+      "predicted_donation_php": 35036.76673516124
     },
     {
       "post_id": 417,
@@ -2073,7 +2079,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 20.50705364392597
+      "predicted_donation_php": 20.507053643925982
     },
     {
       "post_id": 161,
@@ -2083,7 +2089,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 13.579771257408488
+      "predicted_donation_php": 13.579771257408469
     },
     {
       "post_id": 464,
@@ -2143,7 +2149,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 82656.47,
-      "predicted_donation_php": 80276.18579642828
+      "predicted_donation_php": 80276.18579642814
     },
     {
       "post_id": 452,
@@ -2153,7 +2159,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 1511.9200000000008,
-      "predicted_donation_php": 152.7047864139715
+      "predicted_donation_php": 152.70478641397136
     },
     {
       "post_id": 518,
@@ -2203,7 +2209,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 83863.86,
-      "predicted_donation_php": 18863.9300975099
+      "predicted_donation_php": 18863.930097509867
     },
     {
       "post_id": 240,
@@ -2223,7 +2229,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 1086.0299999999997,
-      "predicted_donation_php": 2149.7155051529016
+      "predicted_donation_php": 2149.7155051529
     },
     {
       "post_id": 166,
@@ -2233,7 +2239,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.5455109468633053
+      "predicted_donation_php": 1.5455109468633044
     },
     {
       "post_id": 775,
@@ -2243,7 +2249,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 251175.03000000003,
-      "predicted_donation_php": 107455.90587809517
+      "predicted_donation_php": 107455.90587809499
     },
     {
       "post_id": 737,
@@ -2293,7 +2299,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 18601.949999999986,
-      "predicted_donation_php": 9060.871436241712
+      "predicted_donation_php": 9060.871436241696
     },
     {
       "post_id": 433,
@@ -2313,7 +2319,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 3159.009999999998,
-      "predicted_donation_php": 1230.507886225264
+      "predicted_donation_php": 1230.5078862252606
     },
     {
       "post_id": 762,
@@ -2333,7 +2339,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 8021.509999999996,
-      "predicted_donation_php": 418.1502587588191
+      "predicted_donation_php": 418.1502587588187
     },
     {
       "post_id": 397,
@@ -2363,7 +2369,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 9.110253328645253
+      "predicted_donation_php": 9.11025332864525
     },
     {
       "post_id": 428,
@@ -2393,7 +2399,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 76132.84999999993,
-      "predicted_donation_php": 47374.61470243929
+      "predicted_donation_php": 47374.614702439205
     },
     {
       "post_id": 101,
@@ -2413,7 +2419,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.7257070493657748
+      "predicted_donation_php": 0.7257070493657745
     },
     {
       "post_id": 199,
@@ -2463,7 +2469,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 24.22541132715546
+      "predicted_donation_php": 24.225411327155484
     },
     {
       "post_id": 656,
@@ -2473,7 +2479,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.2964866945166102
+      "predicted_donation_php": 2.2964866945166094
     },
     {
       "post_id": 631,
@@ -2483,7 +2489,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 1778.1900000000003,
-      "predicted_donation_php": 6833.027030584046
+      "predicted_donation_php": 6833.027030584034
     },
     {
       "post_id": 151,
@@ -2493,7 +2499,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 12016.470000000003,
-      "predicted_donation_php": 8144.001753191069
+      "predicted_donation_php": 8144.001753191054
     },
     {
       "post_id": 540,
@@ -2513,7 +2519,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 32716.98000000002,
-      "predicted_donation_php": 19451.499082761333
+      "predicted_donation_php": 19451.499082761264
     },
     {
       "post_id": 513,
@@ -2593,7 +2599,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 84324.62,
-      "predicted_donation_php": 55533.624192395284
+      "predicted_donation_php": 55533.62419239518
     },
     {
       "post_id": 665,
@@ -2633,7 +2639,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 3573.520000000003,
-      "predicted_donation_php": 5205.485634335086
+      "predicted_donation_php": 5205.485634335077
     },
     {
       "post_id": 407,
@@ -2663,7 +2669,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 2790.4600000000005,
-      "predicted_donation_php": 47.195315726416894
+      "predicted_donation_php": 47.19531572641685
     },
     {
       "post_id": 204,
@@ -2673,7 +2679,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 7870.649999999999,
-      "predicted_donation_php": 1914.0096553007775
+      "predicted_donation_php": 1914.009655300779
     },
     {
       "post_id": 235,
@@ -2683,7 +2689,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.16798351566960346
+      "predicted_donation_php": -0.16798351566960362
     },
     {
       "post_id": 458,
@@ -2693,7 +2699,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.9150762076562106
+      "predicted_donation_php": 0.9150762076562116
     },
     {
       "post_id": 250,
@@ -2703,7 +2709,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 4570.120000000001,
-      "predicted_donation_php": 426.9506744832656
+      "predicted_donation_php": 426.9506744832652
     },
     {
       "post_id": 472,
@@ -2723,7 +2729,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 4283.559999999999,
-      "predicted_donation_php": 447.5545038299254
+      "predicted_donation_php": 447.554503829925
     },
     {
       "post_id": 129,
@@ -2763,7 +2769,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.12383032808913841
+      "predicted_donation_php": 0.12383032808913785
     },
     {
       "post_id": 404,
@@ -2773,7 +2779,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 30055.990000000023,
-      "predicted_donation_php": 25264.33246733344
+      "predicted_donation_php": 25264.332467333392
     },
     {
       "post_id": 205,
@@ -2793,7 +2799,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.15830644234721175
+      "predicted_donation_php": -0.15830644234721164
     },
     {
       "post_id": 14,
@@ -2813,7 +2819,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 1234.1700000000005,
-      "predicted_donation_php": 10197.385713157972
+      "predicted_donation_php": 10197.385713157935
     },
     {
       "post_id": 21,
@@ -2823,7 +2829,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 1663.1899999999996,
-      "predicted_donation_php": 560.4553233101279
+      "predicted_donation_php": 560.4553233101274
     },
     {
       "post_id": 133,
@@ -2853,7 +2859,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 4461.100000000001,
-      "predicted_donation_php": 5424.7333159275995
+      "predicted_donation_php": 5424.73331592759
     },
     {
       "post_id": 423,
@@ -2873,7 +2879,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.06569206869372589
+      "predicted_donation_php": 0.06569206869372578
     },
     {
       "post_id": 332,
@@ -2883,7 +2889,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 3200.540000000002,
-      "predicted_donation_php": 489.7049112851853
+      "predicted_donation_php": 489.70491128518483
     },
     {
       "post_id": 384,
@@ -2903,7 +2909,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 116.44350384346295
+      "predicted_donation_php": 116.44350384346284
     },
     {
       "post_id": 413,
@@ -2923,7 +2929,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 4634.250000000001,
-      "predicted_donation_php": 1538.157885766727
+      "predicted_donation_php": 1538.1578857667243
     },
     {
       "post_id": 623,
@@ -2933,7 +2939,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 6.310430883170055
+      "predicted_donation_php": 6.310430883170058
     },
     {
       "post_id": 128,
@@ -2943,7 +2949,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 4737.82,
-      "predicted_donation_php": 861.6132328743292
+      "predicted_donation_php": 861.61323287433
     },
     {
       "post_id": 25,
@@ -2963,7 +2969,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 4294.429999999997,
-      "predicted_donation_php": 1286.0907872176278
+      "predicted_donation_php": 1286.0907872176267
     },
     {
       "post_id": 7,
@@ -2983,7 +2989,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 7216.499999999999,
-      "predicted_donation_php": 1160.9894232171912
+      "predicted_donation_php": 1160.9894232171903
     },
     {
       "post_id": 447,
@@ -2993,7 +2999,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.717943884474756
+      "predicted_donation_php": 3.717943884474759
     },
     {
       "post_id": 735,
@@ -3003,7 +3009,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 521.61114766201
+      "predicted_donation_php": 521.6111476620096
     },
     {
       "post_id": 504,
@@ -3013,7 +3019,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 1185.3999999999996,
-      "predicted_donation_php": 864.3607716455322
+      "predicted_donation_php": 864.3607716455314
     },
     {
       "post_id": 173,
@@ -3053,7 +3059,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 45.06847015780597
+      "predicted_donation_php": 45.068470157805926
     },
     {
       "post_id": 291,
@@ -3063,7 +3069,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 2872.070000000001,
-      "predicted_donation_php": 287.58470199462397
+      "predicted_donation_php": 287.5847019946237
     },
     {
       "post_id": 778,
@@ -3073,7 +3079,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 6479.720000000002,
-      "predicted_donation_php": 16475.458142016207
+      "predicted_donation_php": 16475.458142016178
     },
     {
       "post_id": 236,
@@ -3083,7 +3089,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 7567.029999999999,
-      "predicted_donation_php": 277.95401020569346
+      "predicted_donation_php": 277.95401020569324
     },
     {
       "post_id": 768,
@@ -3103,7 +3109,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 90356.95000000007,
-      "predicted_donation_php": 19528.568647686836
+      "predicted_donation_php": 19528.5686476868
     },
     {
       "post_id": 356,
@@ -3113,7 +3119,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.08070161627405095
+      "predicted_donation_php": -0.08070161627405097
     },
     {
       "post_id": 645,
@@ -3163,7 +3169,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 18102.169999999987,
-      "predicted_donation_php": 4555.982919650706
+      "predicted_donation_php": 4555.982919650698
     },
     {
       "post_id": 385,
@@ -3183,7 +3189,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.9455532363028931
+      "predicted_donation_php": 0.9455532363028922
     },
     {
       "post_id": 709,
@@ -3203,7 +3209,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 11.189070925913867
+      "predicted_donation_php": 11.189070925913873
     },
     {
       "post_id": 76,
@@ -3213,7 +3219,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.6254287445833321
+      "predicted_donation_php": -0.6254287445833322
     },
     {
       "post_id": 18,
@@ -3223,7 +3229,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 34930.73999999997,
-      "predicted_donation_php": 32748.901521706674
+      "predicted_donation_php": 32748.901521706557
     },
     {
       "post_id": 490,
@@ -3253,7 +3259,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 5847.060000000004,
-      "predicted_donation_php": 585.0837524834608
+      "predicted_donation_php": 585.0837524834602
     },
     {
       "post_id": 781,
@@ -3273,7 +3279,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.7700414346049199
+      "predicted_donation_php": 0.7700414346049198
     },
     {
       "post_id": 590,
@@ -3283,7 +3289,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 2259.35,
-      "predicted_donation_php": 210.44696248339733
+      "predicted_donation_php": 210.44696248339713
     },
     {
       "post_id": 164,
@@ -3313,7 +3319,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.6149210317110224
+      "predicted_donation_php": -0.6149210317110223
     },
     {
       "post_id": 605,
@@ -3363,7 +3369,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.7117432388172096
+      "predicted_donation_php": 1.711743238817209
     },
     {
       "post_id": 427,
@@ -3403,7 +3409,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.3370782527005005
+      "predicted_donation_php": 4.337078252700503
     },
     {
       "post_id": 432,
@@ -3413,7 +3419,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.188878625675646
+      "predicted_donation_php": 3.1888786256756463
     },
     {
       "post_id": 358,
@@ -3423,7 +3429,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 13763.629999999994,
-      "predicted_donation_php": 6249.804813264636
+      "predicted_donation_php": 6249.804813264625
     },
     {
       "post_id": 449,
@@ -3443,7 +3449,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 2402435.960000002,
-      "predicted_donation_php": 1567426.1951180827
+      "predicted_donation_php": 1567426.195118077
     },
     {
       "post_id": 102,
@@ -3483,7 +3489,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.017055520142135006
+      "predicted_donation_php": -0.017055520142135048
     },
     {
       "post_id": 468,
@@ -3523,7 +3529,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 51888.28999999999,
-      "predicted_donation_php": 835784.7156017269
+      "predicted_donation_php": 835784.7156017254
     },
     {
       "post_id": 720,
@@ -3533,7 +3539,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 293559.59,
-      "predicted_donation_php": 82999.95966207012
+      "predicted_donation_php": 82999.95966206997
     },
     {
       "post_id": 259,
@@ -3543,7 +3549,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 23730.339999999997,
-      "predicted_donation_php": 143444.68296250227
+      "predicted_donation_php": 143444.682962502
     },
     {
       "post_id": 463,
@@ -3553,7 +3559,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 42961.320000000036,
-      "predicted_donation_php": 24297.447000651977
+      "predicted_donation_php": 24297.447000651933
     },
     {
       "post_id": 602,
@@ -3563,7 +3569,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 7389.560000000003,
-      "predicted_donation_php": 16996.44410502971
+      "predicted_donation_php": 16996.444105029677
     },
     {
       "post_id": 179,
@@ -3593,7 +3599,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 555828.1199999999,
-      "predicted_donation_php": 222707.44438873447
+      "predicted_donation_php": 222707.4443887341
     },
     {
       "post_id": 671,
@@ -3613,7 +3619,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.5097685331626545
+      "predicted_donation_php": 0.5097685331626549
     },
     {
       "post_id": 626,
@@ -3633,7 +3639,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 17859.209999999985,
-      "predicted_donation_php": 12693.005711691461
+      "predicted_donation_php": 12693.00571169144
     },
     {
       "post_id": 783,
@@ -3643,7 +3649,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 141767.25000000006,
-      "predicted_donation_php": 72319.42107535769
+      "predicted_donation_php": 72319.42107535756
     },
     {
       "post_id": 453,
@@ -3653,7 +3659,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 3405.94,
-      "predicted_donation_php": 2325.2190262831077
+      "predicted_donation_php": 2325.219026283106
     },
     {
       "post_id": 496,
@@ -3673,7 +3679,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 26962.14,
-      "predicted_donation_php": 513.8537574313624
+      "predicted_donation_php": 513.8537574313619
     },
     {
       "post_id": 327,
@@ -3683,7 +3689,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.18297654618838272
+      "predicted_donation_php": -0.18297654618838252
     },
     {
       "post_id": 387,
@@ -3693,7 +3699,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 12093.990000000005,
-      "predicted_donation_php": 200.15281519071598
+      "predicted_donation_php": 200.15281519071578
     },
     {
       "post_id": 295,
@@ -3733,7 +3739,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 5982.279999999995,
-      "predicted_donation_php": 1070.6082323081419
+      "predicted_donation_php": 1070.608232308141
     },
     {
       "post_id": 63,
@@ -3743,7 +3749,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 15.274669943136773
+      "predicted_donation_php": 15.274669943136775
     },
     {
       "post_id": 658,
@@ -3763,7 +3769,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.712468919891514
+      "predicted_donation_php": 2.7124689198915153
     },
     {
       "post_id": 278,
@@ -3773,7 +3779,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.00835984527314566
+      "predicted_donation_php": -0.008359845273145549
     },
     {
       "post_id": 708,
@@ -3783,7 +3789,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 4770.75,
-      "predicted_donation_php": 1289.4128001913348
+      "predicted_donation_php": 1289.4128001913336
     },
     {
       "post_id": 613,
@@ -3803,7 +3809,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 8737.099999999993,
-      "predicted_donation_php": 976.6193429795445
+      "predicted_donation_php": 976.6193429795437
     },
     {
       "post_id": 682,
@@ -3823,7 +3829,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 808353.6099999996,
-      "predicted_donation_php": 453089.47319129016
+      "predicted_donation_php": 453089.47319128853
     },
     {
       "post_id": 48,
@@ -3833,7 +3839,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.775580126971198
+      "predicted_donation_php": 2.775580126971201
     },
     {
       "post_id": 370,
@@ -3853,7 +3859,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.001710142185741413
+      "predicted_donation_php": -0.0017101421857419012
     },
     {
       "post_id": 559,
@@ -3883,7 +3889,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.2911862838566113
+      "predicted_donation_php": 2.291186283856609
     },
     {
       "post_id": 684,
@@ -3903,7 +3909,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 18.628243298667552
+      "predicted_donation_php": 18.628243298667545
     },
     {
       "post_id": 411,
@@ -3953,7 +3959,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 15655.88000000001,
-      "predicted_donation_php": 60727.649988211924
+      "predicted_donation_php": 60727.649988211815
     },
     {
       "post_id": 641,
@@ -3963,7 +3969,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.219386641242817
+      "predicted_donation_php": 2.219386641242818
     },
     {
       "post_id": 618,
@@ -3983,7 +3989,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 15855.89,
-      "predicted_donation_php": 2145.5899823901505
+      "predicted_donation_php": 2145.5899823901464
     },
     {
       "post_id": 322,
@@ -4003,7 +4009,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 2584.460000000001,
-      "predicted_donation_php": 961.9345994238599
+      "predicted_donation_php": 961.9345994238591
     },
     {
       "post_id": 780,
@@ -4013,7 +4019,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 22.981288019389357
+      "predicted_donation_php": 22.981288019389336
     },
     {
       "post_id": 564,
@@ -4033,7 +4039,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.5971836249910445
+      "predicted_donation_php": 2.5971836249910436
     },
     {
       "post_id": 125,
@@ -4063,7 +4069,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 33793.63999999998,
-      "predicted_donation_php": 2552.5492913625894
+      "predicted_donation_php": 2552.549291362587
     },
     {
       "post_id": 549,
@@ -4073,7 +4079,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 86.34241920046556
+      "predicted_donation_php": 86.34241920046547
     },
     {
       "post_id": 145,
@@ -4083,7 +4089,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.69118203223035
+      "predicted_donation_php": 2.691182032230351
     },
     {
       "post_id": 535,
@@ -4103,7 +4109,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 65.9878560325327
+      "predicted_donation_php": 65.98785603253263
     },
     {
       "post_id": 562,
@@ -4113,7 +4119,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Informative",
       "actual_donation_php": 808.93,
-      "predicted_donation_php": 128.56863781120632
+      "predicted_donation_php": 128.5686378112062
     },
     {
       "post_id": 545,
@@ -4123,7 +4129,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 29285.92000000001,
-      "predicted_donation_php": 34444.29365538482
+      "predicted_donation_php": 34444.293655384754
     },
     {
       "post_id": 391,
@@ -4163,7 +4169,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.47668065048072894
+      "predicted_donation_php": 0.47668065048072944
     },
     {
       "post_id": 722,
@@ -4193,7 +4199,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.544137691330873
+      "predicted_donation_php": 2.5441376913308735
     },
     {
       "post_id": 341,
@@ -4213,7 +4219,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.54050091547605
+      "predicted_donation_php": 0.5405009154760501
     },
     {
       "post_id": 12,
@@ -4263,7 +4269,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.9245081635468066
+      "predicted_donation_php": 1.924508163546808
     },
     {
       "post_id": 80,
@@ -4273,7 +4279,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 566.81,
-      "predicted_donation_php": 128.95156365820117
+      "predicted_donation_php": 128.95156365820102
     },
     {
       "post_id": 598,
@@ -4283,7 +4289,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.7190930949889428
+      "predicted_donation_php": -0.7190930949889427
     },
     {
       "post_id": 667,
@@ -4313,7 +4319,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.4106847592482013
+      "predicted_donation_php": 0.4106847592482018
     },
     {
       "post_id": 609,
@@ -4323,7 +4329,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 30758.590000000026,
-      "predicted_donation_php": 17477.721770523352
+      "predicted_donation_php": 17477.721770523323
     },
     {
       "post_id": 692,
@@ -4333,7 +4339,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 17486.05,
-      "predicted_donation_php": 12113.94373028023
+      "predicted_donation_php": 12113.943730280189
     },
     {
       "post_id": 62,
@@ -4343,7 +4349,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 148.1025988531401
+      "predicted_donation_php": 148.10259885314025
     },
     {
       "post_id": 168,
@@ -4363,7 +4369,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 6182.349999999997,
-      "predicted_donation_php": 1140.6816871077606
+      "predicted_donation_php": 1140.6816871077594
     },
     {
       "post_id": 478,
@@ -4373,7 +4379,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.029529770548136
+      "predicted_donation_php": 2.029529770548137
     },
     {
       "post_id": 174,
@@ -4393,7 +4399,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.814853822686082
+      "predicted_donation_php": 4.814853822686085
     },
     {
       "post_id": 390,
@@ -4413,7 +4419,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 2809.129999999999,
-      "predicted_donation_php": 497.3626772635458
+      "predicted_donation_php": 497.3626772635453
     },
     {
       "post_id": 104,
@@ -4423,7 +4429,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.1807429001493588
+      "predicted_donation_php": 1.1807429001493586
     },
     {
       "post_id": 680,
@@ -4473,7 +4479,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 8.448539867902024
+      "predicted_donation_php": 8.44853986790202
     },
     {
       "post_id": 593,
@@ -4533,7 +4539,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 11575.229999999992,
-      "predicted_donation_php": 21125.892591098935
+      "predicted_donation_php": 21125.8925910989
     },
     {
       "post_id": 756,
@@ -4543,7 +4549,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 18971.089999999993,
-      "predicted_donation_php": 10104.51914478591
+      "predicted_donation_php": 10104.519144785892
     },
     {
       "post_id": 620,
@@ -4553,7 +4559,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 12795.88,
-      "predicted_donation_php": 82232.09572680635
+      "predicted_donation_php": 82232.09572680619
     },
     {
       "post_id": 409,
@@ -4563,7 +4569,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.03538460475081837
+      "predicted_donation_php": 0.03538460475081834
     },
     {
       "post_id": 139,
@@ -4583,7 +4589,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 8987.980000000005,
-      "predicted_donation_php": 5955.773789302695
+      "predicted_donation_php": 5955.773789302684
     },
     {
       "post_id": 786,
@@ -4603,7 +4609,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.4613457605043528
+      "predicted_donation_php": -0.46134576050435283
     },
     {
       "post_id": 122,
@@ -4623,7 +4629,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 3099.2799999999984,
-      "predicted_donation_php": 389.21512454350665
+      "predicted_donation_php": 389.2151245435063
     },
     {
       "post_id": 791,
@@ -4633,7 +4639,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 6618.650000000004,
-      "predicted_donation_php": 6196.118999591875
+      "predicted_donation_php": 6196.118999591864
     },
     {
       "post_id": 177,
@@ -4643,7 +4649,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.5565650245092519
+      "predicted_donation_php": 0.5565650245092524
     },
     {
       "post_id": 703,
@@ -4653,7 +4659,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 59455.17000000001,
-      "predicted_donation_php": 104441.0348980375
+      "predicted_donation_php": 104441.03489803732
     },
     {
       "post_id": 298,
@@ -4663,7 +4669,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 1109.11,
-      "predicted_donation_php": 26.803190304347094
+      "predicted_donation_php": 26.80319030434712
     },
     {
       "post_id": 646,
@@ -4693,7 +4699,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 2295.7400000000002,
-      "predicted_donation_php": 52.38903025309663
+      "predicted_donation_php": 52.38903025309665
     },
     {
       "post_id": 724,
@@ -4723,7 +4729,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.15915784087636584
+      "predicted_donation_php": 0.1591578408763661
     },
     {
       "post_id": 555,
@@ -4753,7 +4759,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 15197.130000000008,
-      "predicted_donation_php": 437.5895334891478
+      "predicted_donation_php": 437.5895334891474
     },
     {
       "post_id": 572,
@@ -4783,7 +4789,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 12835.64999999999,
-      "predicted_donation_php": 65.61131645625483
+      "predicted_donation_php": 65.61131645625477
     },
     {
       "post_id": 659,
@@ -4793,7 +4799,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.398375033232388
+      "predicted_donation_php": 2.3983750332323894
     },
     {
       "post_id": 717,
@@ -4803,7 +4809,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 34.23743604096425
+      "predicted_donation_php": 34.23743604096427
     },
     {
       "post_id": 343,
@@ -4823,7 +4829,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.7775787549920765
+      "predicted_donation_php": 2.777578754992079
     },
     {
       "post_id": 580,
@@ -4833,7 +4839,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 168687.98000000016,
-      "predicted_donation_php": 247026.4421401248
+      "predicted_donation_php": 247026.44214012436
     },
     {
       "post_id": 567,
@@ -4843,7 +4849,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.07180754306825451
+      "predicted_donation_php": 0.07180754306825454
     },
     {
       "post_id": 311,
@@ -4863,7 +4869,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 6.820843840323017
+      "predicted_donation_php": 6.820843840323014
     },
     {
       "post_id": 224,
@@ -4873,7 +4879,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 13229.920000000004,
-      "predicted_donation_php": 868.0328439542571
+      "predicted_donation_php": 868.0328439542564
     },
     {
       "post_id": 650,
@@ -4893,7 +4899,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 4226.519999999997,
-      "predicted_donation_php": 137.42743775470208
+      "predicted_donation_php": 137.42743775470197
     },
     {
       "post_id": 274,
@@ -4933,7 +4939,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 20721.69,
-      "predicted_donation_php": 54424.448971775295
+      "predicted_donation_php": 54424.4489717752
     },
     {
       "post_id": 42,
@@ -4953,7 +4959,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 26.89642547843644
+      "predicted_donation_php": 26.89642547843643
     },
     {
       "post_id": 697,
@@ -4963,7 +4969,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 3617.660000000002,
-      "predicted_donation_php": 3697.852956710521
+      "predicted_donation_php": 3697.8529567105084
     },
     {
       "post_id": 124,
@@ -4973,7 +4979,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 66592.78999999996,
-      "predicted_donation_php": 51838.126033300534
+      "predicted_donation_php": 51838.12603330045
     },
     {
       "post_id": 388,
@@ -4983,7 +4989,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Informative",
       "actual_donation_php": 33905.889999999985,
-      "predicted_donation_php": 11486.12398348527
+      "predicted_donation_php": 11486.123983485228
     },
     {
       "post_id": 191,
@@ -5003,7 +5009,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 113166.71999999994,
-      "predicted_donation_php": 92104.68877337642
+      "predicted_donation_php": 92104.68877337626
     },
     {
       "post_id": 379,
@@ -5043,7 +5049,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 4073.3800000000024,
-      "predicted_donation_php": 12893.191547116125
+      "predicted_donation_php": 12893.191547116101
     },
     {
       "post_id": 31,
@@ -5073,7 +5079,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.344408368487583
+      "predicted_donation_php": 2.3444083684875836
     },
     {
       "post_id": 533,
@@ -5103,7 +5109,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.003920990756847468
+      "predicted_donation_php": 0.003920990756847251
     },
     {
       "post_id": 82,
@@ -5113,7 +5119,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 171236.14999999988,
-      "predicted_donation_php": 53072.322982100544
+      "predicted_donation_php": 53072.322982100355
     },
     {
       "post_id": 730,
@@ -5123,7 +5129,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 26.211027040263843
+      "predicted_donation_php": 26.21102704026383
     },
     {
       "post_id": 309,
@@ -5143,7 +5149,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 11.111920782449634
+      "predicted_donation_php": 11.111920782449628
     },
     {
       "post_id": 331,
@@ -5173,7 +5179,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.4831036604064257
+      "predicted_donation_php": 0.48310366040642566
     },
     {
       "post_id": 420,
@@ -5183,7 +5189,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.3652275571802388
+      "predicted_donation_php": -0.36522755718023897
     },
     {
       "post_id": 114,
@@ -5193,7 +5199,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 39126.08,
-      "predicted_donation_php": 79335.34097448255
+      "predicted_donation_php": 79335.34097448242
     },
     {
       "post_id": 604,
@@ -5203,7 +5209,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 4208.030000000002,
-      "predicted_donation_php": 190.06697972265144
+      "predicted_donation_php": 190.06697972265127
     },
     {
       "post_id": 282,
@@ -5213,7 +5219,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.7538679595307395
+      "predicted_donation_php": -0.7538679595307394
     },
     {
       "post_id": 515,
@@ -5223,7 +5229,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 36001.85,
-      "predicted_donation_php": 16779.208443539203
+      "predicted_donation_php": 16779.208443539173
     },
     {
       "post_id": 246,
@@ -5243,7 +5249,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.057782498594875
+      "predicted_donation_php": 4.057782498594878
     },
     {
       "post_id": 493,
@@ -5263,7 +5269,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 48126.34999999999,
-      "predicted_donation_php": 141512.3722139128
+      "predicted_donation_php": 141512.37221391255
     },
     {
       "post_id": 510,
@@ -5273,7 +5279,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.344935105177943
+      "predicted_donation_php": 2.3449351051779423
     },
     {
       "post_id": 88,
@@ -5283,7 +5289,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 29.574961420493032
+      "predicted_donation_php": 29.574961420493022
     },
     {
       "post_id": 146,
@@ -5323,7 +5329,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 3755.450000000002,
-      "predicted_donation_php": 388.90521275980393
+      "predicted_donation_php": 388.9052127598036
     },
     {
       "post_id": 237,
@@ -5343,7 +5349,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 121.99649869494333
+      "predicted_donation_php": 121.996498694943
     },
     {
       "post_id": 647,
@@ -5413,7 +5419,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 537.061878912839
+      "predicted_donation_php": 537.0618789128384
     },
     {
       "post_id": 538,
@@ -5423,7 +5429,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 29.240235374229794
+      "predicted_donation_php": 29.240235374229805
     },
     {
       "post_id": 330,
@@ -5453,7 +5459,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 3423.5699999999983,
-      "predicted_donation_php": 166.5284034778564
+      "predicted_donation_php": 166.52840347785624
     },
     {
       "post_id": 43,
@@ -5463,7 +5469,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 56396.66000000003,
-      "predicted_donation_php": 97176.42315909716
+      "predicted_donation_php": 97176.42315909681
     },
     {
       "post_id": 606,
@@ -5473,7 +5479,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 2045.6299999999997,
-      "predicted_donation_php": 1656.4207912706302
+      "predicted_donation_php": 1656.4207912706286
     },
     {
       "post_id": 710,
@@ -5483,7 +5489,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 12175.389999999992,
-      "predicted_donation_php": 37749.32556113967
+      "predicted_donation_php": 37749.3255611396
     },
     {
       "post_id": 127,
@@ -5513,7 +5519,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 19103.029999999984,
-      "predicted_donation_php": 777.9972964350824
+      "predicted_donation_php": 777.9972964350817
     },
     {
       "post_id": 189,
@@ -5543,7 +5549,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 236721.16999999984,
-      "predicted_donation_php": 388937.279528453
+      "predicted_donation_php": 388937.2795284523
     },
     {
       "post_id": 471,
@@ -5603,7 +5609,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 6944.400000000003,
-      "predicted_donation_php": 14063.389022760683
+      "predicted_donation_php": 14063.389022760657
     },
     {
       "post_id": 301,
@@ -5613,7 +5619,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 50542.090000000004,
-      "predicted_donation_php": 89918.40695577687
+      "predicted_donation_php": 89918.40695577672
     },
     {
       "post_id": 383,
@@ -5623,7 +5629,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 19653.700000000015,
-      "predicted_donation_php": 820.7704251880224
+      "predicted_donation_php": 820.7704251880217
     },
     {
       "post_id": 548,
@@ -5643,7 +5649,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 1146.0600000000004,
-      "predicted_donation_php": 1504.7959572109394
+      "predicted_donation_php": 1504.7959572109366
     },
     {
       "post_id": 750,
@@ -5653,7 +5659,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 19601.630000000012,
-      "predicted_donation_php": 1050.449851022479
+      "predicted_donation_php": 1050.449851022478
     },
     {
       "post_id": 638,
@@ -5663,7 +5669,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 48.23758461003839
+      "predicted_donation_php": 48.23758461003835
     },
     {
       "post_id": 312,
@@ -5673,7 +5679,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 7116.87,
-      "predicted_donation_php": 34187.276925365586
+      "predicted_donation_php": 34187.27692536553
     },
     {
       "post_id": 362,
@@ -5693,7 +5699,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 51164.039999999964,
-      "predicted_donation_php": 11516.699584331769
+      "predicted_donation_php": 11516.699584331747
     },
     {
       "post_id": 208,
@@ -5703,7 +5709,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 139293.82,
-      "predicted_donation_php": 68904.84903607445
+      "predicted_donation_php": 68904.84903607432
     },
     {
       "post_id": 49,
@@ -5713,7 +5719,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 46822.25999999997,
-      "predicted_donation_php": 24552.104072964656
+      "predicted_donation_php": 24552.104072964612
     },
     {
       "post_id": 181,
@@ -5733,7 +5739,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 31.23317871595857
+      "predicted_donation_php": 31.233178715958573
     },
     {
       "post_id": 798,
@@ -5743,7 +5749,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.96820787539335
+      "predicted_donation_php": 4.968207875393352
     },
     {
       "post_id": 586,
@@ -5753,7 +5759,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.64419808870786
+      "predicted_donation_php": 1.6441980887078604
     },
     {
       "post_id": 451,
@@ -5763,7 +5769,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 1337.8899999999999,
-      "predicted_donation_php": 250.0135654093326
+      "predicted_donation_php": 250.0135654093324
     },
     {
       "post_id": 643,
@@ -5783,7 +5789,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.624023294443781
+      "predicted_donation_php": 2.6240232944437794
     },
     {
       "post_id": 263,
@@ -5803,7 +5809,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.26779650583292086
+      "predicted_donation_php": -0.2677965058329209
     },
     {
       "post_id": 465,
@@ -5823,7 +5829,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.09803192737395275
+      "predicted_donation_php": -0.09803192737395267
     },
     {
       "post_id": 690,
@@ -5863,7 +5869,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 70748.97000000006,
-      "predicted_donation_php": 2202.01920273772
+      "predicted_donation_php": 2202.019202737718
     },
     {
       "post_id": 137,
@@ -5893,7 +5899,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.3351080479898134
+      "predicted_donation_php": 1.3351080479898139
     },
     {
       "post_id": 809,
@@ -5903,7 +5909,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.0184908076389891
+      "predicted_donation_php": 1.018490807638989
     },
     {
       "post_id": 716,
@@ -5913,7 +5919,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 12319.530000000006,
-      "predicted_donation_php": 6376.539897658991
+      "predicted_donation_php": 6376.539897659003
     },
     {
       "post_id": 615,
@@ -5933,7 +5939,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 32593.29,
-      "predicted_donation_php": 21458.061326119936
+      "predicted_donation_php": 21458.06132611986
     },
     {
       "post_id": 285,
@@ -5963,7 +5969,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 25888.29999999999,
-      "predicted_donation_php": 10898.01048900457
+      "predicted_donation_php": 10898.01048900455
     },
     {
       "post_id": 801,
@@ -5983,7 +5989,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 204106.63000000012,
-      "predicted_donation_php": 62805.40883881135
+      "predicted_donation_php": 62805.40883881124
     },
     {
       "post_id": 699,
@@ -5993,7 +5999,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.10544012819855264
+      "predicted_donation_php": -0.10544012819855259
     },
     {
       "post_id": 603,
@@ -6013,7 +6019,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 16589.379999999994,
-      "predicted_donation_php": 2302.3550470742744
+      "predicted_donation_php": 2302.3550470742725
     },
     {
       "post_id": 784,
@@ -6073,7 +6079,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 4990.540000000002,
-      "predicted_donation_php": 329.9524845596719
+      "predicted_donation_php": 329.95248455967163
     },
     {
       "post_id": 109,
@@ -6083,7 +6089,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 4581.250000000003,
-      "predicted_donation_php": 3536.6374875109423
+      "predicted_donation_php": 3536.6374875109364
     },
     {
       "post_id": 198,
@@ -6113,7 +6119,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 23284.36999999998,
-      "predicted_donation_php": 2885.9029637588683
+      "predicted_donation_php": 2885.9029637588656
     },
     {
       "post_id": 635,
@@ -6123,7 +6129,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 21.943645686238977
+      "predicted_donation_php": 21.943645686238966
     },
     {
       "post_id": 359,
@@ -6133,7 +6139,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 249795.92000000007,
-      "predicted_donation_php": 155252.78956859108
+      "predicted_donation_php": 155252.7895685908
     },
     {
       "post_id": 437,
@@ -6143,7 +6149,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 2432.659999999999,
-      "predicted_donation_php": 938.1146048339149
+      "predicted_donation_php": 938.1146048339141
     },
     {
       "post_id": 654,
@@ -6153,7 +6159,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 69843.04000000004,
-      "predicted_donation_php": 18531.25427271449
+      "predicted_donation_php": 18531.254272714425
     },
     {
       "post_id": 87,
@@ -6183,7 +6189,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.561404514940147
+      "predicted_donation_php": 0.5614045149401476
     },
     {
       "post_id": 188,
@@ -6193,7 +6199,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 69585.27000000005,
-      "predicted_donation_php": 23425.547028240828
+      "predicted_donation_php": 23425.547028240744
     },
     {
       "post_id": 364,
@@ -6203,7 +6209,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 8715.27,
-      "predicted_donation_php": 3129.598819735318
+      "predicted_donation_php": 3129.5988197353126
     },
     {
       "post_id": 105,
@@ -6223,7 +6229,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.026351348774731758
+      "predicted_donation_php": -0.026351348774731803
     },
     {
       "post_id": 531,
@@ -6233,7 +6239,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 39433.049999999974,
-      "predicted_donation_php": 35334.462361002916
+      "predicted_donation_php": 35334.46236100285
     },
     {
       "post_id": 499,
@@ -6243,7 +6249,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 6245.640000000002,
-      "predicted_donation_php": 819.2064069300624
+      "predicted_donation_php": 819.2064069300617
     },
     {
       "post_id": 677,
@@ -6253,7 +6259,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.7309301439270814
+      "predicted_donation_php": 1.7309301439270834
     },
     {
       "post_id": 576,
@@ -6263,7 +6269,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.8797883923107898
+      "predicted_donation_php": -0.8797883923107896
     },
     {
       "post_id": 276,
@@ -6273,7 +6279,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 7787.729999999994,
-      "predicted_donation_php": 48.36721465802382
+      "predicted_donation_php": 48.36721465802384
     },
     {
       "post_id": 195,
@@ -6293,7 +6299,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.745091117203074
+      "predicted_donation_php": 2.7450911172030747
     },
     {
       "post_id": 726,
@@ -6303,7 +6309,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 41443.10999999998,
-      "predicted_donation_php": 5770.835826218163
+      "predicted_donation_php": 5770.835826218152
     },
     {
       "post_id": 320,
@@ -6313,7 +6319,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 118913.88000000006,
-      "predicted_donation_php": 2027.9809612395932
+      "predicted_donation_php": 2027.9809612395916
     },
     {
       "post_id": 426,
@@ -6323,7 +6329,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 5953.879999999999,
-      "predicted_donation_php": 914.219961896445
+      "predicted_donation_php": 914.2199618964443
     },
     {
       "post_id": 503,
@@ -6363,7 +6369,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 9851.870000000008,
-      "predicted_donation_php": 289.9289705805492
+      "predicted_donation_php": 289.928970580549
     },
     {
       "post_id": 421,
@@ -6383,7 +6389,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.711627043809523
+      "predicted_donation_php": 0.7116270438095249
     },
     {
       "post_id": 314,
@@ -6393,7 +6399,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 33105.08,
-      "predicted_donation_php": 8100.619444594076
+      "predicted_donation_php": 8100.619444594062
     },
     {
       "post_id": 185,
@@ -6403,7 +6409,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Informative",
       "actual_donation_php": 2970.2199999999993,
-      "predicted_donation_php": 779.4650959995621
+      "predicted_donation_php": 779.4650959995614
     },
     {
       "post_id": 795,
@@ -6423,7 +6429,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.42965040429078777
+      "predicted_donation_php": -0.4296504042907877
     },
     {
       "post_id": 277,
@@ -6433,7 +6439,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 1068.3700000000001,
-      "predicted_donation_php": 280.06279976981324
+      "predicted_donation_php": 280.0627997698127
     },
     {
       "post_id": 522,
@@ -6443,7 +6449,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 6058.960000000003,
-      "predicted_donation_php": 2333.6978055327104
+      "predicted_donation_php": 2333.6978055327063
     },
     {
       "post_id": 628,
@@ -6453,7 +6459,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 8343.550000000001,
-      "predicted_donation_php": 14992.338036622223
+      "predicted_donation_php": 14992.338036622195
     },
     {
       "post_id": 743,
@@ -6473,7 +6479,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 78.62305172576139
+      "predicted_donation_php": 78.62305172576131
     },
     {
       "post_id": 469,
@@ -6503,7 +6509,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 2845.7,
-      "predicted_donation_php": 5427.230226107649
+      "predicted_donation_php": 5427.23022610764
     },
     {
       "post_id": 357,
@@ -6513,7 +6519,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 12716.879999999997,
-      "predicted_donation_php": 5162.236194895624
+      "predicted_donation_php": 5162.236194895615
     },
     {
       "post_id": 739,
@@ -6523,7 +6529,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.5491031695398633
+      "predicted_donation_php": -0.5491031695398632
     },
     {
       "post_id": 73,
@@ -6533,7 +6539,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.06757135852560794
+      "predicted_donation_php": 0.06757135852560785
     },
     {
       "post_id": 419,
@@ -6543,7 +6549,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.1648367647187186
+      "predicted_donation_php": 1.1648367647187188
     },
     {
       "post_id": 802,
@@ -6553,7 +6559,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 13945.36,
-      "predicted_donation_php": 2153.838478272744
+      "predicted_donation_php": 2153.8384782727403
     },
     {
       "post_id": 3,
@@ -6573,7 +6579,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.3006681846135209
+      "predicted_donation_php": 1.3006681846135217
     },
     {
       "post_id": 476,
@@ -6583,7 +6589,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 4930.48,
-      "predicted_donation_php": 1343.0874583490408
+      "predicted_donation_php": 1343.0874583490386
     },
     {
       "post_id": 678,
@@ -6593,7 +6599,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.185711099312214
+      "predicted_donation_php": 3.185711099312215
     },
     {
       "post_id": 767,
@@ -6603,7 +6609,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 21.876454013377128
+      "predicted_donation_php": 21.8764540133771
     },
     {
       "post_id": 495,
@@ -6613,7 +6619,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 10884.660000000005,
-      "predicted_donation_php": 3214.661041617733
+      "predicted_donation_php": 3214.6610416177273
     },
     {
       "post_id": 354,
@@ -6623,7 +6629,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 2591.6599999999994,
-      "predicted_donation_php": 36842.27061251655
+      "predicted_donation_php": 36842.27061251642
     },
     {
       "post_id": 440,
@@ -6633,7 +6639,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.598892460414033
+      "predicted_donation_php": 1.5988924604140338
     },
     {
       "post_id": 616,
@@ -6663,7 +6669,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 14868.36,
-      "predicted_donation_php": 4869.51395692816
+      "predicted_donation_php": 4869.513956928151
     },
     {
       "post_id": 607,
@@ -6693,7 +6699,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 2416.3199999999997,
-      "predicted_donation_php": 880.3004607733404
+      "predicted_donation_php": 880.3004607733396
     },
     {
       "post_id": 26,
@@ -6703,7 +6709,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.214326660945073
+      "predicted_donation_php": 5.214326660945078
     },
     {
       "post_id": 303,
@@ -6723,7 +6729,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 234063.74000000017,
-      "predicted_donation_php": 82359.15335634907
+      "predicted_donation_php": 82359.15335634892
     },
     {
       "post_id": 241,
@@ -6733,7 +6739,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 4189.600000000003,
-      "predicted_donation_php": 190.03426154694696
+      "predicted_donation_php": 190.03426154694662
     },
     {
       "post_id": 121,
@@ -6743,7 +6749,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.014837500910853976
+      "predicted_donation_php": 0.014837500910854085
     },
     {
       "post_id": 486,
@@ -6773,7 +6779,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.3133481854955647
+      "predicted_donation_php": -0.31334818549556476
     },
     {
       "post_id": 10,
@@ -6783,7 +6789,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 7042.199999999996,
-      "predicted_donation_php": 8171.214968660941
+      "predicted_donation_php": 8171.214968660926
     },
     {
       "post_id": 134,
@@ -6793,7 +6799,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 23.21804827144036
+      "predicted_donation_php": 23.21804827144034
     },
     {
       "post_id": 466,
@@ -6823,7 +6829,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 24168.22000000001,
-      "predicted_donation_php": 6249.665166363725
+      "predicted_donation_php": 6249.665166363714
     },
     {
       "post_id": 732,
@@ -6833,7 +6839,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.1330236996276595
+      "predicted_donation_php": 5.133023699627657
     },
     {
       "post_id": 229,
@@ -6843,7 +6849,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 196.02413760903374
+      "predicted_donation_php": 196.02413760903357
     },
     {
       "post_id": 178,
@@ -6853,7 +6859,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 4951.329999999999,
-      "predicted_donation_php": 420.15391891018845
+      "predicted_donation_php": 420.15391891018805
     },
     {
       "post_id": 727,
@@ -6883,7 +6889,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.61487598161259
+      "predicted_donation_php": 7.614875981612586
     },
     {
       "post_id": 212,
@@ -6893,7 +6899,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 834.0299999999997,
-      "predicted_donation_php": 236.04153356829238
+      "predicted_donation_php": 236.04153356829218
     },
     {
       "post_id": 100,
@@ -6913,7 +6919,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 4300.279999999998,
-      "predicted_donation_php": 120.19370883756321
+      "predicted_donation_php": 120.1937088375631
     },
     {
       "post_id": 481,
@@ -6923,7 +6929,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 8.539878350514627
+      "predicted_donation_php": 8.53987835051463
     },
     {
       "post_id": 516,
@@ -6933,7 +6939,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.4878344343303
+      "predicted_donation_php": 5.487834434330295
     },
     {
       "post_id": 758,
@@ -6943,7 +6949,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 202293.14999999985,
-      "predicted_donation_php": 111957.6194855652
+      "predicted_donation_php": 111957.619485565
     },
     {
       "post_id": 368,
@@ -6953,7 +6959,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 4683.8,
-      "predicted_donation_php": 26392.421529422056
+      "predicted_donation_php": 26392.42152942201
     },
     {
       "post_id": 582,
@@ -7013,7 +7019,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 193403.54000000007,
-      "predicted_donation_php": 157752.7541366437
+      "predicted_donation_php": 157752.75413664343
     },
     {
       "post_id": 634,
@@ -7023,7 +7029,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.451024861171111
+      "predicted_donation_php": 3.8881075364805513
     },
     {
       "post_id": 416,
@@ -7033,7 +7039,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.928056299807077
+      "predicted_donation_php": 0.9280562998070778
     },
     {
       "post_id": 760,
@@ -7043,7 +7049,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 3185.5200000000004,
-      "predicted_donation_php": 7149.191740313372
+      "predicted_donation_php": 7149.191740313359
     },
     {
       "post_id": 247,
@@ -7053,7 +7059,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 4135.770000000001,
-      "predicted_donation_php": 1490.2340834145737
+      "predicted_donation_php": 1490.234083414575
     },
     {
       "post_id": 661,
@@ -7063,7 +7069,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.351078338156038
+      "predicted_donation_php": 1.3510783381560385
     },
     {
       "post_id": 457,
@@ -7083,7 +7089,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 8.43628877532983
+      "predicted_donation_php": 8.436288775329825
     },
     {
       "post_id": 78,
@@ -7103,7 +7109,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.3014135135662957
+      "predicted_donation_php": -0.30141351356629575
     },
     {
       "post_id": 505,
@@ -7133,7 +7139,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.08984678510134916
+      "predicted_donation_php": 0.08984678510134926
     },
     {
       "post_id": 552,
@@ -7143,7 +7149,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.8923052655776746
+      "predicted_donation_php": 1.8923052655776753
     },
     {
       "post_id": 683,
@@ -7153,7 +7159,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 4783.989999999999,
-      "predicted_donation_php": 840.3924853340953
+      "predicted_donation_php": 840.3924853340945
     },
     {
       "post_id": 792,
@@ -7163,7 +7169,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 8615.550000000005,
-      "predicted_donation_php": 3923.953127397864
+      "predicted_donation_php": 3923.9531273978573
     },
     {
       "post_id": 527,
@@ -7173,7 +7179,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 11445.12999999999,
-      "predicted_donation_php": 8277.845755774477
+      "predicted_donation_php": 8277.845755774462
     },
     {
       "post_id": 37,
@@ -7183,7 +7189,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 2045.9999999999995,
-      "predicted_donation_php": 435.4662451804042
+      "predicted_donation_php": 435.4662451804038
     },
     {
       "post_id": 806,
@@ -7213,7 +7219,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.39072826016357476
+      "predicted_donation_php": -0.3907282601635747
     },
     {
       "post_id": 480,
@@ -7233,7 +7239,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 1998.160000000001,
-      "predicted_donation_php": 114.78448295527038
+      "predicted_donation_php": 114.78448295527026
     },
     {
       "post_id": 13,
@@ -7253,7 +7259,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.9930634787424906
+      "predicted_donation_php": 0.9930634787424903
     },
     {
       "post_id": 90,
@@ -7263,7 +7269,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 7772.819999999998,
-      "predicted_donation_php": 3598.9770050727316
+      "predicted_donation_php": 3598.977005072725
     },
     {
       "post_id": 131,
@@ -7283,7 +7289,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.3098707612435385
+      "predicted_donation_php": 2.3098707612435403
     },
     {
       "post_id": 811,
@@ -7303,7 +7309,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 37.18001410810268
+      "predicted_donation_php": 37.18001410810267
     },
     {
       "post_id": 672,
@@ -7313,7 +7319,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 14368.86000000001,
-      "predicted_donation_php": 17545.962477629226
+      "predicted_donation_php": 17545.962477629197
     },
     {
       "post_id": 149,
@@ -7323,7 +7329,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.2230387717146204
+      "predicted_donation_php": -0.22303877171462044
     },
     {
       "post_id": 772,
@@ -7333,7 +7339,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 10228.98,
-      "predicted_donation_php": 2920.140863490602
+      "predicted_donation_php": 2920.1408634905965
     },
     {
       "post_id": 28,
@@ -7353,7 +7359,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.787262217201582
+      "predicted_donation_php": 7.787262217201578
     },
     {
       "post_id": 287,
@@ -7393,7 +7399,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 33.257283985151254
+      "predicted_donation_php": 33.25728398515127
     },
     {
       "post_id": 225,
@@ -7403,7 +7409,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 11727.79000000001,
-      "predicted_donation_php": 27868.586311171475
+      "predicted_donation_php": 27868.586311171424
     },
     {
       "post_id": 664,
@@ -7413,7 +7419,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 42151.09,
-      "predicted_donation_php": 69389.74628373557
+      "predicted_donation_php": 69389.74628373545
     },
     {
       "post_id": 617,
@@ -7433,7 +7439,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 15.873778536426181
+      "predicted_donation_php": 15.873778536426173
     },
     {
       "post_id": 568,
@@ -7473,7 +7479,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.204098059911423
+      "predicted_donation_php": 5.2040980599114235
     },
     {
       "post_id": 108,
@@ -7483,7 +7489,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.552399875803213
+      "predicted_donation_php": 4.552399875803215
     },
     {
       "post_id": 770,
@@ -7503,7 +7509,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 166857.83000000002,
-      "predicted_donation_php": 105562.28646008561
+      "predicted_donation_php": 105562.28646008542
     },
     {
       "post_id": 244,
@@ -7513,7 +7519,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 110254.23000000004,
-      "predicted_donation_php": 131353.47585355118
+      "predicted_donation_php": 131353.4758535507
     },
     {
       "post_id": 372,
@@ -7533,7 +7539,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 22160.149999999983,
-      "predicted_donation_php": 8183.1690990774
+      "predicted_donation_php": 8183.169099077385
     },
     {
       "post_id": 92,
@@ -7553,7 +7559,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 1677.2500000000005,
-      "predicted_donation_php": 2678.9519002289235
+      "predicted_donation_php": 2678.951900228919
     },
     {
       "post_id": 749,
@@ -7563,7 +7569,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.915497201705323
+      "predicted_donation_php": 4.915497201705324
     },
     {
       "post_id": 530,
@@ -7573,7 +7579,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 163564.37000000002,
-      "predicted_donation_php": 71243.91701909382
+      "predicted_donation_php": 71243.91701909369
     },
     {
       "post_id": 718,
@@ -7593,7 +7599,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 23100.139999999992,
-      "predicted_donation_php": 18024.83969701255
+      "predicted_donation_php": 18024.839697012547
     },
     {
       "post_id": 389,
@@ -7603,7 +7609,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.9918518617388662
+      "predicted_donation_php": 0.9918518617388665
     },
     {
       "post_id": 557,
@@ -7623,7 +7629,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 9448.409999999998,
-      "predicted_donation_php": 34.502230986312895
+      "predicted_donation_php": 34.50223098631288
     },
     {
       "post_id": 255,
@@ -7663,7 +7669,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 18.852016798655434
+      "predicted_donation_php": 18.852016798655427
     },
     {
       "post_id": 412,
@@ -7683,7 +7689,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 85463.01999999993,
-      "predicted_donation_php": 20695.900242973876
+      "predicted_donation_php": 20695.90024297384
     },
     {
       "post_id": 319,
@@ -7693,7 +7699,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 11.89794774748038
+      "predicted_donation_php": 11.89794774748037
     },
     {
       "post_id": 704,
@@ -7723,7 +7729,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 74959.83000000006,
-      "predicted_donation_php": 143011.92725214906
+      "predicted_donation_php": 143011.9272521488
     },
     {
       "post_id": 455,
@@ -7733,7 +7739,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 4.516287179565304
+      "predicted_donation_php": 4.516287179565308
     },
     {
       "post_id": 467,
@@ -7743,7 +7749,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 9911.560000000003,
-      "predicted_donation_php": 5001.772396161126
+      "predicted_donation_php": 5001.772396161117
     },
     {
       "post_id": 79,
@@ -7803,7 +7809,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 124862.73000000001,
-      "predicted_donation_php": 28905.037066606987
+      "predicted_donation_php": 28905.037066606936
     },
     {
       "post_id": 337,
@@ -7813,7 +7819,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 5.610521683402377
+      "predicted_donation_php": 5.610521683402382
     },
     {
       "post_id": 184,
@@ -7833,7 +7839,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 384405.6299999997,
-      "predicted_donation_php": 104233.22070860604
+      "predicted_donation_php": 104233.22070860585
     },
     {
       "post_id": 116,
@@ -7843,7 +7849,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 1878.6499999999996,
-      "predicted_donation_php": 1226.872125017019
+      "predicted_donation_php": 1226.8721250170179
     },
     {
       "post_id": 305,
@@ -7853,7 +7859,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 15903.940000000015,
-      "predicted_donation_php": 1226.1769064146831
+      "predicted_donation_php": 1226.1769064146843
     },
     {
       "post_id": 477,
@@ -7873,7 +7879,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 36.79292265367026
+      "predicted_donation_php": 36.79292265367024
     },
     {
       "post_id": 621,
@@ -7923,7 +7929,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 7928.519999999997,
-      "predicted_donation_php": 261.6112377195805
+      "predicted_donation_php": 261.6112377195803
     },
     {
       "post_id": 313,
@@ -7933,7 +7939,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 18.130825705025607
+      "predicted_donation_php": 18.130825705025615
     },
     {
       "post_id": 511,
@@ -7943,7 +7949,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 152237.57999999996,
-      "predicted_donation_php": 20243.490608644875
+      "predicted_donation_php": 20243.490608644806
     },
     {
       "post_id": 162,
@@ -7963,7 +7969,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 294622.65999999974,
-      "predicted_donation_php": 139260.49078459764
+      "predicted_donation_php": 139260.4907845974
     },
     {
       "post_id": 610,
@@ -7973,7 +7979,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.7011245400303744
+      "predicted_donation_php": 0.7011245400303747
     },
     {
       "post_id": 711,
@@ -7993,7 +7999,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 22433.250000000007,
-      "predicted_donation_php": 12573.777795518206
+      "predicted_donation_php": 12573.777795518185
     },
     {
       "post_id": 482,
@@ -8013,7 +8019,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 893.0027647864873
+      "predicted_donation_php": 893.0027647864865
     },
     {
       "post_id": 436,
@@ -8033,7 +8039,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 165.72939979407823
+      "predicted_donation_php": 165.7293997940781
     },
     {
       "post_id": 525,
@@ -8043,7 +8049,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.0011077505462155528
+      "predicted_donation_php": -0.0011077505462154808
     },
     {
       "post_id": 746,
@@ -8053,7 +8059,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 2.075686408126036
+      "predicted_donation_php": 2.0756864081260367
     },
     {
       "post_id": 8,
@@ -8063,7 +8069,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 632.0299999999997,
-      "predicted_donation_php": 257.7829777870469
+      "predicted_donation_php": 257.78297778704666
     },
     {
       "post_id": 46,
@@ -8073,7 +8079,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 3.8944273840438695
+      "predicted_donation_php": 3.894427384043871
     },
     {
       "post_id": 734,
@@ -8093,7 +8099,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Celebratory",
       "actual_donation_php": 4502.179999999998,
-      "predicted_donation_php": 142.71977925874583
+      "predicted_donation_php": 142.71977925874572
     },
     {
       "post_id": 632,
@@ -8103,7 +8109,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 34810.04000000001,
-      "predicted_donation_php": 42189.15490949576
+      "predicted_donation_php": 42189.15490949568
     },
     {
       "post_id": 689,
@@ -8123,7 +8129,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 1.2705469356114192
+      "predicted_donation_php": 1.2705469356114194
     },
     {
       "post_id": 794,
@@ -8133,7 +8139,7 @@
       "content_topic": "EventRecap",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.2801124346591293
+      "predicted_donation_php": -0.28011243465912905
     },
     {
       "post_id": 296,
@@ -8153,7 +8159,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Informative",
       "actual_donation_php": 82822.11999999998,
-      "predicted_donation_php": 73508.5420770059
+      "predicted_donation_php": 73508.54207700564
     },
     {
       "post_id": 292,
@@ -8173,7 +8179,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 0.22640092342476564
+      "predicted_donation_php": 0.22640092342476625
     },
     {
       "post_id": 16,
@@ -8213,7 +8219,7 @@
       "content_topic": "Health",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 2677.480000000001,
-      "predicted_donation_php": 154.78494896088716
+      "predicted_donation_php": 154.78494896088702
     },
     {
       "post_id": 324,
@@ -8233,7 +8239,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 4431.220000000003,
-      "predicted_donation_php": 2991.602478753837
+      "predicted_donation_php": 2991.602478753832
     },
     {
       "post_id": 157,
@@ -8243,7 +8249,7 @@
       "content_topic": "DonorImpact",
       "sentiment_tone": "Informative",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": -0.2482984444607533
+      "predicted_donation_php": -0.24829844446075328
     },
     {
       "post_id": 714,
@@ -8263,7 +8269,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 11.31896276414829
+      "predicted_donation_php": 11.318962764148296
     },
     {
       "post_id": 226,
@@ -8283,7 +8289,7 @@
       "content_topic": "AwarenessRaising",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 39786.25000000001,
-      "predicted_donation_php": 33603.27649546935
+      "predicted_donation_php": 33603.27649546929
     },
     {
       "post_id": 537,
@@ -8293,7 +8299,7 @@
       "content_topic": "SafehouseLife",
       "sentiment_tone": "Grateful",
       "actual_donation_php": 40736.86999999999,
-      "predicted_donation_php": 5457.439766349729
+      "predicted_donation_php": 5457.439766349719
     },
     {
       "post_id": 148,
@@ -8303,7 +8309,7 @@
       "content_topic": "Gratitude",
       "sentiment_tone": "Informative",
       "actual_donation_php": 4623.840000000001,
-      "predicted_donation_php": 165.22901017205936
+      "predicted_donation_php": 165.2290101720595
     },
     {
       "post_id": 736,
@@ -8323,7 +8329,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 55256.27999999998,
-      "predicted_donation_php": 12809.92607333903
+      "predicted_donation_php": 12809.926073339007
     },
     {
       "post_id": 757,
@@ -8343,7 +8349,7 @@
       "content_topic": "CampaignLaunch",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 3516.650000000002,
-      "predicted_donation_php": 1208.4630521450856
+      "predicted_donation_php": 1208.4630521450833
     },
     {
       "post_id": 425,
@@ -8353,7 +8359,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Hopeful",
       "actual_donation_php": 8351.49,
-      "predicted_donation_php": 1062.5186110982593
+      "predicted_donation_php": 1062.5186110982575
     },
     {
       "post_id": 380,
@@ -8363,7 +8369,7 @@
       "content_topic": "Education",
       "sentiment_tone": "Emotional",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 17.781307839445486
+      "predicted_donation_php": 17.781307839445496
     },
     {
       "post_id": 86,
@@ -8373,7 +8379,7 @@
       "content_topic": "Reintegration",
       "sentiment_tone": "Urgent",
       "actual_donation_php": 0.0,
-      "predicted_donation_php": 7.375624347770176
+      "predicted_donation_php": 7.375624347770174
     },
     {
       "post_id": 529,
