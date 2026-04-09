@@ -5,6 +5,7 @@ using Intex.Api.Data;
 using Intex.Api.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Intex.Api.Tests;
@@ -294,6 +295,14 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.True(payload!.IsAnonymous);
         Assert.Equal("Anonymous donor", payload.SupporterName);
         Assert.Equal(125m, payload.Amount);
+
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var donation = await dbContext.Donations
+            .Include(x => x.Allocations)
+            .FirstAsync(x => x.Id == payload.DonationId);
+        Assert.NotEmpty(donation.Allocations);
+        Assert.Equal(125m, donation.Allocations.Sum(x => x.AmountAllocated));
     }
 
     [Fact]
@@ -545,6 +554,39 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var payload = await response.Content.ReadAsStringAsync();
         Assert.Contains("already exists", payload, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task AuthenticatedDonor_CanSubmitTrackedPublicDonation_AndSeeItInHistory()
+    {
+        await LoginAsDonorAsync();
+
+        var beforeHistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        var beforeHistory = await beforeHistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(beforeHistory);
+
+        var submitResponse = await _client.PostAsJsonAsync("/api/donations/public-submit", new
+        {
+            isAnonymous = false,
+            donorName = (string?)null,
+            donorEmail = (string?)null,
+            amount = 125m,
+            isRecurring = false,
+            recurringInterval = (string?)null,
+            notes = "Tracked donor checkout"
+        });
+
+        Assert.True(submitResponse.IsSuccessStatusCode, await submitResponse.Content.ReadAsStringAsync());
+        var submitPayload = await submitResponse.Content.ReadFromJsonAsync<PublicDonationSubmissionResponse>();
+        Assert.NotNull(submitPayload);
+        Assert.False(submitPayload!.IsAnonymous);
+
+        var afterHistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        var afterHistory = await afterHistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(afterHistory);
+        Assert.Equal(beforeHistory!.Count + 1, afterHistory!.Count);
+        var created = Assert.Single(afterHistory, donation => donation.Id == submitPayload.DonationId);
+        Assert.NotEmpty(created.Allocations);
     }
 
     [Fact]

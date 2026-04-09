@@ -122,8 +122,8 @@ export async function apiRequest<T>(
       }
     }
 
-    if (response.status === 401) {
-      window.dispatchEvent(new CustomEvent("intex:unauthorized"));
+    if (response.status === 401 && path !== '/auth/me') {
+      window.dispatchEvent(new CustomEvent('intex:unauthorized'));
     }
 
     if (response.status === 403) {
