@@ -1971,6 +1971,18 @@ textarea {
   flex-shrink: 0;
 }
 
+.report-tab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.report-tab-bar .ghost-button.active {
+  background: var(--color-primary-container);
+  color: var(--color-primary-ink);
+  border-color: var(--color-primary-container);
+}
+
 .page-header > div,
 .section-card-header > div,
 .section-card-actions,

@@ -15,6 +15,12 @@ const staticFiles = [
   'donor-churn-dashboard.html',
   'reintegration-dashboard.html',
   'social-media-dashboard.html',
+  'social-content-mix-dashboard.html',
+  'campaign-timing-dashboard.html',
+  'safehouse-load-dashboard.html',
+  'intervention-mix-dashboard.html',
+  'incident-archetypes-dashboard.html',
+  'resident-trajectory-dashboard.html',
   'ml-dashboard-shell.css',
   'ml-dashboard-insights.js',
 ];
@@ -24,6 +30,12 @@ const jsonFiles = [
   'donor-dashboard-data.json',
   'reintegration-dashboard-data.json',
   'social-dashboard-data.json',
+  'social-content-mix-dashboard-data.json',
+  'campaign-timing-dashboard-data.json',
+  'safehouse-load-dashboard-data.json',
+  'intervention-mix-dashboard-data.json',
+  'incident-archetypes-dashboard-data.json',
+  'resident-trajectory-dashboard-data.json',
 ];
 
 /** Same keys as MlDashboardController — load over cookies in deployed static HTML. */
@@ -32,6 +44,12 @@ const fetchReplacements = [
   ['fetch("../json/donor-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/donor-dashboard-data", { credentials: "include" })'],
   ['fetch("../json/reintegration-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/reintegration-dashboard-data", { credentials: "include" })'],
   ['fetch("../json/social-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/social-content-mix-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-content-mix-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/campaign-timing-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/campaign-timing-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/safehouse-load-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/safehouse-load-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/intervention-mix-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/intervention-mix-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/incident-archetypes-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/incident-archetypes-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/resident-trajectory-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/resident-trajectory-dashboard-data", { credentials: "include" })'],
 ];
 
 function transformHtml(content) {

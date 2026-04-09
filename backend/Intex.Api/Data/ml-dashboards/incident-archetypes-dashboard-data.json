@@ -1,0 +1,1080 @@
+{
+  "generated_note": "incident-composition-archetypes.ipynb \u2192 generate_incident_archetypes_dashboard_data.py",
+  "insights": {
+    "eyebrow": "INCIDENT COMPOSITION ARCHETYPES",
+    "headline": "High or critical severity risk from incident context and resident history",
+    "lede": "Multiclass accuracy (holdout) 0.5; macro-F1 0.376. Binary High/Critical AUC 1.0.",
+    "prediction_cards": [
+      {
+        "kicker": "Archetype model",
+        "label": "Holdout accuracy",
+        "value": "0.5",
+        "hint": "Macro-F1: 0.376"
+      },
+      {
+        "kicker": "Binary High/Critical",
+        "label": "ROC-AUC",
+        "value": "1.0",
+        "hint": "F1: 0.8"
+      },
+      {
+        "kicker": "Severity regression",
+        "label": "R\u00b2 severity_num",
+        "value": "-1.804",
+        "hint": "MAE: 0.882"
+      },
+      {
+        "kicker": "CV archetype",
+        "label": "5-fold accuracy mean",
+        "value": "0.44",
+        "hint": "Multiclass RandomForest"
+      }
+    ],
+    "cause_cards": [
+      {
+        "kicker": "No future leakage",
+        "title": "Prior-window features",
+        "body": "Counts and entropy use only incidents before each row's date."
+      }
+    ],
+    "model_drivers": [
+      {
+        "feature": "follow up required",
+        "importance": 0.3268229166666667,
+        "share_top5_pct": 88
+      },
+      {
+        "feature": "referral source",
+        "importance": 0.013020833333333343,
+        "share_top5_pct": 3
+      },
+      {
+        "feature": "resolved",
+        "importance": 0.013020833333333315,
+        "share_top5_pct": 3
+      },
+      {
+        "feature": "reported by",
+        "importance": 0.011718749999999986,
+        "share_top5_pct": 3
+      },
+      {
+        "feature": "safehouse id",
+        "importance": 0.007812500000000014,
+        "share_top5_pct": 2
+      }
+    ],
+    "calls_to_action": [
+      "Prevention focus: incident 86 \u2014 P(High/Critical)=85%, archetype RunawayAttempt.",
+      "Prevention focus: incident 18 \u2014 P(High/Critical)=83%, archetype RunawayAttempt.",
+      "Prevention focus: incident 56 \u2014 P(High/Critical)=82%, archetype RunawayAttempt."
+    ]
+  },
+  "portfolio": {
+    "n_incidents": 100,
+    "high_sev_rate": 0.24,
+    "cv_accuracy_mean": 0.44000000000000006
+  },
+  "rows": [
+    {
+      "incident_id": 86,
+      "resident_id": 52,
+      "incident_date": "2024-08-05",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.8472716004457667,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 18,
+      "resident_id": 10,
+      "incident_date": "2025-11-07",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.8348611199405755,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 56,
+      "resident_id": 32,
+      "incident_date": "2025-05-28",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.8215407758907594,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 95,
+      "resident_id": 56,
+      "incident_date": "2024-12-16",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.819577118092482,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 50,
+      "resident_id": 26,
+      "incident_date": "2023-11-15",
+      "incident_type": "SelfHarm",
+      "severity": "High",
+      "high_critical_probability": 0.8066122079750864,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 26,
+      "resident_id": 14,
+      "incident_date": "2025-03-21",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.8026788855915773,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 10,
+      "resident_id": 5,
+      "incident_date": "2024-02-12",
+      "incident_type": "Behavioral",
+      "severity": "High",
+      "high_critical_probability": 0.799630142616751,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 89,
+      "resident_id": 53,
+      "incident_date": "2025-07-07",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.7952888707994898,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 44,
+      "resident_id": 23,
+      "incident_date": "2023-09-24",
+      "incident_type": "Behavioral",
+      "severity": "High",
+      "high_critical_probability": 0.7773374207108056,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 25,
+      "resident_id": 14,
+      "incident_date": "2025-11-28",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.7714533541349304,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 27,
+      "resident_id": 14,
+      "incident_date": "2025-04-22",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.7712616192524054,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 16,
+      "resident_id": 8,
+      "incident_date": "2024-03-07",
+      "incident_type": "SelfHarm",
+      "severity": "High",
+      "high_critical_probability": 0.7689196979309172,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 24,
+      "resident_id": 14,
+      "incident_date": "2025-11-16",
+      "incident_type": "RunawayAttempt",
+      "severity": "High",
+      "high_critical_probability": 0.7602786258014381,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 80,
+      "resident_id": 46,
+      "incident_date": "2025-09-29",
+      "incident_type": "SelfHarm",
+      "severity": "High",
+      "high_critical_probability": 0.7539733036383902,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 76,
+      "resident_id": 44,
+      "incident_date": "2023-11-23",
+      "incident_type": "Security",
+      "severity": "High",
+      "high_critical_probability": 0.7450286400867946,
+      "predicted_archetype": "Security",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 5,
+      "resident_id": 3,
+      "incident_date": "2025-05-12",
+      "incident_type": "SelfHarm",
+      "severity": "High",
+      "high_critical_probability": 0.7398807335381159,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 9,
+      "resident_id": 4,
+      "incident_date": "2025-12-16",
+      "incident_type": "ConflictWithPeer",
+      "severity": "High",
+      "high_critical_probability": 0.7373427909317607,
+      "predicted_archetype": "Other",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 58,
+      "resident_id": 33,
+      "incident_date": "2025-04-22",
+      "incident_type": "ConflictWithPeer",
+      "severity": "High",
+      "high_critical_probability": 0.7354654658844587,
+      "predicted_archetype": "Security",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 65,
+      "resident_id": 36,
+      "incident_date": "2023-04-08",
+      "incident_type": "SelfHarm",
+      "severity": "High",
+      "high_critical_probability": 0.7258524534675224,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 21,
+      "resident_id": 12,
+      "incident_date": "2024-08-22",
+      "incident_type": "ConflictWithPeer",
+      "severity": "High",
+      "high_critical_probability": 0.6841788378725849,
+      "predicted_archetype": "Other",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 88,
+      "resident_id": 52,
+      "incident_date": "2024-09-21",
+      "incident_type": "SelfHarm",
+      "severity": "High",
+      "high_critical_probability": 0.6526409676945073,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 35,
+      "resident_id": 19,
+      "incident_date": "2024-10-22",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.6392514825701614,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 29,
+      "resident_id": 17,
+      "incident_date": "2025-04-18",
+      "incident_type": "Behavioral",
+      "severity": "High",
+      "high_critical_probability": 0.6334643558824289,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 60,
+      "resident_id": 34,
+      "incident_date": "2023-08-13",
+      "incident_type": "Security",
+      "severity": "High",
+      "high_critical_probability": 0.6307104961989602,
+      "predicted_archetype": "Security",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 91,
+      "resident_id": 54,
+      "incident_date": "2024-04-16",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.6106792999993578,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 2,
+      "resident_id": 1,
+      "incident_date": "2026-02-10",
+      "incident_type": "Security",
+      "severity": "High",
+      "high_critical_probability": 0.5611625619446906,
+      "predicted_archetype": "Security",
+      "high_critical_actual": true
+    },
+    {
+      "incident_id": 17,
+      "resident_id": 8,
+      "incident_date": "2024-09-09",
+      "incident_type": "Security",
+      "severity": "Medium",
+      "high_critical_probability": 0.5579448616007802,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 40,
+      "resident_id": 22,
+      "incident_date": "2023-06-06",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.5443301867297035,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 6,
+      "resident_id": 3,
+      "incident_date": "2025-02-06",
+      "incident_type": "Security",
+      "severity": "Low",
+      "high_critical_probability": 0.507137516484507,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 20,
+      "resident_id": 12,
+      "incident_date": "2024-11-10",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Medium",
+      "high_critical_probability": 0.4998937927731125,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 23,
+      "resident_id": 12,
+      "incident_date": "2024-07-04",
+      "incident_type": "Security",
+      "severity": "Medium",
+      "high_critical_probability": 0.4950198768529925,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 46,
+      "resident_id": 25,
+      "incident_date": "2024-11-13",
+      "incident_type": "RunawayAttempt",
+      "severity": "Low",
+      "high_critical_probability": 0.4853490367615332,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 41,
+      "resident_id": 22,
+      "incident_date": "2024-02-11",
+      "incident_type": "RunawayAttempt",
+      "severity": "Low",
+      "high_critical_probability": 0.4846886391368741,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 97,
+      "resident_id": 58,
+      "incident_date": "2025-12-12",
+      "incident_type": "RunawayAttempt",
+      "severity": "Low",
+      "high_critical_probability": 0.46211934551119455,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 11,
+      "resident_id": 5,
+      "incident_date": "2024-07-02",
+      "incident_type": "Security",
+      "severity": "Medium",
+      "high_critical_probability": 0.45493552389871683,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 90,
+      "resident_id": 53,
+      "incident_date": "2026-01-22",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Medium",
+      "high_critical_probability": 0.43596126179194655,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 62,
+      "resident_id": 35,
+      "incident_date": "2024-09-18",
+      "incident_type": "SelfHarm",
+      "severity": "Medium",
+      "high_critical_probability": 0.43486511374594755,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 57,
+      "resident_id": 32,
+      "incident_date": "2026-01-20",
+      "incident_type": "SelfHarm",
+      "severity": "Low",
+      "high_critical_probability": 0.3944961266143346,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 54,
+      "resident_id": 30,
+      "incident_date": "2025-08-07",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.39445432063785674,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 69,
+      "resident_id": 41,
+      "incident_date": "2024-06-17",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.3729474982972173,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 61,
+      "resident_id": 35,
+      "incident_date": "2025-04-16",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.3709964982584971,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 39,
+      "resident_id": 21,
+      "incident_date": "2025-09-03",
+      "incident_type": "Security",
+      "severity": "Medium",
+      "high_critical_probability": 0.370746464903491,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 28,
+      "resident_id": 15,
+      "incident_date": "2025-10-13",
+      "incident_type": "Security",
+      "severity": "Low",
+      "high_critical_probability": 0.1588554614162055,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 66,
+      "resident_id": 37,
+      "incident_date": "2024-09-30",
+      "incident_type": "SelfHarm",
+      "severity": "Medium",
+      "high_critical_probability": 0.15797062075139184,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 71,
+      "resident_id": 41,
+      "incident_date": "2024-04-15",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Medium",
+      "high_critical_probability": 0.14878411147371567,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 64,
+      "resident_id": 36,
+      "incident_date": "2025-11-11",
+      "incident_type": "SelfHarm",
+      "severity": "Medium",
+      "high_critical_probability": 0.14845009802676812,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 59,
+      "resident_id": 34,
+      "incident_date": "2024-01-03",
+      "incident_type": "RunawayAttempt",
+      "severity": "Low",
+      "high_critical_probability": 0.12343315022911375,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 53,
+      "resident_id": 30,
+      "incident_date": "2024-08-04",
+      "incident_type": "Behavioral",
+      "severity": "Medium",
+      "high_critical_probability": 0.1231135892557961,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 87,
+      "resident_id": 52,
+      "incident_date": "2024-09-01",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.12131461490799918,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 45,
+      "resident_id": 24,
+      "incident_date": "2025-03-11",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.11887100976777742,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 79,
+      "resident_id": 46,
+      "incident_date": "2025-07-30",
+      "incident_type": "Security",
+      "severity": "Medium",
+      "high_critical_probability": 0.11648786262533738,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 32,
+      "resident_id": 17,
+      "incident_date": "2025-10-20",
+      "incident_type": "Medical",
+      "severity": "Medium",
+      "high_critical_probability": 0.112467059485451,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 96,
+      "resident_id": 58,
+      "incident_date": "2025-05-20",
+      "incident_type": "Security",
+      "severity": "Medium",
+      "high_critical_probability": 0.11035848375299628,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 78,
+      "resident_id": 46,
+      "incident_date": "2025-12-06",
+      "incident_type": "SelfHarm",
+      "severity": "Medium",
+      "high_critical_probability": 0.1091522293283608,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 13,
+      "resident_id": 6,
+      "incident_date": "2025-11-22",
+      "incident_type": "Medical",
+      "severity": "Medium",
+      "high_critical_probability": 0.10740232910632724,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 63,
+      "resident_id": 36,
+      "incident_date": "2025-11-23",
+      "incident_type": "Behavioral",
+      "severity": "Medium",
+      "high_critical_probability": 0.10727844274936592,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 67,
+      "resident_id": 37,
+      "incident_date": "2024-10-19",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Medium",
+      "high_critical_probability": 0.10638809834052905,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 14,
+      "resident_id": 7,
+      "incident_date": "2025-09-06",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.1009237092904496,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 42,
+      "resident_id": 23,
+      "incident_date": "2024-08-06",
+      "incident_type": "Behavioral",
+      "severity": "Medium",
+      "high_critical_probability": 0.10083548427872871,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 49,
+      "resident_id": 26,
+      "incident_date": "2024-09-04",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.09776235207464862,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 33,
+      "resident_id": 17,
+      "incident_date": "2025-04-26",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.09535503020206884,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 19,
+      "resident_id": 11,
+      "incident_date": "2024-03-19",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.09423572693745992,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 12,
+      "resident_id": 6,
+      "incident_date": "2025-12-30",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Low",
+      "high_critical_probability": 0.09025741242267799,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 47,
+      "resident_id": 25,
+      "incident_date": "2023-12-05",
+      "incident_type": "RunawayAttempt",
+      "severity": "Low",
+      "high_critical_probability": 0.09025167004588724,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 100,
+      "resident_id": 59,
+      "incident_date": "2023-12-26",
+      "incident_type": "RunawayAttempt",
+      "severity": "Low",
+      "high_critical_probability": 0.0898683299405918,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 30,
+      "resident_id": 17,
+      "incident_date": "2025-04-30",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Medium",
+      "high_critical_probability": 0.0880703562074647,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 55,
+      "resident_id": 31,
+      "incident_date": "2024-01-19",
+      "incident_type": "Behavioral",
+      "severity": "Medium",
+      "high_critical_probability": 0.08646885502940302,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 98,
+      "resident_id": 58,
+      "incident_date": "2026-04-09",
+      "incident_type": "Security",
+      "severity": "Medium",
+      "high_critical_probability": 0.08610346411706105,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 74,
+      "resident_id": 44,
+      "incident_date": "2024-04-14",
+      "incident_type": "Security",
+      "severity": "Low",
+      "high_critical_probability": 0.08567817361855824,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 51,
+      "resident_id": 26,
+      "incident_date": "2024-06-04",
+      "incident_type": "Security",
+      "severity": "Low",
+      "high_critical_probability": 0.0849013926885642,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 75,
+      "resident_id": 44,
+      "incident_date": "2024-07-10",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.0826358474549178,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 93,
+      "resident_id": 55,
+      "incident_date": "2025-06-29",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.07899094484473197,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 7,
+      "resident_id": 4,
+      "incident_date": "2024-10-01",
+      "incident_type": "Security",
+      "severity": "Low",
+      "high_critical_probability": 0.07793210375853155,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 77,
+      "resident_id": 45,
+      "incident_date": "2023-11-19",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.07593328066897584,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 8,
+      "resident_id": 4,
+      "incident_date": "2025-07-08",
+      "incident_type": "Security",
+      "severity": "Low",
+      "high_critical_probability": 0.07498343640364451,
+      "predicted_archetype": "Security",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 15,
+      "resident_id": 8,
+      "incident_date": "2024-08-18",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Medium",
+      "high_critical_probability": 0.07376419454587461,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 4,
+      "resident_id": 1,
+      "incident_date": "2025-04-17",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.07193330950309604,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 92,
+      "resident_id": 55,
+      "incident_date": "2025-08-09",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.07190737978595144,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 38,
+      "resident_id": 21,
+      "incident_date": "2025-05-08",
+      "incident_type": "Behavioral",
+      "severity": "Medium",
+      "high_critical_probability": 0.07182687372666133,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 48,
+      "resident_id": 25,
+      "incident_date": "2025-09-23",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.071485662922686,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 31,
+      "resident_id": 17,
+      "incident_date": "2025-03-21",
+      "incident_type": "Medical",
+      "severity": "Medium",
+      "high_critical_probability": 0.07041057634152864,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 94,
+      "resident_id": 56,
+      "incident_date": "2025-05-31",
+      "incident_type": "SelfHarm",
+      "severity": "Medium",
+      "high_critical_probability": 0.06939961507248867,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 22,
+      "resident_id": 12,
+      "incident_date": "2025-02-19",
+      "incident_type": "Medical",
+      "severity": "Medium",
+      "high_critical_probability": 0.06802587033126856,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 85,
+      "resident_id": 50,
+      "incident_date": "2024-03-29",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.06769683980512942,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 52,
+      "resident_id": 28,
+      "incident_date": "2024-04-03",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.06029387229521696,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 84,
+      "resident_id": 50,
+      "incident_date": "2025-12-20",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.05995963001315343,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 83,
+      "resident_id": 50,
+      "incident_date": "2024-03-12",
+      "incident_type": "PropertyDamage",
+      "severity": "Medium",
+      "high_critical_probability": 0.057707692945367386,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 34,
+      "resident_id": 19,
+      "incident_date": "2025-12-06",
+      "incident_type": "RunawayAttempt",
+      "severity": "Medium",
+      "high_critical_probability": 0.05767328080902404,
+      "predicted_archetype": "RunawayAttempt",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 72,
+      "resident_id": 41,
+      "incident_date": "2024-04-27",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.05758225160288738,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 3,
+      "resident_id": 1,
+      "incident_date": "2024-02-03",
+      "incident_type": "RunawayAttempt",
+      "severity": "Low",
+      "high_critical_probability": 0.05749092586465081,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 68,
+      "resident_id": 41,
+      "incident_date": "2025-01-18",
+      "incident_type": "Behavioral",
+      "severity": "Low",
+      "high_critical_probability": 0.051821294405740424,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 43,
+      "resident_id": 23,
+      "incident_date": "2024-07-06",
+      "incident_type": "PropertyDamage",
+      "severity": "Medium",
+      "high_critical_probability": 0.050841328017147185,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 1,
+      "resident_id": 1,
+      "incident_date": "2024-06-22",
+      "incident_type": "Medical",
+      "severity": "Medium",
+      "high_critical_probability": 0.050460870543773295,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 36,
+      "resident_id": 20,
+      "incident_date": "2025-10-09",
+      "incident_type": "SelfHarm",
+      "severity": "Medium",
+      "high_critical_probability": 0.049152502859989095,
+      "predicted_archetype": "SelfHarm",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 73,
+      "resident_id": 42,
+      "incident_date": "2025-08-29",
+      "incident_type": "PropertyDamage",
+      "severity": "Low",
+      "high_critical_probability": 0.04892412575769117,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 99,
+      "resident_id": 58,
+      "incident_date": "2025-07-26",
+      "incident_type": "Behavioral",
+      "severity": "Medium",
+      "high_critical_probability": 0.048502684144294116,
+      "predicted_archetype": "Behavioral",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 37,
+      "resident_id": 20,
+      "incident_date": "2025-07-16",
+      "incident_type": "ConflictWithPeer",
+      "severity": "Medium",
+      "high_critical_probability": 0.0477965846664424,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 81,
+      "resident_id": 48,
+      "incident_date": "2024-10-25",
+      "incident_type": "PropertyDamage",
+      "severity": "Medium",
+      "high_critical_probability": 0.04684646455634742,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 82,
+      "resident_id": 48,
+      "incident_date": "2025-09-04",
+      "incident_type": "Medical",
+      "severity": "Low",
+      "high_critical_probability": 0.04372623870657555,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    },
+    {
+      "incident_id": 70,
+      "resident_id": 41,
+      "incident_date": "2024-11-09",
+      "incident_type": "SelfHarm",
+      "severity": "Medium",
+      "high_critical_probability": 0.035247358547776324,
+      "predicted_archetype": "Other",
+      "high_critical_actual": false
+    }
+  ]
+}

@@ -121,7 +121,7 @@ export function ProcessRecordingPage() {
   };
 
   const headerActions =
-    isAdmin ? [{ label: 'New process recording', to: '/portal/process-recordings/new' }] : undefined;
+    isAdmin ? [{ label: 'New Process Recording', to: '/portal/process-recordings/new' }] : undefined;
 
   return (
     <div className="page-shell">

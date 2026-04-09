@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Counseling sessions — Lighthouse</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
-  <script>
-    if (new URLSearchParams(window.location.search).get("embed") === "1") {
-      document.documentElement.classList.add("portal-embed");
-    }
-  </script>
 </head>
 <body>
   <script>
@@ -27,12 +22,19 @@
         </div>
       </div>
       <div>
-        <div class="nav-label">Insight reports</div>
-        <nav class="nav-tabs" aria-label="Insight reports">
+        <nav class="nav-tabs scrollable" aria-label="ML insight dashboards">
+          <div class="nav-label">Core pipelines</div>
           <a class="nav-tab active" href="counseling-admin-dashboard.html">Counseling sessions</a>
           <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
           <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
           <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+          <div class="nav-label">Trend pipelines</div>
+          <a class="nav-tab" href="social-content-mix-dashboard.html">Content mix &amp; referrals</a>
+          <a class="nav-tab" href="campaign-timing-dashboard.html">Campaign timing</a>
+          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse load risk</a>
+          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix</a>
+          <a class="nav-tab" href="incident-archetypes-dashboard.html">Incident archetypes</a>
+          <a class="nav-tab" href="resident-trajectory-dashboard.html">Resident trajectory</a>
         </nav>
       </div>
       <p class="hint">

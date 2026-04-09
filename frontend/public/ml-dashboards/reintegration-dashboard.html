@@ -5,11 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Reintegration outlook — Lighthouse</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
-  <script>
-    if (new URLSearchParams(window.location.search).get("embed") === "1") {
-      document.documentElement.classList.add("portal-embed");
-    }
-  </script>
 </head>
 <body>
   <script>
@@ -27,12 +22,19 @@
         </div>
       </div>
       <div>
-        <div class="nav-label">Insight reports</div>
-        <nav class="nav-tabs" aria-label="Insight reports">
+        <nav class="nav-tabs scrollable" aria-label="ML insight dashboards">
+          <div class="nav-label">Core pipelines</div>
           <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
           <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
           <a class="nav-tab active" href="reintegration-dashboard.html">Reintegration outlook</a>
           <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+          <div class="nav-label">Trend pipelines</div>
+          <a class="nav-tab" href="social-content-mix-dashboard.html">Content mix &amp; referrals</a>
+          <a class="nav-tab" href="campaign-timing-dashboard.html">Campaign timing</a>
+          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse load risk</a>
+          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix</a>
+          <a class="nav-tab" href="incident-archetypes-dashboard.html">Incident archetypes</a>
+          <a class="nav-tab" href="resident-trajectory-dashboard.html">Resident trajectory</a>
         </nav>
       </div>
       <p class="hint">
@@ -241,7 +243,7 @@
         const readyRate = rows.filter((r) => r.positive_trajectory_actual).length / Math.max(rows.length, 1);
         document.getElementById("kpis").innerHTML = `
           <div class="kpi"><div class="label">% Ready for reintegration ${infoIcon("Calculated as residents marked as on a positive trajectory divided by all residents in this view.")}</div><div class="value">${fmtPct(readyRate)}</div></div>
-          <div class="kpi"><div class="label">Average readiness score ${infoIcon("Calculated from the model's per-resident trajectory probability. The pipeline converts incident_count, counseling session history, mood-change trend, and referral/escalation signals from source tables into numeric features, applies trained model weights, and outputs a probability. This metric is the average of those probabilities for residents currently shown.")}</div><div class="value">${fmtPct(avgReadiness)}</div></div>
+          <div class="kpi"><div class="label">Average readiness score ${infoIcon("Calculated as the average of readiness probabilities across residents currently shown.")}</div><div class="value">${fmtPct(avgReadiness)}</div></div>
           <div class="kpi"><div class="label">High-risk residents ${infoIcon("Count of residents with readiness score below 45%, used as a needs-support-first threshold.")}</div><div class="value">${highRisk}</div></div>
           <div class="kpi"><div class="label">Average incidents per resident ${infoIcon("Calculated as total incident count divided by number of residents in this view.")}</div><div class="value">${avgIncidents.toFixed(1)}</div></div>
         `;

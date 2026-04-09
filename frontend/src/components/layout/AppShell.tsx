@@ -18,7 +18,13 @@ const mlDashboardLinks = [
   { to: '/portal/ml-insights/counseling', label: 'Counseling sessions' },
   { to: '/portal/ml-insights/donor', label: 'Donor lapse risk' },
   { to: '/portal/ml-insights/reintegration', label: 'Reintegration outlook' },
-  { to: '/portal/ml-insights/social', label: 'Social media analytics' },
+  { to: '/portal/ml-insights/social', label: 'Social posts & gifts' },
+  { to: '/portal/ml-insights/social-content-mix', label: 'Content mix & referrals' },
+  { to: '/portal/ml-insights/campaign-timing', label: 'Campaign timing' },
+  { to: '/portal/ml-insights/safehouse-load', label: 'Safehouse load risk' },
+  { to: '/portal/ml-insights/intervention-mix', label: 'Intervention mix' },
+  { to: '/portal/ml-insights/incident-archetypes', label: 'Incident archetypes' },
+  { to: '/portal/ml-insights/resident-trajectory', label: 'Resident trajectory' },
 ];
 
 const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions', shortLabel: 'MC' }];

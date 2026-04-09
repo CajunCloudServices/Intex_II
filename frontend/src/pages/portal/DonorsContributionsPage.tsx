@@ -229,8 +229,8 @@ export function DonorsContributionsPage() {
 
   const donorHeaderActions = isAdmin
     ? [
-        { label: 'Add donation', to: '/portal/donors/donations/new' },
-        { label: 'New supporter', to: '/portal/donors/supporters/new' },
+        { label: 'Add Donation', to: '/portal/donors/donations/new' },
+        { label: 'Add Supporter', to: '/portal/donors/supporters/new' },
       ]
     : undefined;
 
