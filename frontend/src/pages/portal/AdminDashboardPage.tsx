@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import type { DashboardSummary, SafehousePerformanceSummary, SocialAnalytics } from '../../api/types';
 import { SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { Pagination } from '../../components/ui/Pagination';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
-import { formatDateTime, formatMoney } from '../../lib/format';
+import { formatDate, formatDateTime, formatMoney } from '../../lib/format';
+
+const OCCUPANCY_PAGE_SIZE = 5;
+const CONFERENCE_PAGE_SIZE = 5;
+const SOCIAL_PAGE_SIZE = 6;
 
 export function AdminDashboardPage() {
   const { user } = useAuth();
@@ -17,12 +23,14 @@ export function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
+  const [occupancyPage, setOccupancyPage] = useState(1);
+  const [conferencePage, setConferencePage] = useState(1);
+  const [socialPage, setSocialPage] = useState(1);
+
   const loadSummary = async () => {
     if (!user) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const [dashboard, safehouses, social] = await Promise.all([
         api.dashboardSummary(),
@@ -34,120 +42,104 @@ export function AdminDashboardPage() {
       setSocialAnalytics(social);
       setLastUpdated(new Date().toISOString());
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard summary.');
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    void loadSummary();
-  }, [user]);
+  useEffect(() => { void loadSummary(); }, [user]);
 
   if (!user) return null;
 
+  const allSafehouses = summary?.safehouseUtilization ?? [];
+  const pagedOccupancy = allSafehouses.slice(
+    (occupancyPage - 1) * OCCUPANCY_PAGE_SIZE,
+    occupancyPage * OCCUPANCY_PAGE_SIZE,
+  );
+
+  const allConferences = summary?.upcomingCaseConferences ?? [];
+  const pagedConferences = allConferences.slice(
+    (conferencePage - 1) * CONFERENCE_PAGE_SIZE,
+    conferencePage * CONFERENCE_PAGE_SIZE,
+  );
+
+  const allSocialPosts = socialAnalytics?.posts ?? [];
+  const pagedSocial = allSocialPosts.slice(
+    (socialPage - 1) * SOCIAL_PAGE_SIZE,
+    socialPage * SOCIAL_PAGE_SIZE,
+  );
+
   return (
-    <div className="page-shell dashboard-page">
-      <div className="dashboard-header">
+    <div className="page-shell admin-dashboard">
+      <div className="admin-dashboard-header">
         <div>
-          <span className="eyebrow">Operations Overview</span>
-          <h1>Staff Operations Dashboard</h1>
+          <span className="eyebrow">Command Center</span>
+          <h1>Admin Dashboard</h1>
+        </div>
+        <div className="admin-dashboard-header-right">
+          {lastUpdated && (
+            <span className="admin-last-updated">Updated {formatDateTime(lastUpdated)}</span>
+          )}
+          <button className="ghost-button" onClick={() => void loadSummary()} type="button">
+            Refresh
+          </button>
         </div>
       </div>
 
       {loading ? (
-        <LoadingState label="Loading dashboard summary..." />
+        <LoadingState label="Loading dashboard..." />
       ) : error ? (
         <ErrorState message={error} onRetry={loadSummary} />
       ) : summary ? (
         <>
-          <section className="dashboard-metrics" aria-label="Summary metrics">
-            <article className="dashboard-metric-card dashboard-metric-card-teal">
-              <div className="dashboard-metric-top">
-                <span className="dashboard-metric-icon" aria-hidden="true">
-                  Cases
-                </span>
-                <span className="dashboard-metric-label">Active Cases</span>
-              </div>
-              <div>
-                <strong>{summary.activeResidents}</strong>
-                <p>{summary.homeVisitsThisMonth} home visits logged this month</p>
-              </div>
+          {/* ── Metric strip ── */}
+          <section className="admin-metrics" aria-label="Key metrics">
+            <article className="admin-metric-card admin-metric-teal">
+              <span className="admin-metric-label">Active residents</span>
+              <strong>{summary.activeResidents}</strong>
+              <p>{summary.homeVisitsThisMonth} home visits this month</p>
             </article>
 
-            <article className="dashboard-metric-card">
-              <div className="dashboard-metric-top">
-                <span className="dashboard-metric-icon" aria-hidden="true">
-                  Stay
-                </span>
-                <span className="dashboard-metric-label">Avg Stay Proxy</span>
-              </div>
-              <div>
-                <strong>{Math.max(summary.openInterventionPlans * 3, 12)} Days</strong>
-                <p>{summary.openInterventionPlans} open plans currently being tracked</p>
-              </div>
+            <article className="admin-metric-card">
+              <span className="admin-metric-label">Open plans</span>
+              <strong>{summary.openInterventionPlans}</strong>
+              <p>{summary.highRiskResidents} residents flagged high-risk</p>
             </article>
 
-            <article className="dashboard-metric-card">
-              <div className="dashboard-metric-top">
-                <span className="dashboard-metric-icon" aria-hidden="true">
-                  Reach
-                </span>
-                <span className="dashboard-metric-label">Outreach Activity</span>
-              </div>
-              <div>
-                <strong>{summary.socialPostsThisMonth}</strong>
-                <p>Social posts published this month</p>
-              </div>
+            <article className="admin-metric-card">
+              <span className="admin-metric-label">Outreach posts</span>
+              <strong>{summary.socialPostsThisMonth}</strong>
+              <p>{summary.openIncidents} open incidents logged</p>
             </article>
 
-            <article className="dashboard-metric-card dashboard-metric-card-gold">
-              <div className="dashboard-metric-top">
-                <span className="dashboard-metric-icon" aria-hidden="true">
-                  Give
-                </span>
-                <span className="dashboard-metric-label">Donations This Month</span>
-              </div>
-              <div>
-                <strong>{formatMoney(summary.donationsThisMonth)}</strong>
-                <p>{summary.recentDonations.length} recent gifts in the summary feed</p>
-              </div>
+            <article className="admin-metric-card admin-metric-gold">
+              <span className="admin-metric-label">Giving this month</span>
+              <strong>{formatMoney(summary.donationsThisMonth)}</strong>
+              <p>{summary.recentDonations.length} gifts in feed</p>
             </article>
           </section>
 
-          <section className="dashboard-grid">
+          {/* ── Row 1: Donations + Occupancy ── */}
+          <section className="admin-main-row">
             <SectionCard
-              title="Recent Donations"
-              subtitle="Live activity drawn from the dashboard summary endpoint"
+              title="Recent donations"
               actions={
-                <button className="dashboard-link-button" type="button">
-                  View all records
-                </button>
+                <Link className="admin-view-link" to="/portal/donors">View all →</Link>
               }
             >
               {summary.recentDonations.length > 0 ? (
-                <div className="dashboard-timeline" role="list">
-                  {summary.recentDonations.slice(0, 4).map((donation, index) => (
-                    <article className="dashboard-timeline-item" key={donation.donationId} role="listitem">
-                      <div
-                        className={`dashboard-timeline-dot${index === 0 ? ' dashboard-timeline-dot-highlight' : ''}`}
-                        aria-hidden="true"
-                      />
-                      <div className="dashboard-timeline-card">
-                        <div>
-                          <p className="dashboard-timeline-title">{donation.supporterName}</p>
-                          <p className="dashboard-timeline-meta">
-                            {donation.donationType} gift recorded on {formatDateTime(donation.donationDate)}
-                          </p>
+                <div className="admin-timeline" role="list">
+                  {summary.recentDonations.slice(0, 5).map((donation, index) => (
+                    <article className="admin-timeline-item" key={donation.donationId} role="listitem">
+                      <div className={`admin-timeline-dot${index === 0 ? ' admin-timeline-dot-new' : ''}`} aria-hidden="true" />
+                      <div className="admin-timeline-card">
+                        <div className="admin-timeline-info">
+                          <p className="admin-timeline-name">{donation.supporterName}</p>
+                          <p className="admin-timeline-meta">{donation.donationType} · {formatDate(donation.donationDate)}</p>
                         </div>
-                        <div className="dashboard-timeline-side">
-                          <span
-                            className={`dashboard-pill${
-                              index === 0 ? ' dashboard-pill-attention' : ' dashboard-pill-processed'
-                            }`}
-                          >
-                            {index === 0 ? 'Pending Review' : 'Processed'}
-                          </span>
+                        <div className="admin-timeline-right">
+                          {index === 0 && <span className="admin-pill admin-pill-new">New</span>}
                           <strong>{formatMoney(donation.amount)}</strong>
                         </div>
                       </div>
@@ -155,104 +147,146 @@ export function AdminDashboardPage() {
                   ))}
                 </div>
               ) : (
-                <EmptyState title="No recent donations" message="The summary feed does not have donation activity yet." />
+                <EmptyState title="No recent donations" message="Nothing in the feed yet." />
               )}
             </SectionCard>
 
-            <div className="dashboard-side-column">
-              <SectionCard title="Safehouse Occupancy" subtitle="Current utilization from active locations">
-                {summary.safehouseUtilization.length > 0 ? (
-                  <div className="occupancy-list">
-                    {summary.safehouseUtilization.map((safehouse) => {
-                      const percent = safehouse.capacityGirls
-                        ? Math.min(100, Math.round((safehouse.currentOccupancy / safehouse.capacityGirls) * 100))
+            <SectionCard title="Safehouse occupancy">
+              {allSafehouses.length > 0 ? (
+                <>
+                  <div className="admin-occupancy-list">
+                    {pagedOccupancy.map((sh) => {
+                      const pct = sh.capacityGirls
+                        ? Math.min(100, Math.round((sh.currentOccupancy / sh.capacityGirls) * 100))
                         : 0;
-
+                      const critical = pct >= 85;
+                      const trend = safehousePerformance?.monthlyTrends.find(
+                        (t) => safehousePerformance.safehouses.find((s) => s.safehouseId === t.safehouseId && s.safehouseName === sh.safehouseName)
+                      );
+                      const healthScore = trend?.monthlyTrend.at(-1)?.avgHealthScore;
                       return (
-                        <article className="occupancy-item" key={safehouse.safehouseName}>
-                          <div className="occupancy-item-head">
-                            <div>
-                              <strong>{safehouse.safehouseName}</strong>
-                              <p>{percent >= 80 ? 'Approaching capacity' : 'Stable occupancy mix'}</p>
-                            </div>
-                            <span>
-                              {safehouse.currentOccupancy} / {safehouse.capacityGirls}
+                        <div className="admin-occupancy-item" key={sh.safehouseName}>
+                          <div className="admin-occupancy-head">
+                            <strong>{sh.safehouseName}</strong>
+                            <span className={critical ? 'admin-occupancy-critical' : ''}>
+                              {sh.currentOccupancy}/{sh.capacityGirls}
                             </span>
                           </div>
-                          <div className="occupancy-bar" aria-hidden="true">
-                            <div style={{ width: `${percent}%` }} />
+                          <div className="admin-occupancy-bar">
+                            <div className="admin-occupancy-fill" style={{ width: `${pct}%` }} />
                           </div>
-                        </article>
+                          <p className="admin-occupancy-note">
+                            {pct}% capacity{critical ? ' — approaching limit' : ''}
+                            {healthScore != null && healthScore > 0 ? ` · health ${healthScore.toFixed(1)}` : ''}
+                          </p>
+                        </div>
                       );
                     })}
                   </div>
-                ) : (
-                  <EmptyState title="No safehouse records" message="The dashboard summary did not include occupancy data." />
-                )}
-              </SectionCard>
-            </div>
-          </section>
-
-          <section className="page-grid two">
-            <SectionCard title="Upcoming case conferences" subtitle="Scheduled resident reviews that need attention soon">
-              <DataTable
-                columns={['Resident', 'Conference date', 'Lead worker', 'Status']}
-                rows={summary.upcomingCaseConferences.map((conference) => [
-                  conference.residentCode,
-                  conference.conferenceDate,
-                  conference.leadWorker,
-                  <StatusBadge key={`conf-status-${conference.residentCode}`} value={conference.status} />,
-                ])}
-                emptyMessage="No upcoming case conferences are scheduled."
-                caption="Upcoming case conferences"
-              />
-            </SectionCard>
-
-            <SectionCard title="Progress summary" subtitle="Operational signals from counseling and follow-up workflows">
-              <ul className="simple-list">
-                <li>Last refreshed: {lastUpdated ? formatDateTime(lastUpdated) : 'Just now'}</li>
-                <li>{summary.progressSummary.progressNoted} process recordings flagged measurable progress.</li>
-                <li>{summary.progressSummary.concernsFlagged} process recordings flagged concerns for follow-up.</li>
-                <li>{summary.progressSummary.referralsMade} sessions resulted in a referral or escalation.</li>
-              </ul>
+                  <Pagination
+                    page={occupancyPage}
+                    totalPages={Math.ceil(allSafehouses.length / OCCUPANCY_PAGE_SIZE)}
+                    totalItems={allSafehouses.length}
+                    pageSize={OCCUPANCY_PAGE_SIZE}
+                    onChange={setOccupancyPage}
+                  />
+                </>
+              ) : (
+                <EmptyState title="No data" message="Occupancy data unavailable." />
+              )}
             </SectionCard>
           </section>
 
+          {/* ── Row 2: Conferences + Snapshot ── */}
           <section className="page-grid two">
-            <SectionCard title="Safehouse capacity trend" subtitle="Occupancy and recent health trend by safehouse">
-              <DataTable
-                columns={['Safehouse', 'Occupancy', 'Health trend']}
-                rows={(safehousePerformance?.safehouses ?? []).map((safehouse) => {
-                  const trend = safehousePerformance?.monthlyTrends.find((item) => item.safehouseId === safehouse.safehouseId);
-                  const latestScore = trend?.monthlyTrend.at(-1)?.avgHealthScore ?? 0;
-                  return [
-                    safehouse.safehouseName,
-                    `${safehouse.currentOccupancy}/${safehouse.capacityGirls}`,
-                    latestScore > 0 ? latestScore.toFixed(1) : 'N/A',
-                  ];
-                })}
-                emptyMessage="No safehouse trend data is available."
-                caption="Safehouse occupancy and health indicators"
-              />
+            <SectionCard
+              title="Upcoming conferences"
+              actions={
+                <Link className="admin-view-link" to="/portal/caseload">View all →</Link>
+              }
+            >
+              {allConferences.length > 0 ? (
+                <>
+                  <div className="donor-table-page" key={conferencePage}>
+                    <DataTable
+                      columns={['Resident', 'Date', 'Lead worker', 'Status']}
+                      rows={pagedConferences.map((c) => [
+                        c.residentCode,
+                        formatDate(c.conferenceDate),
+                        c.leadWorker,
+                        <StatusBadge key={`cs-${c.id}`} value={c.status} />,
+                      ])}
+                      emptyMessage="No upcoming conferences."
+                    />
+                  </div>
+                  <Pagination
+                    page={conferencePage}
+                    totalPages={Math.ceil(allConferences.length / CONFERENCE_PAGE_SIZE)}
+                    totalItems={allConferences.length}
+                    pageSize={CONFERENCE_PAGE_SIZE}
+                    onChange={setConferencePage}
+                  />
+                </>
+              ) : (
+                <EmptyState title="Nothing scheduled" message="No upcoming case conferences." />
+              )}
             </SectionCard>
 
-            <SectionCard title="Top social posts" subtitle="Recent social content driving referrals">
+            <SectionCard title="Operations snapshot">
+              <div className="admin-snapshot-grid">
+                <div className="admin-snapshot-stat">
+                  <strong>{summary.progressSummary.progressNoted}</strong>
+                  <span>Progress noted</span>
+                </div>
+                <div className="admin-snapshot-stat admin-snapshot-warn">
+                  <strong>{summary.progressSummary.concernsFlagged}</strong>
+                  <span>Concerns flagged</span>
+                </div>
+                <div className="admin-snapshot-stat">
+                  <strong>{summary.progressSummary.referralsMade}</strong>
+                  <span>Referrals made</span>
+                </div>
+                <div className="admin-snapshot-stat admin-snapshot-warn">
+                  <strong>{summary.visitsNeedingFollowUp}</strong>
+                  <span>Visits need follow-up</span>
+                </div>
+                <div className="admin-snapshot-stat">
+                  <strong>{summary.safehouseCount}</strong>
+                  <span>Active safehouses</span>
+                </div>
+                <div className={`admin-snapshot-stat${summary.openIncidents > 0 ? ' admin-snapshot-alert' : ''}`}>
+                  <strong>{summary.openIncidents}</strong>
+                  <span>Open incidents</span>
+                </div>
+              </div>
+            </SectionCard>
+          </section>
+
+          {/* ── Row 3: Social posts (full width) ── */}
+          <SectionCard title="Top social posts">
+            <div className="donor-table-page" key={socialPage}>
               <DataTable
                 columns={['Platform', 'Type', 'Referrals', 'Engagement']}
-                rows={(socialAnalytics?.posts ?? []).slice(0, 8).map((post) => [
+                rows={pagedSocial.map((post) => [
                   post.platform,
                   post.postType,
-                  post.donationReferrals,
+                  String(post.donationReferrals),
                   `${(post.engagementRate * 100).toFixed(1)}%`,
                 ])}
-                emptyMessage="No social post analytics available."
-                caption="Recent social performance"
+                emptyMessage="No social analytics available."
               />
-            </SectionCard>
-          </section>
-      </>
+            </div>
+            <Pagination
+              page={socialPage}
+              totalPages={Math.ceil(allSocialPosts.length / SOCIAL_PAGE_SIZE)}
+              totalItems={allSocialPosts.length}
+              pageSize={SOCIAL_PAGE_SIZE}
+              onChange={setSocialPage}
+            />
+          </SectionCard>
+        </>
       ) : (
-        <EmptyState title="No dashboard data" message="The summary endpoint returned no data yet." />
+        <EmptyState title="No data" message="The dashboard returned no data yet." />
       )}
     </div>
   );
