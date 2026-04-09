@@ -20,6 +20,7 @@ const staticFiles = [
   'intervention-mix-dashboard.html',
   'social-content-mix-dashboard.html',
   'safehouse-load-dashboard.html',
+  'resident-trajectory-dashboard.html',
   'ml-dashboard-shell.css',
   'ml-dashboard-insights.js',
   'ml-metric-tooltip.js',
@@ -35,6 +36,7 @@ const jsonFiles = [
   'intervention-mix-dashboard-data.json',
   'social-content-mix-dashboard-data.json',
   'safehouse-load-dashboard-data.json',
+  'resident-trajectory-dashboard-data.json',
 ];
 
 /** Same keys as MlDashboardController — load over cookies in deployed static HTML. */
@@ -48,6 +50,7 @@ const fetchReplacements = [
   ['fetch("../json/intervention-mix-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/intervention-mix-dashboard-data", { credentials: "include" })'],
   ['fetch("../json/social-content-mix-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/social-content-mix-dashboard-data", { credentials: "include" })'],
   ['fetch("../json/safehouse-load-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/safehouse-load-dashboard-data", { credentials: "include" })'],
+  ['fetch("../json/resident-trajectory-dashboard-data.json")', 'fetch("/api/ml-dashboard/data/resident-trajectory-dashboard-data", { credentials: "include" })'],
 ];
 
 function transformHtml(content) {

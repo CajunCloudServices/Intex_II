@@ -3,20 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Campaign timing &amp; seasonality — Lighthouse</title>
-  <script>
-    if (new URLSearchParams(window.location.search).get("embed") === "1") {
-      document.documentElement.classList.add("portal-embed");
-    }
-  </script>
+  <title>Campaign timing — ML Insights</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
   <script src="ml-metric-tooltip.js" defer></script>
 </head>
 <body>
   <script>
-    if (new URLSearchParams(location.search).get('embed') === '1') {
-      document.body.classList.add('embed');
-    }
+    if (new URLSearchParams(location.search).get("embed") === "1") document.body.classList.add("embed");
   </script>
   <div class="app">
     <aside class="sidebar">
@@ -24,96 +17,157 @@
         <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
         <div>
           Tanglaw Project Admin
-          <span>Fundraising · calendar intelligence</span>
+          <span>Fundraising · timing</span>
         </div>
       </div>
       <div>
-        <div class="nav-label">Insight reports</div>
-        <nav class="nav-tabs" aria-label="Insight reports">
+        <nav class="nav-tabs scrollable" aria-label="ML insight dashboards">
+          <div class="nav-label">Core pipelines</div>
           <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
           <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
           <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
-          <a class="nav-tab" href="social-media-dashboard.html">Social media analytics</a>
-          <a class="nav-tab active" href="campaign-timing-dashboard.html">Campaign timing &amp; seasonality</a>
+          <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+          <div class="nav-label">Trend pipelines</div>
+          <a class="nav-tab" href="social-content-mix-dashboard.html">Content mix &amp; referrals</a>
+          <a class="nav-tab active" href="campaign-timing-dashboard.html">Campaign timing</a>
+          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse load risk</a>
+          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix</a>
           <a class="nav-tab" href="incident-archetypes-dashboard.html">Incident archetypes</a>
-          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix effectiveness</a>
-          <a class="nav-tab" href="social-content-mix-dashboard.html">Social content mix efficiency</a>
-          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse operational load</a>
+          <a class="nav-tab" href="resident-trajectory-dashboard.html">Resident trajectory</a>
         </nav>
       </div>
-      <p class="hint">
-        Notebook: <code>notebooks/campaign-timing-seasonality.ipynb</code>.
-        Regenerate: <code>python3 scripts/generate_campaign_timing_dashboard_data.py</code>
-      </p>
+      <p class="hint">Notebook: <code>campaign-timing-seasonality.ipynb</code>. Regenerate: <code>python3 scripts/generate_campaign_timing_dashboard_data.py</code></p>
     </aside>
     <main>
       <h1 class="page-title">Campaign timing &amp; seasonality</h1>
-      <p class="page-sub" id="summary"></p>
+      <p class="page-sub">High-value donation probability from calendar and channel context (temporal split in notebook).</p>
       <div id="load-state" class="loading">Loading…</div>
-      <div id="error-state" class="error-box" style="display:none"></div>
-      <div id="dashboard" style="display:none">
-        <div class="kpi-row" id="kpis"></div>
-        <div id="sections"></div>
+      <div id="error-state" class="error-box" style="display: none"></div>
+      <div id="dashboard" style="display: none">
+        <div id="insight-root" aria-live="polite"></div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Score meaning</h2>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
+            <strong>P(high value)</strong> is the probability a gift ranks in the top quartile of effective PHP amount, using month/quarter/campaign fields from the notebook.
+          </p>
+        </div>
+        <details class="data-fold" open>
+          <summary>Donation-level scores <span class="fold-hint">Sort · search</span></summary>
+          <div class="fold-inner">
+            <div class="panel">
+              <div class="panel-head">
+                <h2>Donations</h2>
+                <div class="toolbar"><input type="search" id="search" placeholder="Search id, type, channel…" /></div>
+              </div>
+              <div class="table-wrap" style="max-height: 58vh">
+                <table>
+                  <thead>
+                    <tr>
+                      <th data-sort="donation_id">ID</th>
+                      <th data-sort="donation_date">Date</th>
+                      <th data-sort="month">Month</th>
+                      <th data-sort="amount_php">Amount PHP</th>
+                      <th data-sort="high_value_probability">P(high value)</th>
+                      <th data-sort="high_value_actual">High value (actual)</th>
+                      <th data-sort="donation_type">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
     </main>
   </div>
+  <script src="ml-dashboard-insights.js"></script>
   <script>
     (function () {
-      const infoIcon = (msg) =>
-        `<span class="metric-info-wrap"><button type="button" class="metric-info" aria-label="${escapeHtml(msg)}">i</button><span class="metric-tooltip" role="tooltip">${escapeHtml(msg)}</span></span>`;
+      const loadState = document.getElementById("load-state");
+      const errorState = document.getElementById("error-state");
+      const dashboard = document.getElementById("dashboard");
+      const tbody = document.getElementById("tbody");
+      const search = document.getElementById("search");
+      let data = null;
+      let sortKey = "high_value_probability";
+      let sortDir = -1;
+      function showError(html) {
+        loadState.style.display = "none";
+        errorState.style.display = "block";
+        errorState.innerHTML = html;
+      }
       function escapeHtml(s) {
         const d = document.createElement("div");
-        d.textContent = String(s || "");
+        d.textContent = String(s ?? "");
         return d.innerHTML;
       }
-      function barPanel(title, items) {
-        const max = Math.max(...items.map((x) => x.value), 1);
-        return `
-          <div class="panel" style="margin-bottom:1rem">
-            <div class="panel-head"><h2>${escapeHtml(title)}</h2></div>
-            ${items
-              .map(
-                (r) => `
-              <div style="margin:.42rem 0">
-                <div style="display:flex;justify-content:space-between;font-size:.78rem"><span>${escapeHtml(r.label)}</span><span>${Number(r.value).toLocaleString(undefined, { maximumFractionDigits: 0 })}</span></div>
-                <div class="prob-bar"><i style="width:${(r.value / max) * 100}%"></i></div>
-              </div>`
-              )
-              .join("")}
-          </div>`;
+      function fmtPct(x) {
+        return (100 * Number(x || 0)).toFixed(1) + "%";
       }
-      function render(data) {
-        document.getElementById("summary").textContent = data.summary || "";
-        document.getElementById("kpis").innerHTML = (data.kpis || [])
+      function fmtMoney(x) {
+        return "₱" + Number(x || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+      }
+      function cmp(a, b, key) {
+        const va = a[key];
+        const vb = b[key];
+        if (typeof va === "boolean" && typeof vb === "boolean") return va === vb ? 0 : va ? 1 : -1;
+        if (typeof va === "number" && typeof vb === "number") return va - vb;
+        return String(va).localeCompare(String(vb));
+      }
+      function render() {
+        const q = (search.value || "").toLowerCase().trim();
+        let rows = (data.rows || []).filter((r) => {
+          if (!q) return true;
+          return [r.donation_id, r.donation_type, r.channel_source, r.donation_date].join(" ").toLowerCase().includes(q);
+        });
+        rows = rows.slice().sort((a, b) => cmp(a, b, sortKey) * sortDir);
+        tbody.innerHTML = rows
           .map(
-            (k) => `
-          <div class="kpi">
-            <div class="label">${escapeHtml(k.label)} ${k.info ? infoIcon(k.info) : ""}</div>
-            <div class="value">${escapeHtml(k.value)}</div>
-            <div class="sub">${escapeHtml(k.sub || "")}</div>
-          </div>`
+            (r) => `
+          <tr>
+            <td>${r.donation_id}</td>
+            <td>${escapeHtml(r.donation_date)}</td>
+            <td>${r.month}</td>
+            <td>${fmtMoney(r.amount_php)}</td>
+            <td>${fmtPct(r.high_value_probability)}</td>
+            <td>${r.high_value_actual ? '<span class="badge badge-alert">Yes</span>' : '<span class="badge badge-ok">No</span>'}</td>
+            <td>${escapeHtml(r.donation_type)}</td>
+          </tr>`
           )
           .join("");
-        document.getElementById("sections").innerHTML = (data.sections || [])
-          .map((s) => barPanel(s.title, s.bars || []))
-          .join("");
       }
+      document.querySelectorAll("th[data-sort]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sort;
+          if (sortKey === k) sortDir *= -1;
+          else {
+            sortKey = k;
+            sortDir = k === "donation_id" || k === "donation_date" || k === "month" || k === "donation_type" ? 1 : -1;
+          }
+          render();
+        });
+      });
+      search.addEventListener("input", render);
       fetch("../json/campaign-timing-dashboard-data.json")
-        .then((r) => {
-          if (!r.ok) throw 0;
-          return r.json();
+        .then((res) => {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
         })
         .then((json) => {
-          document.getElementById("load-state").style.display = "none";
-          document.getElementById("dashboard").style.display = "block";
-          render(json);
+          data = json;
+          loadState.style.display = "none";
+          dashboard.style.display = "block";
+          if (typeof renderInsightStory === "function" && data.insights) {
+            renderInsightStory(document.getElementById("insight-root"), data.insights, {
+              followupsFirst: true,
+              predSectionTitle: "Scores and predictions",
+              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
+            });
+          }
+          render();
         })
-        .catch(() => {
-          document.getElementById("load-state").style.display = "none";
-          document.getElementById("error-state").style.display = "block";
-          document.getElementById("error-state").innerHTML =
-            "Missing <code>json/campaign-timing-dashboard-data.json</code>. From <code>ml-pipelines/</code> run <code>python3 scripts/generate_campaign_timing_dashboard_data.py</code>.";
-        });
+        .catch(() => showError("<strong>Could not load JSON.</strong> Run <code>generate_campaign_timing_dashboard_data.py</code>."));
     })();
   </script>
 </body>

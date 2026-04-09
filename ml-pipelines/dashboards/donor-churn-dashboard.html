@@ -23,17 +23,19 @@
         </div>
       </div>
       <div>
-        <div class="nav-label">Insight reports</div>
-        <nav class="nav-tabs" aria-label="Insight reports">
+        <nav class="nav-tabs scrollable" aria-label="ML insight dashboards">
+          <div class="nav-label">Core pipelines</div>
           <a class="nav-tab" href="counseling-admin-dashboard.html">Counseling sessions</a>
           <a class="nav-tab active" href="donor-churn-dashboard.html">Donor lapse risk</a>
           <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
-          <a class="nav-tab" href="social-media-dashboard.html">Social media analytics</a>
-          <a class="nav-tab" href="campaign-timing-dashboard.html">Campaign timing &amp; seasonality</a>
+          <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+          <div class="nav-label">Trend pipelines</div>
+          <a class="nav-tab" href="social-content-mix-dashboard.html">Content mix &amp; referrals</a>
+          <a class="nav-tab" href="campaign-timing-dashboard.html">Campaign timing</a>
+          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse load risk</a>
+          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix</a>
           <a class="nav-tab" href="incident-archetypes-dashboard.html">Incident archetypes</a>
-          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix effectiveness</a>
-          <a class="nav-tab" href="social-content-mix-dashboard.html">Social content mix efficiency</a>
-          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse operational load</a>
+          <a class="nav-tab" href="resident-trajectory-dashboard.html">Resident trajectory</a>
         </nav>
       </div>
       <p class="hint">Pipeline: <code>notebooks/donor-churn-prediction.ipynb</code>. Data (from <code>ml-pipelines/</code>): <code>python3 scripts/generate_donor_dashboard_data.py</code>.</p>

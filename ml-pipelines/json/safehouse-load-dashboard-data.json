@@ -1,144 +1,4124 @@
 {
-  "generated_at": "2026-04-09T05:09:27.609500+00:00",
-  "summary": "Operational load proxy: residents + incidents (+ light weight on home visits) by safehouse and incident trend over recent months.",
-  "kpis": [
+  "generated_note": "safehouse-operational-load-risk.ipynb \u2192 generate_safehouse_load_dashboard_data.py",
+  "insights": {
+    "eyebrow": "SAFEHOUSE LOAD VS INCIDENT RISK",
+    "headline": "Months where rolling incident load clears the house baseline",
+    "lede": "Classification target: above_roll3_median. Explanatory holdout R\u00b2=0.968 on log incident rate.",
+    "prediction_cards": [
+      {
+        "kicker": "Predictive (holdout)",
+        "label": "ROC-AUC elevated load",
+        "value": "0.983",
+        "hint": "F1: 0.846"
+      },
+      {
+        "kicker": "GroupKFold CV",
+        "label": "Mean ROC-AUC",
+        "value": "0.973",
+        "hint": "Mean F1: 0.888"
+      },
+      {
+        "kicker": "Explanatory",
+        "label": "R\u00b2 log incident rate",
+        "value": "0.968",
+        "hint": "MAE: 0.006"
+      }
+    ],
+    "cause_cards": [
+      {
+        "kicker": "Benchmark",
+        "title": "House-specific rolling median",
+        "body": "Elevated load compares this month to prior rolling signals\u2014associations only."
+      }
+    ],
+    "model_drivers": [
+      {
+        "feature": "roll3 rate lag1",
+        "importance": 0.12525987525987528,
+        "share_top5_pct": 61
+      },
+      {
+        "feature": "mom incident rate",
+        "importance": 0.07718295218295218,
+        "share_top5_pct": 37
+      },
+      {
+        "feature": "lag1 incident rate",
+        "importance": 0.0028586278586278657,
+        "share_top5_pct": 1
+      },
+      {
+        "feature": "proc per resident",
+        "importance": 0.0007796257796257866,
+        "share_top5_pct": 0
+      },
+      {
+        "feature": "avg education progress",
+        "importance": 0.0,
+        "share_top5_pct": 0
+      }
+    ],
+    "calls_to_action": [
+      "Watch safehouse 5 \u2014 2024-09-01 P(elevated load)=99%.",
+      "Watch safehouse 2 \u2014 2024-10-01 P(elevated load)=99%.",
+      "Watch safehouse 5 \u2014 2024-08-01 P(elevated load)=99%."
+    ]
+  },
+  "portfolio": {
+    "n_rows": 450,
+    "target": "above_roll3_median",
+    "explanatory_r2": 0.9684542754172323
+  },
+  "rows": [
     {
-      "label": "Avg active residents",
-      "value": "6.7",
-      "sub": "Per monthly metric row",
-      "info": "Mean of active_residents across safehouse_monthly_metrics."
+      "safehouse_id": 5,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9930202566021,
+      "above_bench_actual": true,
+      "incident_count": 0
     },
     {
-      "label": "Avg incidents / row",
-      "value": "0.22",
-      "sub": "Per monthly metric row",
-      "info": "Mean of incident_count in operational metrics extract."
+      "safehouse_id": 2,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9900281827872286,
+      "above_bench_actual": true,
+      "incident_count": 1
     },
     {
-      "label": "Highest-load site",
-      "value": "ID 1",
-      "sub": "By load proxy mean",
-      "info": "Safehouse with highest average load_proxy (residents + incidents + 0.1\u00d7visits)."
-    }
-  ],
-  "sections": [
-    {
-      "title": "Load proxy by safehouse (higher = more pressure)",
-      "bars": [
-        {
-          "label": "Safehouse 1",
-          "value": 10.925999999999998
-        },
-        {
-          "label": "Safehouse 4",
-          "value": 8.69
-        },
-        {
-          "label": "Safehouse 7",
-          "value": 8.46
-        },
-        {
-          "label": "Safehouse 2",
-          "value": 8.436
-        },
-        {
-          "label": "Safehouse 3",
-          "value": 7.5920000000000005
-        },
-        {
-          "label": "Safehouse 5",
-          "value": 6.537999999999999
-        },
-        {
-          "label": "Safehouse 8",
-          "value": 6.412000000000001
-        },
-        {
-          "label": "Safehouse 6",
-          "value": 5.374
-        },
-        {
-          "label": "Safehouse 9",
-          "value": 2.246
-        }
-      ]
+      "safehouse_id": 5,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.3333333333333333,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9866916728053693,
+      "above_bench_actual": true,
+      "incident_count": 2
     },
     {
-      "title": "Monthly incident totals (recent periods)",
-      "bars": [
-        {
-          "label": "2025-09",
-          "value": 5.0
-        },
-        {
-          "label": "2025-10",
-          "value": 3.0
-        },
-        {
-          "label": "2025-11",
-          "value": 6.0
-        },
-        {
-          "label": "2025-12",
-          "value": 6.0
-        },
-        {
-          "label": "2026-01",
-          "value": 2.0
-        },
-        {
-          "label": "2026-02",
-          "value": 1.0
-        },
-        {
-          "label": "2026-03",
-          "value": 0.0
-        },
-        {
-          "label": "2026-04",
-          "value": 1.0
-        },
-        {
-          "label": "2026-05",
-          "value": 0.0
-        },
-        {
-          "label": "2026-06",
-          "value": 0.0
-        },
-        {
-          "label": "2026-07",
-          "value": 0.0
-        },
-        {
-          "label": "2026-08",
-          "value": 0.0
-        },
-        {
-          "label": "2026-09",
-          "value": 0.0
-        },
-        {
-          "label": "2026-10",
-          "value": 0.0
-        },
-        {
-          "label": "2026-11",
-          "value": 0.0
-        },
-        {
-          "label": "2026-12",
-          "value": 0.0
-        },
-        {
-          "label": "2027-01",
-          "value": 0.0
-        },
-        {
-          "label": "2027-02",
-          "value": 0.0
-        }
-      ]
+      "safehouse_id": 4,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9850948443159331,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.25,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9847718344374026,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.25,
+      "active_residents": 8,
+      "elevated_load_probability": 0.984688029484524,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9835441849835928,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9788217770985972,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.2,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9784429938651819,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9770378398325708,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.25,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9750483723114638,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.3,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9741664676468891,
+      "above_bench_actual": true,
+      "incident_count": 3
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9739717973053273,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.375,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9735656386376633,
+      "above_bench_actual": true,
+      "incident_count": 3
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9733184865040462,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9712295559744775,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.9699077357044263,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9670908380773678,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.965625679966202,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9643749767035467,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.2,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9636744619131934,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9604214084298817,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9596053981143476,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9573725999147356,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9569754666860896,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9569222008078746,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9548412488449326,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.2,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9537354701963584,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9534418449773359,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9524470289160786,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9521635380278903,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.951048295161134,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9505745264215858,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9501043492931996,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9500300530009457,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9498095416087832,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9498019560175045,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.9490010168714188,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9485926122653149,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.5,
+      "active_residents": 2,
+      "elevated_load_probability": 0.9478250638490564,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.3,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9473997554003581,
+      "above_bench_actual": true,
+      "incident_count": 3
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9466203740481001,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9460155401634196,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9459888060587949,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9458657257822608,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.25,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9456434725155701,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.944740877908699,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.5,
+      "active_residents": 2,
+      "elevated_load_probability": 0.9433851410482298,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.2857142857142857,
+      "active_residents": 7,
+      "elevated_load_probability": 0.9424907355978287,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9424407549533261,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9420308134206042,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9406412441043135,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9398279982051616,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9373561442301805,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9345011226486754,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.9323041432342025,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.9315591691641101,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.930463443878531,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9295228978824802,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9275317395753221,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9246364926171418,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9246263936304235,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.9240603112361254,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.25,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9178474180783163,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9163205668570648,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9161650625392884,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.2,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9128946327883016,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9120703190360975,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.9111389820317197,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.9085732701123362,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9066835798637496,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9066699500646673,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.906451739375354,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9056357507267803,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.905507593565284,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9035346037707237,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.9005617540354084,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.3333333333333333,
+      "active_residents": 6,
+      "elevated_load_probability": 0.9005134255011613,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8999141570003487,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.2,
+      "active_residents": 10,
+      "elevated_load_probability": 0.8979674875099142,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.897443555661174,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8955891189329747,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.8925008837392443,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8823822710120148,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.8791959329696867,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8766352618597274,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.8763139611596771,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8722805818747064,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8702211036139504,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.8678496755216134,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.8674128821031666,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.865494291968946,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.865354537081209,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8598127237802807,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.8588720453759333,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8565003906012764,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.25,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8548412104272148,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.5,
+      "active_residents": 2,
+      "elevated_load_probability": 0.8547771093621183,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8532529422856142,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8509776774805887,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8452130493823709,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.2,
+      "active_residents": 5,
+      "elevated_load_probability": 0.8441744306200583,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8423643217646962,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.839518609562446,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.25,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8389848209316955,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.8350721721521455,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8348066026994603,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8338061853860655,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.8326386795233127,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8295765617766481,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.8293891331701392,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.8269307623982273,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.8269291155472865,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.8257208291604394,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.8241503932789632,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.2857142857142857,
+      "active_residents": 7,
+      "elevated_load_probability": 0.82351889092403,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.82278807889092,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.8209374798561322,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.81680085376869,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.8061073891086268,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.8054306298428021,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.8032943789967784,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.2,
+      "active_residents": 5,
+      "elevated_load_probability": 0.791850795855321,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-04-01",
+      "incident_rate": 1.5,
+      "active_residents": 2,
+      "elevated_load_probability": 0.7884559372833018,
+      "above_bench_actual": true,
+      "incident_count": 3
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.7776656590981478,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.7773210083190534,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.4,
+      "active_residents": 5,
+      "elevated_load_probability": 0.7725434133657831,
+      "above_bench_actual": true,
+      "incident_count": 2
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.7721063977582768,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.7671882413927159,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.765156077407008,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.5,
+      "active_residents": 2,
+      "elevated_load_probability": 0.7447385315461866,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.7417080337560816,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.7399204753236053,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.7369851774335894,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.7347465715559491,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.7188475103997457,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.5,
+      "active_residents": 2,
+      "elevated_load_probability": 0.7139408834392754,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.7100108573938301,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.7098561470703733,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.7074081758910966,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.7019943230347622,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.125,
+      "active_residents": 8,
+      "elevated_load_probability": 0.6930330778469622,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.6572701339551553,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.1,
+      "active_residents": 10,
+      "elevated_load_probability": 0.6401073656646732,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.6363596006467391,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.6307321988549872,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.6251572883620825,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.6232128451142895,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.6220127063311274,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.6211916026639553,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.6211721744601734,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.6168032749890606,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.16666666666666666,
+      "active_residents": 6,
+      "elevated_load_probability": 0.5971704479259555,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.5828856962018093,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.5811553933427919,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.574312376689776,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.5693290418805746,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.14285714285714285,
+      "active_residents": 7,
+      "elevated_load_probability": 0.5537022278304666,
+      "above_bench_actual": false,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.5494132511719887,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.5222446529189358,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.2,
+      "active_residents": 5,
+      "elevated_load_probability": 0.5105793876190549,
+      "above_bench_actual": true,
+      "incident_count": 1
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.5070302793850316,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.5043036812666067,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.4885777064223495,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.48452122352171745,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.47908275000153067,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.4738057552235521,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.4688310997713284,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.4627323188837208,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.43350782138932203,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.420055780684637,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.415004966786035,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.4131075498682183,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.4008720528622671,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.3929265275703439,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.3797870549592037,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.3713774573032118,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.35440420445755655,
+      "above_bench_actual": true,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.3276121571933698,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.32460433554071,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.32196128790754397,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.3088275902555044,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.30224803019477964,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.28824866171172103,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.26501825638277576,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.2645859664989573,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.23109459765825846,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.21817233715097678,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.2053662545274283,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.19989846113268464,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.18543160215596274,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.1830686857965303,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.18226019414149422,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.18124489930041768,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.16956656849402932,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.16502034457359072,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.16356341115563253,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.16324379469773131,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.15997453978200288,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.1568922765582982,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.15675401422035062,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.15365665665331138,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.15348309097177087,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.1534634085554961,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.1530155269356372,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.15040033511979445,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.1499088522813542,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.1496762176908927,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.14957787545488682,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.14393148817779802,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.14249480511085771,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.14124735462260127,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.13783973156013274,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.13779649692081597,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.13199381416568315,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.13176402272762194,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.1294839130300222,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.12855708956368558,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.12800199518036248,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.12755596722950774,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.12729168779728375,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.12412239032998065,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.12404954659517885,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.11919875612811712,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.11889360641801569,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.11839968515327524,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.11753471211502854,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.11658298604664674,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.11608226254703713,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.11570985565527818,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.11527052714671376,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.1146756248530639,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.1135197355960062,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.11304488744377397,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.1114339951232406,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.10967307151815654,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.10933348110563498,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.10485442978611773,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.10305578303915278,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.10115035921401772,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.09931773725460918,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.0984433754213926,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.09812379450604505,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.09748056668456981,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.09262791848632225,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.09191814592854242,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.08866048020768677,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.0884687476091549,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.08572835588544434,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.08501771999723556,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.08433363518884182,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.08427130348551667,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.08406446652034248,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.08235478510819773,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.08184354145234363,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.07850226520769032,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.07336460985352665,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.07217671699852839,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.07175814402809473,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.06898351722524557,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.06837658993702384,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.06780512196619413,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.06669510197324337,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.06660596656141304,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.06648331570550453,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.06579791202194091,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.06498003759537306,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.0640841555184214,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.061032558235145,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.0607311644868304,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.06031785925312058,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.05982961341829785,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.059531109879422,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.05934588553787772,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.058532819305305274,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.057380464519576055,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.05564808776960919,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.055313091600169485,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.05502951502163376,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.054749732226813855,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.05376230752079856,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.053311237865927556,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.05312827364221172,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.05148268274007737,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.05120464773342101,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.05116239133471752,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.051127263666512573,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.050888748371494624,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.05029875804868247,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.050128892339985034,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.049965629983628135,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.04981682812599092,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.047209035960075404,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.046700691045654934,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.04604944566511465,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.045752670786181865,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2025-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.04535322693998592,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.04517292022529039,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.04299982553223597,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.041064875490996695,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.040873000827602195,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0386743338258072,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.03859440241573243,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.03850503000776293,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.03765244446285313,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.03699525964771311,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.03694907455426727,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.03664184776975375,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.03648693918979461,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.03647736248818532,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.035635517040074643,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.03523422023592364,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.03523118899724777,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.034682578652426355,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.034523666979267106,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.03405430806804679,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.03309215312051147,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.03031485311606462,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.03020352933059666,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2025-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.02911536916043884,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.02838340975323252,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.02837117866475258,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.027996043207699002,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.027979067847176,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.027830964850980036,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.02760891392199825,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.027275068967475512,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.02726817291776504,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0270350772250867,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.026749916204724503,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.025542841200906045,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.025262079844405753,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0246523265219814,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.024096755701434113,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.023586375600755424,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.023535631024197087,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.023322663977975753,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.022865024575423696,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.022719345907823173,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2025-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.02266942551744165,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.022468229853002047,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.022330214831609654,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.022251673198320977,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.022223688904564935,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.02166876451473656,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2024-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.01975748794334599,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.018937564184963812,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.018739312629952952,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.017610556105630223,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.016583855403606,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2024-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.01628888063117899,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.015968822254594638,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.015810471756466816,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.014797790504934146,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.01337789178859047,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.012317948063442342,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.012118352350380194,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.012081887698829773,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.01205960544676853,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.01201769676548021,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.010941413335197752,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.009958860158002663,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0098920667876475,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008892333565277967,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008892333565277967,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008892333565277967,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008892333565277967,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008892333565277967,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008641110385297072,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008641110385297072,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008641110385297072,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.008641110385297072,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2024-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.008541009016445453,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.008288356155298991,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.008233375436258433,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.007563280027986549,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.007563280027986549,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.007357528479293379,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.007225037502048071,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.0071835946613659505,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.006841929002654824,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.006841929002654824,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.00664709940686831,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 1,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 10,
+      "elevated_load_probability": 0.006191063541034001,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.006112600848921084,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 6,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 5,
+      "elevated_load_probability": 0.0059911813518152635,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.005297645113098543,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.004919866843838982,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.004911769775115852,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.004911769775115852,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 4,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.004911769775115852,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.004745233121226601,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.004041929665136895,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.003760864358072059,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0035131940329529866,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0033765863801831415,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2026-12-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.002579790576204545,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.001916104334644195,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0008579586781015707,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0008579586781015707,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0008579586781015707,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0007936297279362973,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0007936297279362973,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0007936297279362973,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 8,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0007936297279362973,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 5,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 6,
+      "elevated_load_probability": 0.0006653432849537537,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 2,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0006322562230143545,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-03-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2023-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 9,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 2,
+      "elevated_load_probability": 0.00038427797788891793,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0001366076527698457,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0001366076527698457,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0001366076527698457,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0001366076527698457,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0001366076527698457,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0001366076527698457,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 7,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 8,
+      "elevated_load_probability": 0.0001366076527698457,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2023-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-04-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-05-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-06-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-07-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-08-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-09-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-10-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2026-11-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2027-01-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
+    },
+    {
+      "safehouse_id": 3,
+      "month_start": "2027-02-01",
+      "incident_rate": 0.0,
+      "active_residents": 7,
+      "elevated_load_probability": 0.0,
+      "above_bench_actual": false,
+      "incident_count": 0
     }
   ]
 }

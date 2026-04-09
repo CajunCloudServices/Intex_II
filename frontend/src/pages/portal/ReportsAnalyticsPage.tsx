@@ -26,6 +26,7 @@ import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { StatusBadge } from '../../components/ui/StatusBadge';
+import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHeader';
 import { useAuth } from '../../hooks/useAuth';
 import { chartWidthClass } from '../../lib/charts';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
@@ -78,6 +79,18 @@ function createSocialAdvisorForm(): SocialPostAdvisorRequest {
   };
 }
 
+const REPORTS = [
+  { key: 'donation-trends', label: 'Donation Trends' },
+  { key: 'resident-outcomes', label: 'Resident Outcomes' },
+  { key: 'safehouse-performance', label: 'Safehouse Performance' },
+  { key: 'reintegration', label: 'Reintegration Summary' },
+  { key: 'social-analytics', label: 'Social Media Analytics' },
+  { key: 'safehouse-records', label: 'Safehouse Records' },
+  { key: 'counseling-risk', label: 'Counseling Escalation Risk' },
+  { key: 'incident-watchlist', label: 'Incident Watchlist' },
+  { key: 'trend-deployments', label: 'Trend Deployments' },
+];
+
 export function ReportsAnalyticsPage() {
   const { user } = useAuth();
   const [donationTrends, setDonationTrends] = useState<DonationTrends | null>(null);
@@ -109,6 +122,7 @@ export function ReportsAnalyticsPage() {
   const [safehouseForm, setSafehouseForm] = useState<SafehouseRequest>(createSafehouseForm());
   const [incidentForm, setIncidentForm] = useState<IncidentReportRequest>(createIncidentForm());
   const [submitting, setSubmitting] = useState<string | null>(null);
+  const [activeReport, setActiveReport] = useState<string>('donation-trends');
   const deferredIncidentSearch = useDeferredValue(incidentSearch);
   const isAdmin = user?.roles.includes('Admin') ?? false;
 
@@ -195,20 +209,14 @@ export function ReportsAnalyticsPage() {
 
   const handleSafehouseSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!user) return;
+    if (!user || !editingSafehouseId) return;
     setSubmitting('safehouse');
     setFeedback(null);
 
     try {
       const payload = { ...safehouseForm, notes: safehouseForm.notes || null };
-      if (editingSafehouseId) {
-        await api.updateSafehouse(editingSafehouseId, payload);
-        setFeedback({ tone: 'success', message: 'Safehouse updated.' });
-      } else {
-        await api.createSafehouse(payload);
-        setFeedback({ tone: 'success', message: 'Safehouse created.' });
-      }
-
+      await api.updateSafehouse(editingSafehouseId, payload);
+      setFeedback({ tone: 'success', message: 'Safehouse updated.' });
       resetSafehouseForm();
       await loadAnalytics();
     } catch (err) {
@@ -220,7 +228,7 @@ export function ReportsAnalyticsPage() {
 
   const handleIncidentSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!user) return;
+    if (!user || !editingIncidentId) return;
     setSubmitting('incident');
     setFeedback(null);
 
@@ -229,14 +237,8 @@ export function ReportsAnalyticsPage() {
         ...incidentForm,
         resolutionDate: incidentForm.resolutionDate || null,
       };
-      if (editingIncidentId) {
-        await api.updateIncident(editingIncidentId, payload);
-        setFeedback({ tone: 'success', message: 'Incident updated.' });
-      } else {
-        await api.createIncident(payload);
-        setFeedback({ tone: 'success', message: 'Incident created.' });
-      }
-
+      await api.updateIncident(editingIncidentId, payload);
+      setFeedback({ tone: 'success', message: 'Incident updated.' });
       resetIncidentForm();
       await loadAnalytics();
     } catch (err) {
@@ -290,15 +292,21 @@ export function ReportsAnalyticsPage() {
     }
   };
 
+  const reportHeaderActions = isAdmin
+    ? [
+        { label: 'Create Safehouse', to: '/portal/reports/safehouses/new' },
+        { label: 'Create Incident', to: '/portal/reports/incidents/new' },
+      ]
+    : undefined;
+
   return (
     <div className="page-shell">
-      <div className="page-header">
-        <div>
-          <span className="eyebrow">Decision support</span>
-          <h1>Reports & analytics</h1>
-          <p>Review donation trends, resident outcomes, safehouse performance, reintegration progress, and outreach results.</p>
-        </div>
-      </div>
+      <StaffPortalPageHeader
+        eyebrow="Decision support"
+        title="Reports & analytics"
+        description="Review donation trends, resident outcomes, safehouse performance, reintegration progress, and outreach results."
+        actions={reportHeaderActions}
+      />
 
       <section className="page-grid four">
         <MetricCard label="Total giving tracked" value={formatMoney(totalRaised)} detail="Combined donation totals across the reporting period." accent />
@@ -315,24 +323,20 @@ export function ReportsAnalyticsPage() {
         <ErrorState message={error} onRetry={loadAnalytics} />
       ) : (
         <>
-          <section className="page-grid one">
-            <SectionCard title="Deep trend deployment scorecards" subtitle="Operational bridge for all six new exploratory/explanatory trend pipelines.">
-              <DataTable
-                columns={['Pipeline', 'Primary metric', 'Current value', 'Endpoint', 'Recommendation']}
-                rows={(trendDeployments?.rows ?? []).map((row) => [
-                  row.pipelineKey,
-                  row.primaryMetric,
-                  Number.isFinite(row.currentValue) ? row.currentValue.toFixed(4) : '0.0000',
-                  row.endpointPath,
-                  row.recommendation,
-                ])}
-                emptyMessage="Trend deployment rows are not available."
-                caption="Trend pipeline deployment bridge"
-              />
-            </SectionCard>
-          </section>
+          <div className="report-tab-bar">
+            {REPORTS.map((report) => (
+              <button
+                key={report.key}
+                type="button"
+                className={`ghost-button${activeReport === report.key ? ' active' : ''}`}
+                onClick={() => setActiveReport(report.key)}
+              >
+                {report.label}
+              </button>
+            ))}
+          </div>
 
-          <section className="page-grid two dashboard-split">
+          {activeReport === 'donation-trends' && (
             <SectionCard title="Donation trends" subtitle="Monthly giving totals, campaign activity, and contribution mix">
               {donationTrends ? (
                 <>
@@ -362,7 +366,9 @@ export function ReportsAnalyticsPage() {
                 <EmptyState title="No donation trend data" message="No donation trend data was returned." />
               )}
             </SectionCard>
+          )}
 
+          {activeReport === 'resident-outcomes' && (
             <SectionCard title="Resident outcomes" subtitle="Progress and follow-up indicators from case workflows">
               {residentOutcomes ? (
                 <div className="page-grid two compact">
@@ -392,9 +398,9 @@ export function ReportsAnalyticsPage() {
                 <EmptyState title="No resident outcomes" message="No resident outcomes data was returned." />
               )}
             </SectionCard>
-          </section>
+          )}
 
-          <section className="page-grid two dashboard-split">
+          {activeReport === 'safehouse-performance' && (
             <SectionCard title="Safehouse performance" subtitle="Occupancy, incidents, residents, and allocation totals by location">
               <DataTable
                 columns={['Safehouse', 'Occupancy', 'Residents', 'Incidents', 'Allocated']}
@@ -433,7 +439,9 @@ export function ReportsAnalyticsPage() {
                 </div>
               ) : null}
             </SectionCard>
+          )}
 
+          {activeReport === 'reintegration' && (
             <SectionCard title="Reintegration summary" subtitle="Current reintegration status and pathway mix">
               {reintegrationSummary ? (
                 <>
@@ -459,9 +467,9 @@ export function ReportsAnalyticsPage() {
                 <EmptyState title="No reintegration data" message="No reintegration summary data was returned." />
               )}
             </SectionCard>
-          </section>
+          )}
 
-          <section className="page-grid two dashboard-split">
+          {activeReport === 'social-analytics' && (
             <SectionCard
               title="Social media analytics"
               subtitle="Post-level performance across platforms"
@@ -563,10 +571,12 @@ export function ReportsAnalyticsPage() {
                 <EmptyState title="No social analytics data" message="No social analytics data was returned." />
               )}
             </SectionCard>
+          )}
 
+          {activeReport === 'safehouse-records' && (
             <SectionCard
-              title="Operational watchlist"
-              subtitle="Maintain safehouse and incident records used in internal reporting."
+              title="Safehouse records"
+              subtitle="Review and manage safehouse locations used in occupancy, incident, and allocation reporting."
               actions={
                 <div className="filter-row">
                   <select
@@ -578,25 +588,6 @@ export function ReportsAnalyticsPage() {
                     <option>All</option>
                     <option>Active</option>
                     <option>Inactive</option>
-                  </select>
-                  <input
-                    aria-label="Search incidents"
-                    className="inline-search"
-                    placeholder="Search incidents..."
-                    value={incidentSearch}
-                    onChange={(event) => setIncidentSearch(event.target.value)}
-                  />
-                  <select
-                    aria-label="Filter incident severity"
-                    className="inline-select"
-                    value={incidentSeverityFilter}
-                    onChange={(event) => setIncidentSeverityFilter(event.target.value)}
-                  >
-                    <option>All</option>
-                    <option>Low</option>
-                    <option>Medium</option>
-                    <option>High</option>
-                    <option>Critical</option>
                   </select>
                 </div>
               }
@@ -644,9 +635,9 @@ export function ReportsAnalyticsPage() {
                 caption="Safehouse records"
               />
             </SectionCard>
-          </section>
+          )}
 
-          <section className="page-grid two dashboard-split">
+          {activeReport === 'counseling-risk' && (
             <SectionCard title="Counseling escalation risk" subtitle="Session-level concern probability for supervisor triage.">
               <section className="page-grid four compact">
                 <MetricCard label="Evaluated sessions" value={String(counselingRiskSummary?.evaluatedSessions ?? 0)} detail="Sessions scored with deployed concern model." />
@@ -668,156 +659,201 @@ export function ReportsAnalyticsPage() {
                 caption="Counseling risk watchlist"
               />
             </SectionCard>
-          </section>
+          )}
 
-          <section className="page-grid two dashboard-split">
-            <SectionCard title="Incident watchlist" subtitle="Use the detail panel to review incident context and follow-up needs.">
+          {activeReport === 'incident-watchlist' && (
+            <section className="page-grid two dashboard-split">
+              <SectionCard
+                title="Incident watchlist"
+                subtitle="Use the detail panel to review incident context and follow-up needs."
+                actions={
+                  <div className="filter-row">
+                    <input
+                      aria-label="Search incidents"
+                      className="inline-search"
+                      placeholder="Search incidents..."
+                      value={incidentSearch}
+                      onChange={(event) => setIncidentSearch(event.target.value)}
+                    />
+                    <select
+                      aria-label="Filter incident severity"
+                      className="inline-select"
+                      value={incidentSeverityFilter}
+                      onChange={(event) => setIncidentSeverityFilter(event.target.value)}
+                    >
+                      <option>All</option>
+                      <option>Low</option>
+                      <option>Medium</option>
+                      <option>High</option>
+                      <option>Critical</option>
+                    </select>
+                  </div>
+                }
+              >
+                <DataTable
+                  columns={['Resident', 'Safehouse', 'Type', 'Severity', 'Actions']}
+                  rows={filteredIncidents.map((incident) => [
+                    <button className="table-link-button" key={`incident-${incident.id}`} onClick={() => setSelectedIncidentId(incident.id)} type="button">
+                      {incident.residentCode}
+                    </button>,
+                    incident.safehouseName,
+                    incident.incidentType,
+                    <StatusBadge key={`incident-sev-${incident.id}`} value={incident.severity} />,
+                    <div className="table-actions" key={`incident-actions-${incident.id}`}>
+                      <button className="ghost-button" onClick={() => setSelectedIncidentId(incident.id)} type="button">View</button>
+                      {isAdmin ? (
+                        <>
+                          <button
+                            className="ghost-button"
+                            onClick={() => {
+                              setEditingIncidentId(incident.id);
+                              setIncidentForm({
+                                residentId: incident.residentId,
+                                safehouseId: incident.safehouseId,
+                                incidentDate: incident.incidentDate,
+                                incidentType: incident.incidentType,
+                                severity: incident.severity,
+                                description: incident.description,
+                                responseTaken: incident.responseTaken,
+                                resolved: incident.resolved,
+                                resolutionDate: incident.resolutionDate ?? '',
+                                reportedBy: incident.reportedBy,
+                                followUpRequired: incident.followUpRequired,
+                              });
+                            }}
+                            type="button"
+                          >
+                            Edit
+                          </button>
+                          <button className="ghost-button danger-button" onClick={() => void deleteIncident(incident.id)} type="button">Delete</button>
+                        </>
+                      ) : null}
+                    </div>,
+                  ])}
+                  emptyMessage="No incidents match the current filters."
+                  caption="Incident watchlist"
+                />
+              </SectionCard>
+
+              <DetailPanel title={selectedIncident ? `${selectedIncident.residentCode} incident` : 'Incident details'} subtitle="Incident details help staff explain what happened, how it was handled, and what remains open.">
+                {selectedIncident ? (
+                  <DetailList
+                    items={[
+                      { label: 'Date', value: formatDate(selectedIncident.incidentDate) },
+                      { label: 'Type', value: selectedIncident.incidentType },
+                      { label: 'Severity', value: selectedIncident.severity },
+                      { label: 'Safehouse', value: selectedIncident.safehouseName },
+                      { label: 'Reported by', value: selectedIncident.reportedBy },
+                      { label: 'Description', value: selectedIncident.description },
+                      { label: 'Response taken', value: selectedIncident.responseTaken },
+                      { label: 'Follow-up required', value: selectedIncident.followUpRequired ? 'Yes' : 'No' },
+                    ]}
+                  />
+                ) : (
+                  <EmptyState title="No incident selected" message="Choose an incident from the table to inspect its details." />
+                )}
+              </DetailPanel>
+            </section>
+          )}
+
+          {activeReport === 'trend-deployments' && (
+            <SectionCard title="Deep trend deployment scorecards" subtitle="Operational bridge for all six new exploratory/explanatory trend pipelines.">
               <DataTable
-                columns={['Resident', 'Safehouse', 'Type', 'Severity', 'Actions']}
-                rows={filteredIncidents.map((incident) => [
-                  <button className="table-link-button" key={`incident-${incident.id}`} onClick={() => setSelectedIncidentId(incident.id)} type="button">
-                    {incident.residentCode}
-                  </button>,
-                  incident.safehouseName,
-                  incident.incidentType,
-                  <StatusBadge key={`incident-sev-${incident.id}`} value={incident.severity} />,
-                  <div className="table-actions" key={`incident-actions-${incident.id}`}>
-                    <button className="ghost-button" onClick={() => setSelectedIncidentId(incident.id)} type="button">View</button>
-                    {isAdmin ? (
-                      <>
-                        <button
-                          className="ghost-button"
-                          onClick={() => {
-                            setEditingIncidentId(incident.id);
-                            setIncidentForm({
-                              residentId: incident.residentId,
-                              safehouseId: incident.safehouseId,
-                              incidentDate: incident.incidentDate,
-                              incidentType: incident.incidentType,
-                              severity: incident.severity,
-                              description: incident.description,
-                              responseTaken: incident.responseTaken,
-                              resolved: incident.resolved,
-                              resolutionDate: incident.resolutionDate ?? '',
-                              reportedBy: incident.reportedBy,
-                              followUpRequired: incident.followUpRequired,
-                            });
-                          }}
-                          type="button"
-                        >
-                          Edit
-                        </button>
-                        <button className="ghost-button danger-button" onClick={() => void deleteIncident(incident.id)} type="button">Delete</button>
-                      </>
-                    ) : null}
-                  </div>,
+                columns={['Pipeline', 'Primary metric', 'Current value', 'Endpoint', 'Recommendation']}
+                rows={(trendDeployments?.rows ?? []).map((row) => [
+                  row.pipelineKey,
+                  row.primaryMetric,
+                  Number.isFinite(row.currentValue) ? row.currentValue.toFixed(4) : '0.0000',
+                  row.endpointPath,
+                  row.recommendation,
                 ])}
-                emptyMessage="No incidents match the current filters."
-                caption="Incident watchlist"
+                emptyMessage="Trend deployment rows are not available."
+                caption="Trend pipeline deployment bridge"
               />
             </SectionCard>
+          )}
 
-            <DetailPanel title={selectedIncident ? `${selectedIncident.residentCode} incident` : 'Incident details'} subtitle="Incident details help staff explain what happened, how it was handled, and what remains open.">
-              {selectedIncident ? (
-                <DetailList
-                  items={[
-                    { label: 'Date', value: formatDate(selectedIncident.incidentDate) },
-                    { label: 'Type', value: selectedIncident.incidentType },
-                    { label: 'Severity', value: selectedIncident.severity },
-                    { label: 'Safehouse', value: selectedIncident.safehouseName },
-                    { label: 'Reported by', value: selectedIncident.reportedBy },
-                    { label: 'Description', value: selectedIncident.description },
-                    { label: 'Response taken', value: selectedIncident.responseTaken },
-                    { label: 'Follow-up required', value: selectedIncident.followUpRequired ? 'Yes' : 'No' },
-                  ]}
-                />
-              ) : (
-                <EmptyState title="No incident selected" message="Choose an incident from the table to inspect its details." />
-              )}
-            </DetailPanel>
-          </section>
+          {isAdmin && editingSafehouseId ? (
+            <SectionCard
+              title="Edit safehouse"
+              subtitle="Maintain the safehouse records used for occupancy, incident, and allocation reporting."
+              actions={<button className="ghost-button" onClick={resetSafehouseForm} type="button">Cancel edit</button>}
+            >
+              <form className="stack-form" onSubmit={handleSafehouseSubmit}>
+                <FormSection title="Safehouse details">
+                  <FormGrid>
+                    <label htmlFor="sh-code"><span>Code</span><input id="sh-code" value={safehouseForm.code} onChange={(event) => setSafehouseForm({ ...safehouseForm, code: event.target.value })} required /></label>
+                    <label htmlFor="sh-name"><span>Name</span><input id="sh-name" value={safehouseForm.name} onChange={(event) => setSafehouseForm({ ...safehouseForm, name: event.target.value })} required /></label>
+                    <label htmlFor="sh-region"><span>Region</span><input id="sh-region" value={safehouseForm.region} onChange={(event) => setSafehouseForm({ ...safehouseForm, region: event.target.value })} required /></label>
+                    <label htmlFor="sh-city"><span>City</span><input id="sh-city" value={safehouseForm.city} onChange={(event) => setSafehouseForm({ ...safehouseForm, city: event.target.value })} required /></label>
+                    <label htmlFor="sh-province"><span>Province</span><input id="sh-province" value={safehouseForm.province} onChange={(event) => setSafehouseForm({ ...safehouseForm, province: event.target.value })} required /></label>
+                    <label htmlFor="sh-country"><span>Country</span><input id="sh-country" value={safehouseForm.country} onChange={(event) => setSafehouseForm({ ...safehouseForm, country: event.target.value })} required /></label>
+                    <label htmlFor="sh-open-date"><span>Open date</span><input id="sh-open-date" type="date" value={safehouseForm.openDate} onChange={(event) => setSafehouseForm({ ...safehouseForm, openDate: event.target.value })} required /></label>
+                    <label htmlFor="sh-status"><span>Status</span><input id="sh-status" value={safehouseForm.status} onChange={(event) => setSafehouseForm({ ...safehouseForm, status: event.target.value })} required /></label>
+                    <label htmlFor="sh-capacity-girls"><span>Capacity (girls)</span><input id="sh-capacity-girls" type="number" min="0" value={safehouseForm.capacityGirls} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityGirls: Number(event.target.value) })} required /></label>
+                    <label htmlFor="sh-capacity-staff"><span>Capacity (staff)</span><input id="sh-capacity-staff" type="number" min="0" value={safehouseForm.capacityStaff} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityStaff: Number(event.target.value) })} required /></label>
+                    <label htmlFor="sh-occupancy"><span>Current occupancy</span><input id="sh-occupancy" type="number" min="0" value={safehouseForm.currentOccupancy} onChange={(event) => setSafehouseForm({ ...safehouseForm, currentOccupancy: Number(event.target.value) })} required /></label>
+                  </FormGrid>
+                </FormSection>
+                <label htmlFor="sh-notes"><span>Notes</span><textarea id="sh-notes" value={safehouseForm.notes ?? ''} onChange={(event) => setSafehouseForm({ ...safehouseForm, notes: event.target.value })} rows={3} /></label>
+                <div className="form-actions">
+                  <button className="primary-button" disabled={submitting === 'safehouse'} type="submit">
+                    {submitting === 'safehouse' ? 'Saving...' : 'Update safehouse'}
+                  </button>
+                </div>
+              </form>
+            </SectionCard>
+          ) : null}
 
-          {isAdmin ? (
-            <>
-              <SectionCard
-                title={editingSafehouseId ? 'Edit safehouse' : 'Create safehouse'}
-                subtitle="Maintain the safehouse records used for occupancy, incident, and allocation reporting."
-                actions={editingSafehouseId ? <button className="ghost-button" onClick={resetSafehouseForm} type="button">Cancel edit</button> : null}
-              >
-                <form className="stack-form" onSubmit={handleSafehouseSubmit}>
-                  <FormSection title="Safehouse details">
-                    <FormGrid>
-                      <label htmlFor="sh-code"><span>Code</span><input id="sh-code" value={safehouseForm.code} onChange={(event) => setSafehouseForm({ ...safehouseForm, code: event.target.value })} required /></label>
-                      <label htmlFor="sh-name"><span>Name</span><input id="sh-name" value={safehouseForm.name} onChange={(event) => setSafehouseForm({ ...safehouseForm, name: event.target.value })} required /></label>
-                      <label htmlFor="sh-region"><span>Region</span><input id="sh-region" value={safehouseForm.region} onChange={(event) => setSafehouseForm({ ...safehouseForm, region: event.target.value })} required /></label>
-                      <label htmlFor="sh-city"><span>City</span><input id="sh-city" value={safehouseForm.city} onChange={(event) => setSafehouseForm({ ...safehouseForm, city: event.target.value })} required /></label>
-                      <label htmlFor="sh-province"><span>Province</span><input id="sh-province" value={safehouseForm.province} onChange={(event) => setSafehouseForm({ ...safehouseForm, province: event.target.value })} required /></label>
-                      <label htmlFor="sh-country"><span>Country</span><input id="sh-country" value={safehouseForm.country} onChange={(event) => setSafehouseForm({ ...safehouseForm, country: event.target.value })} required /></label>
-                      <label htmlFor="sh-open-date"><span>Open date</span><input id="sh-open-date" type="date" value={safehouseForm.openDate} onChange={(event) => setSafehouseForm({ ...safehouseForm, openDate: event.target.value })} required /></label>
-                      <label htmlFor="sh-status"><span>Status</span><input id="sh-status" value={safehouseForm.status} onChange={(event) => setSafehouseForm({ ...safehouseForm, status: event.target.value })} required /></label>
-                      <label htmlFor="sh-capacity-girls"><span>Capacity (girls)</span><input id="sh-capacity-girls" type="number" min="0" value={safehouseForm.capacityGirls} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityGirls: Number(event.target.value) })} required /></label>
-                      <label htmlFor="sh-capacity-staff"><span>Capacity (staff)</span><input id="sh-capacity-staff" type="number" min="0" value={safehouseForm.capacityStaff} onChange={(event) => setSafehouseForm({ ...safehouseForm, capacityStaff: Number(event.target.value) })} required /></label>
-                      <label htmlFor="sh-occupancy"><span>Current occupancy</span><input id="sh-occupancy" type="number" min="0" value={safehouseForm.currentOccupancy} onChange={(event) => setSafehouseForm({ ...safehouseForm, currentOccupancy: Number(event.target.value) })} required /></label>
-                    </FormGrid>
-                  </FormSection>
-                  <label htmlFor="sh-notes"><span>Notes</span><textarea id="sh-notes" value={safehouseForm.notes ?? ''} onChange={(event) => setSafehouseForm({ ...safehouseForm, notes: event.target.value })} rows={3} /></label>
-                  <div className="form-actions">
-                    <button className="primary-button" disabled={submitting === 'safehouse'} type="submit">
-                      {submitting === 'safehouse' ? 'Saving...' : editingSafehouseId ? 'Update safehouse' : 'Create safehouse'}
-                    </button>
-                  </div>
-                </form>
-              </SectionCard>
-
-              <SectionCard
-                title={editingIncidentId ? 'Edit incident' : 'Create incident'}
-                subtitle="Maintain incident records used in the watchlist and safehouse performance reporting."
-                actions={editingIncidentId ? <button className="ghost-button" onClick={resetIncidentForm} type="button">Cancel edit</button> : null}
-              >
-                <form className="stack-form" onSubmit={handleIncidentSubmit}>
-                  <FormSection title="Incident details">
-                    <FormGrid>
-                      <label htmlFor="inc-resident">
-                        <span>Resident</span>
-                        <select id="inc-resident" value={incidentForm.residentId} onChange={(event) => setIncidentForm({ ...incidentForm, residentId: Number(event.target.value) })}>
-                          {residents.map((resident) => (
-                            <option key={resident.id} value={resident.id}>
-                              {resident.caseControlNumber}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label htmlFor="inc-safehouse">
-                        <span>Safehouse</span>
-                        <select id="inc-safehouse" value={incidentForm.safehouseId} onChange={(event) => setIncidentForm({ ...incidentForm, safehouseId: Number(event.target.value) })}>
-                          {safehouses.map((safehouse) => (
-                            <option key={safehouse.id} value={safehouse.id}>
-                              {safehouse.name}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      <label htmlFor="inc-date"><span>Incident date</span><input id="inc-date" type="date" value={incidentForm.incidentDate} onChange={(event) => setIncidentForm({ ...incidentForm, incidentDate: event.target.value })} required /></label>
-                      <label htmlFor="inc-type"><span>Incident type</span><input id="inc-type" value={incidentForm.incidentType} onChange={(event) => setIncidentForm({ ...incidentForm, incidentType: event.target.value })} required /></label>
-                      <label htmlFor="inc-severity"><span>Severity</span><input id="inc-severity" value={incidentForm.severity} onChange={(event) => setIncidentForm({ ...incidentForm, severity: event.target.value })} required /></label>
-                      <label htmlFor="inc-reported-by"><span>Reported by</span><input id="inc-reported-by" value={incidentForm.reportedBy} onChange={(event) => setIncidentForm({ ...incidentForm, reportedBy: event.target.value })} required /></label>
-                    </FormGrid>
-                  </FormSection>
-                  <label htmlFor="inc-description"><span>Description</span><textarea id="inc-description" value={incidentForm.description} onChange={(event) => setIncidentForm({ ...incidentForm, description: event.target.value })} rows={3} required /></label>
-                  <label htmlFor="inc-response"><span>Response taken</span><textarea id="inc-response" value={incidentForm.responseTaken} onChange={(event) => setIncidentForm({ ...incidentForm, responseTaken: event.target.value })} rows={3} required /></label>
-                  <div className="check-grid">
-                    <CheckboxField label="Resolved" checked={incidentForm.resolved} onChange={(checked) => setIncidentForm({ ...incidentForm, resolved: checked })} />
-                    <CheckboxField label="Follow-up required" checked={incidentForm.followUpRequired} onChange={(checked) => setIncidentForm({ ...incidentForm, followUpRequired: checked })} />
-                  </div>
-                  <label htmlFor="inc-resolution-date"><span>Resolution date</span><input id="inc-resolution-date" type="date" value={incidentForm.resolutionDate ?? ''} onChange={(event) => setIncidentForm({ ...incidentForm, resolutionDate: event.target.value })} /></label>
-                  <div className="form-actions">
-                    <button className="primary-button" disabled={submitting === 'incident'} type="submit">
-                      {submitting === 'incident' ? 'Saving...' : editingIncidentId ? 'Update incident' : 'Create incident'}
-                    </button>
-                  </div>
-                </form>
-              </SectionCard>
-            </>
+          {isAdmin && editingIncidentId ? (
+            <SectionCard
+              title="Edit incident"
+              subtitle="Maintain incident records used in the watchlist and safehouse performance reporting."
+              actions={<button className="ghost-button" onClick={resetIncidentForm} type="button">Cancel edit</button>}
+            >
+              <form className="stack-form" onSubmit={handleIncidentSubmit}>
+                <FormSection title="Incident details">
+                  <FormGrid>
+                    <label htmlFor="inc-resident">
+                      <span>Resident</span>
+                      <select id="inc-resident" value={incidentForm.residentId} onChange={(event) => setIncidentForm({ ...incidentForm, residentId: Number(event.target.value) })}>
+                        {residents.map((resident) => (
+                          <option key={resident.id} value={resident.id}>
+                            {resident.caseControlNumber}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label htmlFor="inc-safehouse">
+                      <span>Safehouse</span>
+                      <select id="inc-safehouse" value={incidentForm.safehouseId} onChange={(event) => setIncidentForm({ ...incidentForm, safehouseId: Number(event.target.value) })}>
+                        {safehouses.map((safehouse) => (
+                          <option key={safehouse.id} value={safehouse.id}>
+                            {safehouse.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <label htmlFor="inc-date"><span>Incident date</span><input id="inc-date" type="date" value={incidentForm.incidentDate} onChange={(event) => setIncidentForm({ ...incidentForm, incidentDate: event.target.value })} required /></label>
+                    <label htmlFor="inc-type"><span>Incident type</span><input id="inc-type" value={incidentForm.incidentType} onChange={(event) => setIncidentForm({ ...incidentForm, incidentType: event.target.value })} required /></label>
+                    <label htmlFor="inc-severity"><span>Severity</span><input id="inc-severity" value={incidentForm.severity} onChange={(event) => setIncidentForm({ ...incidentForm, severity: event.target.value })} required /></label>
+                    <label htmlFor="inc-reported-by"><span>Reported by</span><input id="inc-reported-by" value={incidentForm.reportedBy} onChange={(event) => setIncidentForm({ ...incidentForm, reportedBy: event.target.value })} required /></label>
+                  </FormGrid>
+                </FormSection>
+                <label htmlFor="inc-description"><span>Description</span><textarea id="inc-description" value={incidentForm.description} onChange={(event) => setIncidentForm({ ...incidentForm, description: event.target.value })} rows={3} required /></label>
+                <label htmlFor="inc-response"><span>Response taken</span><textarea id="inc-response" value={incidentForm.responseTaken} onChange={(event) => setIncidentForm({ ...incidentForm, responseTaken: event.target.value })} rows={3} required /></label>
+                <div className="check-grid">
+                  <CheckboxField label="Resolved" checked={incidentForm.resolved} onChange={(checked) => setIncidentForm({ ...incidentForm, resolved: checked })} />
+                  <CheckboxField label="Follow-up required" checked={incidentForm.followUpRequired} onChange={(checked) => setIncidentForm({ ...incidentForm, followUpRequired: checked })} />
+                </div>
+                <label htmlFor="inc-resolution-date"><span>Resolution date</span><input id="inc-resolution-date" type="date" value={incidentForm.resolutionDate ?? ''} onChange={(event) => setIncidentForm({ ...incidentForm, resolutionDate: event.target.value })} /></label>
+                <div className="form-actions">
+                  <button className="primary-button" disabled={submitting === 'incident'} type="submit">
+                    {submitting === 'incident' ? 'Saving...' : 'Update incident'}
+                  </button>
+                </div>
+              </form>
+            </SectionCard>
           ) : null}
         </>
       )}

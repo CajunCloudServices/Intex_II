@@ -83,6 +83,18 @@ body {
   flex-direction: column;
   gap: 0.35rem;
 }
+.nav-tabs.scrollable {
+  max-height: min(75vh, 32rem);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+.nav-tabs .nav-label {
+  margin-top: 0.65rem;
+  margin-bottom: 0.25rem;
+}
+.nav-tabs .nav-label:first-child {
+  margin-top: 0;
+}
 .nav-tabs a {
   display: block;
   padding: 0.5rem 0.65rem;
