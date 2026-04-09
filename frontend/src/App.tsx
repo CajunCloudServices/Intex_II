@@ -68,7 +68,7 @@ function App() {
             <Route path="portal/ml-insights/:dashboardKey" element={<MlInsightsDashboardPage />} />
           </Route>
 
-          <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+          <Route element={<ProtectedRoute allowedRoles={['Admin', 'Staff']} />}>
             <Route path="portal/process-recordings/new" element={<ProcessRecordingNewPage />} />
             <Route path="portal/donors/donations/new" element={<DonorDonationNewPage />} />
             <Route path="portal/donors/supporters/new" element={<DonorSupporterNewPage />} />
