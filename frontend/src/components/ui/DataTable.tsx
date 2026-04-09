@@ -4,16 +4,20 @@ export function DataTable({
   emptyMessage = 'No rows to show yet.',
   caption,
   onRowClick,
+  className,
+  tableClassName,
 }: {
   columns: string[];
   rows: Array<Array<React.ReactNode>>;
   emptyMessage?: string;
   caption?: string;
   onRowClick?: (rowIndex: number) => void;
+  className?: string;
+  tableClassName?: string;
 }) {
   return (
-    <div className="table-wrap">
-      <table className="data-table">
+    <div className={`table-wrap${className ? ` ${className}` : ''}`}>
+      <table className={`data-table${tableClassName ? ` ${tableClassName}` : ''}`}>
         {caption ? <caption>{caption}</caption> : null}
         <thead>
           <tr>

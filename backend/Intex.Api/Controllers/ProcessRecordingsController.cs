@@ -34,9 +34,10 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ProcessRecordingResponse>> Create(ProcessRecordingRequest request)
     {
+        var canManageRestrictedNotes = User.IsInRole(RoleNames.Admin);
         var entity = new ProcessRecording
         {
             ResidentId = request.ResidentId,
@@ -52,7 +53,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
             ProgressNoted = request.ProgressNoted,
             ConcernsFlagged = request.ConcernsFlagged,
             ReferralMade = request.ReferralMade,
-            RestrictedNotes = request.RestrictedNotes
+            RestrictedNotes = canManageRestrictedNotes ? request.RestrictedNotes : null
         };
 
         dbContext.ProcessRecordings.Add(entity);
@@ -63,7 +64,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ProcessRecordingResponse>> Update(int id, ProcessRecordingRequest request)
     {
         var entity = await dbContext.ProcessRecordings.FindAsync(id);
@@ -85,7 +86,10 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
         entity.ProgressNoted = request.ProgressNoted;
         entity.ConcernsFlagged = request.ConcernsFlagged;
         entity.ReferralMade = request.ReferralMade;
-        entity.RestrictedNotes = request.RestrictedNotes;
+        if (User.IsInRole(RoleNames.Admin))
+        {
+            entity.RestrictedNotes = request.RestrictedNotes;
+        }
 
         await dbContext.SaveChangesAsync();
         await auditLogService.LogAsync("Update", nameof(ProcessRecording), entity.Id, $"Updated process recording for resident #{entity.ResidentId}.", User);
