@@ -11,6 +11,10 @@ RUN dotnet publish Intex.Api.csproj -c Release -o /out --no-restore
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 
+# Install curl for the Docker healthcheck defined in docker-compose.production.yml.
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=publish /out ./
 
 EXPOSE 8080

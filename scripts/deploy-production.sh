@@ -86,7 +86,10 @@ for attempt in $(seq 1 20); do
   if [ "${attempt}" -eq 20 ]; then
     echo "[deploy] Web container failed root health check" >&2
     docker compose "${live_compose_args[@]}" ps >&2 || true
-    docker compose "${live_compose_args[@]}" logs --tail 100 >&2 || true
+    echo "[deploy] === API container logs (most likely 502 source) ===" >&2
+    docker compose "${live_compose_args[@]}" logs --tail 50 harborlight_nexus_api >&2 || true
+    echo "[deploy] === All container logs ===" >&2
+    docker compose "${live_compose_args[@]}" logs --tail 50 >&2 || true
     exit 1
   fi
 
