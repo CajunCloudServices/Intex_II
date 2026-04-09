@@ -2753,6 +2753,19 @@ textarea {
   padding: 1.25rem 0.75rem;
 }
 
+.data-table tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--color-surface-lowest) 55%, var(--color-surface-high) 45%);
+}
+
+.data-table tbody tr {
+  transition: background 80ms ease;
+}
+
+.data-table tbody tr:hover {
+  background: var(--color-surface-highest);
+  cursor: pointer;
+}
+
 .table-link-button {
   border: 0;
   background: transparent;
@@ -4607,5 +4620,217 @@ body {
 
   .impact-resource-meta {
     justify-items: start;
+  }
+}
+
+/* ─── Donor portal page ─────────────────────────────────────── */
+
+.donor-page {
+  gap: 1.75rem;
+}
+
+/* Smaller min-width for compact tables inside the two-col grid */
+.donor-bottom-grid .data-table {
+  min-width: 360px;
+}
+
+.donor-search {
+  min-width: 200px;
+  max-width: 200px;
+}
+
+/* History table — auto layout lets columns size to their content */
+.donor-history-table .data-table {
+  min-width: 460px;
+}
+
+/* Page fade animation */
+.donor-table-page {
+  animation: table-page-in 200ms ease;
+}
+
+@keyframes table-page-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 0 0.15rem;
+  flex-wrap: wrap;
+}
+
+.pagination-meta {
+  font-size: 0.85rem;
+  color: var(--color-text-soft);
+  font-weight: 500;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.pagination-btn {
+  min-width: 2.1rem;
+  height: 2.1rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--color-outline-soft);
+  border-radius: 0.55rem;
+  background: var(--color-surface-lowest);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 100ms ease, border-color 100ms ease, color 100ms ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--color-surface-highest);
+  border-color: var(--color-outline-soft);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pagination-btn.is-active {
+  background: var(--color-primary-container);
+  color: var(--color-primary-ink);
+  border-color: transparent;
+}
+
+.pagination-ellipsis {
+  padding: 0 0.25rem;
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
+  line-height: 2.1rem;
+}
+
+/* Inline receipt card */
+.donor-receipt {
+  border-radius: var(--radius-card);
+  background: linear-gradient(160deg, rgba(39, 25, 0, 0.96) 0%, rgba(125, 88, 0, 0.88) 100%);
+  color: var(--color-surface-lowest);
+  padding: 1.5rem 1.75rem;
+  box-shadow: var(--shadow-soft);
+  animation: donor-receipt-in 180ms ease;
+}
+
+@keyframes donor-receipt-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.donor-receipt-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.donor-receipt-top h3 {
+  margin: 0;
+  font-family: "Noto Serif", Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.donor-receipt-top .ghost-button {
+  color: rgba(255, 255, 255, 0.78);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+  flex-shrink: 0;
+}
+
+.donor-receipt-top .ghost-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.donor-receipt-body {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.donor-receipt-alloc-label {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.donor-receipt-alloc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.donor-receipt-alloc-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.95rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.donor-receipt-alloc-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.donor-receipt-alloc-list strong {
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.donor-receipt-print {
+  width: fit-content;
+  color: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.donor-receipt-print:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* Override detail-list colors inside the receipt */
+.donor-receipt .detail-list div {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.donor-receipt .detail-list dt {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+@media (min-width: 640px) {
+  .donor-receipt-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .donor-receipt-print {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .donor-bottom-grid {
+    grid-template-columns: 1fr;
   }
 }

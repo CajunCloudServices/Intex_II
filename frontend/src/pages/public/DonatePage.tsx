@@ -20,7 +20,7 @@ type DonationMode = 'anonymous' | 'account';
 
 export function DonatePage() {
   const navigate = useNavigate();
-  const { registerDonor } = useAuth();
+  const { user, registerDonor } = useAuth();
   const [donationMode, setDonationMode] = useState<DonationMode>('anonymous');
   const [amount, setAmount] = useState<string>('100');
   const [isRecurring, setIsRecurring] = useState(false);
@@ -90,9 +90,9 @@ export function DonatePage() {
     try {
       setSubmitting(true);
       const response = await api.submitPublicDonation({
-        isAnonymous: true,
-        donorName: null,
-        donorEmail: null,
+        isAnonymous: !user,
+        donorName: user?.fullName ?? null,
+        donorEmail: user?.email ?? null,
         amount: parsedAmount,
         isRecurring,
         recurringInterval: isRecurring ? 'Monthly' : null,
@@ -194,30 +194,32 @@ export function DonatePage() {
         <div className="donate-main-card">
           <div className="donate-card-header">
             <div>
-              <h2>Choose how to give</h2>
+              <h2>{user ? `Welcome back, ${user.fullName.split(' ')[0]}` : 'Choose how to give'}</h2>
               <p>Record a real demo donation to the database without processing a live payment.</p>
             </div>
             <span className="donate-demo-chip">Demo checkout</span>
           </div>
 
-          <div className="donate-mode-toggle" role="tablist" aria-label="Donation path">
-            <button
-              type="button"
-              className={`donate-choice-pill${donationMode === 'anonymous' ? ' is-active' : ''}`}
-              onClick={() => setDonationMode('anonymous')}
-            >
-              Anonymous donation
-            </button>
-            <button
-              type="button"
-              className={`donate-choice-pill${donationMode === 'account' ? ' is-active' : ''}`}
-              onClick={() => setDonationMode('account')}
-            >
-              Create donor account
-            </button>
-          </div>
+          {!user && (
+            <div className="donate-mode-toggle" role="tablist" aria-label="Donation path">
+              <button
+                type="button"
+                className={`donate-choice-pill${donationMode === 'anonymous' ? ' is-active' : ''}`}
+                onClick={() => { setDonationMode('anonymous'); setSubmitSuccess(null); setSubmitError(null); }}
+              >
+                Anonymous donation
+              </button>
+              <button
+                type="button"
+                className={`donate-choice-pill${donationMode === 'account' ? ' is-active' : ''}`}
+                onClick={() => { setDonationMode('account'); setSubmitSuccess(null); setSubmitError(null); }}
+              >
+                Create donor account
+              </button>
+            </div>
+          )}
 
-          {donationMode === 'anonymous' ? (
+          {user || donationMode === 'anonymous' ? (
             <>
               <div className="donate-frequency-row">
                 <span className="donate-section-label">Donation frequency</span>
@@ -269,10 +271,12 @@ export function DonatePage() {
                 </div>
               </div>
 
-              <div className="donate-anonymous-note">
-                <strong>No personal information needed.</strong>
-                <span>Your gift is recorded without your name or email. Completely anonymous.</span>
-              </div>
+              {!user && (
+                <div className="donate-anonymous-note">
+                  <strong>No personal information needed.</strong>
+                  <span>Your gift is recorded without your name or email. Completely anonymous.</span>
+                </div>
+              )}
 
               <div className="donate-form-field">
                 <label className="donate-form-label" htmlFor="donation-notes">
@@ -390,19 +394,19 @@ export function DonatePage() {
             <button
               className="primary-button donate-submit-button"
               type="button"
-              onClick={() => void (donationMode === 'anonymous' ? submitDonation() : submitRegistration())}
+              onClick={() => void (user || donationMode === 'anonymous' ? submitDonation() : submitRegistration())}
               disabled={submitting}
             >
               {submitting
-                ? donationMode === 'anonymous'
+                ? user || donationMode === 'anonymous'
                   ? 'Recording donation…'
                   : 'Creating account…'
-                : donationMode === 'anonymous'
-                  ? 'Give anonymously'
+                : user || donationMode === 'anonymous'
+                  ? user ? 'Give now' : 'Give anonymously'
                   : 'Create donor account'}
             </button>
             <p className="donate-submit-note">
-              {donationMode === 'anonymous'
+              {user || donationMode === 'anonymous'
                 ? 'No card processing happens here. This is a demo flow backed by a real donation database.'
                 : "You'll be signed in automatically and taken to your donor dashboard."}
             </p>
@@ -411,12 +415,12 @@ export function DonatePage() {
           {submitError ? (
             <ErrorState
               message={submitError}
-              onRetry={() => void (donationMode === 'anonymous' ? submitDonation() : submitRegistration())}
+              onRetry={() => void (user || donationMode === 'anonymous' ? submitDonation() : submitRegistration())}
             />
           ) : null}
           {submitSuccess ? <p className="donate-success">{submitSuccess}</p> : null}
 
-          <details className="donate-prediction-details" open={Boolean(prediction) && donationMode === 'anonymous'}>
+          <details className="donate-prediction-details" open={Boolean(prediction)}>
             <summary>See detailed impact breakdown</summary>
             {predicting ? <LoadingState label="Predicting impact..." /> : null}
             {predictionError ? <ErrorState message={predictionError} onRetry={() => void runPrediction(parsedAmount)} /> : null}
@@ -461,14 +465,9 @@ export function DonatePage() {
           <div className="donate-side-card">
             <div className="donate-side-card-header">
               <span className="donate-side-icon">+</span>
-              <h3>{donationMode === 'anonymous' ? 'Your impact' : 'Why create an account'}</h3>
+              <h3>{!user && donationMode === 'account' ? 'Why create an account' : 'Your impact'}</h3>
             </div>
-            {donationMode === 'anonymous' ? (
-              <>
-                <p className="donate-impact-amount">{formatMoney(Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : activeGuide.amount)}</p>
-                <p className="donate-impact-copy">{activeGuide.copy}</p>
-              </>
-            ) : (
+            {!user && donationMode === 'account' ? (
               <>
                 <p className="donate-impact-copy">
                   Donor accounts unlock the authenticated dashboard so supporters can review giving history, allocations, and long-term impact in one place.
@@ -488,9 +487,14 @@ export function DonatePage() {
                   </li>
                 </ul>
               </>
+            ) : (
+              <>
+                <p className="donate-impact-amount">{formatMoney(Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : activeGuide.amount)}</p>
+                <p className="donate-impact-copy">{activeGuide.copy}</p>
+              </>
             )}
 
-            {donationMode === 'anonymous' && prediction ? (
+            {(user || donationMode === 'anonymous') && prediction ? (
               <ul className="donate-impact-list">
                 {prediction.outcomes.slice(0, 4).map((outcome) => (
                   <li key={outcome.programArea}>
@@ -501,7 +505,7 @@ export function DonatePage() {
                   </li>
                 ))}
               </ul>
-            ) : donationMode === 'anonymous' ? (
+            ) : user || donationMode === 'anonymous' ? (
               <ul className="donate-impact-guide">
                 {IMPACT_GUIDE.map((entry) => (
                   <li key={entry.amount}>
