@@ -35,6 +35,7 @@ services:
       Authentication__Google__ClientSecret: ${AUTHENTICATION__GOOGLE__CLIENTSECRET}
       ConnectionStrings__DefaultConnection: Host=harborlight_nexus_db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
       Seed__CsvPath: /data/lighthouse_csv_v7
+      AllowedHosts: ${ALLOWED_HOSTS}
       Jwt__Key: ${JWT_KEY}
       Jwt__Issuer: ${JWT_ISSUER}
       Jwt__Audience: ${JWT_AUDIENCE}
