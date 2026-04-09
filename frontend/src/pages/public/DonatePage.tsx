@@ -384,16 +384,6 @@ export function DonatePage() {
                   />
                 </div>
               </div>
-              <div className="donate-login-callout">
-                <strong>Already have an account?</strong>
-                <Link
-                  className="donate-login-button ghost-button"
-                  to="/login"
-                  state={{ from: '/portal/my-impact' }}
-                >
-                  Sign in to your donor dashboard →
-                </Link>
-              </div>
             </div>
           )}
 
@@ -419,6 +409,19 @@ export function DonatePage() {
             </p>
           </div>
 
+          {!user && donationMode === 'account' ? (
+            <div className="donate-login-callout">
+              <strong>Already have an account?</strong>
+              <Link
+                className="donate-login-button ghost-button"
+                to="/login"
+                state={{ from: '/portal/my-impact' }}
+              >
+                Sign in to your donor dashboard →
+              </Link>
+            </div>
+          ) : null}
+
           {submitError ? (
             <ErrorState
               message={submitError}
@@ -427,7 +430,7 @@ export function DonatePage() {
           ) : null}
           {submitSuccess ? <p className="donate-success">{submitSuccess}</p> : null}
 
-          <details className="donate-prediction-details" open={Boolean(prediction)}>
+          <details className="donate-prediction-details">
             <summary>See detailed impact breakdown</summary>
             {predicting ? <LoadingState label="Predicting impact..." /> : null}
             {predictionError ? <ErrorState message={predictionError} onRetry={() => void runPrediction(parsedAmount)} /> : null}
@@ -501,18 +504,7 @@ export function DonatePage() {
               </>
             )}
 
-            {(user || donationMode === 'anonymous') && prediction ? (
-              <ul className="donate-impact-list">
-                {prediction.outcomes.slice(0, 4).map((outcome) => (
-                  <li key={outcome.programArea}>
-                    <strong>{outcome.programArea}</strong>
-                    <span>
-                      {formatMoney(outcome.allocatedAmount)} toward {outcome.estimatedUnits} {outcome.outcomeUnit.toLowerCase()}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            ) : user || donationMode === 'anonymous' ? (
+            {user || donationMode === 'anonymous' ? (
               <ul className="donate-impact-guide">
                 {IMPACT_GUIDE.map((entry) => (
                   <li key={entry.amount}>
