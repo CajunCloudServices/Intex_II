@@ -1177,6 +1177,331 @@ textarea {
   gap: 2rem;
 }
 
+/* ─── Admin Dashboard ──────────────────────────────────────── */
+
+.admin-dashboard {
+  gap: 1.5rem;
+}
+
+.admin-dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.admin-dashboard-header h1 {
+  margin: 0.35rem 0 0;
+  font-family: "Noto Serif", Georgia, serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.admin-dashboard-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.admin-last-updated {
+  font-size: 0.8rem;
+  color: var(--color-text-soft);
+  font-weight: 500;
+}
+
+/* Metric strip */
+.admin-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-metric-card {
+  display: grid;
+  gap: 0.5rem;
+  align-content: space-between;
+  min-height: 10rem;
+  padding: 1.35rem 1.4rem;
+  border-radius: var(--radius-card);
+  background: var(--color-surface-lowest);
+  box-shadow: var(--shadow-ambient);
+}
+
+.admin-metric-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.admin-metric-card strong {
+  display: block;
+  font-family: "Noto Serif", Georgia, serif;
+  font-size: clamp(1.9rem, 3vw, 2.7rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--color-text);
+}
+
+.admin-metric-card p {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-soft);
+}
+
+.admin-metric-teal {
+  border-left: 4px solid #2d9a8a;
+}
+
+.admin-metric-gold {
+  background: var(--color-primary-container);
+  color: var(--color-primary-ink);
+}
+
+.admin-metric-gold .admin-metric-label,
+.admin-metric-gold p {
+  color: rgba(39, 25, 0, 0.75);
+}
+
+.admin-metric-gold strong {
+  color: var(--color-primary-ink);
+}
+
+/* Main row — donations + occupancy */
+.admin-main-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.admin-view-link {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.admin-view-link:hover {
+  text-decoration: underline;
+}
+
+/* Timeline */
+.admin-timeline {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-timeline-item {
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.admin-timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 1.1rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: #2d9a8a;
+  border: 3px solid var(--color-surface-container);
+}
+
+.admin-timeline-dot-new {
+  background: var(--color-primary-container);
+}
+
+.admin-timeline-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.85rem;
+  background: var(--color-surface-low);
+  transition: background 100ms ease;
+}
+
+.admin-timeline-card:hover {
+  background: var(--color-surface-high);
+}
+
+.admin-timeline-info {
+  min-width: 0;
+}
+
+.admin-timeline-name {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-timeline-meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-text-soft);
+}
+
+.admin-timeline-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.admin-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-pill-new {
+  background: var(--color-secondary-container);
+  color: var(--color-secondary-ink);
+}
+
+/* Occupancy */
+.admin-occupancy-list {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.admin-occupancy-item {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-occupancy-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.admin-occupancy-head strong {
+  font-size: 0.92rem;
+}
+
+.admin-occupancy-head span {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.admin-occupancy-critical {
+  color: #a3320a !important;
+}
+
+.admin-occupancy-bar {
+  height: 0.55rem;
+  border-radius: 999px;
+  background: var(--color-surface-highest);
+  overflow: hidden;
+}
+
+.admin-occupancy-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #2d9a8a, var(--color-primary-container));
+  transition: width 600ms ease;
+}
+
+.admin-occupancy-note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--color-text-soft);
+}
+
+/* Operations snapshot */
+.admin-snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.admin-snapshot-stat {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.85rem;
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-outline-ghost);
+}
+
+.admin-snapshot-stat strong {
+  font-family: "Noto Serif", Georgia, serif;
+  font-size: 1.75rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+}
+
+.admin-snapshot-stat span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-soft);
+}
+
+.admin-snapshot-warn strong {
+  color: #8a5a00;
+}
+
+.admin-snapshot-alert {
+  background: color-mix(in srgb, #a3320a 8%, var(--color-surface-high) 92%);
+  border-color: color-mix(in srgb, #a3320a 20%, transparent);
+}
+
+.admin-snapshot-alert strong {
+  color: #a3320a;
+}
+
+/* Tables inside the two-col grid don't need 720px min-width */
+.admin-dashboard .page-grid .data-table {
+  min-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .admin-main-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .admin-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-snapshot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
 .caseload-header {
   display: flex;
   justify-content: space-between;
@@ -2464,7 +2789,6 @@ textarea {
   display: grid;
   gap: 1.25rem;
   align-content: start;
-  overflow: hidden;
   padding: 1.4rem;
 }
 
