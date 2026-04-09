@@ -172,12 +172,14 @@ public class DonationsController(
             .ToList();
 
         var averageCostPerVictim = options.AverageCostPerVictim <= 0 ? 250m : options.AverageCostPerVictim;
-        var estimatedVictimsImpacted = Math.Round(amount / averageCostPerVictim, 2);
+        // Donor-facing estimate should represent whole people, never decimals.
+        // Round up so smaller gifts still map to at least one person impacted.
+        var estimatedVictimsImpacted = Math.Max(1, (int)Math.Ceiling(amount / averageCostPerVictim));
 
         return Ok(new DonationImpactPredictionResponse(
             amount,
             outcomes,
-            "Prediction uses weighted historical monetary allocation mix and configured program-area unit costs.",
+            "Prediction uses weighted historical allocation mix and configured unit costs. People impacted are shown as a whole-person estimate.",
             estimatedVictimsImpacted));
     }
 

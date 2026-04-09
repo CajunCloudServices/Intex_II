@@ -77,7 +77,7 @@ public record DonationImpactPredictionResponse(
     decimal Amount,
     IReadOnlyList<DonationImpactPredictionOutcomeResponse> Outcomes,
     string Assumptions,
-    decimal EstimatedVictimsImpacted);
+    int EstimatedVictimsImpacted);
 
 public record PublicDonationSubmissionRequest(
     bool IsAnonymous,

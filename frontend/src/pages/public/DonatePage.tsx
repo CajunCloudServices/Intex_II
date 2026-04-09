@@ -437,8 +437,9 @@ export function DonatePage() {
             {prediction ? (
               <div className="donate-prediction-panel">
                 <p className="donate-impact-highlight">
-                  A {formatMoney(prediction.amount)} gift is predicted to impact the lives of{' '}
-                  <strong>{prediction.estimatedVictimsImpacted.toFixed(2)}</strong> survivors.
+                  A {formatMoney(prediction.amount)} gift is estimated to support{' '}
+                  <strong>{prediction.estimatedVictimsImpacted}</strong>{' '}
+                  {prediction.estimatedVictimsImpacted === 1 ? 'survivor' : 'survivors'}.
                 </p>
                 <p className="home-muted">{prediction.assumptions}</p>
                 <div className="data-table-wrap donate-impact-table-wrap">
