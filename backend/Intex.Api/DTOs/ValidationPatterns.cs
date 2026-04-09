@@ -7,7 +7,9 @@ public static class ValidationPatterns
     public const string Phone = @"^\+?[0-9()\- ]{7,20}$";
 
     public const string ResidentCaseStatus = "^(Active|Closed|Transferred)$";
-    public const string ResidentCaseCategory = "^(Neglected|Trafficking|PhysicalAbuse|SexualAbuse|Abandonment|FamilyConflict|Other)$";
+    public const string ResidentCaseCategory = "^(Neglected|Surrendered|Foundling|Abandoned|Trafficking|PhysicalAbuse|SexualAbuse|Abandonment|FamilyConflict|Other)$";
+    public const string ResidentSex = "^(F|M)$";
+    public const string ResidentBirthStatus = "^(Marital|Non-Marital|Unknown)$";
     public const string RiskLevel = "^(Low|Medium|High|Critical)$";
     public const string InterventionStatus = "^(Open|InProgress|Closed|Deferred)$";
 

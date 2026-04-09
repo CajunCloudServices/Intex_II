@@ -1,6 +1,13 @@
 import type { FormEvent } from 'react';
 import type { ResidentRequest, Safehouse } from '../../../api/types';
-import { CheckboxField, FormGrid, FormSection, ValidatedSelectField, ValidatedTextField, ValidatedTextareaField } from '../../../components/ui/FormPrimitives';
+import {
+  CheckboxField,
+  FormGrid,
+  FormSection,
+  ValidatedSelectField,
+  ValidatedTextField,
+  ValidatedTextareaField,
+} from '../../../components/ui/FormPrimitives';
 import type { ValidationErrors } from '../../../lib/validation';
 
 type ResidentRecordFormProps = {
@@ -13,6 +20,37 @@ type ResidentRecordFormProps = {
   submitLabel: string;
 };
 
+const CASE_STATUS_OPTIONS = ['Active', 'Closed', 'Transferred'];
+const SEX_OPTIONS = [
+  { value: 'F', label: 'Female' },
+  { value: 'M', label: 'Male' },
+];
+const BIRTH_STATUS_OPTIONS = ['Marital', 'Non-Marital', 'Unknown'];
+const CASE_CATEGORY_OPTIONS = [
+  'Neglected',
+  'Surrendered',
+  'Foundling',
+  'Abandoned',
+  'Trafficking',
+  'PhysicalAbuse',
+  'SexualAbuse',
+  'Abandonment',
+  'FamilyConflict',
+  'Other',
+];
+const RISK_LEVEL_OPTIONS = ['Low', 'Medium', 'High', 'Critical'];
+const REFERRAL_SOURCE_OPTIONS = ['Government Agency', 'NGO', 'Court Order', 'Police', 'Community', 'Self-Referral', 'Other'];
+const REINTEGRATION_TYPE_OPTIONS = ['', 'Family Reunification', 'Foster Care', 'Independent Living', 'Adoption (Domestic)', 'Adoption (Inter-Country)', 'None', 'Other'];
+const REINTEGRATION_STATUS_OPTIONS = ['', 'Not Started', 'In Progress', 'On Hold', 'Completed'];
+const INTERVENTION_STATUS_OPTIONS = [
+  { value: 'Open', label: 'Open' },
+  { value: 'InProgress', label: 'In Progress' },
+  { value: 'Deferred', label: 'Deferred' },
+  { value: 'Closed', label: 'Closed' },
+];
+const PLAN_CATEGORY_OPTIONS = ['Psychosocial', 'Health', 'Education', 'Legal', 'Family', 'Reintegration'];
+const PWD_TYPE_OPTIONS = ['', 'Hearing', 'Intellectual', 'Learning Disability', 'Mobility', 'Speech', 'Visual', 'Other'];
+
 export function ResidentRecordForm({
   residentForm,
   setResidentForm,
@@ -22,6 +60,20 @@ export function ResidentRecordForm({
   submitting,
   submitLabel,
 }: ResidentRecordFormProps) {
+  const firstPlan = residentForm.interventionPlans[0];
+
+  const updatePlan = (field: keyof NonNullable<ResidentRequest['interventionPlans'][number]>, value: string | number | null) => {
+    setResidentForm({
+      ...residentForm,
+      interventionPlans: [
+        {
+          ...firstPlan,
+          [field]: value,
+        },
+      ],
+    });
+  };
+
   return (
     <form className="stack-form" onSubmit={onSubmit}>
       <FormSection title="Core case information">
@@ -37,27 +89,97 @@ export function ResidentRecordForm({
           <ValidatedTextField
             label="Internal code"
             required
-            hint="Internal short code, ex: RBAC-001."
+            hint="Internal short code, example: LS-0001."
             value={residentForm.internalCode}
             onChange={(e) => setResidentForm({ ...residentForm, internalCode: e.target.value })}
             error={residentErrors.internalCode}
           />
-          <ValidatedSelectField label="Safehouse" value={residentForm.safehouseId} onChange={(e) => setResidentForm({ ...residentForm, safehouseId: Number(e.target.value) })}>
+          <ValidatedSelectField
+            label="Safehouse"
+            required
+            value={residentForm.safehouseId}
+            onChange={(e) => setResidentForm({ ...residentForm, safehouseId: Number(e.target.value) })}
+          >
             {safehouses.map((safehouse) => (
               <option key={safehouse.id} value={safehouse.id}>
                 {safehouse.name}
               </option>
             ))}
           </ValidatedSelectField>
-          <ValidatedTextField
+          <ValidatedSelectField
             label="Case status"
             required
-            hint="Examples: Active, Closed, Transferred."
             value={residentForm.caseStatus}
             onChange={(e) => setResidentForm({ ...residentForm, caseStatus: e.target.value })}
             error={residentErrors.caseStatus}
+          >
+            {CASE_STATUS_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedSelectField
+            label="Sex"
+            required
+            value={residentForm.sex}
+            onChange={(e) => setResidentForm({ ...residentForm, sex: e.target.value })}
+            error={residentErrors.sex}
+          >
+            {SEX_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedTextField
+            label="Date of birth"
+            type="date"
+            required
+            value={residentForm.dateOfBirth}
+            onChange={(e) => setResidentForm({ ...residentForm, dateOfBirth: e.target.value })}
+            error={residentErrors.dateOfBirth}
           />
-          <ValidatedTextField label="Date of birth" type="date" required value={residentForm.dateOfBirth} onChange={(e) => setResidentForm({ ...residentForm, dateOfBirth: e.target.value })} error={residentErrors.dateOfBirth} />
+          <ValidatedSelectField
+            label="Birth status"
+            required
+            value={residentForm.birthStatus}
+            onChange={(e) => setResidentForm({ ...residentForm, birthStatus: e.target.value })}
+            error={residentErrors.birthStatus}
+          >
+            {BIRTH_STATUS_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedTextField
+            label="Place of birth"
+            required
+            value={residentForm.placeOfBirth}
+            onChange={(e) => setResidentForm({ ...residentForm, placeOfBirth: e.target.value })}
+            error={residentErrors.placeOfBirth}
+          />
+          <ValidatedTextField
+            label="Religion"
+            required
+            value={residentForm.religion}
+            onChange={(e) => setResidentForm({ ...residentForm, religion: e.target.value })}
+            error={residentErrors.religion}
+          />
+          <ValidatedSelectField
+            label="Case category"
+            required
+            value={residentForm.caseCategory}
+            onChange={(e) => setResidentForm({ ...residentForm, caseCategory: e.target.value })}
+            error={residentErrors.caseCategory}
+          >
+            {CASE_CATEGORY_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
           <ValidatedTextField
             label="Date of admission"
             type="date"
@@ -66,22 +188,95 @@ export function ResidentRecordForm({
             onChange={(e) => setResidentForm({ ...residentForm, dateOfAdmission: e.target.value })}
             error={residentErrors.dateOfAdmission}
           />
-          <ValidatedTextField label="Place of birth" required value={residentForm.placeOfBirth} onChange={(e) => setResidentForm({ ...residentForm, placeOfBirth: e.target.value })} error={residentErrors.placeOfBirth} />
-          <ValidatedTextField label="Religion" required value={residentForm.religion} onChange={(e) => setResidentForm({ ...residentForm, religion: e.target.value })} error={residentErrors.religion} />
           <ValidatedTextField
-            label="Case category"
-            required
-            hint="Example: Neglected or Trafficking."
-            value={residentForm.caseCategory}
-            onChange={(e) => setResidentForm({ ...residentForm, caseCategory: e.target.value })}
-            error={residentErrors.caseCategory}
+            label="Date enrolled"
+            type="date"
+            value={residentForm.dateEnrolled ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, dateEnrolled: e.target.value })}
           />
+        </FormGrid>
+      </FormSection>
+
+      <FormSection title="Case classification and sub-categories">
+        <div className="check-grid">
+          <CheckboxField label="Orphaned" checked={residentForm.subCatOrphaned} onChange={(checked) => setResidentForm({ ...residentForm, subCatOrphaned: checked })} />
+          <CheckboxField label="Trafficked" checked={residentForm.isTrafficked} onChange={(checked) => setResidentForm({ ...residentForm, isTrafficked: checked })} />
+          <CheckboxField label="Child labor" checked={residentForm.subCatChildLabor} onChange={(checked) => setResidentForm({ ...residentForm, subCatChildLabor: checked })} />
+          <CheckboxField label="Physical abuse case" checked={residentForm.isPhysicalAbuseCase} onChange={(checked) => setResidentForm({ ...residentForm, isPhysicalAbuseCase: checked })} />
+          <CheckboxField label="Sexual abuse case" checked={residentForm.isSexualAbuseCase} onChange={(checked) => setResidentForm({ ...residentForm, isSexualAbuseCase: checked })} />
+          <CheckboxField label="OSAEC" checked={residentForm.subCatOsaec} onChange={(checked) => setResidentForm({ ...residentForm, subCatOsaec: checked })} />
+          <CheckboxField label="CICL" checked={residentForm.subCatCicl} onChange={(checked) => setResidentForm({ ...residentForm, subCatCicl: checked })} />
+          <CheckboxField label="At risk" checked={residentForm.subCatAtRisk} onChange={(checked) => setResidentForm({ ...residentForm, subCatAtRisk: checked })} />
+          <CheckboxField label="Street child" checked={residentForm.subCatStreetChild} onChange={(checked) => setResidentForm({ ...residentForm, subCatStreetChild: checked })} />
+          <CheckboxField label="Child with HIV" checked={residentForm.subCatChildWithHiv} onChange={(checked) => setResidentForm({ ...residentForm, subCatChildWithHiv: checked })} />
+        </div>
+      </FormSection>
+
+      <FormSection title="Disability and family socio-demographic profile">
+        <FormGrid>
+          <ValidatedSelectField
+            label="PWD type"
+            value={residentForm.pwdType ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, pwdType: e.target.value })}
+            error={residentErrors.pwdType}
+            hint="Required when PWD is selected."
+          >
+            {PWD_TYPE_OPTIONS.map((option) => (
+              <option key={option || 'blank'} value={option}>
+                {option || 'Select PWD type'}
+              </option>
+            ))}
+          </ValidatedSelectField>
           <ValidatedTextField
+            label="Special needs diagnosis"
+            value={residentForm.specialNeedsDiagnosis ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, specialNeedsDiagnosis: e.target.value })}
+            error={residentErrors.specialNeedsDiagnosis}
+            hint="Required when special needs is selected."
+          />
+        </FormGrid>
+        <div className="check-grid">
+          <CheckboxField label="PWD" checked={residentForm.isPwd} onChange={(checked) => setResidentForm({ ...residentForm, isPwd: checked })} />
+          <CheckboxField label="Special needs" checked={residentForm.hasSpecialNeeds} onChange={(checked) => setResidentForm({ ...residentForm, hasSpecialNeeds: checked })} />
+          <CheckboxField label="Family is 4Ps" checked={residentForm.familyIs4Ps} onChange={(checked) => setResidentForm({ ...residentForm, familyIs4Ps: checked })} />
+          <CheckboxField label="Solo parent family" checked={residentForm.familySoloParent} onChange={(checked) => setResidentForm({ ...residentForm, familySoloParent: checked })} />
+          <CheckboxField label="Indigenous family" checked={residentForm.familyIndigenous} onChange={(checked) => setResidentForm({ ...residentForm, familyIndigenous: checked })} />
+          <CheckboxField label="Parent with disability" checked={residentForm.familyParentPwd} onChange={(checked) => setResidentForm({ ...residentForm, familyParentPwd: checked })} />
+          <CheckboxField label="Informal settler family" checked={residentForm.familyInformalSettler} onChange={(checked) => setResidentForm({ ...residentForm, familyInformalSettler: checked })} />
+        </div>
+      </FormSection>
+
+      <FormSection title="Admission, referral, and assigned worker">
+        <FormGrid>
+          <ValidatedSelectField
             label="Referral source"
             required
             value={residentForm.referralSource}
             onChange={(e) => setResidentForm({ ...residentForm, referralSource: e.target.value })}
             error={residentErrors.referralSource}
+          >
+            {REFERRAL_SOURCE_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedTextField
+            label="Referring person"
+            value={residentForm.referringAgencyPerson ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, referringAgencyPerson: e.target.value })}
+          />
+          <ValidatedTextField
+            label="COLB registered"
+            type="date"
+            value={residentForm.dateColbRegistered ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, dateColbRegistered: e.target.value })}
+          />
+          <ValidatedTextField
+            label="COLB obtained"
+            type="date"
+            value={residentForm.dateColbObtained ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, dateColbObtained: e.target.value })}
           />
           <ValidatedTextField
             label="Assigned social worker"
@@ -90,81 +285,138 @@ export function ResidentRecordForm({
             onChange={(e) => setResidentForm({ ...residentForm, assignedSocialWorker: e.target.value })}
             error={residentErrors.assignedSocialWorker}
           />
-          <ValidatedTextField label="Referring person" value={residentForm.referringAgencyPerson ?? ''} onChange={(e) => setResidentForm({ ...residentForm, referringAgencyPerson: e.target.value })} />
+          <ValidatedTextField
+            label="Case study prepared"
+            type="date"
+            value={residentForm.dateCaseStudyPrepared ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, dateCaseStudyPrepared: e.target.value })}
+          />
         </FormGrid>
       </FormSection>
 
-      <FormSection title="Risk and flags">
+      <FormSection title="Risk and reintegration">
         <FormGrid>
-          <ValidatedTextField
+          <ValidatedSelectField
             label="Initial risk"
             required
-            hint="Low, Medium, High, or Critical."
             value={residentForm.initialRiskLevel}
             onChange={(e) => setResidentForm({ ...residentForm, initialRiskLevel: e.target.value })}
             error={residentErrors.initialRiskLevel}
-          />
-          <ValidatedTextField
+          >
+            {RISK_LEVEL_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedSelectField
             label="Current risk"
             required
-            hint="Low, Medium, High, or Critical."
             value={residentForm.currentRiskLevel}
             onChange={(e) => setResidentForm({ ...residentForm, currentRiskLevel: e.target.value })}
             error={residentErrors.currentRiskLevel}
+          >
+            {RISK_LEVEL_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedSelectField
+            label="Reintegration type"
+            value={residentForm.reintegrationType ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, reintegrationType: e.target.value })}
+          >
+            {REINTEGRATION_TYPE_OPTIONS.map((option) => (
+              <option key={option || 'blank'} value={option}>
+                {option || 'Not set'}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedSelectField
+            label="Reintegration status"
+            value={residentForm.reintegrationStatus ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, reintegrationStatus: e.target.value })}
+          >
+            {REINTEGRATION_STATUS_OPTIONS.map((option) => (
+              <option key={option || 'blank'} value={option}>
+                {option || 'Not set'}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedTextField
+            label="Date closed"
+            type="date"
+            value={residentForm.dateClosed ?? ''}
+            onChange={(e) => setResidentForm({ ...residentForm, dateClosed: e.target.value })}
           />
-          <ValidatedTextField label="Reintegration type" value={residentForm.reintegrationType ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationType: e.target.value })} />
-          <ValidatedTextField label="Reintegration status" value={residentForm.reintegrationStatus ?? ''} onChange={(e) => setResidentForm({ ...residentForm, reintegrationStatus: e.target.value })} />
         </FormGrid>
-        <div className="check-grid">
-          <CheckboxField label="Trafficked" checked={residentForm.isTrafficked} onChange={(checked) => setResidentForm({ ...residentForm, isTrafficked: checked })} />
-          <CheckboxField label="Physical abuse case" checked={residentForm.isPhysicalAbuseCase} onChange={(checked) => setResidentForm({ ...residentForm, isPhysicalAbuseCase: checked })} />
-          <CheckboxField label="Sexual abuse case" checked={residentForm.isSexualAbuseCase} onChange={(checked) => setResidentForm({ ...residentForm, isSexualAbuseCase: checked })} />
-          <CheckboxField label="Special needs" checked={residentForm.hasSpecialNeeds} onChange={(checked) => setResidentForm({ ...residentForm, hasSpecialNeeds: checked })} />
-          <CheckboxField label="Family is 4Ps" checked={residentForm.familyIs4Ps} onChange={(checked) => setResidentForm({ ...residentForm, familyIs4Ps: checked })} />
-          <CheckboxField label="Solo parent family" checked={residentForm.familySoloParent} onChange={(checked) => setResidentForm({ ...residentForm, familySoloParent: checked })} />
-          <CheckboxField label="Indigenous family" checked={residentForm.familyIndigenous} onChange={(checked) => setResidentForm({ ...residentForm, familyIndigenous: checked })} />
-          <CheckboxField label="Informal settler family" checked={residentForm.familyInformalSettler} onChange={(checked) => setResidentForm({ ...residentForm, familyInformalSettler: checked })} />
-        </div>
       </FormSection>
 
-      <FormSection title="Starter intervention plan">
+      <FormSection title="Current intervention plan">
         <FormGrid>
-          <ValidatedTextField
+          <ValidatedSelectField
             label="Plan category"
             required
-            value={residentForm.interventionPlans[0]?.planCategory ?? ''}
-            onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planCategory: e.target.value }] })}
+            value={firstPlan?.planCategory ?? ''}
+            onChange={(e) => updatePlan('planCategory', e.target.value)}
             error={residentErrors.planCategory}
-          />
-          <ValidatedTextField
-            label="Status"
+          >
+            {PLAN_CATEGORY_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
+          <ValidatedSelectField
+            label="Plan status"
             required
-            value={residentForm.interventionPlans[0]?.status ?? ''}
-            onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], status: e.target.value }] })}
+            value={firstPlan?.status ?? ''}
+            onChange={(e) => updatePlan('status', e.target.value)}
             error={residentErrors.planStatus}
-          />
+          >
+            {INTERVENTION_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </ValidatedSelectField>
           <ValidatedTextField
             label="Target date"
             type="date"
             required
-            value={residentForm.interventionPlans[0]?.targetDate ?? ''}
-            onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], targetDate: e.target.value }] })}
+            value={firstPlan?.targetDate ?? ''}
+            onChange={(e) => updatePlan('targetDate', e.target.value)}
             error={residentErrors.planTargetDate}
+          />
+          <ValidatedTextField
+            label="Case conference date"
+            type="date"
+            value={firstPlan?.caseConferenceDate ?? ''}
+            onChange={(e) => updatePlan('caseConferenceDate', e.target.value)}
           />
           <ValidatedTextField
             label="Services provided"
             required
-            value={residentForm.interventionPlans[0]?.servicesProvided ?? ''}
-            onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], servicesProvided: e.target.value }] })}
+            value={firstPlan?.servicesProvided ?? ''}
+            onChange={(e) => updatePlan('servicesProvided', e.target.value)}
             error={residentErrors.servicesProvided}
+          />
+          <ValidatedTextField
+            label="Target value"
+            type="number"
+            min="0"
+            step="0.01"
+            value={firstPlan?.targetValue ?? ''}
+            onChange={(e) => updatePlan('targetValue', e.target.value ? Number(e.target.value) : null)}
           />
         </FormGrid>
         <ValidatedTextareaField
           label="Plan description"
           required
           rows={3}
-          value={residentForm.interventionPlans[0]?.planDescription ?? ''}
-          onChange={(e) => setResidentForm({ ...residentForm, interventionPlans: [{ ...residentForm.interventionPlans[0], planDescription: e.target.value }] })}
+          value={firstPlan?.planDescription ?? ''}
+          onChange={(e) => updatePlan('planDescription', e.target.value)}
           error={residentErrors.planDescription}
         />
       </FormSection>

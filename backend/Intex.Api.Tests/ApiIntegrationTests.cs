@@ -112,6 +112,167 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task ResidentsEndpoint_ReturnsExpandedResidentProfileFields()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.GetAsync("/api/residents");
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var residents = await response.Content.ReadFromJsonAsync<List<ResidentResponse>>();
+
+        Assert.NotNull(residents);
+        var resident = Assert.Single(residents!, x => x.CaseControlNumber == "C0073");
+        Assert.Equal("F", resident.Sex);
+        Assert.Equal("Non-Marital", resident.BirthStatus);
+        Assert.Equal("In Progress", resident.ReintegrationStatus);
+    }
+
+    [Fact]
+    public async Task AdminCanCreateAndUpdateResidentWithExpandedFields()
+    {
+        await LoginAsAdminAsync();
+
+        var createResponse = await _client.PostAsJsonAsync("/api/residents", new
+        {
+            caseControlNumber = $"C{Random.Shared.Next(1000, 9999)}",
+            internalCode = $"LS-{Random.Shared.Next(1000, 9999)}",
+            safehouseId = 1,
+            caseStatus = "Active",
+            sex = "F",
+            dateOfBirth = new DateOnly(2011, 4, 3),
+            birthStatus = "Non-Marital",
+            placeOfBirth = "Cebu City",
+            religion = "Roman Catholic",
+            caseCategory = "Neglected",
+            subCatOrphaned = true,
+            isTrafficked = false,
+            subCatChildLabor = true,
+            isPhysicalAbuseCase = true,
+            isSexualAbuseCase = false,
+            subCatOsaec = false,
+            subCatCicl = false,
+            subCatAtRisk = true,
+            subCatStreetChild = false,
+            subCatChildWithHiv = false,
+            isPwd = true,
+            pwdType = "Speech",
+            hasSpecialNeeds = true,
+            specialNeedsDiagnosis = "Speech delay",
+            familyIs4Ps = true,
+            familySoloParent = false,
+            familyIndigenous = false,
+            familyParentPwd = true,
+            familyInformalSettler = true,
+            dateOfAdmission = new DateOnly(2025, 8, 1),
+            referralSource = "NGO",
+            referringAgencyPerson = "Case Worker 1",
+            dateColbRegistered = new DateOnly(2025, 8, 2),
+            dateColbObtained = new DateOnly(2025, 8, 5),
+            assignedSocialWorker = "SW-99",
+            initialCaseAssessment = "Needs a full safety and reintegration plan.",
+            dateCaseStudyPrepared = new DateOnly(2025, 8, 12),
+            reintegrationType = "Family Reunification",
+            reintegrationStatus = "In Progress",
+            initialRiskLevel = "High",
+            currentRiskLevel = "Medium",
+            dateEnrolled = new DateOnly(2025, 8, 3),
+            dateClosed = (DateOnly?)null,
+            restrictedNotes = "Sensitive note",
+            interventionPlans = new[]
+            {
+                new
+                {
+                    planCategory = "Psychosocial",
+                    planDescription = "Provide counseling and school stabilization.",
+                    servicesProvided = "Counseling",
+                    targetValue = (decimal?)null,
+                    targetDate = new DateOnly(2025, 9, 1),
+                    status = "Open",
+                    caseConferenceDate = new DateOnly(2025, 8, 15)
+                }
+            }
+        });
+
+        Assert.True(createResponse.IsSuccessStatusCode, await createResponse.Content.ReadAsStringAsync());
+        var created = await createResponse.Content.ReadFromJsonAsync<ResidentResponse>();
+        Assert.NotNull(created);
+        Assert.True(created!.FamilyParentPwd);
+        Assert.Equal("Speech", created.PwdType);
+        Assert.True(created.SubCatChildLabor);
+
+        var updateResponse = await _client.PutAsJsonAsync($"/api/residents/{created.Id}", new
+        {
+            caseControlNumber = created.CaseControlNumber,
+            internalCode = created.InternalCode,
+            safehouseId = created.SafehouseId,
+            caseStatus = "Transferred",
+            sex = created.Sex,
+            dateOfBirth = created.DateOfBirth,
+            birthStatus = created.BirthStatus,
+            placeOfBirth = created.PlaceOfBirth,
+            religion = created.Religion,
+            caseCategory = created.CaseCategory,
+            subCatOrphaned = created.SubCatOrphaned,
+            isTrafficked = created.IsTrafficked,
+            subCatChildLabor = created.SubCatChildLabor,
+            isPhysicalAbuseCase = created.IsPhysicalAbuseCase,
+            isSexualAbuseCase = created.IsSexualAbuseCase,
+            subCatOsaec = true,
+            subCatCicl = created.SubCatCicl,
+            subCatAtRisk = false,
+            subCatStreetChild = created.SubCatStreetChild,
+            subCatChildWithHiv = created.SubCatChildWithHiv,
+            isPwd = created.IsPwd,
+            pwdType = created.PwdType,
+            hasSpecialNeeds = created.HasSpecialNeeds,
+            specialNeedsDiagnosis = created.SpecialNeedsDiagnosis,
+            familyIs4Ps = created.FamilyIs4Ps,
+            familySoloParent = true,
+            familyIndigenous = created.FamilyIndigenous,
+            familyParentPwd = created.FamilyParentPwd,
+            familyInformalSettler = created.FamilyInformalSettler,
+            dateOfAdmission = created.DateOfAdmission,
+            referralSource = created.ReferralSource,
+            referringAgencyPerson = created.ReferringAgencyPerson,
+            dateColbRegistered = created.DateColbRegistered,
+            dateColbObtained = created.DateColbObtained,
+            assignedSocialWorker = "SW-11",
+            initialCaseAssessment = created.InitialCaseAssessment,
+            dateCaseStudyPrepared = created.DateCaseStudyPrepared,
+            reintegrationType = created.ReintegrationType,
+            reintegrationStatus = "Completed",
+            initialRiskLevel = created.InitialRiskLevel,
+            currentRiskLevel = "Low",
+            dateEnrolled = created.DateEnrolled,
+            dateClosed = new DateOnly(2025, 10, 15),
+            restrictedNotes = created.RestrictedNotes,
+            interventionPlans = new[]
+            {
+                new
+                {
+                    planCategory = "Reintegration",
+                    planDescription = "Finalize transition plan.",
+                    servicesProvided = "Case conference",
+                    targetValue = 1m,
+                    targetDate = new DateOnly(2025, 10, 1),
+                    status = "InProgress",
+                    caseConferenceDate = new DateOnly(2025, 9, 10)
+                }
+            }
+        });
+
+        Assert.True(updateResponse.IsSuccessStatusCode, await updateResponse.Content.ReadAsStringAsync());
+        var updated = await updateResponse.Content.ReadFromJsonAsync<ResidentResponse>();
+        Assert.NotNull(updated);
+        Assert.Equal("Transferred", updated!.CaseStatus);
+        Assert.Equal("Completed", updated.ReintegrationStatus);
+        Assert.True(updated.SubCatOsaec);
+        Assert.True(updated.FamilySoloParent);
+        Assert.Equal("Low", updated.CurrentRiskLevel);
+    }
+
+    [Fact]
     public async Task DashboardSummary_ReturnsUpcomingCaseConferencesAndProgressSummary()
     {
         await LoginAsAdminAsync();
