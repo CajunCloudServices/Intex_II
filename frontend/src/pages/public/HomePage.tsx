@@ -85,7 +85,13 @@ export function HomePage() {
         </div>
 
         <div className="home-hero-media" aria-hidden="true">
-          <LogoMark variant="hero" />
+          <img 
+            src="/kids-playing.jpg" 
+            alt="Kids playing" 
+            className="logo-mark logo-mark--hero" 
+            style={{ objectFit: 'cover', borderRadius: '28px' }} 
+            decoding="async" 
+          />
         </div>
       </section>
 

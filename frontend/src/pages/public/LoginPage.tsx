@@ -16,8 +16,9 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showDemoAccess, setShowDemoAccess] = useState(false);
   const [googleEnabled, setGoogleEnabled] = useState(false);
+  const [requiresMfa, setRequiresMfa] = useState(false);
+  const [mfaCode, setMfaCode] = useState('');
 
   const redirectTo = (location.state as { from?: string } | undefined)?.from;
 
@@ -43,8 +44,29 @@ export function LoginPage() {
       const account = await login(email, password);
       const defaultRoute = account.roles.includes('Donor') && account.roles.length === 1 ? '/portal/my-impact' : '/portal/admin';
       navigate(redirectTo ?? defaultRoute, { replace: true });
+    } catch (err: any) {
+      if (err.message && err.message.includes('2FA_REQUIRED')) {
+        setRequiresMfa(true);
+      } else {
+        setError('Login failed. Check your email and password, then try again.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleMfaSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const response = await api.loginMfa(mfaCode);
+      const account = response.user;
+      // Also update AuthContext manually or refresh the session
+      await window.location.assign(redirectTo ?? (account.roles.includes('Donor') && account.roles.length === 1 ? '/portal/my-impact' : '/portal/admin'));
     } catch {
-      setError('Login failed. Check your email and password, then try again.');
+      setError('Invalid or expired verification code.');
     } finally {
       setSubmitting(false);
     }
@@ -64,50 +86,77 @@ export function LoginPage() {
           </div>
         </div>
 
-        <form className="stack-form" onSubmit={handleSubmit}>
-          <label className="field-shell">
-            <span className="field-label">Email</span>
-            <input
-              autoComplete="email"
-              inputMode="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </label>
-
-          <label className="field-shell">
-            <span className="field-label">Password</span>
-            <div className="password-field">
-              <input
-                autoComplete="current-password"
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
-              <button className="ghost-button" onClick={() => setShowPassword((value) => !value)} type="button">
-                {showPassword ? 'Hide' : 'Show'}
-              </button>
+        {requiresMfa ? (
+          <form className="stack-form" onSubmit={handleMfaSubmit}>
+            <div style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>
+              Open your Authenticator app (e.g., Google Authenticator, Authy, or Apple Passwords) and locate the 6-digit code for your Tanglaw Project account. Codes refresh every 30 seconds.
             </div>
-          </label>
-
-          {error ? <ErrorState message={error} /> : null}
-
-          <button className="primary-button" disabled={submitting} type="submit">
-            {submitting ? 'Signing in...' : 'Sign in'}
-          </button>
-
-          {googleEnabled ? (
-            <button
-              className="secondary-button"
-              type="button"
-              onClick={() => {
-                window.location.href = api.googleLoginUrl(redirectTo ?? '/portal');
-              }}
-            >
-              Continue with Google
+            <label className="field-shell">
+              <span className="field-label">Verification Code</span>
+              <input
+                autoComplete="one-time-code"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
+                value={mfaCode}
+                onChange={(event) => setMfaCode(event.target.value)}
+                autoFocus
+              />
+            </label>
+            {error ? <ErrorState message={error} /> : null}
+            <button className="primary-button" disabled={submitting} type="submit">
+              {submitting ? 'Verifying...' : 'Verify Code'}
             </button>
-          ) : null}
-        </form>
+            <button className="ghost-button" type="button" onClick={() => { setRequiresMfa(false); setError(null); }}>
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <form className="stack-form" onSubmit={handleSubmit}>
+            <label className="field-shell">
+              <span className="field-label">Email</span>
+              <input
+                autoComplete="email"
+                inputMode="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </label>
+
+            <label className="field-shell">
+              <span className="field-label">Password</span>
+              <div className="password-field">
+                <input
+                  autoComplete="current-password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+                <button className="ghost-button" onClick={() => setShowPassword((value) => !value)} type="button">
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
+            </label>
+
+            {error ? <ErrorState message={error} /> : null}
+
+            <button className="primary-button" disabled={submitting} type="submit">
+              {submitting ? 'Signing in...' : 'Sign in'}
+            </button>
+
+            {googleEnabled ? (
+              <button
+                className="secondary-button"
+                type="button"
+                onClick={() => {
+                  window.location.href = api.googleLoginUrl(redirectTo ?? '/portal');
+                }}
+              >
+                Continue with Google
+              </button>
+            ) : null}
+          </form>
+        )}
       </section>
 
       <SectionCard

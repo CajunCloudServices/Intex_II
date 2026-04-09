@@ -321,6 +321,7 @@ builder.Services.AddHttpClient<IMlInferenceClient, MlInferenceClient>((servicePr
     client.Timeout = TimeSpan.FromSeconds(Math.Max(1, options.TimeoutSeconds));
 });
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<MfaService>();
 builder.Services.AddScoped<AppSeeder>();
 
 var app = builder.Build();

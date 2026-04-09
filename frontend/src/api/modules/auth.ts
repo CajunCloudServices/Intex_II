@@ -1,5 +1,5 @@
 import { apiRequest, buildApiUrl } from '../client';
-import type { AuthProvidersResponse, AuthResponse, PublicDonorRegisterRequest, UserProfile } from '../types';
+import type { AuthProvidersResponse, AuthResponse, PublicDonorRegisterRequest, UserProfile, MfaSetupResponse } from '../types';
 
 export const authApi = {
   login: (email: string, password: string) =>
@@ -25,4 +25,26 @@ export const authApi = {
     buildApiUrl(`/auth/google/login?returnUrl=${encodeURIComponent(returnUrl)}`),
 
   me: () => apiRequest<UserProfile>('/auth/me'),
+
+  loginMfa: (code: string) =>
+    apiRequest<AuthResponse>('/auth/login/mfa', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }),
+
+  setupMfa: () =>
+    apiRequest<MfaSetupResponse>('/auth/mfa/setup', {
+      method: 'POST',
+    }),
+
+  verifyMfa: (code: string) =>
+    apiRequest<{ message: string }>('/auth/mfa/verify', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    }),
+
+  disableMfa: () =>
+    apiRequest<{ message: string }>('/auth/mfa/disable', {
+      method: 'POST',
+    }),
 };

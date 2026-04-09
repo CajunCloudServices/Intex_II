@@ -28,6 +28,7 @@ import { ImpactDashboardPage } from './pages/public/ImpactDashboardPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { NotFoundPage } from './pages/public/NotFoundPage';
 import { PrivacyPolicyPage } from './pages/public/PrivacyPolicyPage';
+import { MfaSettingsPage } from './pages/portal/MfaSettingsPage';
 
 function PortalHomeRoute() {
   const { user } = useAuth();
@@ -56,6 +57,7 @@ function App() {
 
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Staff', 'Donor']} />}>
             <Route path="portal" element={<PortalHomeRoute />} />
+            <Route path="portal/mfa" element={<MfaSettingsPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Staff']} />}>

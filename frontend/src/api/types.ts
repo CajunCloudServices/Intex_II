@@ -755,3 +755,8 @@ export interface IncidentReportRequest {
   reportedBy: string;
   followUpRequired: boolean;
 }
+
+export interface MfaSetupResponse {
+  sharedKey: string;
+  authenticatorUri: string;
+}

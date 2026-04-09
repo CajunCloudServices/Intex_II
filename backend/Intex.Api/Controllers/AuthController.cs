@@ -3,6 +3,7 @@ using Intex.Api.Authorization;
 using Intex.Api.DTOs;
 using Intex.Api.Data;
 using Intex.Api.Entities;
+using Intex.Api.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
@@ -20,7 +21,8 @@ public class AuthController(
     IConfiguration configuration,
     ApplicationDbContext dbContext,
     UserManager<ApplicationUser> userManager,
-    SignInManager<ApplicationUser> signInManager) : ControllerBase
+    SignInManager<ApplicationUser> signInManager,
+    MfaService mfaService) : ControllerBase
 {
     private const string GoogleCallbackRoute = "/login/google/callback";
 
@@ -36,6 +38,18 @@ public class AuthController(
         }
 
         var result = await signInManager.PasswordSignInAsync(user, request.Password, isPersistent: false, lockoutOnFailure: true);
+
+        if (result.RequiresTwoFactor)
+        {
+            var problem = new ProblemDetails
+            {
+                Detail = "Two-factor authentication required.",
+                Status = StatusCodes.Status401Unauthorized
+            };
+            problem.Extensions["errors"] = new[] { "2FA_REQUIRED" };
+            return StatusCode(StatusCodes.Status401Unauthorized, problem);
+        }
+
         if (!result.Succeeded)
         {
             return Unauthorized(new { message = "Invalid email or password." });
@@ -171,6 +185,83 @@ public class AuthController(
         await signInManager.SignInAsync(user, isPersistent: false);
 
         return Created("/api/auth/me", new AuthResponse(await MapUserProfileAsync(user)));
+    }
+
+    [HttpPost("login/mfa")]
+    [AllowAnonymous]
+    [EnableRateLimiting("auth-login")]
+    public async Task<ActionResult<AuthResponse>> LoginMfa(LoginMfaRequest request)
+    {
+        var sanitizedCode = request.Code.Replace(" ", "").Replace("-", "");
+        var result = await signInManager.TwoFactorAuthenticatorSignInAsync(sanitizedCode, isPersistent: false, rememberClient: false);
+
+        if (!result.Succeeded)
+        {
+            return Unauthorized(new { message = "Invalid or expired verification code." });
+        }
+
+        // ASP.NET Identity doesn't return the user object directly from TwoFactorAuthenticatorSignInAsync, so we must retrieve it.
+        var user = await signInManager.GetTwoFactorAuthenticationUserAsync() ?? await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized(new { message = "Failed to establish user identity." });
+        }
+
+        return Ok(new AuthResponse(await MapUserProfileAsync(user)));
+    }
+
+    [HttpPost("mfa/setup")]
+    [Authorize]
+    public async Task<ActionResult<MfaSetupResponse>> SetupMfa()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var response = await mfaService.BuildSetupResponseAsync(user);
+        return Ok(response);
+    }
+
+    [HttpPost("mfa/verify")]
+    [Authorize]
+    public async Task<IActionResult> VerifyMfa(MfaVerifyRequest request)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        var sanitizedCode = request.Code.Replace(" ", "").Replace("-", "");
+        var isValid = await userManager.VerifyTwoFactorTokenAsync(
+            user,
+            userManager.Options.Tokens.AuthenticatorTokenProvider,
+            sanitizedCode);
+
+        if (!isValid)
+        {
+            return BadRequest(new { message = "Invalid verification code." });
+        }
+
+        await userManager.SetTwoFactorEnabledAsync(user, true);
+        return Ok(new { message = "MFA enabled." });
+    }
+
+    [HttpPost("mfa/disable")]
+    [Authorize]
+    public async Task<IActionResult> DisableMfa()
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null)
+        {
+            return Unauthorized();
+        }
+
+        await userManager.SetTwoFactorEnabledAsync(user, false);
+        await userManager.ResetAuthenticatorKeyAsync(user);
+        return Ok(new { message = "MFA disabled." });
     }
 
     [HttpPost("logout")]

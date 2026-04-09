@@ -205,6 +205,9 @@ export function AppShell() {
               </nav>
 
               <div className="sidebar-utility">
+                <NavLink className="sidebar-utility-link" to="/portal/mfa">
+                  Security (2FA)
+                </NavLink>
                 <NavLink className="sidebar-utility-link" to="/impact">
                   Public impact
                 </NavLink>

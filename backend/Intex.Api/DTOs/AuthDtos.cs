@@ -26,3 +26,12 @@ public record PublicDonorRegisterRequest(
 public record AuthResponse(UserProfileDto User);
 
 public record UserProfileDto(Guid Id, string Email, string FullName, string[] Roles, int? SupporterId);
+
+public record MfaSetupResponse(string SharedKey, string AuthenticatorUri);
+
+public record MfaVerifyRequest(
+    [Required, MinLength(6), MaxLength(8)] string Code);
+
+public record LoginMfaRequest(
+    [Required, MinLength(6), MaxLength(8)] string Code);
+
