@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-04-09T05:09:27.046637+00:00",
+  "summary": "Intervention plan mix: how services cluster by category and where cases sit in workflow status.",
+  "kpis": [
+    {
+      "label": "In progress",
+      "value": "40.0%",
+      "sub": "Share status = In Progress",
+      "info": "Share of intervention plans currently marked In Progress."
+    },
+    {
+      "label": "Plan categories",
+      "value": "3",
+      "sub": "Distinct plan_category values",
+      "info": "Cardinality of plan_category in extract."
+    },
+    {
+      "label": "Total plans",
+      "value": "180",
+      "sub": "Rows loaded",
+      "info": "Count of intervention_plans rows."
+    }
+  ],
+  "sections": [
+    {
+      "title": "Plans by category",
+      "bars": [
+        {
+          "label": "Education",
+          "value": 60.0
+        },
+        {
+          "label": "Physical Health",
+          "value": 60.0
+        },
+        {
+          "label": "Safety",
+          "value": 60.0
+        }
+      ]
+    },
+    {
+      "title": "Plans by status",
+      "bars": [
+        {
+          "label": "Achieved",
+          "value": 29.0
+        },
+        {
+          "label": "Closed",
+          "value": 3.0
+        },
+        {
+          "label": "In Progress",
+          "value": 72.0
+        },
+        {
+          "label": "On Hold",
+          "value": 37.0
+        },
+        {
+          "label": "Open",
+          "value": 39.0
+        }
+      ]
+    }
+  ]
+}

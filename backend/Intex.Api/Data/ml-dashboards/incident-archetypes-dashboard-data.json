@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-04-09T05:09:26.768174+00:00",
+  "summary": "Incident composition from Lighthouse reports: frequency by type and severity, plus resolution and follow-up rates for operational triage.",
+  "kpis": [
+    {
+      "label": "Total incidents",
+      "value": "100",
+      "sub": "Rows in extract",
+      "info": "Count of incident_reports rows after CSV load."
+    },
+    {
+      "label": "Resolved rate",
+      "value": "71.0%",
+      "sub": "Share marked resolved",
+      "info": "Mean of resolved flag in source data."
+    },
+    {
+      "label": "Follow-up flagged",
+      "value": "42.0%",
+      "sub": "When column present",
+      "info": "Share of rows with follow_up_required true."
+    }
+  ],
+  "sections": [
+    {
+      "title": "Top incident types (count)",
+      "bars": [
+        {
+          "label": "RunawayAttempt",
+          "value": 29.0
+        },
+        {
+          "label": "Behavioral",
+          "value": 20.0
+        },
+        {
+          "label": "Security",
+          "value": 16.0
+        },
+        {
+          "label": "SelfHarm",
+          "value": 14.0
+        },
+        {
+          "label": "ConflictWithPeer",
+          "value": 11.0
+        },
+        {
+          "label": "Medical",
+          "value": 6.0
+        },
+        {
+          "label": "PropertyDamage",
+          "value": 4.0
+        }
+      ]
+    },
+    {
+      "title": "Incidents by severity",
+      "bars": [
+        {
+          "label": "High",
+          "value": 24.0
+        },
+        {
+          "label": "Low",
+          "value": 28.0
+        },
+        {
+          "label": "Medium",
+          "value": 48.0
+        }
+      ]
+    }
+  ]
+}

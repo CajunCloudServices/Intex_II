@@ -16,8 +16,10 @@
     tip.style.position = "fixed";
     tip.style.transform = "none";
     tip.style.boxSizing = "border-box";
-    tip.style.width = "min(340px, calc(100vw - " + PAD * 2 + "px))";
-    tip.style.maxWidth = "calc(100vw - " + PAD * 2 + "px)";
+    /* Hug text up to a max width so the dark panel fully contains copy (no “floating” lines). */
+    tip.style.width = "max-content";
+    tip.style.maxWidth = "min(340px, calc(100vw - " + PAD * 2 + "px))";
+    tip.style.minWidth = "0";
     tip.style.zIndex = "100050";
     tip.style.visibility = "hidden";
 
@@ -54,6 +56,7 @@
       tip.style.top = "";
       tip.style.width = "";
       tip.style.maxWidth = "";
+      tip.style.minWidth = "";
       tip.style.zIndex = "";
       tip.style.position = "";
       tip.style.transform = "";

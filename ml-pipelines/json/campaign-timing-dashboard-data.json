@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-04-09T05:09:26.495309+00:00",
+  "summary": "Donation timing effects estimated from historical gifts: monthly means, quarterly totals, and simple campaign-attributed lift vs non-campaign gifts.",
+  "kpis": [
+    {
+      "label": "Mean gift (PHP)",
+      "value": "\u20b1699",
+      "sub": "All donations in extract",
+      "info": "Mean of effective amount (amount filled from estimated_value when missing)."
+    },
+    {
+      "label": "Campaign gift lift",
+      "value": "1.05\u00d7",
+      "sub": "Mean with campaign name vs without",
+      "info": "Ratio of mean amount when campaign_name is present vs absent."
+    },
+    {
+      "label": "Peak month (by total PHP)",
+      "value": "Dec",
+      "sub": "Largest month by total volume",
+      "info": "Month with highest sum of effective donation amounts."
+    }
+  ],
+  "sections": [
+    {
+      "title": "Seasonal index by month (mean PHP vs dataset average)",
+      "bars": [
+        {
+          "label": "Jan",
+          "value": 0.7551292447986204
+        },
+        {
+          "label": "Feb",
+          "value": 0.6578628603713328
+        },
+        {
+          "label": "Mar",
+          "value": 0.9566099042446299
+        },
+        {
+          "label": "Apr",
+          "value": 0.8323424562663142
+        },
+        {
+          "label": "May",
+          "value": 0.8676500635103982
+        },
+        {
+          "label": "Jun",
+          "value": 0.896178860326467
+        },
+        {
+          "label": "Jul",
+          "value": 1.1083833778388612
+        },
+        {
+          "label": "Aug",
+          "value": 1.089465088664676
+        },
+        {
+          "label": "Sep",
+          "value": 1.0145414383090456
+        },
+        {
+          "label": "Oct",
+          "value": 1.134804526219146
+        },
+        {
+          "label": "Nov",
+          "value": 1.036845868728396
+        },
+        {
+          "label": "Dec",
+          "value": 1.3062733013066121
+        }
+      ]
+    },
+    {
+      "title": "Total donation volume by quarter (PHP)",
+      "bars": [
+        {
+          "label": "Q1",
+          "value": 56753.45
+        },
+        {
+          "label": "Q2",
+          "value": 44617.74
+        },
+        {
+          "label": "Q3",
+          "value": 72266.01
+        },
+        {
+          "label": "Q4",
+          "value": 120070.61
+        }
+      ]
+    }
+  ]
+}

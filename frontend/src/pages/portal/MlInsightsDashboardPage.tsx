@@ -21,6 +21,11 @@ export function MlInsightsDashboardPage() {
     donor: 'donor-churn-dashboard.html',
     reintegration: 'reintegration-dashboard.html',
     social: 'social-media-dashboard.html',
+    campaign: 'campaign-timing-dashboard.html',
+    incidents: 'incident-archetypes-dashboard.html',
+    intervention: 'intervention-mix-dashboard.html',
+    'content-mix': 'social-content-mix-dashboard.html',
+    safehouse: 'safehouse-load-dashboard.html',
   };
   const selectedPath = dashboardPathByKey[dashboardKey ?? ''] ?? 'counseling-admin-dashboard.html';
   const cacheBuster = useMemo(() => Date.now().toString(), []);

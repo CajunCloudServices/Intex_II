@@ -192,9 +192,9 @@ main {
   background: #1b1c1a;
   color: #fff;
   border-radius: 8px;
-  padding: 0.55rem 0.65rem;
+  padding: 0.7rem 0.9rem;
   font-size: 0.76rem;
-  line-height: 1.35;
+  line-height: 1.45;
   text-transform: none;
   letter-spacing: normal;
   font-weight: 500;
@@ -204,7 +204,10 @@ main {
   pointer-events: none;
   z-index: 100050;
   max-height: min(320px, 70vh);
+  overflow-x: hidden;
   overflow-y: auto;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   -webkit-overflow-scrolling: touch;
 }
 .kpi .value {

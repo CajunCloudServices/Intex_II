@@ -1,0 +1,96 @@
+{
+  "generated_at": "2026-04-09T05:09:27.334451+00:00",
+  "summary": "Content mix vs modeled donation linkage: average estimated PHP by post type and topic to prioritize formats that align with stronger donation signals.",
+  "kpis": [
+    {
+      "label": "Posts analyzed",
+      "value": "812",
+      "sub": "Social media rows",
+      "info": "Rows in social_media_posts extract."
+    },
+    {
+      "label": "Avg estimated PHP / post",
+      "value": "\u20b139,772",
+      "sub": "Mean of estimated_donation_value_php",
+      "info": "Average of modeled donation value field across posts."
+    },
+    {
+      "label": "Highest-avg format",
+      "value": "ImpactStory",
+      "sub": "By mean estimated PHP",
+      "info": "Post type with highest mean estimated_donation_value_php."
+    }
+  ],
+  "sections": [
+    {
+      "title": "Mean estimated PHP by post type",
+      "bars": [
+        {
+          "label": "ImpactStory",
+          "value": 116160.6721182266
+        },
+        {
+          "label": "FundraisingAppeal",
+          "value": 36155.811
+        },
+        {
+          "label": "Campaign",
+          "value": 28141.29576923077
+        },
+        {
+          "label": "EducationalContent",
+          "value": 3183.2318421052632
+        },
+        {
+          "label": "ThankYou",
+          "value": 2927.6119491525424
+        },
+        {
+          "label": "EventPromotion",
+          "value": 2762.6858778625956
+        }
+      ]
+    },
+    {
+      "title": "Mean estimated PHP by content topic (top 15)",
+      "bars": [
+        {
+          "label": "Health",
+          "value": 56313.94382022472
+        },
+        {
+          "label": "SafehouseLife",
+          "value": 53792.035245901636
+        },
+        {
+          "label": "Reintegration",
+          "value": 48065.601392405064
+        },
+        {
+          "label": "AwarenessRaising",
+          "value": 39773.87590361446
+        },
+        {
+          "label": "CampaignLaunch",
+          "value": 34900.15613333333
+        },
+        {
+          "label": "DonorImpact",
+          "value": 33664.800619469024
+        },
+        {
+          "label": "Education",
+          "value": 32612.612936507936
+        },
+        {
+          "label": "Gratitude",
+          "value": 29492.85879518072
+        },
+        {
+          "label": "EventRecap",
+          "value": 15314.901428571427
+        }
+      ]
+    }
+  ]
+}

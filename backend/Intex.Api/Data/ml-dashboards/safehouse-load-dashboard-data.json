@@ -1,0 +1,144 @@
+{
+  "generated_at": "2026-04-09T05:09:27.609500+00:00",
+  "summary": "Operational load proxy: residents + incidents (+ light weight on home visits) by safehouse and incident trend over recent months.",
+  "kpis": [
+    {
+      "label": "Avg active residents",
+      "value": "6.7",
+      "sub": "Per monthly metric row",
+      "info": "Mean of active_residents across safehouse_monthly_metrics."
+    },
+    {
+      "label": "Avg incidents / row",
+      "value": "0.22",
+      "sub": "Per monthly metric row",
+      "info": "Mean of incident_count in operational metrics extract."
+    },
+    {
+      "label": "Highest-load site",
+      "value": "ID 1",
+      "sub": "By load proxy mean",
+      "info": "Safehouse with highest average load_proxy (residents + incidents + 0.1\u00d7visits)."
+    }
+  ],
+  "sections": [
+    {
+      "title": "Load proxy by safehouse (higher = more pressure)",
+      "bars": [
+        {
+          "label": "Safehouse 1",
+          "value": 10.925999999999998
+        },
+        {
+          "label": "Safehouse 4",
+          "value": 8.69
+        },
+        {
+          "label": "Safehouse 7",
+          "value": 8.46
+        },
+        {
+          "label": "Safehouse 2",
+          "value": 8.436
+        },
+        {
+          "label": "Safehouse 3",
+          "value": 7.5920000000000005
+        },
+        {
+          "label": "Safehouse 5",
+          "value": 6.537999999999999
+        },
+        {
+          "label": "Safehouse 8",
+          "value": 6.412000000000001
+        },
+        {
+          "label": "Safehouse 6",
+          "value": 5.374
+        },
+        {
+          "label": "Safehouse 9",
+          "value": 2.246
+        }
+      ]
+    },
+    {
+      "title": "Monthly incident totals (recent periods)",
+      "bars": [
+        {
+          "label": "2025-09",
+          "value": 5.0
+        },
+        {
+          "label": "2025-10",
+          "value": 3.0
+        },
+        {
+          "label": "2025-11",
+          "value": 6.0
+        },
+        {
+          "label": "2025-12",
+          "value": 6.0
+        },
+        {
+          "label": "2026-01",
+          "value": 2.0
+        },
+        {
+          "label": "2026-02",
+          "value": 1.0
+        },
+        {
+          "label": "2026-03",
+          "value": 0.0
+        },
+        {
+          "label": "2026-04",
+          "value": 1.0
+        },
+        {
+          "label": "2026-05",
+          "value": 0.0
+        },
+        {
+          "label": "2026-06",
+          "value": 0.0
+        },
+        {
+          "label": "2026-07",
+          "value": 0.0
+        },
+        {
+          "label": "2026-08",
+          "value": 0.0
+        },
+        {
+          "label": "2026-09",
+          "value": 0.0
+        },
+        {
+          "label": "2026-10",
+          "value": 0.0
+        },
+        {
+          "label": "2026-11",
+          "value": 0.0
+        },
+        {
+          "label": "2026-12",
+          "value": 0.0
+        },
+        {
+          "label": "2027-01",
+          "value": 0.0
+        },
+        {
+          "label": "2027-02",
+          "value": 0.0
+        }
+      ]
+    }
+  ]
+}

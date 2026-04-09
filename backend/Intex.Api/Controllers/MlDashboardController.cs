@@ -21,7 +21,12 @@ public class MlDashboardController(IWebHostEnvironment environment, IOptions<MlD
         "counseling-dashboard-data",
         "donor-dashboard-data",
         "reintegration-dashboard-data",
-        "social-dashboard-data"
+        "social-dashboard-data",
+        "campaign-timing-dashboard-data",
+        "incident-archetypes-dashboard-data",
+        "intervention-mix-dashboard-data",
+        "social-content-mix-dashboard-data",
+        "safehouse-load-dashboard-data",
     ];
 
     [HttpGet("data/{fileKey}")]
