@@ -13,6 +13,12 @@ SCRIPTS = [
     "generate_donor_dashboard_data.py",
     "generate_reintegration_dashboard_data.py",
     "generate_social_dashboard_data.py",
+    "generate_social_content_mix_dashboard_data.py",
+    "generate_campaign_timing_dashboard_data.py",
+    "generate_safehouse_load_dashboard_data.py",
+    "generate_intervention_mix_dashboard_data.py",
+    "generate_incident_archetypes_dashboard_data.py",
+    "generate_resident_trajectory_dashboard_data.py",
 ]
 
 

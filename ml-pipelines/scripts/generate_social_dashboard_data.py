@@ -199,16 +199,19 @@ def main() -> None:
                 "label": "How reliable this estimate is",
                 "value": f"{r2:.2f}",
                 "hint": "Higher is better",
+                "definition": "R² for predicted vs actual donation amount on holdout posts (higher = more variance explained).",
             },
             {
                 "label": "Typical miss size",
                 "value": f"{rmse:.3f}",
                 "hint": "Lower is better",
+                "definition": "Root mean squared error of predictions on the holdout set (same units as the target).",
             },
             {
                 "label": "Biggest post signal",
                 "value": _short_feat(top_gb["feature"]),
                 "hint": "This mattered most in the ranking",
+                "definition": "Gradient boosting feature with highest importance for ranking predicted donation amounts.",
             },
         ],
         "cause_cards": (
@@ -216,6 +219,7 @@ def main() -> None:
                 {
                     "title": f"One strong pattern: {_short_feat(top_ols['feature'])}",
                     "body": "This factor shows a clear link with higher or lower donation amounts in the data.",
+                    "definition": "OLS-style association in historical posts—helpful for themes, not a guarantee for the next post.",
                 }
             ]
             if top_ols
@@ -225,10 +229,12 @@ def main() -> None:
             {
                 "title": "Uses only info you know before posting",
                 "body": "This keeps the guidance useful during planning, not after results are in.",
+                "definition": "Features are limited to what staff would know when scheduling or drafting a post.",
             },
             {
                 "title": "How to use this page",
                 "body": "Use top cards for planning. Use tables below for post-by-post review.",
+                "definition": "Hero metrics summarize the model; tables and detail panels are for individual post decisions.",
             },
         ],
         "model_drivers": [

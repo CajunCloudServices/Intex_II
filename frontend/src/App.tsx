@@ -9,6 +9,8 @@ import { CaseloadInventoryPage } from './pages/portal/CaseloadInventoryPage';
 import { CaseloadResidentNewPage } from './pages/portal/CaseloadResidentNewPage';
 import { CaseConferenceNewPage } from './pages/portal/CaseConferenceNewPage';
 import { DonorDonationNewPage } from './pages/portal/DonorDonationNewPage';
+import { IncidentNewPage } from './pages/portal/IncidentNewPage';
+import { SafehouseNewPage } from './pages/portal/SafehouseNewPage';
 import { DonorSupporterNewPage } from './pages/portal/DonorSupporterNewPage';
 import { DonorsContributionsPage } from './pages/portal/DonorsContributionsPage';
 import { DonorHistoryPage } from './pages/portal/DonorHistoryPage';
@@ -75,6 +77,8 @@ function App() {
             <Route path="portal/caseload/new" element={<CaseloadResidentNewPage />} />
             <Route path="portal/home-visitations/visits/new" element={<HomeVisitationNewPage />} />
             <Route path="portal/home-visitations/conferences/new" element={<CaseConferenceNewPage />} />
+            <Route path="portal/reports/safehouses/new" element={<SafehouseNewPage />} />
+            <Route path="portal/reports/incidents/new" element={<IncidentNewPage />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>

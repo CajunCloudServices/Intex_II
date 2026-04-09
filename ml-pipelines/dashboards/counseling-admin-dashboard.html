@@ -23,12 +23,19 @@
         </div>
       </div>
       <div>
-        <div class="nav-label">Insight reports</div>
-        <nav class="nav-tabs" aria-label="Insight reports">
+        <nav class="nav-tabs scrollable" aria-label="ML insight dashboards">
+          <div class="nav-label">Core pipelines</div>
           <a class="nav-tab active" href="counseling-admin-dashboard.html">Counseling sessions</a>
           <a class="nav-tab" href="donor-churn-dashboard.html">Donor lapse risk</a>
           <a class="nav-tab" href="reintegration-dashboard.html">Reintegration outlook</a>
           <a class="nav-tab" href="social-media-dashboard.html">Social posts &amp; gifts</a>
+          <div class="nav-label">Trend pipelines</div>
+          <a class="nav-tab" href="social-content-mix-dashboard.html">Content mix &amp; referrals</a>
+          <a class="nav-tab" href="campaign-timing-dashboard.html">Campaign timing</a>
+          <a class="nav-tab" href="safehouse-load-dashboard.html">Safehouse load risk</a>
+          <a class="nav-tab" href="intervention-mix-dashboard.html">Intervention mix</a>
+          <a class="nav-tab" href="incident-archetypes-dashboard.html">Incident archetypes</a>
+          <a class="nav-tab" href="resident-trajectory-dashboard.html">Resident trajectory</a>
         </nav>
       </div>
       <p class="hint">
@@ -54,6 +61,28 @@
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
         <div id="insight-root" aria-live="polite"></div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <div class="panel-head">
+            <h2>Timeframe &amp; filters</h2>
+            <div class="toolbar timeframe-toolbar">
+              <label class="timeframe-controls">Timeline (days back)
+                <input id="timeframe-slider" class="timeline-range" type="range" min="1" max="365" step="1" value="90" />
+                <div class="timeframe-scale">
+                  <span>1</span><span id="timeframe-slider-value">90 days</span><span>365</span>
+                </div>
+                <div class="timeframe-quick-links">
+                  <button type="button" class="timeframe-link" id="days-7-btn">7 days</button>
+                  <button type="button" class="timeframe-link" id="days-30-btn">30 days</button>
+                  <button type="button" class="timeframe-link" id="days-90-btn">90 days</button>
+                  <button type="button" class="timeframe-link" id="days-365-btn">365 days</button>
+                  <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
+                </div>
+              </label>
+              <div class="timeframe-aside">Filter sessions by session date. Active-resident toggle still applies below.</div>
+            </div>
+          </div>
+          <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
+        </div>
         <div class="panel" style="margin-bottom:1rem" id="concern-explainer">
           <h2 style="margin:0 0 .45rem;font-size:.92rem">How the concern score is calculated</h2>
           <p style="margin:0;font-size:.85rem;color:var(--text)">
@@ -138,13 +167,20 @@
     </main>
   </div>
 
+  <script src="ml-dashboard-helpers.js"></script>
   <script src="ml-dashboard-insights.js"></script>
+  <script src="ml-timeframe-filter.js"></script>
   <script>
     (function () {
       const loadState = document.getElementById("load-state");
       const errorState = document.getElementById("error-state");
       const dashboard = document.getElementById("dashboard");
       const kpis = document.getElementById("kpis");
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : "";
+      let tfSessions = null;
       const residentBody = document.getElementById("resident-body");
       const search = document.getElementById("search");
       const filterAlerts = document.getElementById("filter-alerts");
@@ -211,7 +247,7 @@
       }
 
       function getScopedSessions() {
-        const sessions = data.sessions || [];
+        const sessions = tfSessions !== null ? tfSessions : data.sessions || [];
         if (!activeOnly.checked) return sessions;
         const ids = getActiveResidentIds();
         return sessions.filter((s) => ids.has(s.resident_id));
@@ -221,10 +257,10 @@
         const sessions = getScopedSessions();
         const meanShift = sessions.reduce((s, x) => s + Number(x.emotion_shift || 0), 0) / Math.max(sessions.length, 1);
         kpis.innerHTML = `
-          <div class="kpi"><div class="label">Average concern probability</div><div class="value">${fmtPct(sessions.reduce((s,x)=>s+(x.concern_probability||0),0) / Math.max(sessions.length,1))}</div></div>
-          <div class="kpi"><div class="label">% sessions flagged high concern</div><div class="value">${fmtPct(sessions.filter((x)=>x.concern_probability>=0.35).length / Math.max(sessions.length,1))}</div><div class="sub">Flag rule: concern score 35%+</div></div>
-          <div class="kpi"><div class="label">Average emotional shift</div><div class="value">${meanShift.toFixed(2)}</div></div>
-          <div class="kpi"><div class="label">% sessions with positive improvement</div><div class="value">${fmtPct(sessions.filter((x)=>Number(x.emotion_shift||0)>0).length / Math.max(sessions.length,1))}</div></div>
+          <div class="kpi"><div class="label">Average concern probability ${infoIcon("Mean of model concern scores across sessions currently in scope (timeframe + active filter).")}</div><div class="value">${fmtPct(sessions.reduce((s,x)=>s+(x.concern_probability||0),0) / Math.max(sessions.length,1))}</div></div>
+          <div class="kpi"><div class="label">% sessions flagged high concern ${infoIcon("Share of in-scope sessions at or above the 35% follow-up threshold.")}</div><div class="value">${fmtPct(sessions.filter((x)=>x.concern_probability>=0.35).length / Math.max(sessions.length,1))}</div><div class="sub">Flag rule: concern score 35%+</div></div>
+          <div class="kpi"><div class="label">Average emotional shift ${infoIcon("Mean mood change (end minus start) for sessions in scope.")}</div><div class="value">${meanShift.toFixed(2)}</div></div>
+          <div class="kpi"><div class="label">% sessions with positive improvement ${infoIcon("Share of sessions where emotional shift is greater than zero.")}</div><div class="value">${fmtPct(sessions.filter((x)=>Number(x.emotion_shift||0)>0).length / Math.max(sessions.length,1))}</div></div>
         `;
       }
 
@@ -462,6 +498,37 @@
               followupsFirst: true,
               predSectionTitle: "Scores and predictions",
               causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
+            });
+          }
+          if (typeof initTimeframeFilter === "function") {
+            initTimeframeFilter({
+              mode: "day",
+              sliderId: "timeframe-slider",
+              sliderValueId: "timeframe-slider-value",
+              labelId: "timeframe-label",
+              getAllRows: function () {
+                return data.sessions || [];
+              },
+              getRowDate: function (s) {
+                return new Date(String(s.session_date) + "T12:00:00");
+              },
+              quickLinks: [
+                { id: "days-7-btn", days: 7 },
+                { id: "days-30-btn", days: 30 },
+                { id: "days-90-btn", days: 90 },
+                { id: "days-365-btn", days: 365 },
+                { id: "all-time-btn", allTime: true },
+              ],
+              onApply: function (filtered) {
+                tfSessions = filtered;
+                selectedId = null;
+                detailPlaceholder.style.display = "block";
+                detailMeta.style.display = "none";
+                sessionWrap.style.display = "none";
+                renderKpis();
+                renderVisuals();
+                applyPreset(sortPreset.value);
+              },
             });
           }
           renderKpis();

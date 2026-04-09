@@ -39,7 +39,8 @@ export default defineConfig({
     proxy: {
       // Same-origin `/api` in dev so HttpOnly session cookies work with the Vite dev server.
       '/api': {
-        target: 'http://localhost:5080',
+        // Match backend/Intex.Api launchSettings default (http profile: localhost:5172).
+        target: 'http://localhost:5172',
         changeOrigin: true,
       },
     },
