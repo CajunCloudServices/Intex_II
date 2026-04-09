@@ -47,6 +47,28 @@ Safe options:
 
 After clearing domain data, restart the API and confirm logs show `DATA_SEED: Full CSV snapshot loaded`.
 
+## Non-destructive CSV backfill for non-empty databases
+
+Production-like environments should prefer a **merge/backfill** over truncating tables. The API now supports an explicit non-destructive CSV backfill workflow controlled by `Seed:BackfillCsvOnStartup`.
+
+- `Seed:BackfillCsvOnStartup=true` runs a one-time CSV merge on startup even when domain tables already contain rows.
+- Parent records are matched by stable business keys before inserting anything new:
+  - Safehouses by `Code`
+  - Supporters by `Email`
+  - Residents by `CaseControlNumber`
+  - Partners by `PartnerName`
+  - Social posts by `PlatformPostId` or `PostUrl`
+- Child rows are inserted only after parent mappings are resolved and are deduplicated by deterministic composite keys.
+
+Recommended workflow:
+
+1. Back up the database.
+2. Restore a staging copy.
+3. Set `Seed__Mode=Csv`, `Seed__CsvPath=<csv-folder>`, and `Seed__BackfillCsvOnStartup=true`.
+4. Start the API once and inspect logs for `DATA_BACKFILL` and `CSV operational backfill`.
+5. Verify row counts and endpoint responses in staging.
+6. Repeat in production only after the staging pass succeeds, then turn `Seed__BackfillCsvOnStartup` back off.
+
 ## ML Insights static JSON
 
 ML admin dashboards served under `/api/ml-dashboard/data/{key}` read **generated JSON files** (see `MlDashboardOptions`), not live SQL aggregates. Refresh them with `ml-pipelines/scripts/generate_*_dashboard_data.py` when needed. Operational KPIs on other pages still come from the EF database.

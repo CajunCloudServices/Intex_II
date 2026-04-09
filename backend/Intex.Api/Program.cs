@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using System.Text.RegularExpressions;
 using System.Threading.RateLimiting;
 
@@ -314,6 +315,7 @@ builder.Services
 builder.Services.AddOpenApi();
 builder.Services.AddScoped<IReintegrationFeatureBuilder, ReintegrationFeatureBuilder>();
 builder.Services.AddScoped<ICsvRelationalSeeder, CsvRelationalSeeder>();
+builder.Services.AddScoped<ICsvOperationalBackfillImporter, CsvOperationalBackfillImporter>();
 builder.Services.AddHttpClient<IMlInferenceClient, MlInferenceClient>((serviceProvider, client) =>
 {
     var options = serviceProvider.GetRequiredService<IOptions<MlInferenceOptions>>().Value;
@@ -346,7 +348,14 @@ app.Use(async (context, next) =>
             throw;
         }
 
-        app.Logger.LogError(exception, "Unhandled API exception for {Path}", context.Request.Path);
+        app.Logger.LogError(
+            exception,
+            "Unhandled API exception {ExceptionType} for {Method} {Path}{QueryString} (trace {TraceId})",
+            exception.GetType().Name,
+            context.Request.Method,
+            context.Request.Path,
+            context.Request.QueryString,
+            context.TraceIdentifier);
         context.Response.Clear();
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         context.Response.ContentType = "application/problem+json";
@@ -439,7 +448,24 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     if (!app.Environment.IsEnvironment("Test") && !useInMemoryDatabase)
     {
+        var configuredConnectionString = GetConfiguredConnectionString(app.Configuration);
+        if (!string.IsNullOrWhiteSpace(configuredConnectionString))
+        {
+            app.Logger.LogInformation("DATABASE_TARGET: {Target}", DescribeConnectionTarget(configuredConnectionString));
+        }
+
+        var pendingMigrations = (await dbContext.Database.GetPendingMigrationsAsync()).ToList();
+        if (pendingMigrations.Count > 0)
+        {
+            app.Logger.LogInformation(
+                "DATABASE_MIGRATIONS: Applying {Count} pending migration(s): {Migrations}",
+                pendingMigrations.Count,
+                string.Join(", ", pendingMigrations));
+        }
+
         await dbContext.Database.MigrateAsync();
+        var appliedMigrations = await dbContext.Database.GetAppliedMigrationsAsync();
+        app.Logger.LogInformation("DATABASE_MIGRATIONS: Database is at {LatestMigration}", appliedMigrations.LastOrDefault() ?? "baseline");
     }
 
     var seeder = scope.ServiceProvider.GetRequiredService<AppSeeder>();
@@ -472,6 +498,23 @@ static void ValidateProductionCorsOrigins(IConfiguration configuration)
             throw new InvalidOperationException(
                 "Cors:AllowedOrigins cannot include loopback or localhost origins in Production. Remove development-only origins from deployment configuration.");
         }
+    }
+}
+
+static string? GetConfiguredConnectionString(IConfiguration configuration)
+    => configuration.GetConnectionString("DefaultConnection") ??
+        configuration["ConnectionStrings__DefaultConnection"];
+
+static string DescribeConnectionTarget(string connectionString)
+{
+    try
+    {
+        var builder = new NpgsqlConnectionStringBuilder(connectionString);
+        return $"Host={builder.Host};Port={builder.Port};Database={builder.Database};Username={builder.Username}";
+    }
+    catch
+    {
+        return "Connection string present but could not be parsed safely.";
     }
 }
 

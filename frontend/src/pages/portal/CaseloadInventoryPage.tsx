@@ -11,6 +11,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageSt
 import { Pagination } from '../../components/ui/Pagination';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
+import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
 import { createResidentForm } from './forms/residentFormDefaults';
 import { ResidentRecordForm } from './forms/ResidentRecordForm';
@@ -37,6 +38,7 @@ export function CaseloadInventoryPage() {
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadWarning, setLoadWarning] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -59,12 +61,28 @@ export function CaseloadInventoryPage() {
     if (!user) return;
     setLoading(true);
     setError(null);
+    setLoadWarning(null);
 
     try {
-      const [residentData, safehouseData] = await Promise.all([api.residents(), api.safehouses()]);
-      setResidents(residentData);
-      setSafehouses(safehouseData);
-      setResidentForm((current) => (current.safehouseId > 0 ? current : createResidentForm(safehouseData[0]?.id)));
+      const [residentResult, safehouseResult] = await Promise.allSettled([api.residents(), api.safehouses()]);
+      const warnings: string[] = [];
+
+      if (residentResult.status === 'fulfilled') {
+        setResidents(residentResult.value);
+      } else {
+        setResidents([]);
+        setError(getRequestErrorMessage(residentResult.reason, 'Failed to load residents.'));
+      }
+
+      if (safehouseResult.status === 'fulfilled') {
+        setSafehouses(safehouseResult.value);
+        setResidentForm((current) => (current.safehouseId > 0 ? current : createResidentForm(safehouseResult.value[0]?.id)));
+      } else {
+        setSafehouses([]);
+        warnings.push(describeUnavailableSection('Safehouses', safehouseResult.reason, 'Safehouse filters are unavailable.'));
+      }
+
+      setLoadWarning(combineUnavailableSections(warnings));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load residents.');
     } finally {
@@ -224,6 +242,7 @@ export function CaseloadInventoryPage() {
       </section>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
         <LoadingState label="Loading caseload..." />

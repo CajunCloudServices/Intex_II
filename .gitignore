@@ -1,4 +1,5 @@
 .env
+localtest-logs/
 backend/Intex.Api/bin/
 backend/Intex.Api/obj/
 backend/Intex.Api.Tests/bin/

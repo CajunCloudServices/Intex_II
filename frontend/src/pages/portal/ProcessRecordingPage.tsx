@@ -11,6 +11,7 @@ import { Pagination } from '../../components/ui/Pagination';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
+import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { createRecordingForm } from './forms/processRecordingDefaults';
 import { ProcessRecordingForm } from './forms/ProcessRecordingForm';
 
@@ -37,6 +38,7 @@ export function ProcessRecordingPage() {
   const [recordingForm, setRecordingForm] = useState<ProcessRecordingRequest>(createRecordingForm());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadWarning, setLoadWarning] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [submitting, setSubmitting] = useState(false);
   const deferredSearch = useDeferredValue(search);
@@ -49,18 +51,42 @@ export function ProcessRecordingPage() {
 
     setLoading(true);
     setError(null);
+    setLoadWarning(null);
 
     try {
-      const [recordingData, residentData, counselingRiskData] = await Promise.all([
+      const [recordingResult, residentResult, counselingRiskResult] = await Promise.allSettled([
         api.processRecordings(residentId ? { residentId } : undefined),
         api.residents(),
         api.counselingRiskSummary(10),
       ]);
+      const warnings: string[] = [];
+
+      const recordingData = recordingResult.status === 'fulfilled' ? recordingResult.value : [];
+      const residentData = residentResult.status === 'fulfilled' ? residentResult.value : [];
+      const counselingRiskData = counselingRiskResult.status === 'fulfilled' ? counselingRiskResult.value : null;
 
       setRecordings(recordingData);
       setResidents(residentData);
       setCounselingRiskSummary(counselingRiskData);
       setRecordingForm((current) => (current.residentId > 0 ? current : createRecordingForm(residentData[0]?.id)));
+
+      if (recordingResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Process recordings', recordingResult.reason, 'Session records could not be loaded.'));
+      }
+
+      if (residentResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Resident directory', residentResult.reason, 'Resident lookups are unavailable.'));
+      }
+
+      if (counselingRiskResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Counseling risk', counselingRiskResult.reason, 'Risk scoring data is unavailable.'));
+      }
+
+      if (recordingResult.status === 'rejected' && counselingRiskResult.status === 'rejected') {
+        setError(getRequestErrorMessage(recordingResult.reason, 'Failed to load process recordings.'));
+      } else {
+        setLoadWarning(combineUnavailableSections(warnings));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load process recordings.');
     } finally {
@@ -177,7 +203,7 @@ export function ProcessRecordingPage() {
     ? `Full counseling note history for ${selectedResident.caseControlNumber}, shown newest first.`
     : canManageRecordings
       ? 'Staff and admins can enter and update counseling notes from one streamlined workspace.'
-      : 'Staff can review counseling notes and open each resident’s full note history in a modal.';
+      : "Staff can review counseling notes and open each resident's full note history in a modal.";
 
   const sessionTableTitle = selectedResident ? 'Resident counseling session history' : 'Recent counseling sessions';
   const riskTableTitle = 'Highest-risk counseling sessions';
@@ -282,6 +308,7 @@ export function ProcessRecordingPage() {
       </SectionCard>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
         <LoadingState label="Loading process recordings..." />
@@ -364,7 +391,7 @@ export function ProcessRecordingPage() {
           {filteredRecordings.length === 0 ? (
             <EmptyState
               title="No matching sessions"
-              message={selectedResident ? 'Try clearing a filter to view this resident’s full history again.' : 'Try clearing the filters or searching another resident code.'}
+              message={selectedResident ? "Try clearing a filter to view this resident's full history again." : 'Try clearing the filters or searching another resident code.'}
             />
           ) : (
             <>
@@ -524,7 +551,7 @@ export function ProcessRecordingPage() {
                 <div className="process-recording-history-header">
                   <div>
                     <h3>Resident history</h3>
-                    <p>Review this resident’s healing journey in reverse chronological order.</p>
+                    <p>Review this resident's healing journey in reverse chronological order.</p>
                   </div>
                   {selectedResident ? (
                     <button className="ghost-button" onClick={() => setResidentFilter('All')} type="button">
@@ -540,20 +567,20 @@ export function ProcessRecordingPage() {
                 ) : (
                   <>
                     <div className="process-recording-history-list" role="list">
-                    {paginatedResidentHistory.map((historyRecording) => (
-                      <button
-                        className={`process-recording-history-item${historyRecording.id === viewedRecording.id ? ' is-active' : ''}`}
-                        key={historyRecording.id}
-                        onClick={() => setViewRecordingId(historyRecording.id)}
-                        type="button"
-                      >
-                        <div>
-                          <strong>{formatDate(historyRecording.sessionDate)}</strong>
-                          <span>{historyRecording.sessionType} · {historyRecording.socialWorker}</span>
-                        </div>
-                        <SessionSignals recording={historyRecording} />
-                      </button>
-                    ))}
+                      {paginatedResidentHistory.map((historyRecording) => (
+                        <button
+                          className={`process-recording-history-item${historyRecording.id === viewedRecording.id ? ' is-active' : ''}`}
+                          key={historyRecording.id}
+                          onClick={() => setViewRecordingId(historyRecording.id)}
+                          type="button"
+                        >
+                          <div>
+                            <strong>{formatDate(historyRecording.sessionDate)}</strong>
+                            <span>{historyRecording.sessionType} · {historyRecording.socialWorker}</span>
+                          </div>
+                          <SessionSignals recording={historyRecording} />
+                        </button>
+                      ))}
                     </div>
                     <Pagination
                       page={residentHistoryPage}

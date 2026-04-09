@@ -11,6 +11,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageSt
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
+import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { CaseConferenceRecordForm } from './forms/CaseConferenceRecordForm';
 import { createConferenceForm, createVisitationForm, visitTypeOptions } from './forms/homeVisitationDefaults';
 import { HomeVisitationRecordForm } from './forms/HomeVisitationRecordForm';
@@ -22,6 +23,7 @@ export function HomeVisitationsPage() {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadWarning, setLoadWarning] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const [search, setSearch] = useState('');
   const [visitTypeFilter, setVisitTypeFilter] = useState('All');
@@ -43,13 +45,19 @@ export function HomeVisitationsPage() {
     // conferences are usually reviewed together when staff are checking follow-up readiness.
     setLoading(true);
     setError(null);
+    setLoadWarning(null);
 
     try {
-      const [visitationData, conferenceData, residentData] = await Promise.all([
+      const [visitationResult, conferenceResult, residentResult] = await Promise.allSettled([
         api.homeVisitations(),
         api.caseConferences(),
         api.residents(),
       ]);
+      const warnings: string[] = [];
+
+      const visitationData = visitationResult.status === 'fulfilled' ? visitationResult.value : [];
+      const conferenceData = conferenceResult.status === 'fulfilled' ? conferenceResult.value : [];
+      const residentData = residentResult.status === 'fulfilled' ? residentResult.value : [];
 
       setVisitations(visitationData);
       setConferences(conferenceData);
@@ -58,6 +66,24 @@ export function HomeVisitationsPage() {
       setSelectedConferenceId((current) => current ?? conferenceData[0]?.id ?? null);
       setVisitationForm((current) => current.residentId > 0 ? current : createVisitationForm(residentData[0]?.id));
       setConferenceForm((current) => current.residentId > 0 ? current : createConferenceForm(residentData[0]?.id));
+
+      if (visitationResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Visit log', visitationResult.reason, 'Home visitation records could not be loaded.'));
+      }
+
+      if (conferenceResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Case conferences', conferenceResult.reason, 'Conference records could not be loaded.'));
+      }
+
+      if (residentResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Resident directory', residentResult.reason, 'Resident lookups are unavailable.'));
+      }
+
+      if (visitationResult.status === 'rejected' && conferenceResult.status === 'rejected') {
+        setError(getRequestErrorMessage(visitationResult.reason, 'Failed to load home visitations.'));
+      } else {
+        setLoadWarning(combineUnavailableSections(warnings));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load home visitations.');
     } finally {
@@ -211,6 +237,7 @@ export function HomeVisitationsPage() {
       </section>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
         <LoadingState label="Loading visitations and case conferences..." />

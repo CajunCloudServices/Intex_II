@@ -13,13 +13,23 @@ public class AppSeeder(
     RoleManager<IdentityRole<Guid>> roleManager,
     UserManager<ApplicationUser> userManager,
     ICsvRelationalSeeder csvRelationalSeeder,
+    ICsvOperationalBackfillImporter csvOperationalBackfillImporter,
     IOptions<SeedOptions> seedOptions,
+    IHostEnvironment hostEnvironment,
     ILogger<AppSeeder> logger)
 {
     private readonly SeedOptions options = seedOptions.Value;
 
     public async Task SeedAsync()
     {
+        var resolvedCsvRoot = CsvSeedSupport.ResolveCsvRoot(options, hostEnvironment);
+        logger.LogInformation(
+            "DATA_SEED_CONFIG: Mode={Mode}; ImportCsvOnStartup={ImportCsvOnStartup}; BackfillCsvOnStartup={BackfillCsvOnStartup}; CsvRoot={CsvRoot}",
+            options.Mode,
+            options.ImportCsvOnStartup,
+            options.BackfillCsvOnStartup,
+            resolvedCsvRoot);
+
         // Roles must exist before user creation, because the seeded accounts are assigned
         // immediately after the domain rows are inserted.
         foreach (var roleName in RoleNames.All)
@@ -75,6 +85,28 @@ public class AppSeeder(
             logger.LogInformation(
                 "DATA_SEED: Domain tables already contain Safehouses rows; skipping CSV and fixture import. " +
                 "To force a full CSV load, use an empty database or truncate domain tables (see docs/dashboard-data-troubleshooting.md).");
+        }
+
+        if (string.Equals(options.Mode, "Csv", StringComparison.OrdinalIgnoreCase) && options.BackfillCsvOnStartup)
+        {
+            logger.LogInformation("DATA_BACKFILL: Explicit CSV operational backfill requested for non-empty database.");
+            var backfillResult = await csvOperationalBackfillImporter.BackfillAsync();
+            if (!backfillResult.Success)
+            {
+                foreach (var error in backfillResult.Errors.Take(25))
+                {
+                    logger.LogWarning("CSV backfill error: {Error}", error);
+                }
+            }
+            else
+            {
+                logger.LogInformation(
+                    "DATA_BACKFILL: Completed from {CsvRoot}. Inserted: {Inserted}. Matched existing: {Matched}. Warnings: {WarningCount}",
+                    backfillResult.CsvRoot,
+                    string.Join(", ", backfillResult.InsertedCounts.Select(x => $"{x.Key}={x.Value}")),
+                    string.Join(", ", backfillResult.MatchedCounts.Select(x => $"{x.Key}={x.Value}")),
+                    backfillResult.Warnings.Count);
+            }
         }
 
         await SeedUsersAsync();
