@@ -5252,6 +5252,11 @@ body {
   gap: 0.9rem;
 }
 
+.supporter-directory-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
 .donation-activity-list {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
@@ -5303,6 +5308,11 @@ body {
   color: inherit;
   text-align: left;
   cursor: pointer;
+}
+
+.supporter-directory-main {
+  cursor: default;
+  align-content: start;
 }
 
 .donation-card-main {
@@ -5637,6 +5647,77 @@ body {
   min-width: 460px;
 }
 
+.donor-history-table-wide .data-table {
+  min-width: 100%;
+}
+
+.donor-history-search {
+  min-width: 280px;
+  width: min(100%, 22rem);
+}
+
+.supporter-profile-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.supporter-profile-stack .section-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 243, 236, 0.96));
+  border: 1px solid rgba(81, 69, 50, 0.08);
+  box-shadow: 0 18px 40px rgba(39, 25, 0, 0.06);
+}
+
+.supporter-profile-highlight {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.supporter-profile-highlight div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(81, 69, 50, 0.05);
+}
+
+.supporter-profile-highlight span {
+  color: var(--color-text-soft);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.supporter-profile-highlight strong {
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.supporter-profile-stack .detail-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.supporter-profile-stack .detail-list div {
+  gap: 0.28rem;
+  padding: 0.9rem 1rem;
+  border-bottom: 0;
+  border-radius: 1rem;
+  background: rgba(81, 69, 50, 0.05);
+}
+
+.supporter-profile-stack .detail-list dt {
+  color: var(--color-text-soft);
+  font-size: 0.74rem;
+}
+
+.supporter-profile-stack .detail-list dd {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
 /* Page fade animation */
 .donor-table-page {
   animation: table-page-in 200ms ease;
@@ -5826,6 +5907,7 @@ body {
   .donor-overview-grid,
   .risk-card-grid,
   .donor-workspace-grid,
+  .supporter-directory-list,
   .supporter-directory-metrics,
   .donor-summary-highlight,
   .donor-supporter-grid,

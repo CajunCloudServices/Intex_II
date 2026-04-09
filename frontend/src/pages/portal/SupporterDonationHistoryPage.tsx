@@ -1,14 +1,20 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '../../api';
-import type { Donation, Supporter } from '../../api/types';
+import type { Donation, Supporter, SupporterRequest } from '../../api/types';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
 import { DetailList } from '../../components/ui/DetailPanel';
+import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
+import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
+import { defaultSupporterForm } from './forms/donorFormDefaults';
+import { validateSupporterForm } from './forms/donorsFormValidation';
+import { SupporterRecordForm } from './forms/SupporterRecordForm';
 
 const PAGE_SIZE = 8;
 
@@ -36,8 +42,13 @@ export function SupporterDonationHistoryPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const [search, setSearch] = useState('');
   const [historyPage, setHistoryPage] = useState(1);
+  const [editingSupporterId, setEditingSupporterId] = useState<number | null>(null);
+  const [supporterForm, setSupporterForm] = useState<SupporterRequest>(defaultSupporterForm);
+  const [supporterErrors, setSupporterErrors] = useState<ValidationErrors>({});
+  const [submitting, setSubmitting] = useState(false);
   const deferredSearch = useDeferredValue(search);
   const tableRef = useRef<HTMLDivElement>(null);
 
@@ -64,6 +75,25 @@ export function SupporterDonationHistoryPage() {
   useEffect(() => {
     setHistoryPage(1);
   }, [deferredSearch]);
+
+  useEffect(() => {
+    if (!editingSupporterId) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        resetSupporterForm();
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editingSupporterId]);
 
   const isAnonymousRoute = supporterId === 'anonymous';
   const anonymousSupporters = supporters.filter(isAnonymousSupporter);
@@ -164,6 +194,82 @@ export function SupporterDonationHistoryPage() {
       .slice(0, 8);
   }, [scopedDonations]);
 
+  const canManageSupporters = (user?.roles.includes('Admin') ?? false) || (user?.roles.includes('Staff') ?? false);
+  const canEditSupporter = !historySubject?.isAnonymousAggregate && historySubject?.id && canManageSupporters;
+
+  const resetSupporterForm = () => {
+    setEditingSupporterId(null);
+    setSupporterErrors({});
+    setSupporterForm(defaultSupporterForm);
+  };
+
+  const openSupporterEdit = () => {
+    if (!canEditSupporter) return;
+    const supporter = supporters.find((item) => item.id === Number(historySubject?.id));
+    if (!supporter) return;
+
+    setEditingSupporterId(supporter.id);
+    setSupporterErrors({});
+    setSupporterForm({
+      supporterType: supporter.supporterType,
+      displayName: supporter.displayName,
+      organizationName: supporter.organizationName ?? '',
+      firstName: supporter.firstName ?? '',
+      lastName: supporter.lastName ?? '',
+      relationshipType: supporter.relationshipType,
+      region: supporter.region,
+      country: supporter.country,
+      email: supporter.email,
+      phone: supporter.phone ?? '',
+      status: supporter.status,
+      firstDonationDate: supporter.firstDonationDate ?? '',
+      acquisitionChannel: supporter.acquisitionChannel,
+    });
+  };
+
+  const handleSupporterSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!user || !editingSupporterId) return;
+
+    setSubmitting(true);
+    setFeedback(null);
+    const formErrors = validateSupporterForm(supporterForm);
+    setSupporterErrors(formErrors);
+    if (Object.keys(formErrors).length > 0) {
+      setSubmitting(false);
+      setFeedback({ tone: 'error', message: 'Please correct the highlighted supporter fields.' });
+      return;
+    }
+
+    try {
+      const payload = {
+        ...supporterForm,
+        displayName: sanitizeText(supporterForm.displayName),
+        email: sanitizeText(supporterForm.email),
+        supporterType: sanitizeText(supporterForm.supporterType),
+        status: sanitizeText(supporterForm.status),
+        relationshipType: sanitizeText(supporterForm.relationshipType),
+        region: sanitizeText(supporterForm.region),
+        country: sanitizeText(supporterForm.country),
+        acquisitionChannel: sanitizeText(supporterForm.acquisitionChannel),
+        organizationName: sanitizeOptionalText(supporterForm.organizationName ?? ''),
+        firstName: sanitizeOptionalText(supporterForm.firstName ?? ''),
+        lastName: sanitizeOptionalText(supporterForm.lastName ?? ''),
+        phone: sanitizeOptionalText(supporterForm.phone ?? ''),
+        firstDonationDate: supporterForm.firstDonationDate || null,
+      };
+
+      await api.updateSupporter(editingSupporterId, payload);
+      setFeedback({ tone: 'success', message: 'Supporter updated.' });
+      resetSupporterForm();
+      await loadData();
+    } catch (err) {
+      setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Supporter save failed.' });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -183,6 +289,8 @@ export function SupporterDonationHistoryPage() {
         </div>
       </div>
 
+      {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+
       {loading ? (
         <LoadingState label="Loading supporter history..." />
       ) : error ? (
@@ -197,52 +305,19 @@ export function SupporterDonationHistoryPage() {
             <MetricCard label="Recurring gifts" value={String(recurringCount)} detail={historySubject.firstDonationDate ? `Since ${formatDate(historySubject.firstDonationDate)}` : 'No first donation date recorded.'} />
           </section>
 
-          <section className="page-grid two donor-workspace-grid">
-            <SectionCard
-              title="Donation history"
-              subtitle="Review every contribution without crowding the main donor dashboard."
-              actions={
-                <input
-                  aria-label="Search donation history"
-                  className="inline-search"
-                  placeholder="Search campaign, type, allocation..."
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
-                />
-              }
-            >
-              {filteredDonations.length === 0 ? (
-                <EmptyState title="No donations found" message="Try clearing the search." />
-              ) : (
-                <div className="donor-history-table" ref={tableRef}>
-                  <div className="donor-table-page" key={`${historyPage}-${deferredSearch}`}>
-                    <DataTable
-                      columns={['Date', 'Amount', 'Campaign', 'Type', 'Allocation']}
-                      rows={pagedDonations.map((donation) => [
-                        formatDate(donation.donationDate),
-                        formatMoney(donation.amount ?? donation.estimatedValue),
-                        donation.campaignName ?? 'Direct support',
-                        humanizeLabel(donation.donationType),
-                        donation.allocations[0] ? `${donation.allocations[0].safehouseName} • ${donation.allocations[0].programArea}` : 'No allocation',
-                      ])}
-                      emptyMessage="No matching records."
-                    />
-                  </div>
-                  <Pagination
-                    page={historyPage}
-                    totalPages={totalPages}
-                    totalItems={filteredDonations.length}
-                    pageSize={PAGE_SIZE}
-                    onChange={(page) => {
-                      setHistoryPage(page);
-                      tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    }}
-                  />
-                </div>
-              )}
-            </SectionCard>
-
-            <SectionCard title="Supporter summary" subtitle="Keep the donor overview compact while leaving the detailed history on this page.">
+          <SectionCard
+            title="Supporter summary"
+            subtitle="Keep the donor profile visible at the top, then review the full contribution history below."
+            actions={
+              canEditSupporter ? (
+                <button className="ghost-button" onClick={openSupporterEdit} type="button">
+                  Edit supporter
+                </button>
+              ) : undefined
+            }
+          >
+            <div className="supporter-profile-stack">
+              <SectionCard title="Profile details" subtitle={historySubject.isAnonymousAggregate ? 'Anonymous aggregate profile information remains grouped and partially hidden.' : 'Classification, status, and relationship details for this supporter.'}>
               <DetailList
                 items={[
                   { label: 'Type', value: historySubject.supporterType },
@@ -255,8 +330,53 @@ export function SupporterDonationHistoryPage() {
                   { label: 'First donation', value: historySubject.firstDonationDate ? formatDate(historySubject.firstDonationDate) : 'No donation date recorded' },
                 ]}
               />
-            </SectionCard>
-          </section>
+              </SectionCard>
+            </div>
+          </SectionCard>
+
+          <SectionCard
+            title="Donation history"
+            subtitle="Review every contribution with more room for campaign, type, and allocation details."
+            actions={
+              <input
+                aria-label="Search donation history"
+                className="inline-search donor-history-search"
+                placeholder="Search campaign, type, allocation..."
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            }
+          >
+            {filteredDonations.length === 0 ? (
+              <EmptyState title="No donations found" message="Try clearing the search." />
+            ) : (
+              <div className="donor-history-table donor-history-table-wide" ref={tableRef}>
+                <div className="donor-table-page" key={`${historyPage}-${deferredSearch}`}>
+                  <DataTable
+                    columns={['Date', 'Amount', 'Campaign', 'Type', 'Primary allocation']}
+                    rows={pagedDonations.map((donation) => [
+                      formatDate(donation.donationDate),
+                      formatMoney(donation.amount ?? donation.estimatedValue),
+                      donation.campaignName ?? 'Direct support',
+                      humanizeLabel(donation.donationType),
+                      donation.allocations[0] ? `${donation.allocations[0].safehouseName} • ${donation.allocations[0].programArea}` : 'No allocation',
+                    ])}
+                    emptyMessage="No matching records."
+                  />
+                </div>
+                <Pagination
+                  page={historyPage}
+                  totalPages={totalPages}
+                  totalItems={filteredDonations.length}
+                  pageSize={PAGE_SIZE}
+                  onChange={(page) => {
+                    setHistoryPage(page);
+                    tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                  }}
+                />
+              </div>
+            )}
+          </SectionCard>
 
           <SectionCard title="Allocation footprint" subtitle="Where this donor’s support has been directed across program areas and safehouses.">
             {allocationBreakdown.length > 0 ? (
@@ -271,6 +391,38 @@ export function SupporterDonationHistoryPage() {
           </SectionCard>
         </>
       )}
+
+      {canManageSupporters && editingSupporterId ? (
+        <div className="modal-backdrop supporter-edit-backdrop" onClick={resetSupporterForm}>
+          <div
+            aria-labelledby="supporter-profile-edit-title"
+            aria-modal="true"
+            className="modal-surface donation-edit-modal"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+          >
+            <div className="donation-edit-modal-header">
+              <div>
+                <h2 id="supporter-profile-edit-title">Edit supporter</h2>
+                <p>Update classification, status, and relationship details without leaving the profile page.</p>
+              </div>
+              <button className="ghost-button" onClick={resetSupporterForm} type="button">
+                Close
+              </button>
+            </div>
+
+            <SupporterRecordForm
+              supporterForm={supporterForm}
+              setSupporterForm={setSupporterForm}
+              supporterErrors={supporterErrors}
+              onSubmit={handleSupporterSubmit}
+              onCancel={resetSupporterForm}
+              submitting={submitting}
+              submitLabel="Save Changes"
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

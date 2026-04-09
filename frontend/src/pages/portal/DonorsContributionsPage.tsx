@@ -13,7 +13,6 @@ import type {
   SupporterRequest,
 } from '../../api/types';
 import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHeader';
-import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { Pagination } from '../../components/ui/Pagination';
@@ -27,7 +26,7 @@ import { DonationRecordForm } from './forms/DonationRecordForm';
 import { validateDonationForm, validateSupporterForm } from './forms/donorsFormValidation';
 import { SupporterRecordForm } from './forms/SupporterRecordForm';
 
-const SUPPORTERS_PAGE_SIZE = 10;
+const SUPPORTERS_PAGE_SIZE = 4;
 const DONATIONS_PAGE_SIZE = 4;
 
 type SummaryItem = {
@@ -82,7 +81,6 @@ export function DonorsContributionsPage() {
   const [donationSupporterFilter, setDonationSupporterFilter] = useState('All');
   const [supporterPage, setSupporterPage] = useState(1);
   const [donationPage, setDonationPage] = useState(1);
-  const [selectedSupporterKey, setSelectedSupporterKey] = useState<string | null>(null);
   const [editingSupporterId, setEditingSupporterId] = useState<number | null>(null);
   const [editingDonationId, setEditingDonationId] = useState<number | null>(null);
   const [supporterForm, setSupporterForm] = useState<SupporterRequest>(defaultSupporterForm);
@@ -92,7 +90,7 @@ export function DonorsContributionsPage() {
   const [submitting, setSubmitting] = useState<string | null>(null);
   const deferredSupporterSearch = useDeferredValue(supporterSearch);
   const deferredDonationSearch = useDeferredValue(donationSearch);
-  const isAdmin = user?.roles.includes('Admin') ?? false;
+  const canManageDonors = (user?.roles.includes('Admin') ?? false) || (user?.roles.includes('Staff') ?? false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -124,11 +122,15 @@ export function DonorsContributionsPage() {
   }, [loadData]);
 
   useEffect(() => {
-    if (!editingDonationId) return;
+    if (!editingDonationId && !editingSupporterId) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        resetDonationForm();
+        if (editingDonationId) {
+          resetDonationForm();
+        } else if (editingSupporterId) {
+          resetSupporterForm();
+        }
       }
     };
 
@@ -140,7 +142,7 @@ export function DonorsContributionsPage() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [editingDonationId]);
+  }, [editingDonationId, editingSupporterId]);
 
   const supporterDonations = useMemo(() => {
     const grouped = new Map<number, Donation[]>();
@@ -198,16 +200,6 @@ export function DonorsContributionsPage() {
     const anonymousEntry = buildAnonymousEntry(anonymousSupporters, supporterDonations);
     return anonymousEntry ? [...namedEntries, anonymousEntry] : namedEntries;
   }, [anonymousSupporters, namedSupporters, supporterDonations]);
-
-  useEffect(() => {
-    if (allSupporterEntries.length === 0) {
-      setSelectedSupporterKey(null);
-      return;
-    }
-    setSelectedSupporterKey((current) =>
-      current && allSupporterEntries.some((entry) => entry.key === current) ? current : allSupporterEntries[0].key,
-    );
-  }, [allSupporterEntries]);
 
   const normalizedSupporterSearch = normalizeText(deferredSupporterSearch);
   const normalizedDonationSearch = normalizeText(deferredDonationSearch);
@@ -295,22 +287,6 @@ export function DonorsContributionsPage() {
       setDonationPage(donationTotalPages);
     }
   }, [donationPage, donationTotalPages]);
-
-  const selectedSupporterEntry = allSupporterEntries.find((entry) => entry.key === selectedSupporterKey) ?? allSupporterEntries[0] ?? null;
-  const selectedSupporterProgramMix = useMemo(
-    () =>
-      summarizeAllocations(selectedSupporterEntry?.donationHistory ?? [], (allocation) => `${allocation.programArea} • ${allocation.safehouseName}`)
-        .sort((left, right) => right.amount - left.amount)
-        .slice(0, 4),
-    [selectedSupporterEntry],
-  );
-  const selectedSupporterContributionMix = useMemo(
-    () =>
-      summarizeDonationTypes(selectedSupporterEntry?.donationHistory ?? [])
-        .sort((left, right) => right.amount - left.amount || right.count - left.count)
-        .slice(0, 4),
-    [selectedSupporterEntry],
-  );
 
   const totalRaised = donations.reduce((sum, donation) => sum + donationValue(donation), 0);
   const recurringDonations = donations.filter((donation) => donation.isRecurring).length;
@@ -473,7 +449,7 @@ export function DonorsContributionsPage() {
     }
   };
 
-  const donorHeaderActions = isAdmin
+  const donorHeaderActions = canManageDonors
     ? [
         { label: 'Add Donation', to: '/portal/donors/donations/new' },
         { label: 'Add Supporter', to: '/portal/donors/supporters/new' },
@@ -549,41 +525,43 @@ export function DonorsContributionsPage() {
         <ErrorState message={error} onRetry={loadData} />
       ) : (
         <>
-          <section className="page-grid two donor-workspace-grid donor-supporter-grid">
+          <section>
             <SectionCard
               title="Supporter directory"
               subtitle="A donor-level view of who is giving, with anonymous support grouped instead of repeated."
               actions={
-                <div className="filter-row donor-filter-row">
+                <div className="filter-row donor-filter-row donor-filter-grid">
                   <input
                     aria-label="Search supporters"
-                    className="inline-search"
+                    className="inline-search donor-filter-search"
                     placeholder="Search donor name, email, or type..."
                     value={supporterSearch}
                     onChange={(event) => setSupporterSearch(event.target.value)}
                   />
-                  <select
-                    aria-label="Filter supporters by status"
-                    className="inline-select"
-                    value={supporterStatusFilter}
-                    onChange={(event) => setSupporterStatusFilter(event.target.value)}
-                  >
-                    <option>All</option>
-                    <option>Active</option>
-                    <option>Inactive</option>
-                  </select>
-                  <select
-                    aria-label="Filter supporters by type"
-                    className="inline-select"
-                    value={supporterTypeFilter}
-                    onChange={(event) => setSupporterTypeFilter(event.target.value)}
-                  >
-                    {supporterTypeOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                                    <div className="donor-filter-select-row">
+                    <select
+                      aria-label="Filter supporters by status"
+                      className="inline-select donor-filter-select"
+                      value={supporterStatusFilter}
+                      onChange={(event) => setSupporterStatusFilter(event.target.value)}
+                    >
+                      <option>All</option>
+                      <option>Active</option>
+                      <option>Inactive</option>
+                    </select>
+                    <select
+                      aria-label="Filter supporters by type"
+                      className="inline-select donor-filter-select"
+                      value={supporterTypeFilter}
+                      onChange={(event) => setSupporterTypeFilter(event.target.value)}
+                    >
+                      {supporterTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               }
             >
@@ -593,7 +571,7 @@ export function DonorsContributionsPage() {
                 <>
                   <div className="supporter-directory-list supporter-directory-list-compact">
                     {paginatedSupporters.map((entry) => (
-                      <article className={`supporter-directory-card supporter-directory-card-compact${entry.key === selectedSupporterEntry?.key ? ' is-selected' : ''}`} key={entry.key}>
+                      <article className="supporter-directory-card supporter-directory-card-compact" key={entry.key}>
                         <div className="supporter-directory-main">
                           <div className="supporter-directory-head">
                             <div>
@@ -618,13 +596,10 @@ export function DonorsContributionsPage() {
                           </div>
                         </div>
                         <div className="supporter-directory-actions">
-                          <button className="ghost-button" onClick={() => setSelectedSupporterKey(entry.key)} type="button">
-                            Summary
-                          </button>
                           <Link className="ghost-button" to={`/portal/donors/supporters/${entry.kind === 'anonymous' ? 'anonymous' : entry.supporterId}/history`}>
                             History
                           </Link>
-                          {isAdmin && entry.canEdit && entry.supporterId ? (
+                          {canManageDonors && entry.canEdit && entry.supporterId ? (
                             <>
                               <button
                                 className="ghost-button"
@@ -672,98 +647,7 @@ export function DonorsContributionsPage() {
                 </>
               )}
             </SectionCard>
-
-            <DetailPanel
-              className="detail-panel-neutral donor-supporter-summary"
-              title={selectedSupporterEntry?.displayName ?? 'Supporter summary'}
-              subtitle="Keep the main dashboard focused on donor rollups, then jump into full history when needed."
-            >
-              {selectedSupporterEntry ? (
-                <>
-                  <div className="donor-summary-highlight">
-                    <div>
-                      <span>Total donated</span>
-                      <strong>{formatMoney(selectedSupporterEntry.lifetimeGiving)}</strong>
-                    </div>
-                    <div>
-                      <span>Gifts</span>
-                      <strong>{selectedSupporterEntry.donationCount}</strong>
-                    </div>
-                    <div>
-                      <span>Last gift</span>
-                      <strong>{selectedSupporterEntry.lastDonationDate ? formatDate(selectedSupporterEntry.lastDonationDate) : 'None'}</strong>
-                    </div>
-                  </div>
-
-                  <DetailList
-                    items={[
-                      { label: 'Type', value: selectedSupporterEntry.supporterType },
-                      { label: 'Status', value: selectedSupporterEntry.status },
-                      { label: 'Contact', value: selectedSupporterEntry.email ?? 'Identity hidden' },
-                      { label: 'Acquisition channel', value: selectedSupporterEntry.acquisitionChannel },
-                      { label: 'First donation', value: selectedSupporterEntry.firstDonationDate ? formatDate(selectedSupporterEntry.firstDonationDate) : 'No donation date recorded' },
-                      {
-                        label: 'Note',
-                        value:
-                          selectedSupporterEntry.kind === 'anonymous'
-                            ? `${selectedSupporterEntry.donorCount} anonymous supporter profiles have been grouped into one rollup.`
-                            : `${selectedSupporterEntry.region}, ${selectedSupporterEntry.country}`,
-                      },
-                    ]}
-                  />
-
-                  <div className="supporter-summary-actions">
-                    <Link className="primary-button" to={`/portal/donors/supporters/${selectedSupporterEntry.kind === 'anonymous' ? 'anonymous' : selectedSupporterEntry.supporterId}/history`}>
-                      View donation history
-                    </Link>
-                  </div>
-
-                  <PanelList
-                    title="Contribution mix"
-                    items={selectedSupporterContributionMix.map((item) => ({
-                      label: item.label,
-                      amount: formatMoney(item.amount),
-                      detail: `${item.count} records`,
-                    }))}
-                    emptyMessage="No contribution activity recorded yet."
-                  />
-
-                  <PanelList
-                    title="Allocation footprint"
-                    items={selectedSupporterProgramMix.map((item) => ({
-                      label: item.label,
-                      amount: formatMoney(item.amount),
-                      detail: `${item.count} allocations`,
-                    }))}
-                    emptyMessage="No allocations recorded for this supporter yet."
-                  />
-                </>
-              ) : (
-                <EmptyState title="No supporter selected" message="Choose a donor to inspect the summary." />
-              )}
-            </DetailPanel>
           </section>
-
-          {isAdmin && editingSupporterId ? (
-            <SectionCard
-              title="Edit supporter"
-              subtitle="Update classification, status, and relationship details without leaving the operations dashboard."
-              actions={
-                <button className="ghost-button" onClick={resetSupporterForm} type="button">
-                  Cancel edit
-                </button>
-              }
-            >
-              <SupporterRecordForm
-                supporterForm={supporterForm}
-                setSupporterForm={setSupporterForm}
-                supporterErrors={supporterErrors}
-                onSubmit={handleSupporterSubmit}
-                submitting={submitting === 'supporter'}
-                submitLabel="Update supporter"
-              />
-            </SectionCard>
-          ) : null}
 
           <section>
             <SectionCard
@@ -835,7 +719,7 @@ export function DonorsContributionsPage() {
                                 <span>{formatDate(donation.donationDate)}</span>
                               </div>
 
-                              {isAdmin ? (
+                              {canManageDonors ? (
                                 <div className="donation-card-header-actions">
                                   <button
                                     className="ghost-button donation-card-action-button"
@@ -945,7 +829,7 @@ export function DonorsContributionsPage() {
         </>
       )}
 
-      {isAdmin && editingDonationId ? (
+      {canManageDonors && editingDonationId ? (
         <div
           className="modal-backdrop donation-edit-backdrop"
           onClick={resetDonationForm}
@@ -976,6 +860,41 @@ export function DonorsContributionsPage() {
               onSubmit={handleDonationSubmit}
               onCancel={resetDonationForm}
               submitting={submitting === 'donation'}
+              submitLabel="Save Changes"
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {canManageDonors && editingSupporterId ? (
+        <div
+          className="modal-backdrop supporter-edit-backdrop"
+          onClick={resetSupporterForm}
+        >
+          <div
+            aria-labelledby="supporter-edit-title"
+            aria-modal="true"
+            className="modal-surface donation-edit-modal"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+          >
+            <div className="donation-edit-modal-header">
+              <div>
+                <h2 id="supporter-edit-title">Edit supporter</h2>
+                <p>Update classification, status, and relationship details without leaving the operations dashboard.</p>
+              </div>
+              <button className="ghost-button" onClick={resetSupporterForm} type="button">
+                Close
+              </button>
+            </div>
+
+            <SupporterRecordForm
+              supporterForm={supporterForm}
+              setSupporterForm={setSupporterForm}
+              supporterErrors={supporterErrors}
+              onSubmit={handleSupporterSubmit}
+              onCancel={resetSupporterForm}
+              submitting={submitting === 'supporter'}
               submitLabel="Save Changes"
             />
           </div>
@@ -1022,37 +941,6 @@ function SummaryPanel({
         </div>
       )}
     </section>
-  );
-}
-
-function PanelList({
-  title,
-  items,
-  emptyMessage,
-}: {
-  title: string;
-  items: Array<{ label: string; amount: string; detail: string }>;
-  emptyMessage: string;
-}) {
-  return (
-    <div className="donor-panel-list">
-      <h4>{title}</h4>
-      {items.length === 0 ? (
-        <p className="muted-inline donor-panel-empty">{emptyMessage}</p>
-      ) : (
-        <ul className="donor-panel-list-items">
-          {items.map((item) => (
-            <li key={`${item.label}-${item.amount}`}>
-              <div>
-                <strong>{item.label}</strong>
-                <span>{item.detail}</span>
-              </div>
-              <strong>{item.amount}</strong>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
   );
 }
 

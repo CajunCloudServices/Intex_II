@@ -8,6 +8,7 @@ type SupporterRecordFormProps = {
   setSupporterForm: React.Dispatch<React.SetStateAction<SupporterRequest>>;
   supporterErrors: ValidationErrors;
   onSubmit: (event: FormEvent) => void;
+  onCancel?: () => void;
   submitting: boolean;
   submitLabel: string;
 };
@@ -17,6 +18,7 @@ export function SupporterRecordForm({
   setSupporterForm,
   supporterErrors,
   onSubmit,
+  onCancel,
   submitting,
   submitLabel,
 }: SupporterRecordFormProps) {
@@ -89,6 +91,11 @@ export function SupporterRecordForm({
         <ValidatedTextField label="Country" required value={supporterForm.country} onChange={(e) => setSupporterForm({ ...supporterForm, country: e.target.value })} error={supporterErrors.country} />
       </FormGrid>
       <div className="form-actions">
+        {onCancel ? (
+          <button className="secondary-button" onClick={onCancel} type="button">
+            Cancel
+          </button>
+        ) : null}
         <button className="primary-button" disabled={submitting} type="submit">
           {submitting ? 'Saving...' : submitLabel}
         </button>
