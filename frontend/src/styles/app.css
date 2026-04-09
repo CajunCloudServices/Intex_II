@@ -3133,8 +3133,8 @@ textarea {
   display: grid;
   align-content: start;
   border-radius: var(--radius-card);
-  background: linear-gradient(180deg, rgba(39, 25, 0, 0.96), rgba(125, 88, 0, 0.96));
-  color: var(--color-surface-lowest);
+  background: linear-gradient(135deg, #b4dcd6 0%, #e6f5f2 42%, #ffeccb 100%);
+  color: var(--tl-text);
   padding: 1.35rem;
   min-height: 100%;
   box-shadow: var(--shadow-soft);
@@ -5793,8 +5793,8 @@ body {
 /* Inline receipt card */
 .donor-receipt {
   border-radius: var(--radius-card);
-  background: linear-gradient(160deg, rgba(39, 25, 0, 0.96) 0%, rgba(125, 88, 0, 0.88) 100%);
-  color: var(--color-surface-lowest);
+  background: linear-gradient(135deg, #b4dcd6 0%, #e6f5f2 42%, #ffeccb 100%);
+  color: var(--tl-text);
   padding: 1.5rem 1.75rem;
   box-shadow: var(--shadow-soft);
   animation: donor-receipt-in 180ms ease;
@@ -5821,14 +5821,7 @@ body {
 }
 
 .donor-receipt-top .ghost-button {
-  color: rgba(255, 255, 255, 0.78);
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.07);
   flex-shrink: 0;
-}
-
-.donor-receipt-top .ghost-button:hover {
-  background: rgba(255, 255, 255, 0.14);
 }
 
 .donor-receipt-body {
@@ -5842,7 +5835,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--tl-text-muted);
 }
 
 .donor-receipt-alloc-list {
@@ -5860,7 +5853,7 @@ body {
   gap: 1rem;
   font-size: 0.95rem;
   padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid color-mix(in srgb, var(--tl-outline) 40%, transparent);
 }
 
 .donor-receipt-alloc-list li:last-child {
@@ -5875,22 +5868,15 @@ body {
 
 .donor-receipt-print {
   width: fit-content;
-  color: rgba(255, 255, 255, 0.82);
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.07);
-}
-
-.donor-receipt-print:hover {
-  background: rgba(255, 255, 255, 0.14);
 }
 
 /* Override detail-list colors inside the receipt */
 .donor-receipt .detail-list div {
-  border-bottom-color: rgba(255, 255, 255, 0.1);
+  border-bottom-color: color-mix(in srgb, var(--tl-outline) 40%, transparent);
 }
 
 .donor-receipt .detail-list dt {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--tl-text-muted);
 }
 
 @media (min-width: 640px) {
