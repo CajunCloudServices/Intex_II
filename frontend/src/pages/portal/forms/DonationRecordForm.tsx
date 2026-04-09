@@ -12,6 +12,7 @@ type DonationRecordFormProps = {
   supporterOptions: Option[];
   safehouses: Safehouse[];
   onSubmit: (event: FormEvent) => void;
+  onCancel?: () => void;
   submitting: boolean;
   submitLabel: string;
 };
@@ -23,9 +24,13 @@ export function DonationRecordForm({
   supporterOptions,
   safehouses,
   onSubmit,
+  onCancel,
   submitting,
   submitLabel,
 }: DonationRecordFormProps) {
+  const donationTypeOptions = ['Monetary', 'InKind', 'Time', 'Skills', 'SocialMedia'];
+  const channelOptions = ['Direct', 'Website', 'Campaign', 'SocialMedia', 'Event'];
+
   return (
     <form className="stack-form" onSubmit={onSubmit}>
       <FormSection title="Donation details">
@@ -43,14 +48,22 @@ export function DonationRecordForm({
               </option>
             ))}
           </ValidatedSelectField>
-          <ValidatedTextField
+          <ValidatedSelectField
             label="Donation type"
             required
-            hint="Monetary, InKind, Time, Skills, or SocialMedia."
             value={donationForm.donationType}
             onChange={(e) => setDonationForm({ ...donationForm, donationType: e.target.value })}
             error={donationErrors.donationType}
-          />
+          >
+            <option value="" disabled>
+              Select donation type
+            </option>
+            {donationTypeOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
           <ValidatedTextField
             label="Donation date"
             required
@@ -59,14 +72,22 @@ export function DonationRecordForm({
             onChange={(e) => setDonationForm({ ...donationForm, donationDate: e.target.value })}
             error={donationErrors.donationDate}
           />
-          <ValidatedTextField
+          <ValidatedSelectField
             label="Channel"
             required
-            hint="Direct, Website, Campaign, SocialMedia, or Event."
             value={donationForm.channelSource}
             onChange={(e) => setDonationForm({ ...donationForm, channelSource: e.target.value })}
             error={donationErrors.channelSource}
-          />
+          >
+            <option value="" disabled>
+              Select channel
+            </option>
+            {channelOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </ValidatedSelectField>
           <ValidatedTextField
             label="Currency"
             hint="3-letter ISO code, ex: USD or PHP."
@@ -81,6 +102,7 @@ export function DonationRecordForm({
             hint="Optional when estimated value is used."
             value={donationForm.amount ?? ''}
             onChange={(e) => setDonationForm({ ...donationForm, amount: e.target.value ? Number(e.target.value) : null })}
+            error={donationErrors.amount}
           />
           <ValidatedTextField
             label="Estimated value"
@@ -102,9 +124,10 @@ export function DonationRecordForm({
             error={donationErrors.impactUnit}
           />
           <ValidatedTextField label="Campaign" value={donationForm.campaignName ?? ''} onChange={(e) => setDonationForm({ ...donationForm, campaignName: e.target.value })} />
-          <label className="checkbox-field">
+          <label className="checkbox-field checkbox-field-toggle">
+            <span className="checkbox-toggle-copy">Recurring</span>
             <input type="checkbox" checked={donationForm.isRecurring} onChange={(e) => setDonationForm({ ...donationForm, isRecurring: e.target.checked })} />
-            <span>Recurring</span>
+            <span aria-hidden="true" className="checkbox-toggle-ui" />
           </label>
         </FormGrid>
       </FormSection>
@@ -163,6 +186,11 @@ export function DonationRecordForm({
         onChange={(e) => setDonationForm({ ...donationForm, notes: e.target.value })}
       />
       <div className="form-actions">
+        {onCancel ? (
+          <button className="secondary-button" onClick={onCancel} type="button">
+            Cancel
+          </button>
+        ) : null}
         <button className="primary-button" disabled={submitting} type="submit">
           {submitting ? 'Saving...' : submitLabel}
         </button>
