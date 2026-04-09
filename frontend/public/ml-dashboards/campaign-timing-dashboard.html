@@ -40,11 +40,23 @@
     </aside>
     <main>
       <h1 class="page-title">Campaign timing &amp; seasonality</h1>
-      <p class="page-sub">High-value donation probability from calendar and channel context (temporal split in notebook).</p>
+      <p class="page-sub">
+        This page answers two planning questions in plain language:
+        (1) When are gifts usually strongest? (2) Which campaign setup patterns are more likely to bring high-value gifts?
+      </p>
       <div id="load-state" class="loading">Loading…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
-        <div id="insight-root" aria-live="polite"></div>
+        <div class="split" style="grid-template-columns:1fr 1fr">
+          <div class="panel">
+            <h2 style="margin:0 0 .45rem">1) When are higher-value gifts more likely?</h2>
+            <p class="page-sub" id="answer-timing" style="margin:0"></p>
+          </div>
+          <div class="panel">
+            <h2 style="margin:0 0 .45rem">2) Which setup patterns are more likely high-value?</h2>
+            <p class="page-sub" id="answer-setup" style="margin:0"></p>
+          </div>
+        </div>
         <div class="panel" style="margin-bottom: 1rem">
           <div class="panel-head">
             <h2>Timeframe &amp; filters</h2>
@@ -67,14 +79,8 @@
           </div>
           <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
         </div>
-        <div class="panel" style="margin-bottom: 1rem">
-          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Score meaning</h2>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
-            <strong>P(high value)</strong> is the probability a gift ranks in the top quartile of effective PHP amount, using month/quarter/campaign fields from the notebook.
-          </p>
-        </div>
         <details class="data-fold" open>
-          <summary>Donation-level scores <span class="fold-hint">Sort · search</span></summary>
+          <summary>Donation-level view <span class="fold-hint">Sort · search</span></summary>
           <div class="fold-inner">
             <div class="panel">
               <div class="panel-head">
@@ -89,8 +95,9 @@
                       <th data-sort="donation_date">Date</th>
                       <th data-sort="month">Month</th>
                       <th data-sort="amount_php">Amount PHP</th>
-                      <th data-sort="high_value_probability">P(high value)</th>
-                      <th data-sort="high_value_actual">High value (actual)</th>
+                      <th data-sort="high_value_probability">High-value chance</th>
+                      <th data-sort="high_value_actual">Was high-value?</th>
+                      <th data-sort="campaign_name">Campaign</th>
                       <th data-sort="donation_type">Type</th>
                     </tr>
                   </thead>
@@ -113,6 +120,8 @@
       const dashboard = document.getElementById("dashboard");
       const tbody = document.getElementById("tbody");
       const search = document.getElementById("search");
+      const answerTiming = document.getElementById("answer-timing");
+      const answerSetup = document.getElementById("answer-setup");
       let data = null;
       let tfRows = null;
       let sortKey = "high_value_probability";
@@ -133,6 +142,9 @@
       function fmtMoney(x) {
         return "₱" + Number(x || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
       }
+      function monthLabel(m) {
+        return new Date(2000, Number(m) - 1, 1).toLocaleString(undefined, { month: "short" });
+      }
       function cmp(a, b, key) {
         const va = a[key];
         const vb = b[key];
@@ -140,13 +152,59 @@
         if (typeof va === "number" && typeof vb === "number") return va - vb;
         return String(va).localeCompare(String(vb));
       }
+      function buildPlainAnswers(rows) {
+        if (!rows.length) {
+          answerTiming.textContent = "No donations are visible in the selected timeframe.";
+          answerSetup.textContent = "No setup patterns can be summarized for this timeframe.";
+          return;
+        }
+        const byMonth = {};
+        const byQuarter = {};
+        const byCampaign = {};
+        const byType = {};
+        rows.forEach((r) => {
+          const monthKey = Number(r.month);
+          const quarterKey = String(r.quarter || "");
+          const campaignKey = String(r.campaign_name || "").trim() || "No named campaign";
+          const typeKey = String(r.donation_type || "").trim() || "Unknown type";
+          byMonth[monthKey] = byMonth[monthKey] || { n: 0, total: 0, highProb: 0 };
+          byQuarter[quarterKey] = byQuarter[quarterKey] || { n: 0, total: 0, highProb: 0 };
+          byCampaign[campaignKey] = byCampaign[campaignKey] || { n: 0, total: 0, highProb: 0 };
+          byType[typeKey] = byType[typeKey] || { n: 0, total: 0, highProb: 0 };
+          [byMonth[monthKey], byQuarter[quarterKey], byCampaign[campaignKey], byType[typeKey]].forEach((bucket) => {
+            bucket.n += 1;
+            bucket.total += Number(r.amount_php || 0);
+            bucket.highProb += Number(r.high_value_probability || 0);
+          });
+        });
+        const bestMonth = Object.entries(byMonth).sort((a, b) => (b[1].total / b[1].n) - (a[1].total / a[1].n))[0];
+        const bestQuarter = Object.entries(byQuarter).sort((a, b) => (b[1].total / b[1].n) - (a[1].total / a[1].n))[0];
+        const bestCampaign = Object.entries(byCampaign).sort((a, b) => (b[1].highProb / b[1].n) - (a[1].highProb / a[1].n))[0];
+        const bestType = Object.entries(byType).sort((a, b) => (b[1].highProb / b[1].n) - (a[1].highProb / a[1].n))[0];
+        const monthText = bestMonth
+          ? `${monthLabel(bestMonth[0])} has the strongest average gift value in this timeframe (${fmtMoney(bestMonth[1].total / bestMonth[1].n)} per gift).`
+          : "No month trend available.";
+        const quarterText = bestQuarter
+          ? `At quarter level, Q${bestQuarter[0]} is strongest (${fmtMoney(bestQuarter[1].total / bestQuarter[1].n)} average gift).`
+          : "";
+        answerTiming.textContent = `${monthText} ${quarterText}`.trim();
+
+        const campaignText = bestCampaign
+          ? `Top campaign pattern right now: "${bestCampaign[0]}" with about ${(100 * (bestCampaign[1].highProb / bestCampaign[1].n)).toFixed(0)}% high-value likelihood.`
+          : "No campaign pattern available.";
+        const typeText = bestType
+          ? `By donation type, "${bestType[0]}" is currently strongest (${(100 * (bestType[1].highProb / bestType[1].n)).toFixed(0)}% high-value likelihood).`
+          : "";
+        answerSetup.textContent = `${campaignText} ${typeText}`.trim();
+      }
       function render() {
         const q = (search.value || "").toLowerCase().trim();
         const base = tfRows !== null ? tfRows : data.rows || [];
         let rows = base.filter((r) => {
           if (!q) return true;
-          return [r.donation_id, r.donation_type, r.channel_source, r.donation_date].join(" ").toLowerCase().includes(q);
+          return [r.donation_id, r.donation_type, r.channel_source, r.donation_date, r.campaign_name].join(" ").toLowerCase().includes(q);
         });
+        buildPlainAnswers(rows);
         rows = rows.slice().sort((a, b) => cmp(a, b, sortKey) * sortDir);
         tbody.innerHTML = rows
           .map(
@@ -158,6 +216,7 @@
             <td>${fmtMoney(r.amount_php)}</td>
             <td>${fmtPct(r.high_value_probability)}</td>
             <td>${r.high_value_actual ? '<span class="badge badge-alert">Yes</span>' : '<span class="badge badge-ok">No</span>'}</td>
+            <td>${escapeHtml(r.campaign_name || "No named campaign")}</td>
             <td>${escapeHtml(r.donation_type)}</td>
           </tr>`
           )
@@ -184,13 +243,6 @@
           data = json;
           loadState.style.display = "none";
           dashboard.style.display = "block";
-          if (typeof renderInsightStory === "function" && data.insights) {
-            renderInsightStory(document.getElementById("insight-root"), data.insights, {
-              followupsFirst: true,
-              predSectionTitle: "Scores and predictions",
-              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
-            });
-          }
           if (typeof initTimeframeFilter === "function") {
             initTimeframeFilter({
               mode: "day",

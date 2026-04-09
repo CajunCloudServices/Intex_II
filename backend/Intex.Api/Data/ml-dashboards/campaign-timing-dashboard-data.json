@@ -46,17 +46,12 @@
       {
         "feature": "donation type",
         "importance": 0.1944916855631142,
-        "share_top5_pct": 68
+        "share_top5_pct": 69
       },
       {
         "feature": "month",
-        "importance": 0.08134920634920638,
+        "importance": 0.08172713529856392,
         "share_top5_pct": 29
-      },
-      {
-        "feature": "is year end",
-        "importance": 0.003495842781557082,
-        "share_top5_pct": 1
       },
       {
         "feature": "campaign name",
@@ -65,8 +60,13 @@
       },
       {
         "feature": "quarter",
-        "importance": 0.0023148148148148806,
+        "importance": 0.0023148148148148667,
         "share_top5_pct": 1
+      },
+      {
+        "feature": "campaign present",
+        "importance": 0.000425170068027253,
+        "share_top5_pct": 0
       }
     ],
     "calls_to_action": [
@@ -90,7 +90,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.9079618347144384,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 300,
@@ -101,7 +103,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.8921115052032361,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 231,
@@ -112,7 +116,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.8680629781163725,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 353,
@@ -123,7 +129,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.8599024919966207,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 57,
@@ -134,7 +142,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.8599024919966207,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 286,
@@ -145,7 +155,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.8533403473457174,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 80,
@@ -156,7 +168,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.8525463710551681,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 240,
@@ -167,7 +181,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.8344334535193128,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 3,
@@ -178,7 +194,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7898664664286491,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 408,
@@ -189,7 +207,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7758822130879598,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 73,
@@ -200,7 +220,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7758179980346325,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 178,
@@ -211,7 +233,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7758179980346325,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 14,
@@ -220,9 +244,11 @@
       "quarter": "4",
       "amount_php": 1541.75,
       "high_value_actual": true,
-      "high_value_probability": 0.7695960646420458,
+      "high_value_probability": 0.7695960646420459,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 22,
@@ -231,9 +257,11 @@
       "quarter": "4",
       "amount_php": 1109.83,
       "high_value_actual": true,
-      "high_value_probability": 0.7408407190723086,
+      "high_value_probability": 0.7408407190723088,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 394,
@@ -242,9 +270,11 @@
       "quarter": "4",
       "amount_php": 1162.17,
       "high_value_actual": true,
-      "high_value_probability": 0.7408407190723086,
+      "high_value_probability": 0.7408407190723088,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 350,
@@ -255,7 +285,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7368965719244621,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 1,
@@ -266,7 +298,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.7368961534080951,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 119,
@@ -275,9 +309,11 @@
       "quarter": "3",
       "amount_php": 1510.08,
       "high_value_actual": true,
-      "high_value_probability": 0.72307418667295,
+      "high_value_probability": 0.7230741866729499,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 185,
@@ -288,7 +324,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.716221605267974,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 206,
@@ -299,7 +337,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.716221605267974,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 177,
@@ -310,7 +350,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7096234842622197,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 139,
@@ -319,9 +361,11 @@
       "quarter": "2",
       "amount_php": 1321.41,
       "high_value_actual": true,
-      "high_value_probability": 0.7087210845065322,
+      "high_value_probability": 0.7087210845065323,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 131,
@@ -332,7 +376,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7069885994687851,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 29,
@@ -343,7 +389,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7063095672820056,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 383,
@@ -354,7 +402,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.7016576370549461,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 46,
@@ -365,7 +415,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.699202741046057,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 122,
@@ -376,7 +428,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6868632455539928,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 26,
@@ -387,7 +441,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6755522180421836,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 133,
@@ -396,9 +452,11 @@
       "quarter": "4",
       "amount_php": 504.86,
       "high_value_actual": false,
-      "high_value_probability": 0.6697544236154919,
+      "high_value_probability": 0.669754423615492,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 189,
@@ -407,9 +465,11 @@
       "quarter": "4",
       "amount_php": 1223.21,
       "high_value_actual": true,
-      "high_value_probability": 0.6697544236154919,
+      "high_value_probability": 0.669754423615492,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 384,
@@ -418,9 +478,11 @@
       "quarter": "4",
       "amount_php": 1878.65,
       "high_value_actual": true,
-      "high_value_probability": 0.6560729347146802,
+      "high_value_probability": 0.6560729347146803,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 395,
@@ -429,9 +491,11 @@
       "quarter": "4",
       "amount_php": 1078.99,
       "high_value_actual": true,
-      "high_value_probability": 0.6560729347146802,
+      "high_value_probability": 0.6560729347146803,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 302,
@@ -442,7 +506,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6549467539060473,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 89,
@@ -453,7 +519,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6540148596130194,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 166,
@@ -462,9 +530,11 @@
       "quarter": "3",
       "amount_php": 3208.9,
       "high_value_actual": true,
-      "high_value_probability": 0.6536267560404743,
+      "high_value_probability": 0.6536267560404744,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 271,
@@ -475,7 +545,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6523007258528615,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 37,
@@ -486,7 +558,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6523007258528615,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 324,
@@ -497,7 +571,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.6477705972500077,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 238,
@@ -508,7 +584,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6301367890637881,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 95,
@@ -519,7 +597,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6268428919345475,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 229,
@@ -530,7 +610,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6268428919345475,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 12,
@@ -541,7 +623,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6216372977641057,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 116,
@@ -552,7 +636,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.6211400648795521,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 362,
@@ -563,7 +649,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.6125412503819674,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 218,
@@ -574,7 +662,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.6125412503819674,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 208,
@@ -585,7 +675,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6099542075333713,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 190,
@@ -594,9 +686,11 @@
       "quarter": "3",
       "amount_php": 1038.86,
       "high_value_actual": true,
-      "high_value_probability": 0.6092780040065837,
+      "high_value_probability": 0.6092780040065838,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 212,
@@ -607,7 +701,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.6009070013475996,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 371,
@@ -616,9 +712,11 @@
       "quarter": "4",
       "amount_php": 2310.53,
       "high_value_actual": true,
-      "high_value_probability": 0.6004870937641066,
+      "high_value_probability": 0.6004870937641067,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 217,
@@ -629,7 +727,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5909643170509088,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 230,
@@ -640,7 +740,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5822807340023771,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 279,
@@ -651,7 +753,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5795908911059198,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 380,
@@ -662,7 +766,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5795908911059198,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 277,
@@ -673,7 +779,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5783564034745672,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 82,
@@ -682,9 +790,11 @@
       "quarter": "2",
       "amount_php": 250.0,
       "high_value_actual": false,
-      "high_value_probability": 0.5708260383559258,
+      "high_value_probability": 0.5708260383559259,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 232,
@@ -693,9 +803,11 @@
       "quarter": "2",
       "amount_php": 1959.16,
       "high_value_actual": true,
-      "high_value_probability": 0.5708260383559258,
+      "high_value_probability": 0.5708260383559259,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 112,
@@ -706,7 +818,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5635321447554935,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 58,
@@ -717,7 +831,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5633586697174389,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 225,
@@ -728,7 +844,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5633586697174389,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 36,
@@ -739,7 +857,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5632152440537469,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 256,
@@ -750,7 +870,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5621315171751441,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 382,
@@ -761,7 +883,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5621315171751441,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 174,
@@ -772,7 +896,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5554284613360668,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 237,
@@ -783,7 +909,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5554284613360668,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 5,
@@ -794,7 +922,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5502455290533675,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 123,
@@ -805,7 +935,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.541222578243035,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 150,
@@ -814,9 +946,11 @@
       "quarter": "4",
       "amount_php": 1707.64,
       "high_value_actual": true,
-      "high_value_probability": 0.5377087131775066,
+      "high_value_probability": 0.5377087131775067,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 66,
@@ -825,9 +959,11 @@
       "quarter": "4",
       "amount_php": 1623.68,
       "high_value_actual": true,
-      "high_value_probability": 0.5377087131775066,
+      "high_value_probability": 0.5377087131775067,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 47,
@@ -836,9 +972,11 @@
       "quarter": "4",
       "amount_php": 857.65,
       "high_value_actual": false,
-      "high_value_probability": 0.5377087131775066,
+      "high_value_probability": 0.5377087131775067,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 357,
@@ -847,9 +985,11 @@
       "quarter": "2",
       "amount_php": 2133.99,
       "high_value_actual": true,
-      "high_value_probability": 0.5314027917901194,
+      "high_value_probability": 0.5314027917901195,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 254,
@@ -858,9 +998,11 @@
       "quarter": "4",
       "amount_php": 838.21,
       "high_value_actual": false,
-      "high_value_probability": 0.5308340334496148,
+      "high_value_probability": 0.5308340334496149,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 173,
@@ -871,7 +1013,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5299281048305456,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 99,
@@ -882,7 +1026,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5257307165323626,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 21,
@@ -893,7 +1039,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5244186034991777,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 366,
@@ -902,9 +1050,11 @@
       "quarter": "3",
       "amount_php": 915.05,
       "high_value_actual": false,
-      "high_value_probability": 0.5232098030251564,
+      "high_value_probability": 0.5232098030251565,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 246,
@@ -915,7 +1065,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5201225030479917,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 86,
@@ -926,7 +1078,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5201225030479917,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 109,
@@ -937,7 +1091,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5197875171240546,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 274,
@@ -948,7 +1104,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5186338149714559,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 25,
@@ -959,7 +1117,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5185425621958765,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 269,
@@ -970,7 +1130,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5185425621958765,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 34,
@@ -981,7 +1143,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5140857377157948,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 4,
@@ -992,7 +1156,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5120201950441151,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 70,
@@ -1003,7 +1169,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5120201950441151,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 54,
@@ -1014,7 +1182,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.5120201950441151,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 346,
@@ -1025,7 +1195,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5120201950441151,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 202,
@@ -1036,7 +1208,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.5022925764102917,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 321,
@@ -1047,7 +1221,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.49235432992026273,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 345,
@@ -1058,7 +1234,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4884729188243963,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 156,
@@ -1069,7 +1247,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.48629055302330126,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 96,
@@ -1080,7 +1260,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4760397099715779,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 163,
@@ -1089,9 +1271,11 @@
       "quarter": "1",
       "amount_php": 710.26,
       "high_value_actual": false,
-      "high_value_probability": 0.4740239721387754,
+      "high_value_probability": 0.4740239721387756,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 142,
@@ -1100,9 +1284,11 @@
       "quarter": "1",
       "amount_php": 1071.26,
       "high_value_actual": true,
-      "high_value_probability": 0.4740239721387754,
+      "high_value_probability": 0.4740239721387756,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 160,
@@ -1113,7 +1299,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.47402392719126096,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 8,
@@ -1124,7 +1312,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.47061650736173427,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 56,
@@ -1135,7 +1325,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.467319491398911,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 378,
@@ -1146,7 +1338,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4653348801309406,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 129,
@@ -1157,7 +1351,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.4558775498312404,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 33,
@@ -1166,9 +1362,11 @@
       "quarter": "1",
       "amount_php": 1432.02,
       "high_value_actual": true,
-      "high_value_probability": 0.45382070663808993,
+      "high_value_probability": 0.45382070663809004,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 102,
@@ -1179,7 +1377,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.4509806679776235,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 376,
@@ -1190,7 +1390,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.45033044195463656,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 234,
@@ -1199,9 +1401,11 @@
       "quarter": "4",
       "amount_php": 2104.72,
       "high_value_actual": true,
-      "high_value_probability": 0.44397807850753784,
+      "high_value_probability": 0.4439780785075378,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 220,
@@ -1212,7 +1416,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.4407455911107954,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 62,
@@ -1223,7 +1429,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4402516930357126,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 83,
@@ -1234,7 +1442,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.4402516930357126,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 121,
@@ -1243,9 +1453,11 @@
       "quarter": "3",
       "amount_php": 1244.53,
       "high_value_actual": true,
-      "high_value_probability": 0.43644471930856593,
+      "high_value_probability": 0.436444719308566,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 151,
@@ -1254,9 +1466,11 @@
       "quarter": "3",
       "amount_php": 436.93,
       "high_value_actual": false,
-      "high_value_probability": 0.43644471930856593,
+      "high_value_probability": 0.436444719308566,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 364,
@@ -1267,7 +1481,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.4362309562291672,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 227,
@@ -1278,7 +1494,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4360551727883995,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 130,
@@ -1289,7 +1507,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.4351649235369914,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 418,
@@ -1300,7 +1520,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4351649235369914,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 106,
@@ -1311,7 +1533,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4351649235369914,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 49,
@@ -1320,9 +1544,11 @@
       "quarter": "4",
       "amount_php": 711.25,
       "high_value_actual": false,
-      "high_value_probability": 0.4327862797996104,
+      "high_value_probability": 0.4327862797996105,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 336,
@@ -1331,9 +1557,11 @@
       "quarter": "2",
       "amount_php": 395.88,
       "high_value_actual": false,
-      "high_value_probability": 0.4193236505197529,
+      "high_value_probability": 0.41932365051975296,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 343,
@@ -1342,9 +1570,11 @@
       "quarter": "2",
       "amount_php": 413.2,
       "high_value_actual": false,
-      "high_value_probability": 0.4193236505197529,
+      "high_value_probability": 0.41932365051975296,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 94,
@@ -1355,7 +1585,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.4118914973557303,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 196,
@@ -1366,7 +1598,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.40428654090243343,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 90,
@@ -1377,7 +1611,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.40428654090243343,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 16,
@@ -1388,7 +1624,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.40428654090243343,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 351,
@@ -1399,7 +1637,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4030860167019239,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 161,
@@ -1410,7 +1650,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.4027703643994459,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 260,
@@ -1419,9 +1661,11 @@
       "quarter": "2",
       "amount_php": 1017.09,
       "high_value_actual": true,
-      "high_value_probability": 0.40130448360382803,
+      "high_value_probability": 0.4013044836038281,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 188,
@@ -1430,9 +1674,11 @@
       "quarter": "1",
       "amount_php": 1061.85,
       "high_value_actual": true,
-      "high_value_probability": 0.4000725137359176,
+      "high_value_probability": 0.40007251373591773,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 245,
@@ -1441,9 +1687,11 @@
       "quarter": "1",
       "amount_php": 1633.61,
       "high_value_actual": true,
-      "high_value_probability": 0.39899091579971846,
+      "high_value_probability": 0.39899091579971857,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 219,
@@ -1452,9 +1700,11 @@
       "quarter": "1",
       "amount_php": 409.44,
       "high_value_actual": false,
-      "high_value_probability": 0.39899091579971846,
+      "high_value_probability": 0.39899091579971857,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 335,
@@ -1465,7 +1715,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.39339924888303474,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 341,
@@ -1476,7 +1728,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.39339924888303474,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 145,
@@ -1487,7 +1741,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.39339924888303474,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 266,
@@ -1498,7 +1754,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.39038305821703584,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 368,
@@ -1507,9 +1765,11 @@
       "quarter": "1",
       "amount_php": 536.82,
       "high_value_actual": false,
-      "high_value_probability": 0.383111948671324,
+      "high_value_probability": 0.38311194867132403,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 179,
@@ -1518,9 +1778,11 @@
       "quarter": "2",
       "amount_php": 1021.77,
       "high_value_actual": true,
-      "high_value_probability": 0.3828181021828024,
+      "high_value_probability": 0.38281810218280243,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 105,
@@ -1529,9 +1791,11 @@
       "quarter": "2",
       "amount_php": 787.53,
       "high_value_actual": false,
-      "high_value_probability": 0.38189836246503883,
+      "high_value_probability": 0.3818983624650389,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 295,
@@ -1542,7 +1806,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3810551955127396,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 303,
@@ -1551,9 +1817,11 @@
       "quarter": "3",
       "amount_php": 1752.44,
       "high_value_actual": true,
-      "high_value_probability": 0.3783538173788676,
+      "high_value_probability": 0.37835381737886764,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 115,
@@ -1564,7 +1832,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.37830286870406143,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 205,
@@ -1575,7 +1845,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.3755637069645116,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 224,
@@ -1584,9 +1856,11 @@
       "quarter": "4",
       "amount_php": 593.89,
       "high_value_actual": false,
-      "high_value_probability": 0.3754636773367567,
+      "high_value_probability": 0.3754636773367566,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 192,
@@ -1597,7 +1871,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3710800312674026,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 183,
@@ -1608,7 +1884,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.36628565212250724,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 330,
@@ -1619,7 +1897,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.36628565212250724,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 152,
@@ -1630,7 +1910,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3551574516143675,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 363,
@@ -1641,7 +1923,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.3551574516143675,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 399,
@@ -1652,7 +1936,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3551574516143675,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 38,
@@ -1663,7 +1949,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3536074011020386,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 381,
@@ -1672,9 +1960,11 @@
       "quarter": "3",
       "amount_php": 538.65,
       "high_value_actual": false,
-      "high_value_probability": 0.34385886935640303,
+      "high_value_probability": 0.3438588693564031,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 144,
@@ -1683,9 +1973,11 @@
       "quarter": "2",
       "amount_php": 364.81,
       "high_value_actual": false,
-      "high_value_probability": 0.3421911944179009,
+      "high_value_probability": 0.34219119441790097,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 235,
@@ -1696,7 +1988,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.341710724783007,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 20,
@@ -1707,7 +2001,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.341710724783007,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 361,
@@ -1716,9 +2012,11 @@
       "quarter": "1",
       "amount_php": 695.6,
       "high_value_actual": false,
-      "high_value_probability": 0.3411856770299222,
+      "high_value_probability": 0.34118567702992225,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 374,
@@ -1727,9 +2025,11 @@
       "quarter": "1",
       "amount_php": 2565.03,
       "high_value_actual": true,
-      "high_value_probability": 0.3380912218380164,
+      "high_value_probability": 0.33809122183801643,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 35,
@@ -1738,9 +2038,11 @@
       "quarter": "1",
       "amount_php": 826.28,
       "high_value_actual": false,
-      "high_value_probability": 0.3380912218380164,
+      "high_value_probability": 0.33809122183801643,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 375,
@@ -1749,9 +2051,11 @@
       "quarter": "1",
       "amount_php": 250.0,
       "high_value_actual": false,
-      "high_value_probability": 0.3347504204482897,
+      "high_value_probability": 0.33475042044828973,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 407,
@@ -1760,9 +2064,11 @@
       "quarter": "1",
       "amount_php": 250.0,
       "high_value_actual": false,
-      "high_value_probability": 0.3347504204482897,
+      "high_value_probability": 0.33475042044828973,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 314,
@@ -1771,9 +2077,11 @@
       "quarter": "4",
       "amount_php": 512.03,
       "high_value_actual": false,
-      "high_value_probability": 0.334322629725062,
+      "high_value_probability": 0.33432262972506194,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 328,
@@ -1784,7 +2092,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3315902828353078,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 370,
@@ -1795,7 +2105,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.3299041955399012,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 338,
@@ -1804,9 +2116,11 @@
       "quarter": "1",
       "amount_php": 250.0,
       "high_value_actual": false,
-      "high_value_probability": 0.3258853530160334,
+      "high_value_probability": 0.32588535301603344,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 180,
@@ -1815,9 +2129,11 @@
       "quarter": "3",
       "amount_php": 1177.6,
       "high_value_actual": true,
-      "high_value_probability": 0.3238628638583446,
+      "high_value_probability": 0.3238628638583447,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 84,
@@ -1828,7 +2144,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3167804050852245,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 311,
@@ -1839,7 +2157,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.3167804050852245,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 10,
@@ -1848,9 +2168,11 @@
       "quarter": "2",
       "amount_php": 1677.73,
       "high_value_actual": true,
-      "high_value_probability": 0.31648052953325134,
+      "high_value_probability": 0.3164805295332514,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 91,
@@ -1859,9 +2181,11 @@
       "quarter": "2",
       "amount_php": 464.59,
       "high_value_actual": false,
-      "high_value_probability": 0.31648052953325134,
+      "high_value_probability": 0.3164805295332514,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 409,
@@ -1870,9 +2194,11 @@
       "quarter": "1",
       "amount_php": 697.94,
       "high_value_actual": false,
-      "high_value_probability": 0.31636852202386323,
+      "high_value_probability": 0.31636852202386334,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 326,
@@ -1881,9 +2207,11 @@
       "quarter": "1",
       "amount_php": 836.51,
       "high_value_actual": false,
-      "high_value_probability": 0.31469307279356534,
+      "high_value_probability": 0.3146930727935655,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 110,
@@ -1892,9 +2220,11 @@
       "quarter": "1",
       "amount_php": 1350.34,
       "high_value_actual": true,
-      "high_value_probability": 0.31469307279356534,
+      "high_value_probability": 0.3146930727935655,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 81,
@@ -1903,9 +2233,11 @@
       "quarter": "3",
       "amount_php": 295.79,
       "high_value_actual": false,
-      "high_value_probability": 0.31082062089866563,
+      "high_value_probability": 0.3108206208986656,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 358,
@@ -1914,9 +2246,11 @@
       "quarter": "2",
       "amount_php": 803.96,
       "high_value_actual": false,
-      "high_value_probability": 0.3102576205342829,
+      "high_value_probability": 0.31025762053428296,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 369,
@@ -1925,9 +2259,11 @@
       "quarter": "1",
       "amount_php": 1076.59,
       "high_value_actual": true,
-      "high_value_probability": 0.30715673876119765,
+      "high_value_probability": 0.3071567387611977,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 141,
@@ -1936,9 +2272,11 @@
       "quarter": "1",
       "amount_php": 318.57,
       "high_value_actual": false,
-      "high_value_probability": 0.30715673876119765,
+      "high_value_probability": 0.3071567387611977,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 359,
@@ -1947,9 +2285,11 @@
       "quarter": "2",
       "amount_php": 1014.67,
       "high_value_actual": true,
-      "high_value_probability": 0.29383123599259997,
+      "high_value_probability": 0.2938312359926,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 416,
@@ -1960,7 +2300,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.29090004504508166,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 379,
@@ -1971,7 +2313,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.29090004504508166,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 267,
@@ -1982,7 +2326,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.29090004504508166,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 100,
@@ -1991,9 +2337,11 @@
       "quarter": "2",
       "amount_php": 1036.3,
       "high_value_actual": true,
-      "high_value_probability": 0.2906169919812222,
+      "high_value_probability": 0.29061699198122226,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 288,
@@ -2002,9 +2350,11 @@
       "quarter": "3",
       "amount_php": 574.32,
       "high_value_actual": false,
-      "high_value_probability": 0.2873604683950257,
+      "high_value_probability": 0.28736046839502577,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 204,
@@ -2013,9 +2363,11 @@
       "quarter": "4",
       "amount_php": 735.61,
       "high_value_actual": false,
-      "high_value_probability": 0.2723195901462195,
+      "high_value_probability": 0.2723195901462194,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 315,
@@ -2024,9 +2376,11 @@
       "quarter": "4",
       "amount_php": 1082.01,
       "high_value_actual": true,
-      "high_value_probability": 0.2723195901462195,
+      "high_value_probability": 0.2723195901462194,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 307,
@@ -2035,9 +2389,11 @@
       "quarter": "2",
       "amount_php": 454.01,
       "high_value_actual": false,
-      "high_value_probability": 0.26586682368619524,
+      "high_value_probability": 0.2658668236861953,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 101,
@@ -2048,7 +2404,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.26498595563848854,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 323,
@@ -2057,9 +2415,11 @@
       "quarter": "2",
       "amount_php": 416.0,
       "high_value_actual": false,
-      "high_value_probability": 0.2581103915071582,
+      "high_value_probability": 0.25811039150715825,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 398,
@@ -2068,9 +2428,11 @@
       "quarter": "2",
       "amount_php": 280.87,
       "high_value_actual": false,
-      "high_value_probability": 0.2581103915071582,
+      "high_value_probability": 0.25811039150715825,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 124,
@@ -2081,7 +2443,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.25352709910193866,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 404,
@@ -2090,9 +2454,11 @@
       "quarter": "2",
       "amount_php": 835.01,
       "high_value_actual": false,
-      "high_value_probability": 0.24866761185281572,
+      "high_value_probability": 0.24866761185281577,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 280,
@@ -2103,7 +2469,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.24525118538614815,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 239,
@@ -2114,7 +2482,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.24525118538614815,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 413,
@@ -2125,7 +2495,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.24525118538614815,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 228,
@@ -2136,7 +2508,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.2435370935446857,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 198,
@@ -2147,7 +2521,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.2370630643873766,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 64,
@@ -2158,7 +2534,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.23670440942403861,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 92,
@@ -2169,7 +2547,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.23670440942403861,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 69,
@@ -2180,7 +2560,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.23670440942403861,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 182,
@@ -2189,9 +2571,11 @@
       "quarter": "2",
       "amount_php": 250.0,
       "high_value_actual": false,
-      "high_value_probability": 0.2354550353614753,
+      "high_value_probability": 0.23545503536147536,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 77,
@@ -2202,7 +2586,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.2325085008075444,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 400,
@@ -2213,7 +2599,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.232396038189913,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 390,
@@ -2222,9 +2610,11 @@
       "quarter": "1",
       "amount_php": 361.97,
       "high_value_actual": false,
-      "high_value_probability": 0.22873255530003167,
+      "high_value_probability": 0.22873255530003173,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 50,
@@ -2233,9 +2623,11 @@
       "quarter": "3",
       "amount_php": 436.4,
       "high_value_actual": false,
-      "high_value_probability": 0.2285785364359692,
+      "high_value_probability": 0.22857853643596915,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 171,
@@ -2244,9 +2636,11 @@
       "quarter": "2",
       "amount_php": 469.97,
       "high_value_actual": false,
-      "high_value_probability": 0.22693706074201123,
+      "high_value_probability": 0.22693706074201128,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 85,
@@ -2255,9 +2649,11 @@
       "quarter": "2",
       "amount_php": 502.9,
       "high_value_actual": false,
-      "high_value_probability": 0.22273597063505576,
+      "high_value_probability": 0.2227359706350558,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 164,
@@ -2268,7 +2664,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.2197235750782678,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 387,
@@ -2277,9 +2675,11 @@
       "quarter": "3",
       "amount_php": 541.33,
       "high_value_actual": false,
-      "high_value_probability": 0.2180348791356342,
+      "high_value_probability": 0.21803487913563424,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 255,
@@ -2290,7 +2690,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.21659608583515064,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 296,
@@ -2301,7 +2703,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.21210112449684448,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 127,
@@ -2312,7 +2716,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.20671375475106557,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 159,
@@ -2323,7 +2729,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.20509876426259974,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 334,
@@ -2334,7 +2742,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.20420720476300872,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 333,
@@ -2343,9 +2753,11 @@
       "quarter": "2",
       "amount_php": 789.3,
       "high_value_actual": false,
-      "high_value_probability": 0.20175351810219272,
+      "high_value_probability": 0.20175351810219275,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 403,
@@ -2354,9 +2766,11 @@
       "quarter": "3",
       "amount_php": 291.03,
       "high_value_actual": false,
-      "high_value_probability": 0.1976716890041836,
+      "high_value_probability": 0.19767168900418358,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 167,
@@ -2365,9 +2779,11 @@
       "quarter": "3",
       "amount_php": 425.04,
       "high_value_actual": false,
-      "high_value_probability": 0.19010660260969775,
+      "high_value_probability": 0.19010660260969778,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 304,
@@ -2376,9 +2792,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.18998619119587806,
+      "high_value_probability": 0.1899861911958781,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 61,
@@ -2387,9 +2805,11 @@
       "quarter": "4",
       "amount_php": 1369.84,
       "high_value_actual": true,
-      "high_value_probability": 0.18998619119587806,
+      "high_value_probability": 0.1899861911958781,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 291,
@@ -2398,9 +2818,11 @@
       "quarter": "2",
       "amount_php": 386.0,
       "high_value_actual": false,
-      "high_value_probability": 0.18904112551848978,
+      "high_value_probability": 0.18904112551848976,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 243,
@@ -2411,7 +2833,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.1888076067508843,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 278,
@@ -2420,9 +2844,11 @@
       "quarter": "2",
       "amount_php": 655.63,
       "high_value_actual": false,
-      "high_value_probability": 0.18793281086214997,
+      "high_value_probability": 0.18793281086214994,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 272,
@@ -2431,9 +2857,11 @@
       "quarter": "2",
       "amount_php": 427.1,
       "high_value_actual": false,
-      "high_value_probability": 0.18703509655517433,
+      "high_value_probability": 0.18703509655517428,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 165,
@@ -2442,9 +2870,11 @@
       "quarter": "1",
       "amount_php": 338.91,
       "high_value_actual": false,
-      "high_value_probability": 0.1859023367358077,
+      "high_value_probability": 0.18590233673580778,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 322,
@@ -2453,9 +2883,11 @@
       "quarter": "3",
       "amount_php": 516.29,
       "high_value_actual": false,
-      "high_value_probability": 0.18581976696960265,
+      "high_value_probability": 0.1858197669696025,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 242,
@@ -2464,9 +2896,11 @@
       "quarter": "3",
       "amount_php": 419.25,
       "high_value_actual": false,
-      "high_value_probability": 0.17972521548557832,
+      "high_value_probability": 0.1797252154855783,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 136,
@@ -2475,9 +2909,11 @@
       "quarter": "3",
       "amount_php": 695.12,
       "high_value_actual": false,
-      "high_value_probability": 0.17972521548557832,
+      "high_value_probability": 0.1797252154855783,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 342,
@@ -2488,7 +2924,9 @@
       "high_value_actual": true,
       "high_value_probability": 0.17923204515066127,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 419,
@@ -2499,7 +2937,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.17923204515066127,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 318,
@@ -2510,7 +2950,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.1787722222222908,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 329,
@@ -2519,9 +2961,11 @@
       "quarter": "2",
       "amount_php": 770.34,
       "high_value_actual": false,
-      "high_value_probability": 0.17161519648709078,
+      "high_value_probability": 0.1716151964870908,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 372,
@@ -2530,9 +2974,11 @@
       "quarter": "2",
       "amount_php": 250.0,
       "high_value_actual": false,
-      "high_value_probability": 0.17161519648709078,
+      "high_value_probability": 0.1716151964870908,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 352,
@@ -2543,7 +2989,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.1713329828984227,
       "donation_type": "Monetary",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 283,
@@ -2552,9 +3000,11 @@
       "quarter": "3",
       "amount_php": 330.63,
       "high_value_actual": false,
-      "high_value_probability": 0.1707534923596478,
+      "high_value_probability": 0.17075349235964776,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 262,
@@ -2563,9 +3013,11 @@
       "quarter": "2",
       "amount_php": 683.54,
       "high_value_actual": false,
-      "high_value_probability": 0.16878907985400526,
+      "high_value_probability": 0.16878907985400524,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 93,
@@ -2574,9 +3026,11 @@
       "quarter": "2",
       "amount_php": 767.63,
       "high_value_actual": false,
-      "high_value_probability": 0.1597926452650784,
+      "high_value_probability": 0.15979264526507844,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 187,
@@ -2585,9 +3039,11 @@
       "quarter": "4",
       "amount_php": 307.52,
       "high_value_actual": false,
-      "high_value_probability": 0.15528702938721295,
+      "high_value_probability": 0.15528702938721292,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 87,
@@ -2596,9 +3052,11 @@
       "quarter": "2",
       "amount_php": 423.77,
       "high_value_actual": false,
-      "high_value_probability": 0.15437122920274626,
+      "high_value_probability": 0.1543712292027463,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 216,
@@ -2609,7 +3067,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.15230864389130203,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 389,
@@ -2618,9 +3078,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.1507710375729303,
+      "high_value_probability": 0.15077103757293014,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 184,
@@ -2629,9 +3091,11 @@
       "quarter": "3",
       "amount_php": 617.11,
       "high_value_actual": false,
-      "high_value_probability": 0.14576793719983577,
+      "high_value_probability": 0.14576793719983572,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 258,
@@ -2640,9 +3104,11 @@
       "quarter": "3",
       "amount_php": 626.97,
       "high_value_actual": false,
-      "high_value_probability": 0.14576793719983577,
+      "high_value_probability": 0.14576793719983572,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 417,
@@ -2653,7 +3119,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.1327952815786127,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 397,
@@ -2664,7 +3132,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.11440055167139228,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 388,
@@ -2675,7 +3145,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.11440055167139228,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 201,
@@ -2686,7 +3158,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.11356603019277421,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 203,
@@ -2695,9 +3169,11 @@
       "quarter": "1",
       "amount_php": 250.0,
       "high_value_actual": false,
-      "high_value_probability": 0.10176141677298292,
+      "high_value_probability": 0.10176141677298287,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 19,
@@ -2708,7 +3184,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.09600222089773379,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 367,
@@ -2719,7 +3197,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.09433768919809285,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 299,
@@ -2728,9 +3208,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.09275420904093692,
+      "high_value_probability": 0.09275420904093697,
       "donation_type": "InKind",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 126,
@@ -2739,9 +3221,11 @@
       "quarter": "4",
       "amount_php": 658.57,
       "high_value_actual": false,
-      "high_value_probability": 0.08422869429014791,
+      "high_value_probability": 0.08422869429014783,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 344,
@@ -2752,7 +3236,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.08319989925773259,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 6,
@@ -2761,9 +3247,11 @@
       "quarter": "3",
       "amount_php": 678.86,
       "high_value_actual": false,
-      "high_value_probability": 0.081811904297963,
+      "high_value_probability": 0.08181190429796299,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 28,
@@ -2772,9 +3260,11 @@
       "quarter": "2",
       "amount_php": 11.27,
       "high_value_actual": false,
-      "high_value_probability": 0.07622343078243629,
+      "high_value_probability": 0.07622343078243628,
       "donation_type": "Skills",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 158,
@@ -2783,9 +3273,11 @@
       "quarter": "2",
       "amount_php": 606.91,
       "high_value_actual": false,
-      "high_value_probability": 0.0636188624847638,
+      "high_value_probability": 0.06361886248476377,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 373,
@@ -2794,9 +3286,11 @@
       "quarter": "4",
       "amount_php": 4.01,
       "high_value_actual": false,
-      "high_value_probability": 0.061886691298337015,
+      "high_value_probability": 0.06188669129833699,
       "donation_type": "SocialMedia",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 331,
@@ -2807,7 +3301,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.06117894711143604,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 27,
@@ -2818,7 +3314,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.06117894711143604,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 149,
@@ -2829,7 +3327,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.060719104333616096,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 51,
@@ -2838,9 +3338,11 @@
       "quarter": "4",
       "amount_php": 336.58,
       "high_value_actual": false,
-      "high_value_probability": 0.059548517987685234,
+      "high_value_probability": 0.05954851798768525,
       "donation_type": "InKind",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 414,
@@ -2851,7 +3353,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.05828018850099744,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 60,
@@ -2862,7 +3366,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.058081809288369236,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 154,
@@ -2873,7 +3379,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.055825963623012356,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 143,
@@ -2882,9 +3390,11 @@
       "quarter": "4",
       "amount_php": 503.75,
       "high_value_actual": false,
-      "high_value_probability": 0.05079774280728187,
+      "high_value_probability": 0.0507977428072819,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 319,
@@ -2895,7 +3405,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.049622807472542704,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 63,
@@ -2906,7 +3418,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.049622807472542704,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 355,
@@ -2915,9 +3429,11 @@
       "quarter": "4",
       "amount_php": 10.67,
       "high_value_actual": false,
-      "high_value_probability": 0.04889312173633036,
+      "high_value_probability": 0.048893121736330376,
       "donation_type": "Skills",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 275,
@@ -2928,7 +3444,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.04811692064587126,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 257,
@@ -2939,7 +3457,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.04811692064587126,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 420,
@@ -2950,7 +3470,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.04499828803584621,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 226,
@@ -2961,7 +3483,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0432426067721889,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 250,
@@ -2970,9 +3494,11 @@
       "quarter": "1",
       "amount_php": 689.85,
       "high_value_actual": false,
-      "high_value_probability": 0.041197192818806676,
+      "high_value_probability": 0.04119719281880666,
       "donation_type": "Monetary",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 297,
@@ -2981,9 +3507,11 @@
       "quarter": "1",
       "amount_php": 320.08,
       "high_value_actual": false,
-      "high_value_probability": 0.03898342888580121,
+      "high_value_probability": 0.038983428885801204,
       "donation_type": "Monetary",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 78,
@@ -2992,9 +3520,11 @@
       "quarter": "2",
       "amount_php": 21.67,
       "high_value_actual": false,
-      "high_value_probability": 0.038001894341328474,
+      "high_value_probability": 0.03800189434132848,
       "donation_type": "Time",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 169,
@@ -3005,7 +3535,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.03733250045980689,
       "donation_type": "Monetary",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 348,
@@ -3014,9 +3546,11 @@
       "quarter": "3",
       "amount_php": 988.59,
       "high_value_actual": false,
-      "high_value_probability": 0.03612718465671752,
+      "high_value_probability": 0.03612718465671749,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 249,
@@ -3025,9 +3559,11 @@
       "quarter": "3",
       "amount_php": 808.8,
       "high_value_actual": false,
-      "high_value_probability": 0.03612718465671752,
+      "high_value_probability": 0.03612718465671749,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 241,
@@ -3036,9 +3572,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.03473158784469365,
+      "high_value_probability": 0.034731587844693664,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 273,
@@ -3047,9 +3585,11 @@
       "quarter": "2",
       "amount_php": 547.24,
       "high_value_actual": false,
-      "high_value_probability": 0.03465822075055976,
+      "high_value_probability": 0.03465822075055974,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 213,
@@ -3060,7 +3600,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.03408428806048866,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 146,
@@ -3069,9 +3611,11 @@
       "quarter": "1",
       "amount_php": 476.64,
       "high_value_actual": false,
-      "high_value_probability": 0.03314157749951881,
+      "high_value_probability": 0.03314157749951879,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 268,
@@ -3080,9 +3624,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.03144068542426817,
+      "high_value_probability": 0.03144068542426816,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 43,
@@ -3091,9 +3637,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.03104088424393976,
+      "high_value_probability": 0.031040884243939772,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 393,
@@ -3102,9 +3650,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.02903589324207634,
+      "high_value_probability": 0.029035893242076328,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 406,
@@ -3113,9 +3663,11 @@
       "quarter": "4",
       "amount_php": 20.59,
       "high_value_actual": false,
-      "high_value_probability": 0.02807656859970761,
+      "high_value_probability": 0.0280765685997076,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 276,
@@ -3126,7 +3678,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.026390761831729358,
       "donation_type": "Monetary",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 327,
@@ -3135,9 +3689,11 @@
       "quarter": "3",
       "amount_php": 811.72,
       "high_value_actual": false,
-      "high_value_probability": 0.0261811554221945,
+      "high_value_probability": 0.026181155422194475,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 312,
@@ -3146,9 +3702,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.02482218365609382,
+      "high_value_probability": 0.024822183656093826,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 263,
@@ -3157,9 +3715,11 @@
       "quarter": "4",
       "amount_php": 537.37,
       "high_value_actual": false,
-      "high_value_probability": 0.024517749753021366,
+      "high_value_probability": 0.024517749753021373,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 313,
@@ -3168,9 +3728,11 @@
       "quarter": "4",
       "amount_php": 308.93,
       "high_value_actual": false,
-      "high_value_probability": 0.023810175824369725,
+      "high_value_probability": 0.02381017582436971,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 289,
@@ -3179,9 +3741,11 @@
       "quarter": "2",
       "amount_php": 8.27,
       "high_value_actual": false,
-      "high_value_probability": 0.023387198926059196,
+      "high_value_probability": 0.023387198926059206,
       "donation_type": "Skills",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 259,
@@ -3190,9 +3754,11 @@
       "quarter": "3",
       "amount_php": 380.15,
       "high_value_actual": false,
-      "high_value_probability": 0.022910345843144296,
+      "high_value_probability": 0.02291034584314429,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 281,
@@ -3201,9 +3767,11 @@
       "quarter": "4",
       "amount_php": 2.62,
       "high_value_actual": false,
-      "high_value_probability": 0.02263148460971637,
+      "high_value_probability": 0.022631484609716344,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 410,
@@ -3212,9 +3780,11 @@
       "quarter": "3",
       "amount_php": 478.06,
       "high_value_actual": false,
-      "high_value_probability": 0.02232379097319526,
+      "high_value_probability": 0.022323790973195253,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 9,
@@ -3223,9 +3793,11 @@
       "quarter": "3",
       "amount_php": 911.84,
       "high_value_actual": false,
-      "high_value_probability": 0.02192708146259365,
+      "high_value_probability": 0.021927081462593638,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 138,
@@ -3234,9 +3806,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.02107972609779844,
+      "high_value_probability": 0.02107972609779843,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 210,
@@ -3245,9 +3819,11 @@
       "quarter": "1",
       "amount_php": 359.85,
       "high_value_actual": false,
-      "high_value_probability": 0.020922779999099753,
+      "high_value_probability": 0.020922779999099746,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 103,
@@ -3258,7 +3834,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.02054482847151257,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 162,
@@ -3269,7 +3847,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.01983872121101327,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 132,
@@ -3278,9 +3858,11 @@
       "quarter": "4",
       "amount_php": 18.77,
       "high_value_actual": false,
-      "high_value_probability": 0.019509442441685787,
+      "high_value_probability": 0.019509442441685797,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 214,
@@ -3291,7 +3873,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0187842406603394,
       "donation_type": "Skills",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 349,
@@ -3302,7 +3886,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.018545501220391582,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 172,
@@ -3313,7 +3899,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.018092246287105606,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 309,
@@ -3322,9 +3910,11 @@
       "quarter": "4",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.017892450930392562,
+      "high_value_probability": 0.01789245093039255,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 114,
@@ -3335,7 +3925,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.017746164551702054,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 317,
@@ -3346,7 +3938,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.01744158865972731,
       "donation_type": "Time",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 140,
@@ -3355,9 +3949,11 @@
       "quarter": "4",
       "amount_php": 304.75,
       "high_value_actual": false,
-      "high_value_probability": 0.01712966828062163,
+      "high_value_probability": 0.017129668280621613,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 356,
@@ -3366,9 +3962,11 @@
       "quarter": "1",
       "amount_php": 612.89,
       "high_value_actual": false,
-      "high_value_probability": 0.016679729702615196,
+      "high_value_probability": 0.01667972970261518,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 72,
@@ -3377,9 +3975,11 @@
       "quarter": "1",
       "amount_php": 506.18,
       "high_value_actual": false,
-      "high_value_probability": 0.016679729702615196,
+      "high_value_probability": 0.01667972970261518,
       "donation_type": "InKind",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 181,
@@ -3388,9 +3988,11 @@
       "quarter": "4",
       "amount_php": 403.77,
       "high_value_actual": false,
-      "high_value_probability": 0.01658698528743341,
+      "high_value_probability": 0.016586985287433395,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 65,
@@ -3401,7 +4003,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.016278272497955236,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 392,
@@ -3412,7 +4016,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.016075981430076026,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 117,
@@ -3423,7 +4029,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.015389424212111166,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 402,
@@ -3434,7 +4042,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.01521928524002522,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 137,
@@ -3445,7 +4055,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.014330645011517365,
       "donation_type": "SocialMedia",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 191,
@@ -3456,7 +4068,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.014020695342860882,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 170,
@@ -3467,7 +4081,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.013948734992020248,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 265,
@@ -3478,7 +4094,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.013940757604602535,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 308,
@@ -3487,9 +4105,11 @@
       "quarter": "1",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.013432989609485557,
+      "high_value_probability": 0.013432989609485543,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 236,
@@ -3498,9 +4118,11 @@
       "quarter": "1",
       "amount_php": 388.04,
       "high_value_actual": false,
-      "high_value_probability": 0.013432989609485557,
+      "high_value_probability": 0.013432989609485543,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 298,
@@ -3509,9 +4131,11 @@
       "quarter": "1",
       "amount_php": 659.78,
       "high_value_actual": false,
-      "high_value_probability": 0.013432989609485557,
+      "high_value_probability": 0.013432989609485543,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 292,
@@ -3520,9 +4144,11 @@
       "quarter": "2",
       "amount_php": 315.92,
       "high_value_actual": false,
-      "high_value_probability": 0.013145712009197764,
+      "high_value_probability": 0.013145712009197752,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 207,
@@ -3533,7 +4159,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.012850865729159581,
       "donation_type": "Skills",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 30,
@@ -3544,7 +4172,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.012756140696492328,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 48,
@@ -3555,7 +4185,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.01210031847809671,
       "donation_type": "InKind",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 104,
@@ -3566,7 +4198,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.011901383596776317,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 293,
@@ -3577,7 +4211,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.011841340168229941,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 209,
@@ -3586,9 +4222,11 @@
       "quarter": "3",
       "amount_php": 12.44,
       "high_value_actual": false,
-      "high_value_probability": 0.011272794145827613,
+      "high_value_probability": 0.011272794145827592,
       "donation_type": "Skills",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 285,
@@ -3599,7 +4237,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.010128362426110909,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 396,
@@ -3608,9 +4248,11 @@
       "quarter": "3",
       "amount_php": 39.15,
       "high_value_actual": false,
-      "high_value_probability": 0.0100929274576418,
+      "high_value_probability": 0.010092927457641798,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 186,
@@ -3621,7 +4263,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.009871277173167917,
       "donation_type": "SocialMedia",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 108,
@@ -3630,9 +4274,11 @@
       "quarter": "2",
       "amount_php": 732.46,
       "high_value_actual": false,
-      "high_value_probability": 0.009726065417183056,
+      "high_value_probability": 0.009726065417183058,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 221,
@@ -3643,7 +4289,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.009704595691906235,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 264,
@@ -3654,7 +4302,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.009464721747459999,
       "donation_type": "InKind",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 15,
@@ -3663,9 +4313,11 @@
       "quarter": "3",
       "amount_php": 300.0,
       "high_value_actual": false,
-      "high_value_probability": 0.00921549326688918,
+      "high_value_probability": 0.009215493266889179,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 320,
@@ -3676,7 +4328,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.009048338344533962,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 316,
@@ -3685,9 +4339,11 @@
       "quarter": "3",
       "amount_php": 22.26,
       "high_value_actual": false,
-      "high_value_probability": 0.008441052850770292,
+      "high_value_probability": 0.0084410528507703,
       "donation_type": "Time",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 71,
@@ -3698,7 +4354,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.008429802676362496,
       "donation_type": "SocialMedia",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 415,
@@ -3709,7 +4367,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.008142917020551386,
       "donation_type": "SocialMedia",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 74,
@@ -3720,7 +4380,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007889945788436931,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 270,
@@ -3731,7 +4393,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007889945788436931,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 39,
@@ -3742,7 +4406,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007841615932617348,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 97,
@@ -3751,9 +4417,11 @@
       "quarter": "1",
       "amount_php": 386.1,
       "high_value_actual": false,
-      "high_value_probability": 0.0077977064387381445,
+      "high_value_probability": 0.007797706438738146,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 147,
@@ -3764,7 +4432,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007566668669804236,
       "donation_type": "Skills",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 294,
@@ -3773,9 +4443,11 @@
       "quarter": "4",
       "amount_php": 20.96,
       "high_value_actual": false,
-      "high_value_probability": 0.007489277647465494,
+      "high_value_probability": 0.007489277647465503,
       "donation_type": "Time",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 199,
@@ -3786,7 +4458,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007405533314611822,
       "donation_type": "Time",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 67,
@@ -3797,7 +4471,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007405533314611822,
       "donation_type": "Time",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 98,
@@ -3808,7 +4484,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007343241381907173,
       "donation_type": "SocialMedia",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 45,
@@ -3819,7 +4497,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007289923424737427,
       "donation_type": "Time",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 120,
@@ -3828,9 +4508,11 @@
       "quarter": "3",
       "amount_php": 24.34,
       "high_value_actual": false,
-      "high_value_probability": 0.007271959890314142,
+      "high_value_probability": 0.007271959890314143,
       "donation_type": "Time",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 194,
@@ -3841,7 +4523,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007271119972221801,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 215,
@@ -3852,7 +4536,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007262546246610093,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 175,
@@ -3863,7 +4549,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007130920965935528,
       "donation_type": "Skills",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 41,
@@ -3874,7 +4562,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.007130920965935528,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 360,
@@ -3885,7 +4575,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.006391772163799191,
       "donation_type": "Skills",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 157,
@@ -3896,7 +4588,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.006038614930590431,
       "donation_type": "Time",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 385,
@@ -3907,7 +4601,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.006015027786280425,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 134,
@@ -3916,9 +4612,11 @@
       "quarter": "2",
       "amount_php": 416.51,
       "high_value_actual": false,
-      "high_value_probability": 0.005931722302031048,
+      "high_value_probability": 0.005931722302031049,
       "donation_type": "InKind",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 7,
@@ -3929,7 +4627,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0059203657340090666,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 168,
@@ -3940,7 +4640,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0059203657340090666,
       "donation_type": "Skills",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 347,
@@ -3951,7 +4653,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.005522823537865292,
       "donation_type": "Time",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 118,
@@ -3960,9 +4664,11 @@
       "quarter": "4",
       "amount_php": 11.45,
       "high_value_actual": false,
-      "high_value_probability": 0.005394795491537448,
+      "high_value_probability": 0.005394795491537453,
       "donation_type": "SocialMedia",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 55,
@@ -3973,7 +4679,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.005363867919766593,
       "donation_type": "SocialMedia",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 244,
@@ -3982,9 +4690,11 @@
       "quarter": "3",
       "amount_php": 935.56,
       "high_value_actual": false,
-      "high_value_probability": 0.005348275974050975,
+      "high_value_probability": 0.0053482759740509705,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 111,
@@ -3995,7 +4705,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.005333973300875293,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 306,
@@ -4006,7 +4718,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.005169400475609332,
       "donation_type": "InKind",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 18,
@@ -4015,9 +4729,11 @@
       "quarter": "1",
       "amount_php": 17.79,
       "high_value_actual": false,
-      "high_value_probability": 0.005137139960390673,
+      "high_value_probability": 0.005137139960390669,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 391,
@@ -4028,7 +4744,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0050874640632334505,
       "donation_type": "SocialMedia",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 113,
@@ -4039,7 +4757,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0050777836445191895,
       "donation_type": "SocialMedia",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 76,
@@ -4050,7 +4770,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0050777836445191895,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 128,
@@ -4061,7 +4783,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.005048741468185555,
       "donation_type": "Skills",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 287,
@@ -4072,7 +4796,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004983384911375059,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 135,
@@ -4083,7 +4809,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004969498870707012,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 59,
@@ -4092,9 +4820,11 @@
       "quarter": "4",
       "amount_php": 12.58,
       "high_value_actual": false,
-      "high_value_probability": 0.004964402801854348,
+      "high_value_probability": 0.004964402801854349,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 337,
@@ -4105,7 +4835,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004949171945057606,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 223,
@@ -4116,7 +4848,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004820193822777158,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 107,
@@ -4127,7 +4861,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004650052892745183,
       "donation_type": "Time",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "GivingTuesday",
+      "campaign_present": true
     },
     {
       "donation_id": 155,
@@ -4136,9 +4872,11 @@
       "quarter": "3",
       "amount_php": 716.99,
       "high_value_actual": false,
-      "high_value_probability": 0.004626832519082537,
+      "high_value_probability": 0.004626832519082533,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 197,
@@ -4149,7 +4887,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004618360549272055,
       "donation_type": "SocialMedia",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 68,
@@ -4160,7 +4900,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004592314138512135,
       "donation_type": "InKind",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 411,
@@ -4171,7 +4913,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004514529455059591,
       "donation_type": "SocialMedia",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 339,
@@ -4182,7 +4926,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004514529455059591,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 340,
@@ -4193,7 +4939,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004503860505995661,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 31,
@@ -4204,7 +4952,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004503860505995661,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 2,
@@ -4215,7 +4965,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004449365868202714,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 301,
@@ -4226,7 +4978,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004449365868202714,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 310,
@@ -4237,7 +4991,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004438637020084504,
       "donation_type": "SocialMedia",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 148,
@@ -4248,7 +5004,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004438637020084504,
       "donation_type": "Time",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 53,
@@ -4259,7 +5017,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.004166304175279584,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 88,
@@ -4268,9 +5028,11 @@
       "quarter": "3",
       "amount_php": 577.02,
       "high_value_actual": false,
-      "high_value_probability": 0.0040433667838297585,
+      "high_value_probability": 0.004043366783829754,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 222,
@@ -4281,7 +5043,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0040388849811195116,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "Back to School",
+      "campaign_present": true
     },
     {
       "donation_id": 125,
@@ -4290,9 +5054,11 @@
       "quarter": "1",
       "amount_php": 9.94,
       "high_value_actual": false,
-      "high_value_probability": 0.003972406842389657,
+      "high_value_probability": 0.003972406842389656,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 42,
@@ -4301,9 +5067,11 @@
       "quarter": "1",
       "amount_php": 11.87,
       "high_value_actual": false,
-      "high_value_probability": 0.003972406842389657,
+      "high_value_probability": 0.003972406842389656,
       "donation_type": "SocialMedia",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 261,
@@ -4314,7 +5082,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0038141732697585737,
       "donation_type": "Skills",
-      "channel_source": "Campaign"
+      "channel_source": "Campaign",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 247,
@@ -4325,7 +5095,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.003740956352384103,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 11,
@@ -4334,9 +5106,11 @@
       "quarter": "1",
       "amount_php": 11.39,
       "high_value_actual": false,
-      "high_value_probability": 0.00362683496677347,
+      "high_value_probability": 0.003626834966773471,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 52,
@@ -4345,9 +5119,11 @@
       "quarter": "1",
       "amount_php": 19.07,
       "high_value_actual": false,
-      "high_value_probability": 0.00362683496677347,
+      "high_value_probability": 0.003626834966773471,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 248,
@@ -4358,7 +5134,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.003582380704155325,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 153,
@@ -4369,7 +5147,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0035149750462360077,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 282,
@@ -4380,7 +5160,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.003505674538851747,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 195,
@@ -4391,7 +5173,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.003174601271460883,
       "donation_type": "InKind",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 305,
@@ -4402,7 +5186,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0031179837325309196,
       "donation_type": "Skills",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 23,
@@ -4413,7 +5199,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0031153374620010075,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 377,
@@ -4424,7 +5212,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002989017762362653,
       "donation_type": "Skills",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 44,
@@ -4435,7 +5225,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002983751300202055,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 290,
@@ -4444,9 +5236,11 @@
       "quarter": "1",
       "amount_php": 11.61,
       "high_value_actual": false,
-      "high_value_probability": 0.0029715721960298395,
+      "high_value_probability": 0.002971572196029839,
       "donation_type": "SocialMedia",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 24,
@@ -4457,7 +5251,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002866981609928449,
       "donation_type": "SocialMedia",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 200,
@@ -4468,7 +5264,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002766708234115856,
       "donation_type": "Skills",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 193,
@@ -4479,7 +5277,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002638988406839571,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 252,
@@ -4488,9 +5288,11 @@
       "quarter": "3",
       "amount_php": 7.39,
       "high_value_actual": false,
-      "high_value_probability": 0.0026345523101954814,
+      "high_value_probability": 0.002634552310195482,
       "donation_type": "SocialMedia",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 386,
@@ -4501,7 +5303,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0026151809265942665,
       "donation_type": "InKind",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 40,
@@ -4512,7 +5316,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0024947220564969083,
       "donation_type": "SocialMedia",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 75,
@@ -4523,7 +5329,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002485265470996014,
       "donation_type": "Skills",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 17,
@@ -4534,7 +5342,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0023260504435250956,
       "donation_type": "SocialMedia",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 405,
@@ -4545,7 +5355,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0023260504435250956,
       "donation_type": "SocialMedia",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 332,
@@ -4556,7 +5368,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002291545127740192,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 365,
@@ -4567,7 +5381,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002289677808809813,
       "donation_type": "SocialMedia",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 253,
@@ -4578,7 +5394,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002218135592989697,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 325,
@@ -4587,9 +5405,11 @@
       "quarter": "4",
       "amount_php": 28.61,
       "high_value_actual": false,
-      "high_value_probability": 0.002199644915473226,
+      "high_value_probability": 0.0021996449154732234,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "Year-End Hope",
+      "campaign_present": true
     },
     {
       "donation_id": 412,
@@ -4600,7 +5420,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0021544121373019993,
       "donation_type": "Time",
-      "channel_source": "Event"
+      "channel_source": "Event",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 13,
@@ -4609,9 +5431,11 @@
       "quarter": "3",
       "amount_php": 433.32,
       "high_value_actual": false,
-      "high_value_probability": 0.002055852767655703,
+      "high_value_probability": 0.0020558527676557033,
       "donation_type": "InKind",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 401,
@@ -4622,7 +5446,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.002003067775089646,
       "donation_type": "SocialMedia",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 176,
@@ -4633,7 +5459,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0019600841351830166,
       "donation_type": "Time",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 354,
@@ -4644,7 +5472,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0019600841351830166,
       "donation_type": "SocialMedia",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 233,
@@ -4655,7 +5485,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.0019174724128494898,
       "donation_type": "Time",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 79,
@@ -4666,7 +5498,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.001489508407811136,
       "donation_type": "Time",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 32,
@@ -4677,7 +5511,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.001489508407811136,
       "donation_type": "Skills",
-      "channel_source": "SocialMedia"
+      "channel_source": "SocialMedia",
+      "campaign_name": "nan",
+      "campaign_present": false
     },
     {
       "donation_id": 211,
@@ -4688,7 +5524,9 @@
       "high_value_actual": false,
       "high_value_probability": 0.001372865740171993,
       "donation_type": "Skills",
-      "channel_source": "PartnerReferral"
+      "channel_source": "PartnerReferral",
+      "campaign_name": "Summer of Safety",
+      "campaign_present": true
     },
     {
       "donation_id": 284,
@@ -4697,9 +5535,11 @@
       "quarter": "1",
       "amount_php": 19.4,
       "high_value_actual": false,
-      "high_value_probability": 0.0011999924551851311,
+      "high_value_probability": 0.0011999924551851313,
       "donation_type": "Skills",
-      "channel_source": "Direct"
+      "channel_source": "Direct",
+      "campaign_name": "nan",
+      "campaign_present": false
     }
   ]
 }

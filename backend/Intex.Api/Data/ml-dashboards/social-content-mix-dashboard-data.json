@@ -1,91 +1,502 @@
 {
   "generated_note": "social-content-mix-efficiency.ipynb \u2192 generate_social_content_mix_dashboard_data.py",
   "insights": {
-    "eyebrow": "REFERRAL VALUE PER POST",
-    "headline": "Which content mixes land in the top referral tier before you publish?",
-    "lede": "About 25% of posts sit in the top referral quartile by donation_referrals. Holdout ROC-AUC is 0.982 (baseline 0.5); 5-fold CV AUC \u2248 0.975.",
+    "eyebrow": "SOCIAL CONTENT",
+    "headline": "Which platform and post formats drove the most referrals in this file?",
+    "lede": "812 posts. About 25% landed in the top quarter for donation referrals. Use the combo table for platform \u00d7 format performance; technical model checks stay in the notebook.",
     "prediction_cards": [
       {
-        "kicker": "Predictive model (holdout)",
-        "label": "ROC-AUC \u2014 top referral quartile",
-        "value": "0.982",
-        "hint": "F1 at 0.5 threshold: 0.84",
-        "definition": "Discrimination for predicting whether a post lands in the top quartile of donation_referrals."
+        "kicker": "File snapshot",
+        "label": "Posts analyzed",
+        "value": "812",
+        "hint": "~25% in top referral quarter",
+        "definition": "All posts in this export with referral counts."
       },
       {
-        "kicker": "Explanatory model (holdout)",
-        "label": "R\u00b2 on log donation value",
-        "value": "0.7",
-        "hint": "MAE on log scale: 2.128",
-        "definition": "How much variance in log-linked donation value the explanatory model explains on holdout posts."
-      },
-      {
-        "kicker": "Portfolio",
-        "label": "Share of posts in top referral quartile",
-        "value": "25.5%",
-        "hint": "Based on donation_referrals distribution",
-        "definition": "Baseline share of posts in the top referral quartile in this export."
-      },
-      {
-        "kicker": "Top signal",
-        "label": "Strongest driver in permutation test",
+        "kicker": "Impact",
+        "label": "What mattered most in this run",
         "value": "post type",
-        "hint": "See table for per-post probabilities",
-        "definition": "Feature with highest permutation importance in this run\u2014inspect drivers table for detail."
+        "hint": "See dashboard card for plain-language drivers",
+        "definition": "Strongest input the model leaned on when ranking posts\u2014associations only."
+      },
+      {
+        "kicker": "Notebook",
+        "label": "Deeper metrics",
+        "value": "Open notebook",
+        "hint": "Holdout checks and CV if you need them",
+        "definition": "ROC-AUC, R\u00b2, and related diagnostics live in social-content-mix-efficiency.ipynb."
       }
     ],
     "cause_cards": [
       {
-        "kicker": "Association",
-        "title": "Content mix links to referrals and value",
-        "body": "Coefficients and importances describe patterns in historical posts\u2014not guarantees for the next post.",
-        "definition": "Summaries are historical associations; they do not guarantee the next post will perform the same."
-      },
-      {
-        "kicker": "How to use",
-        "title": "Plan before publish",
-        "body": "Use predicted top-quartile probability to prioritize review of mixes that look like past high-referral posts.",
-        "definition": "Suggested workflow: prioritize editorial review for posts with high predicted top-quartile probability."
+        "kicker": "Fair use",
+        "title": "Past performance \u2260 next post",
+        "body": "Averages and scores describe history. Audiences and algorithms change\u2014treat this as planning input.",
+        "definition": "Historical association only."
       }
     ],
     "model_drivers": [
       {
         "feature": "post type",
-        "importance": 0.07027253049980321,
-        "share_top5_pct": 50
+        "importance": 0.0708136560409287,
+        "share_top5_pct": 49
       },
       {
         "feature": "features resident story",
-        "importance": 0.027843368752459616,
+        "importance": 0.028286107831562282,
         "share_top5_pct": 20
       },
       {
         "feature": "engagement rate",
-        "importance": 0.02513774104683192,
+        "importance": 0.02555588351042888,
         "share_top5_pct": 18
       },
       {
         "feature": "reach",
-        "importance": 0.010035419126328146,
+        "importance": 0.01018299881936234,
         "share_top5_pct": 7
       },
       {
         "feature": "impressions",
-        "importance": 0.0086580086580086,
+        "importance": 0.009026957890594142,
         "share_top5_pct": 6
       }
     ],
     "calls_to_action": [
-      "Review post #727 (Instagram/ImpactStory) \u2014 top-quartile probability 98%.",
-      "Review post #765 (TikTok/ImpactStory) \u2014 top-quartile probability 98%.",
-      "Review post #190 (YouTube/ImpactStory) \u2014 top-quartile probability 97%."
+      "Review post #727 (Instagram/ImpactStory) \u2014 strong-referral score 98%.",
+      "Review post #765 (TikTok/ImpactStory) \u2014 strong-referral score 98%.",
+      "Review post #190 (YouTube/ImpactStory) \u2014 strong-referral score 97%."
     ]
   },
+  "plain_answers": {
+    "intro_bullets": [
+      "The main grid compares every platform \u00d7 post type combo: how many posts you ran, typical referral counts, and totals.",
+      "\u201cStrong referrals\u201d means the top quarter of posts in this file by number of donation referrals\u2014not a guarantee for the next post."
+    ],
+    "impact_bullets": [
+      "By average referrals, the strongest post formats here are: ImpactStory (~36.4 referrals/post, n=203), FundraisingAppeal (~14.1 referrals/post, n=90), Campaign (~9.0 referrals/post, n=156), EventPromotion (~1.0 referrals/post, n=131), EducationalContent (~0.8 referrals/post, n=114).",
+      "The strong-referral score leans most on post format (carousel, story, reel, etc.) (about 49% of how it separates posts in this export).",
+      "It also weighs whether the post highlights a resident story (about 20% of that mix)."
+    ],
+    "method_note": "Strong-referral scores are from patterns in your historical posts (platform, format, topic, engagement, timing, and more). They help prioritize what to review before publishing\u2014they do not replace judgment or prove cause."
+  },
+  "platform_type_performance": [
+    {
+      "platform": "WhatsApp",
+      "post_type": "ImpactStory",
+      "posts": 34,
+      "avg_referrals": 55.1764705882353,
+      "median_referrals": 30.5,
+      "total_referrals": 1876,
+      "avg_strong_referral_score": 0.6297180648065881
+    },
+    {
+      "platform": "YouTube",
+      "post_type": "ImpactStory",
+      "posts": 18,
+      "avg_referrals": 48.888888888888886,
+      "median_referrals": 42.0,
+      "total_referrals": 880,
+      "avg_strong_referral_score": 0.7528195773929589
+    },
+    {
+      "platform": "TikTok",
+      "post_type": "ImpactStory",
+      "posts": 23,
+      "avg_referrals": 48.04347826086956,
+      "median_referrals": 28.0,
+      "total_referrals": 1105,
+      "avg_strong_referral_score": 0.7449089950322579
+    },
+    {
+      "platform": "Facebook",
+      "post_type": "ImpactStory",
+      "posts": 44,
+      "avg_referrals": 37.0,
+      "median_referrals": 17.5,
+      "total_referrals": 1628,
+      "avg_strong_referral_score": 0.6366370285397516
+    },
+    {
+      "platform": "YouTube",
+      "post_type": "FundraisingAppeal",
+      "posts": 9,
+      "avg_referrals": 36.888888888888886,
+      "median_referrals": 13.0,
+      "total_referrals": 332,
+      "avg_strong_referral_score": 0.4510445407588761
+    },
+    {
+      "platform": "Instagram",
+      "post_type": "ImpactStory",
+      "posts": 37,
+      "avg_referrals": 32.91891891891892,
+      "median_referrals": 19.0,
+      "total_referrals": 1218,
+      "avg_strong_referral_score": 0.6319430564472912
+    },
+    {
+      "platform": "TikTok",
+      "post_type": "FundraisingAppeal",
+      "posts": 14,
+      "avg_referrals": 24.0,
+      "median_referrals": 21.5,
+      "total_referrals": 336,
+      "avg_strong_referral_score": 0.5147204497956668
+    },
+    {
+      "platform": "LinkedIn",
+      "post_type": "ImpactStory",
+      "posts": 15,
+      "avg_referrals": 16.6,
+      "median_referrals": 5.0,
+      "total_referrals": 249,
+      "avg_strong_referral_score": 0.4023262915506519
+    },
+    {
+      "platform": "Twitter",
+      "post_type": "ImpactStory",
+      "posts": 32,
+      "avg_referrals": 13.5,
+      "median_referrals": 8.0,
+      "total_referrals": 432,
+      "avg_strong_referral_score": 0.4370997396847407
+    },
+    {
+      "platform": "YouTube",
+      "post_type": "Campaign",
+      "posts": 10,
+      "avg_referrals": 13.2,
+      "median_referrals": 8.0,
+      "total_referrals": 132,
+      "avg_strong_referral_score": 0.3341175785607905
+    },
+    {
+      "platform": "TikTok",
+      "post_type": "Campaign",
+      "posts": 19,
+      "avg_referrals": 12.789473684210526,
+      "median_referrals": 6.0,
+      "total_referrals": 243,
+      "avg_strong_referral_score": 0.3478712957823302
+    },
+    {
+      "platform": "Instagram",
+      "post_type": "FundraisingAppeal",
+      "posts": 12,
+      "avg_referrals": 12.25,
+      "median_referrals": 11.0,
+      "total_referrals": 147,
+      "avg_strong_referral_score": 0.43120554629267976
+    },
+    {
+      "platform": "Instagram",
+      "post_type": "Campaign",
+      "posts": 44,
+      "avg_referrals": 10.636363636363637,
+      "median_referrals": 4.5,
+      "total_referrals": 468,
+      "avg_strong_referral_score": 0.26131740607118564
+    },
+    {
+      "platform": "WhatsApp",
+      "post_type": "Campaign",
+      "posts": 16,
+      "avg_referrals": 10.3125,
+      "median_referrals": 3.5,
+      "total_referrals": 165,
+      "avg_strong_referral_score": 0.18850491290945748
+    },
+    {
+      "platform": "Facebook",
+      "post_type": "FundraisingAppeal",
+      "posts": 24,
+      "avg_referrals": 9.333333333333334,
+      "median_referrals": 5.5,
+      "total_referrals": 224,
+      "avg_strong_referral_score": 0.2723643518990147
+    },
+    {
+      "platform": "Facebook",
+      "post_type": "Campaign",
+      "posts": 29,
+      "avg_referrals": 9.241379310344827,
+      "median_referrals": 6.0,
+      "total_referrals": 268,
+      "avg_strong_referral_score": 0.23135870654357907
+    },
+    {
+      "platform": "WhatsApp",
+      "post_type": "FundraisingAppeal",
+      "posts": 11,
+      "avg_referrals": 7.454545454545454,
+      "median_referrals": 1.0,
+      "total_referrals": 82,
+      "avg_strong_referral_score": 0.12282665760413769
+    },
+    {
+      "platform": "Twitter",
+      "post_type": "FundraisingAppeal",
+      "posts": 18,
+      "avg_referrals": 7.333333333333333,
+      "median_referrals": 5.5,
+      "total_referrals": 132,
+      "avg_strong_referral_score": 0.16300399327745332
+    },
+    {
+      "platform": "LinkedIn",
+      "post_type": "FundraisingAppeal",
+      "posts": 2,
+      "avg_referrals": 7.0,
+      "median_referrals": 7.0,
+      "total_referrals": 14,
+      "avg_strong_referral_score": 0.24341431474708672
+    },
+    {
+      "platform": "Twitter",
+      "post_type": "Campaign",
+      "posts": 22,
+      "avg_referrals": 3.4545454545454546,
+      "median_referrals": 2.0,
+      "total_referrals": 76,
+      "avg_strong_referral_score": 0.08933562526438098
+    },
+    {
+      "platform": "TikTok",
+      "post_type": "EventPromotion",
+      "posts": 11,
+      "avg_referrals": 3.4545454545454546,
+      "median_referrals": 1.0,
+      "total_referrals": 38,
+      "avg_strong_referral_score": 0.17209218038415489
+    },
+    {
+      "platform": "LinkedIn",
+      "post_type": "Campaign",
+      "posts": 16,
+      "avg_referrals": 3.1875,
+      "median_referrals": 1.5,
+      "total_referrals": 51,
+      "avg_strong_referral_score": 0.08924412839147583
+    },
+    {
+      "platform": "YouTube",
+      "post_type": "EducationalContent",
+      "posts": 11,
+      "avg_referrals": 2.8181818181818183,
+      "median_referrals": 1.0,
+      "total_referrals": 31,
+      "avg_strong_referral_score": 0.18062457449271083
+    },
+    {
+      "platform": "YouTube",
+      "post_type": "ThankYou",
+      "posts": 7,
+      "avg_referrals": 2.2857142857142856,
+      "median_referrals": 1.0,
+      "total_referrals": 16,
+      "avg_strong_referral_score": 0.10115861273743876
+    },
+    {
+      "platform": "YouTube",
+      "post_type": "EventPromotion",
+      "posts": 16,
+      "avg_referrals": 1.625,
+      "median_referrals": 0.0,
+      "total_referrals": 26,
+      "avg_strong_referral_score": 0.0832929760901739
+    },
+    {
+      "platform": "WhatsApp",
+      "post_type": "ThankYou",
+      "posts": 13,
+      "avg_referrals": 1.3076923076923077,
+      "median_referrals": 0.0,
+      "total_referrals": 17,
+      "avg_strong_referral_score": 0.05137278133100283
+    },
+    {
+      "platform": "Instagram",
+      "post_type": "EventPromotion",
+      "posts": 28,
+      "avg_referrals": 1.1785714285714286,
+      "median_referrals": 0.5,
+      "total_referrals": 33,
+      "avg_strong_referral_score": 0.07406877575907751
+    },
+    {
+      "platform": "TikTok",
+      "post_type": "ThankYou",
+      "posts": 12,
+      "avg_referrals": 1.1666666666666667,
+      "median_referrals": 1.0,
+      "total_referrals": 14,
+      "avg_strong_referral_score": 0.1079331025583888
+    },
+    {
+      "platform": "Twitter",
+      "post_type": "EventPromotion",
+      "posts": 18,
+      "avg_referrals": 1.0555555555555556,
+      "median_referrals": 0.0,
+      "total_referrals": 19,
+      "avg_strong_referral_score": 0.04938997449540952
+    },
+    {
+      "platform": "Instagram",
+      "post_type": "EducationalContent",
+      "posts": 25,
+      "avg_referrals": 0.96,
+      "median_referrals": 0.0,
+      "total_referrals": 24,
+      "avg_strong_referral_score": 0.07128499290586222
+    },
+    {
+      "platform": "LinkedIn",
+      "post_type": "ThankYou",
+      "posts": 20,
+      "avg_referrals": 0.7,
+      "median_referrals": 0.0,
+      "total_referrals": 14,
+      "avg_strong_referral_score": 0.026766070090005683
+    },
+    {
+      "platform": "Facebook",
+      "post_type": "ThankYou",
+      "posts": 36,
+      "avg_referrals": 0.6666666666666666,
+      "median_referrals": 0.0,
+      "total_referrals": 24,
+      "avg_strong_referral_score": 0.03968477069605901
+    },
+    {
+      "platform": "WhatsApp",
+      "post_type": "EducationalContent",
+      "posts": 6,
+      "avg_referrals": 0.6666666666666666,
+      "median_referrals": 0.5,
+      "total_referrals": 4,
+      "avg_strong_referral_score": 0.08135072154565966
+    },
+    {
+      "platform": "LinkedIn",
+      "post_type": "EducationalContent",
+      "posts": 11,
+      "avg_referrals": 0.5454545454545454,
+      "median_referrals": 0.0,
+      "total_referrals": 6,
+      "avg_strong_referral_score": 0.05134432117075994
+    },
+    {
+      "platform": "Twitter",
+      "post_type": "EducationalContent",
+      "posts": 15,
+      "avg_referrals": 0.5333333333333333,
+      "median_referrals": 0.0,
+      "total_referrals": 8,
+      "avg_strong_referral_score": 0.055632754756464245
+    },
+    {
+      "platform": "Facebook",
+      "post_type": "EducationalContent",
+      "posts": 36,
+      "avg_referrals": 0.5277777777777778,
+      "median_referrals": 0.0,
+      "total_referrals": 19,
+      "avg_strong_referral_score": 0.04735044550606379
+    },
+    {
+      "platform": "Instagram",
+      "post_type": "ThankYou",
+      "posts": 18,
+      "avg_referrals": 0.5,
+      "median_referrals": 0.0,
+      "total_referrals": 9,
+      "avg_strong_referral_score": 0.02960489237040255
+    },
+    {
+      "platform": "Facebook",
+      "post_type": "EventPromotion",
+      "posts": 30,
+      "avg_referrals": 0.43333333333333335,
+      "median_referrals": 0.0,
+      "total_referrals": 13,
+      "avg_strong_referral_score": 0.03066289424233144
+    },
+    {
+      "platform": "Twitter",
+      "post_type": "ThankYou",
+      "posts": 12,
+      "avg_referrals": 0.4166666666666667,
+      "median_referrals": 0.0,
+      "total_referrals": 5,
+      "avg_strong_referral_score": 0.026147663623896877
+    },
+    {
+      "platform": "TikTok",
+      "post_type": "EducationalContent",
+      "posts": 10,
+      "avg_referrals": 0.4,
+      "median_referrals": 0.0,
+      "total_referrals": 4,
+      "avg_strong_referral_score": 0.06821586313325091
+    },
+    {
+      "platform": "WhatsApp",
+      "post_type": "EventPromotion",
+      "posts": 13,
+      "avg_referrals": 0.3076923076923077,
+      "median_referrals": 0.0,
+      "total_referrals": 4,
+      "avg_strong_referral_score": 0.02492352030412241
+    },
+    {
+      "platform": "LinkedIn",
+      "post_type": "EventPromotion",
+      "posts": 15,
+      "avg_referrals": 0.26666666666666666,
+      "median_referrals": 0.0,
+      "total_referrals": 4,
+      "avg_strong_referral_score": 0.023725979099122614
+    }
+  ],
+  "top_post_types": [
+    {
+      "post_type": "ImpactStory",
+      "posts": 203,
+      "avg_referrals": 36.39408866995074
+    },
+    {
+      "post_type": "FundraisingAppeal",
+      "posts": 90,
+      "avg_referrals": 14.077777777777778
+    },
+    {
+      "post_type": "Campaign",
+      "posts": 156,
+      "avg_referrals": 8.993589743589743
+    },
+    {
+      "post_type": "EventPromotion",
+      "posts": 131,
+      "avg_referrals": 1.0458015267175573
+    },
+    {
+      "post_type": "EducationalContent",
+      "posts": 114,
+      "avg_referrals": 0.8421052631578947
+    },
+    {
+      "post_type": "ThankYou",
+      "posts": 118,
+      "avg_referrals": 0.8389830508474576
+    }
+  ],
   "portfolio": {
     "n_posts": 812,
-    "holdout_roc_auc": 0.9822904368358915,
-    "cv_roc_auc_mean": 0.9750703103252993,
-    "explanatory_r2": 0.7002676079113259,
+    "holdout_roc_auc": 0.9824872097599371,
+    "cv_roc_auc_mean": 0.9749512867029498,
+    "explanatory_r2": 0.700267607911326,
     "top_quartile_rate": 0.25492610837438423
   },
   "rows": [
@@ -405,6 +816,15 @@
       "top_quartile_probability": 0.920580674642981
     },
     {
+      "post_id": 667,
+      "platform": "Facebook",
+      "post_type": "ImpactStory",
+      "content_topic": "CampaignLaunch",
+      "donation_referrals": 17,
+      "high_referral_actual": true,
+      "top_quartile_probability": 0.9200117864467453
+    },
+    {
       "post_id": 471,
       "platform": "WhatsApp",
       "post_type": "ImpactStory",
@@ -421,15 +841,6 @@
       "donation_referrals": 80,
       "high_referral_actual": true,
       "top_quartile_probability": 0.91921865394804
-    },
-    {
-      "post_id": 667,
-      "platform": "Facebook",
-      "post_type": "ImpactStory",
-      "content_topic": "CampaignLaunch",
-      "donation_referrals": 17,
-      "high_referral_actual": true,
-      "top_quartile_probability": 0.9189006753356342
     },
     {
       "post_id": 334,
@@ -483,7 +894,7 @@
       "content_topic": "SafehouseLife",
       "donation_referrals": 51,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.898057726606853
+      "top_quartile_probability": 0.8991688377179643
     },
     {
       "post_id": 323,
@@ -528,7 +939,7 @@
       "content_topic": "Health",
       "donation_referrals": 16,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.888225727530099
+      "top_quartile_probability": 0.8893368386412103
     },
     {
       "post_id": 652,
@@ -852,7 +1263,7 @@
       "content_topic": "Education",
       "donation_referrals": 16,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.8259013890162441
+      "top_quartile_probability": 0.8251606482755035
     },
     {
       "post_id": 675,
@@ -861,7 +1272,7 @@
       "content_topic": "Health",
       "donation_referrals": 24,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.8226335794858871
+      "top_quartile_probability": 0.8228187646710723
     },
     {
       "post_id": 723,
@@ -915,7 +1326,7 @@
       "content_topic": "DonorImpact",
       "donation_referrals": 16,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.8076271726381702
+      "top_quartile_probability": 0.8078123578233554
     },
     {
       "post_id": 238,
@@ -924,7 +1335,7 @@
       "content_topic": "SafehouseLife",
       "donation_referrals": 17,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.8008419845034299
+      "top_quartile_probability": 0.8001012437626892
     },
     {
       "post_id": 442,
@@ -978,7 +1389,7 @@
       "content_topic": "Education",
       "donation_referrals": 30,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7842744205444241
+      "top_quartile_probability": 0.7844596057296093
     },
     {
       "post_id": 320,
@@ -1041,7 +1452,7 @@
       "content_topic": "CampaignLaunch",
       "donation_referrals": 12,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7662646827790157
+      "top_quartile_probability": 0.7673757938901268
     },
     {
       "post_id": 221,
@@ -1068,7 +1479,7 @@
       "content_topic": "Education",
       "donation_referrals": 17,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7635529358419751
+      "top_quartile_probability": 0.7633509156399549
     },
     {
       "post_id": 217,
@@ -1077,7 +1488,7 @@
       "content_topic": "CampaignLaunch",
       "donation_referrals": 14,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7613361047354239
+      "top_quartile_probability": 0.7615212899206092
     },
     {
       "post_id": 287,
@@ -1167,7 +1578,7 @@
       "content_topic": "DonorImpact",
       "donation_referrals": 21,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7372228927788304
+      "top_quartile_probability": 0.7374080779640154
     },
     {
       "post_id": 758,
@@ -1248,7 +1659,7 @@
       "content_topic": "Education",
       "donation_referrals": 29,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7267043159336637
+      "top_quartile_probability": 0.7265022957316435
     },
     {
       "post_id": 195,
@@ -1257,7 +1668,7 @@
       "content_topic": "DonorImpact",
       "donation_referrals": 58,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7228102261693627
+      "top_quartile_probability": 0.723012246371383
     },
     {
       "post_id": 374,
@@ -1284,7 +1695,7 @@
       "content_topic": "Gratitude",
       "donation_referrals": 19,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.7102350260423599
+      "top_quartile_probability": 0.7094942853016193
     },
     {
       "post_id": 137,
@@ -1464,7 +1875,7 @@
       "content_topic": "DonorImpact",
       "donation_referrals": 19,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.656771784426635
+      "top_quartile_probability": 0.6565697642246148
     },
     {
       "post_id": 60,
@@ -1518,7 +1929,7 @@
       "content_topic": "CampaignLaunch",
       "donation_referrals": 18,
       "high_referral_actual": true,
-      "top_quartile_probability": 0.6459999234515001
+      "top_quartile_probability": 0.6452591827107593
     },
     {
       "post_id": 314,
@@ -1815,7 +2226,7 @@
       "content_topic": "DonorImpact",
       "donation_referrals": 10,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.4744897499069104
+      "top_quartile_probability": 0.4746917701089306
     },
     {
       "post_id": 545,
@@ -1824,7 +2235,7 @@
       "content_topic": "SafehouseLife",
       "donation_referrals": 9,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.47165611471145524
+      "top_quartile_probability": 0.4718412998966405
     },
     {
       "post_id": 620,
@@ -1833,7 +2244,7 @@
       "content_topic": "Reintegration",
       "donation_referrals": 10,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.46856079140220375
+      "top_quartile_probability": 0.468745976587389
     },
     {
       "post_id": 96,
@@ -1905,7 +2316,7 @@
       "content_topic": "Education",
       "donation_referrals": 8,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.4450124264159003
+      "top_quartile_probability": 0.44519761160108545
     },
     {
       "post_id": 616,
@@ -2571,7 +2982,7 @@
       "content_topic": "Health",
       "donation_referrals": 5,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.22397530963383933
+      "top_quartile_probability": 0.22323456889309856
     },
     {
       "post_id": 622,
@@ -2616,7 +3027,7 @@
       "content_topic": "AwarenessRaising",
       "donation_referrals": 1,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.21188615770103417
+      "top_quartile_probability": 0.21114541696029343
     },
     {
       "post_id": 357,
@@ -2634,7 +3045,7 @@
       "content_topic": "Education",
       "donation_referrals": 3,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.2090334738468202
+      "top_quartile_probability": 0.2088314536448
     },
     {
       "post_id": 143,
@@ -3372,7 +3783,7 @@
       "content_topic": "AwarenessRaising",
       "donation_referrals": 0,
       "high_referral_actual": false,
-      "top_quartile_probability": 0.10684720407233196
+      "top_quartile_probability": 0.10664518387031174
     },
     {
       "post_id": 309,

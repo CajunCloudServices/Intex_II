@@ -28,6 +28,27 @@ from trend_insight_json import safe_round, share_top5_drivers
 
 OUT = _ROOT / "json" / "resident-trajectory-dashboard-data.json"
 
+FEATURE_LABELS = {
+    "visits": "Home visits on file",
+    "attendance_mean": "Average school attendance",
+    "progress_mean": "Average education progress",
+    "referral_source": "Referral source (at intake)",
+    "process_count": "Counseling / process sessions",
+    "health_mean": "Average recorded health score",
+    "sleep_mean": "Average sleep quality score",
+    "edu_records": "Count of education records",
+    "health_records": "Count of health records",
+    "concerns_rate": "Share of sessions with concerns flagged",
+    "progress_rate": "Share of sessions with progress noted",
+    "followup_rate": "Share of visits needing follow-up",
+    "safehouse_id": "Safehouse location",
+    "case_category": "Case category",
+}
+
+
+def _humanize_feature(name: str) -> str:
+    return FEATURE_LABELS.get(name, name.replace("_", " "))
+
 
 def main() -> None:
     res = load_table("residents").copy()
@@ -79,7 +100,6 @@ def main() -> None:
         .merge(proc_agg, on="resident_id", how="left")
         .merge(vis_agg, on="resident_id", how="left")
     )
-    master = master.fillna(0)
 
     features = [
         "safehouse_id",
@@ -97,22 +117,47 @@ def main() -> None:
         "visits",
         "followup_rate",
     ]
+    num_cols = [
+        "attendance_mean",
+        "progress_mean",
+        "edu_records",
+        "health_mean",
+        "sleep_mean",
+        "health_records",
+        "process_count",
+        "concerns_rate",
+        "progress_rate",
+        "visits",
+        "followup_rate",
+    ]
+    cat_cols = ["safehouse_id", "case_category", "referral_source"]
+
     X = master[features].copy()
+    for c in num_cols:
+        X[c] = pd.to_numeric(X[c], errors="coerce")
+    for c in cat_cols:
+        X[c] = X[c].astype("string").fillna("Unknown")
+
     y_reg = master["current_risk_num"]
     y_clf = master["positive_trajectory"]
     groups = master["resident_id"].values
 
-    cat_cols = [c for c in features if X[c].dtype == "object" or str(X[c].dtype) == "bool"]
-    num_cols = [c for c in features if c not in cat_cols]
     prep = ColumnTransformer(
         [
-            ("num", Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())]), num_cols),
+            (
+                "num",
+                Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())]),
+                num_cols,
+            ),
             (
                 "cat",
-                Pipeline([("impute", SimpleImputer(strategy="most_frequent")), ("oh", OneHotEncoder(handle_unknown="ignore"))]),
+                OneHotEncoder(handle_unknown="ignore", sparse_output=False),
                 cat_cols,
             ),
-        ]
+        ],
+        remainder="drop",
+        verbose_feature_names_out=False,
+        n_jobs=1,
     )
 
     gss = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
@@ -152,10 +197,26 @@ def main() -> None:
     f1_rf = f1_score(ytec, rf_pred, zero_division=0)
 
     gkf = GroupKFold(n_splits=min(5, master["resident_id"].nunique()))
-    cv = cross_validate(rf, X, y_clf, cv=gkf, scoring=["roc_auc", "f1"], groups=groups, n_jobs=-1)
+    cv = cross_validate(
+        rf,
+        X,
+        y_clf,
+        cv=gkf,
+        scoring=["roc_auc", "f1"],
+        groups=groups,
+        n_jobs=1,
+    )
     cv_auc_m = float(cv["test_roc_auc"].mean())
 
-    perm = permutation_importance(rf, Xte, ytec, n_repeats=8, random_state=42, scoring="roc_auc")
+    perm = permutation_importance(
+        rf,
+        Xte,
+        ytec,
+        n_repeats=8,
+        random_state=42,
+        scoring="roc_auc",
+        n_jobs=1,
+    )
     imp = pd.Series(perm.importances_mean, index=X.columns).sort_values(ascending=False).head(10)
     drivers = share_top5_drivers(imp)
 
@@ -177,41 +238,94 @@ def main() -> None:
     proba_all = rf_full.predict_proba(X)[:, 1]
 
     pos_rate = float(y_clf.mean())
+    n_res = int(len(master))
+    median_p = float(np.median(proba_all))
 
+    # Residents worth a closer look: low model score but record still "not positive" (optional contrast)
+    review_threshold = 0.42
+    rows_preview = []
+    for j, (_, r) in enumerate(master.iterrows()):
+        p = float(proba_all[j])
+        act = bool(int(r["positive_trajectory"]))
+        rows_preview.append((int(r["resident_id"]), p, act))
+    n_low_score = sum(1 for _, p, _ in rows_preview if p < review_threshold)
+    n_low_and_not_pos = sum(1 for _, p, a in rows_preview if p < review_threshold and not a)
+
+    top_human = [_humanize_feature(str(name)) for name, val in imp.head(5).items() if float(val) > 0.001]
+    if not top_human:
+        top_human = ["Cross-domain activity in education, health, visits, and sessions"]
+
+    signal_bullets = [
+        f"The tool leans most on: {', '.join(top_human[:3])}." if len(top_human) >= 3 else f"Signals include: {', '.join(top_human)}.",
+        "Higher visit and attendance counts often line up with stronger recorded progress—this can reflect support or a heavier case load; use judgment alongside the case file.",
+    ]
+
+    trajectory_bullets = [
+        f"About {100 * pos_rate:.0f}% of residents in this export are recorded as on a positive path (risk improved since intake and/or reintegration marked in progress or completed).",
+        f"The typical (median) likelihood score in this file is about {100 * median_p:.0f}%—that is how similar residents’ activity looks, on average, to past cases that were later marked on a positive path; use it to rank conversations, not to predict the future.",
+        "Current risk level is intentionally not fed into the score so the view focuses on education, health, counseling activity, and visits.",
+    ]
+
+    review_bullets = [
+        f"{n_low_score} resident(s) score under {100 * review_threshold:.0f}% on the tool’s likelihood—good candidates to review in supervision (not a diagnosis).",
+        f"Of those, {n_low_and_not_pos} also show “not positive” on the case record today—prioritize those check-ins first when time is limited.",
+    ]
+
+    plain_answers = {
+        "trajectory_bullets": trajectory_bullets,
+        "signal_bullets": signal_bullets,
+        "review_bullets": review_bullets,
+        "method_note": (
+            "Scores come from a random forest trained on grouped residents (no person split across train and test in checks). "
+            "They summarize patterns in your data, not proof that one program caused an outcome."
+        ),
+        "review_threshold": review_threshold,
+    }
+
+    # Plain-language insight cards (optional legacy / other consumers)
     insights = {
-        "eyebrow": "RESIDENT TRAJECTORY ARCHETYPES",
-        "headline": "Who shows positive trajectory signals without peeking at current risk?",
-        "lede": f"Positive trajectory rate {100 * pos_rate:.0f}% in file. Holdout ROC-AUC {safe_round(auc_rf, 3)} (baseline {safe_round(auc_b, 3)}).",
+        "eyebrow": "RESIDENT PROGRESS",
+        "headline": "Who is moving forward, and who may need a closer look?",
+        "lede": (
+            f"{n_res} residents in file. About {100 * pos_rate:.0f}% are on a positive path in the case record. "
+            f"Typical likelihood score {100 * median_p:.0f}%."
+        ),
         "prediction_cards": [
             {
-                "kicker": "Predictive",
-                "label": "ROC-AUC positive trajectory",
-                "value": safe_round(auc_rf, 3),
-                "hint": f"F1: {safe_round(f1_rf, 3)}",
-                "definition": "Holdout discrimination for the positive-trajectory label using only allowed features.",
+                "kicker": "Census",
+                "label": "Residents in this export",
+                "value": str(n_res),
+                "hint": f"Median likelihood score {100 * median_p:.0f}%",
+                "definition": "Everyone in the table below; scores are comparable across the file.",
             },
             {
-                "kicker": "Explanatory proxy",
-                "label": "R² on current risk_num",
-                "value": safe_round(r2, 3),
-                "hint": f"MAE: {safe_round(mae, 3)} (leakage-controlled label excluded from X)",
-                "definition": "Secondary fit metric on risk level; label for trajectory is kept separate from features to limit leakage.",
+                "kicker": "Case record",
+                "label": "On a positive path today",
+                "value": f"{100 * pos_rate:.0f}%",
+                "hint": "Risk improved and/or reintegration in progress or completed",
+                "definition": "Matches how the notebook labels positive trajectory from intake risk and reintegration status.",
             },
             {
-                "kicker": "Grouped CV",
-                "label": "Mean ROC-AUC",
-                "value": safe_round(cv_auc_m, 3),
-                "hint": "GroupKFold by resident",
-                "definition": "Cross-validation with residents kept whole across folds.",
+                "kicker": "Suggested reviews",
+                "label": f"Scores under {100 * review_threshold:.0f}%",
+                "value": str(n_low_score),
+                "hint": f"{n_low_and_not_pos} also not positive on record",
+                "definition": "Use as a triage cue for supervision—not a replacement for clinical judgment.",
             },
         ],
         "cause_cards": [
             {
-                "kicker": "Leakage control",
-                "title": "current_risk_num not in features",
-                "body": "Trajectory label uses improvement/reintegration status; cross-domain aggregates only in X.",
-                "definition": "Explains which outcomes are modeled and what is excluded from predictors by design.",
-            }
+                "kicker": "What the tool notices",
+                "title": "Strongest signals in the data",
+                "body": "; ".join(top_human[:5]) + ".",
+                "definition": "Derived from permutation checks on the holdout group; shows what the model relied on most, not causal drivers.",
+            },
+            {
+                "kicker": "Fair use",
+                "title": "Current risk is not an input",
+                "body": "Likelihood is built from safehouse, case category, referral, and history in education, health, sessions, and visits only.",
+                "definition": "Avoids double-counting today’s risk level when estimating trajectory.",
+            },
         ],
         "model_drivers": drivers,
         "calls_to_action": [],
@@ -233,13 +347,24 @@ def main() -> None:
     rows.sort(key=lambda x: -x["positive_trajectory_probability"])
     for c in rows[:3]:
         insights["calls_to_action"].append(
-            f"Case conference candidate: resident {c['resident_id']} — P(positive trajectory)={c['positive_trajectory_probability']:.0%}."
+            f"Discuss resident {c['resident_id']} (likelihood {c['positive_trajectory_probability']:.0%}) in case conference if workload allows."
         )
 
     payload = {
         "generated_note": "resident-trajectory-archetypes.ipynb → generate_resident_trajectory_dashboard_data.py",
         "insights": insights,
-        "portfolio": {"n_residents": int(len(master)), "positive_trajectory_rate": pos_rate},
+        "plain_answers": plain_answers,
+        "portfolio": {
+            "n_residents": n_res,
+            "positive_trajectory_rate": pos_rate,
+            "median_likelihood": median_p,
+            "n_low_likelihood": n_low_score,
+            "n_low_likelihood_not_positive_record": n_low_and_not_pos,
+            "review_threshold": review_threshold,
+            "holdout_auc": safe_round(auc_rf, 3),
+            "cv_auc_mean": safe_round(cv_auc_m, 3),
+            "regression_r2_holdout": safe_round(r2, 2),
+        },
         "rows": rows,
     }
     OUT.write_text(json.dumps(payload, indent=2), encoding="utf-8")
