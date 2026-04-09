@@ -49,7 +49,7 @@ services:
       test: ["CMD-SHELL", "curl --fail --silent --max-time 5 http://localhost:8080/api/health || exit 1"]
       interval: 10s
       timeout: 10s
-      retries: 10
+      retries: 6
       start_period: 30s
     depends_on:
       harborlight_nexus_db:
