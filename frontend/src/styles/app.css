@@ -3183,14 +3183,14 @@ textarea {
   display: grid;
   gap: 0.18rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid color-mix(in srgb, var(--tl-outline) 40%, transparent);
 }
 
 .detail-list dt {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.68);
+  color: var(--tl-text-muted);
 }
 
 .detail-panel-neutral .detail-list div {
@@ -3207,7 +3207,7 @@ textarea {
 
 .detail-list dd {
   margin: 0;
-  color: white;
+  color: var(--tl-text);
   overflow-wrap: anywhere;
 }
 
