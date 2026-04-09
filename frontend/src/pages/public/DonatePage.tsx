@@ -268,18 +268,29 @@ export function DonatePage() {
                   />
                 </div>
               </div>
-            </>
-          ) : null}
 
-          {donationMode === 'anonymous' ? (
-            <div className="donate-anonymous-note">
-              <strong>Anonymous donations keep your identity off the public donor path.</strong>
-              <span>Your gift is still recorded in the database for the demo, but it will not ask for your name or email.</span>
-            </div>
+              <div className="donate-anonymous-note">
+                <strong>No personal information needed.</strong>
+                <span>Your gift is recorded without your name or email. Completely anonymous.</span>
+              </div>
+
+              <div className="donate-form-field">
+                <label className="donate-form-label" htmlFor="donation-notes">
+                  Notes (optional)
+                </label>
+                <textarea
+                  id="donation-notes"
+                  className="donate-form-input donate-form-textarea"
+                  placeholder="Add a dedication or context for your gift."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                />
+              </div>
+            </>
           ) : (
             <div className="donate-tracked-block">
               <p className="donate-tracked-note">
-                Create a donor account to sign in, donate through your dashboard, and track your giving history over time.
+                Create an account and you'll be taken straight to your donor dashboard — no need to re-enter your info. All future donations are tracked automatically.
               </p>
               <div className="donate-form-grid">
                 <div className="donate-form-field">
@@ -375,19 +386,6 @@ export function DonatePage() {
             </div>
           )}
 
-          <div className="donate-form-field">
-            <label className="donate-form-label" htmlFor="donation-notes">
-              Notes (optional)
-            </label>
-            <textarea
-              id="donation-notes"
-              className="donate-form-input donate-form-textarea"
-              placeholder="Add a dedication, internal demo note, or context for your gift."
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-            />
-          </div>
-
           <div className="donate-submit-row">
             <button
               className="primary-button donate-submit-button"
@@ -405,8 +403,8 @@ export function DonatePage() {
             </button>
             <p className="donate-submit-note">
               {donationMode === 'anonymous'
-                ? 'No card processing happens here. This is a polished demo flow backed by your donation database.'
-                : 'Your donor account will link to a supporter record and open the authenticated donor dashboard.'}
+                ? 'No card processing happens here. This is a demo flow backed by a real donation database.'
+                : "You'll be signed in automatically and taken to your donor dashboard."}
             </p>
           </div>
 

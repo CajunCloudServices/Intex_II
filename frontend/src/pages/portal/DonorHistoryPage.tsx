@@ -1,4 +1,5 @@
 import { useDeferredValue, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import type { Donation, DonationImpactPrediction, DonorAllocationBreakdown, DonorImpactSummary } from '../../api/types';
 import { useAuth } from '../../hooks/useAuth';
@@ -97,6 +98,9 @@ export function DonorHistoryPage() {
           <h1>My impact dashboard</h1>
           <p>Review your giving history, where allocations were directed, and estimate what your next donation could support.</p>
         </div>
+        <Link className="primary-button" to="/donate">
+          Donate now
+        </Link>
       </div>
 
       <section className="page-grid three">

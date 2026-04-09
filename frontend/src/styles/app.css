@@ -2018,6 +2018,24 @@ textarea {
   gap: 0.75rem;
 }
 
+.donate-login-callout {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem 1.05rem;
+  border-radius: 18px;
+  background: color-mix(in srgb, #144ec2 8%, #ffffff 92%);
+  border: 1px solid color-mix(in srgb, #144ec2 18%, transparent);
+}
+
+.donate-login-callout strong {
+  color: var(--tl-text);
+}
+
+.donate-login-button {
+  justify-self: start;
+  text-decoration: none;
+}
+
 .donate-tracked-note {
   margin: 0;
   color: var(--tl-text-muted);

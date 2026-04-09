@@ -82,7 +82,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       }
     }
 
-    if (response.status === 401) {
+    if (response.status === 401 && path !== '/auth/me') {
       window.dispatchEvent(new CustomEvent('intex:unauthorized'));
     }
 

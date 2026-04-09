@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import type { PublicDonorRegisterRequest, UserProfile } from '../api/types';
 
@@ -27,6 +27,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const userRef = useRef<UserProfile | null>(null);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -45,8 +50,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleUnauthorized = () => {
-      setUser(null);
-      setAuthMessage('Your session expired. Please sign in again.');
+      if (!userRef.current) {
+        return;
+      }
+
+      void (async () => {
+        try {
+          const profile = await api.me();
+          setUser(profile);
+        } catch {
+          setUser(null);
+          setAuthMessage('Your session expired. Please sign in again.');
+        }
+      })();
     };
 
     const handleForbidden = () => {
@@ -90,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Still clear local state if the network fails.
       }
       setUser(null);
+      setAuthMessage(null);
     },
     authMessage,
     clearAuthMessage() {
