@@ -882,6 +882,7 @@ public class AppSeeder(
         var users = new[]
         {
             new SeedUser("admin@intex.local", "Admin!23456789", "Avery Admin", RoleNames.Admin, null),
+            new SeedUser("deploy-verifier@intex.local", "Verifier!2345678", "Deploy Verifier", RoleNames.Admin, null, DisableTwoFactor: true),
             new SeedUser("staff@intex.local", "Staff!23456789", "Skyler Staff", RoleNames.Staff, null),
             new SeedUser("donor@intex.local", "Donor!23456789", "Jordan Lee", RoleNames.Donor, donorSupporterId),
             new SeedUser("donor2@intex.local", "Donor2!2345678", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
@@ -950,8 +951,24 @@ public class AppSeeder(
             {
                 await userManager.AddToRoleAsync(user, seedUser.Role);
             }
+
+            if (seedUser.DisableTwoFactor)
+            {
+                if (user.TwoFactorEnabled)
+                {
+                    await userManager.SetTwoFactorEnabledAsync(user, false);
+                }
+
+                await userManager.ResetAuthenticatorKeyAsync(user);
+            }
         }
     }
 
-    private sealed record SeedUser(string Email, string Password, string FullName, string Role, int? SupporterId);
+    private sealed record SeedUser(
+        string Email,
+        string Password,
+        string FullName,
+        string Role,
+        int? SupporterId,
+        bool DisableTwoFactor = false);
 }

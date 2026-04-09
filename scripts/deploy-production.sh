@@ -9,8 +9,8 @@ compose_file="docker-compose.production.yml"
 project_name="harborlight-nexus"
 stage_dir="$(mktemp -d "${deploy_root}/${deploy_name}.staging.XXXXXX")"
 env_candidates=(
-  "/home/lajicpajam/projects/websites/harborlight-nexus/.env"
   "${deploy_dir}/.env"
+  "/home/lajicpajam/projects/websites/harborlight-nexus/.env"
 )
 env_file=""
 
@@ -19,6 +19,55 @@ cleanup() {
 }
 
 trap cleanup EXIT
+
+validate_env_file() {
+  local file_path="$1"
+  local required_vars=(
+    POSTGRES_DB
+    POSTGRES_USER
+    POSTGRES_PASSWORD
+    APP_HOST_PORT
+    PUBLIC_API_HOSTNAME
+    JWT_KEY
+    JWT_ISSUER
+    JWT_AUDIENCE
+    CORS_ALLOWED_ORIGIN_1
+    FRONTEND__BASEURL
+    ALLOWED_HOSTS
+  )
+
+  local missing=()
+  local placeholders=()
+  local var_name
+  for var_name in "${required_vars[@]}"; do
+    local raw_line
+    raw_line="$(grep -E "^${var_name}=" "${file_path}" | tail -n 1 || true)"
+    if [ -z "${raw_line}" ]; then
+      missing+=("${var_name}")
+      continue
+    fi
+
+    local value="${raw_line#*=}"
+    if [ -z "${value}" ]; then
+      missing+=("${var_name}")
+      continue
+    fi
+
+    if [[ "${value}" == *"<PUT_"*">"* ]]; then
+      placeholders+=("${var_name}")
+    fi
+  done
+
+  if [ "${#missing[@]}" -gt 0 ]; then
+    echo "[deploy] Missing required env vars in ${file_path}: ${missing[*]}" >&2
+    exit 1
+  fi
+
+  if [ "${#placeholders[@]}" -gt 0 ]; then
+    echo "[deploy] Refusing to deploy with placeholder env vars in ${file_path}: ${placeholders[*]}" >&2
+    exit 1
+  fi
+}
 
 for candidate in "${env_candidates[@]}"; do
   if [ -f "${candidate}" ]; then
@@ -31,6 +80,9 @@ if [ -z "${env_file}" ]; then
   echo "[deploy] Missing production env file: ${env_file}" >&2
   exit 1
 fi
+
+echo "[deploy] Using env file ${env_file}"
+validate_env_file "${env_file}"
 
 mkdir -p "${deploy_root}"
 
