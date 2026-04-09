@@ -2,13 +2,15 @@ export function DetailPanel({
   title,
   subtitle,
   children,
+  className,
 }: {
   title: string;
   subtitle?: string;
   children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <aside className="detail-panel">
+    <aside className={`detail-panel${className ? ` ${className}` : ''}`}>
       <div className="detail-panel-header">
         <h3>{title}</h3>
         {subtitle ? <p>{subtitle}</p> : null}

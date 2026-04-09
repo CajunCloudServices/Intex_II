@@ -14,6 +14,7 @@ import { SafehouseNewPage } from './pages/portal/SafehouseNewPage';
 import { DonorSupporterNewPage } from './pages/portal/DonorSupporterNewPage';
 import { DonorsContributionsPage } from './pages/portal/DonorsContributionsPage';
 import { DonorHistoryPage } from './pages/portal/DonorHistoryPage';
+import { SupporterDonationHistoryPage } from './pages/portal/SupporterDonationHistoryPage';
 import { HomeVisitationsPage } from './pages/portal/HomeVisitationsPage';
 import { HomeVisitationNewPage } from './pages/portal/HomeVisitationNewPage';
 import { ProcessRecordingNewPage } from './pages/portal/ProcessRecordingNewPage';
@@ -60,6 +61,7 @@ function App() {
           <Route element={<ProtectedRoute allowedRoles={['Admin', 'Staff']} />}>
             <Route path="portal/admin" element={<AdminDashboardPage />} />
             <Route path="portal/donors" element={<DonorsContributionsPage />} />
+            <Route path="portal/donors/supporters/:supporterId/history" element={<SupporterDonationHistoryPage />} />
             <Route path="portal/caseload" element={<CaseloadInventoryPage />} />
             <Route path="portal/process-recordings" element={<ProcessRecordingPage />} />
             <Route path="portal/home-visitations" element={<HomeVisitationsPage />} />
