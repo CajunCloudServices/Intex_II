@@ -1,11 +1,19 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import { api } from '../api';
-import type { UserProfile } from '../api/types';
+import type { PublicDonorRegisterRequest, UserProfile } from '../api/types';
 
 type AuthContextValue = {
   user: UserProfile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<UserProfile>;
+  registerDonor: (payload: {
+    email: string;
+    password: string;
+    fullName: string;
+    region: string;
+    country: string;
+    phone?: string | null;
+  }) => Promise<UserProfile>;
   /** After Google redirect the session cookie is already set — refresh profile from the API. */
   refreshSession: () => Promise<UserProfile>;
   logout: () => Promise<void>;
@@ -19,6 +27,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [authMessage, setAuthMessage] = useState<string | null>(null);
+  const userRef = useRef<UserProfile | null>(null);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     const restoreSession = async () => {
@@ -37,8 +50,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleUnauthorized = () => {
-      setUser(null);
-      setAuthMessage('Your session expired. Please sign in again.');
+      if (!userRef.current) {
+        return;
+      }
+
+      void (async () => {
+        try {
+          const profile = await api.me();
+          setUser(profile);
+        } catch {
+          setUser(null);
+          setAuthMessage('Your session expired. Please sign in again.');
+        }
+      })();
     };
 
     const handleForbidden = () => {
@@ -63,6 +87,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthMessage(null);
       return response.user;
     },
+    async registerDonor(payload: PublicDonorRegisterRequest) {
+      const response = await api.registerDonor(payload);
+      setUser(response.user);
+      setAuthMessage(null);
+      return response.user;
+    },
     async refreshSession() {
       const profile = await api.me();
       setUser(profile);
@@ -76,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Still clear local state if the network fails.
       }
       setUser(null);
+      setAuthMessage(null);
     },
     authMessage,
     clearAuthMessage() {

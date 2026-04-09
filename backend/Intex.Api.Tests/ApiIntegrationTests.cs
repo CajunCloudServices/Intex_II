@@ -1,7 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
 using Intex.Api.DTOs;
+using Intex.Api.Data;
+using Intex.Api.Entities;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 using Xunit;
 
 namespace Intex.Api.Tests;
@@ -37,13 +41,46 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         var response = await _client.GetAsync("/api/public-impact");
 
         response.EnsureSuccessStatusCode();
-        var snapshots = await response.Content.ReadFromJsonAsync<List<PublicImpactSnapshotResponse>>();
+        var payload = await response.Content.ReadFromJsonAsync<PublicImpactDashboardResponse>();
 
-        Assert.NotNull(snapshots);
-        Assert.NotEmpty(snapshots!);
-        Assert.Equal("March impact highlights", snapshots![0].Headline);
-        Assert.Equal(4, snapshots![0].Metrics.Count);
-        Assert.Equal("Active residents", snapshots![0].Metrics[0].Label);
+        Assert.NotNull(payload);
+        Assert.NotNull(payload!.Snapshots);
+        Assert.NotEmpty(payload.Snapshots);
+        Assert.Equal("March impact highlights", payload.Snapshots[0].Headline);
+        Assert.NotNull(payload.ResourceUse);
+        Assert.NotNull(payload.CapacityRows);
+    }
+
+    [Fact]
+    public async Task PublicImpactEndpoint_WithMalformedMetricPayload_ReturnsSnapshotWithEmptyMetrics()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            dbContext.PublicImpactSnapshots.Add(new PublicImpactSnapshot
+            {
+                SnapshotDate = new DateOnly(2025, 1, 1),
+                Headline = "Malformed metrics snapshot",
+                SummaryText = "This row should not crash the public endpoint.",
+                MetricPayloadJson = "{not-valid-json",
+                IsPublished = true,
+                PublishedAt = new DateOnly(2025, 1, 31)
+            });
+
+            await dbContext.SaveChangesAsync();
+        }
+
+        var response = await _client.GetAsync("/api/public-impact");
+
+        response.EnsureSuccessStatusCode();
+        var payload = await response.Content.ReadFromJsonAsync<PublicImpactDashboardResponse>();
+
+        Assert.NotNull(payload);
+        var malformed = payload!.Snapshots.Single(snapshot => snapshot.Headline == "Malformed metrics snapshot");
+        Assert.False(malformed.IsDisplayValid);
+        Assert.Null(malformed.TotalResidents);
+        Assert.Null(malformed.AvgHealthScore);
+        Assert.Null(malformed.AvgEducationProgress);
     }
 
     [Fact]
@@ -240,6 +277,67 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task PublicDonationSubmit_AllowsAnonymousDonations()
+    {
+        var response = await _client.PostAsJsonAsync("/api/donations/public-submit", new PublicDonationSubmissionRequest(
+            true,
+            null,
+            null,
+            125m,
+            false,
+            null,
+            "Anonymous demo gift"));
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+        var payload = await response.Content.ReadFromJsonAsync<PublicDonationSubmissionResponse>();
+
+        Assert.NotNull(payload);
+        Assert.True(payload!.IsAnonymous);
+        Assert.Equal("Anonymous donor", payload.SupporterName);
+        Assert.Equal(125m, payload.Amount);
+
+        using var scope = _factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var donation = await dbContext.Donations
+            .Include(x => x.Allocations)
+            .FirstAsync(x => x.Id == payload.DonationId);
+        Assert.NotEmpty(donation.Allocations);
+        Assert.Equal(125m, donation.Allocations.Sum(x => x.AmountAllocated));
+    }
+
+    [Fact]
+    public async Task PublicDonationSubmit_RequiresIdentityForTrackedDonations()
+    {
+        var missingIdentityResponse = await _client.PostAsJsonAsync("/api/donations/public-submit", new PublicDonationSubmissionRequest(
+            false,
+            null,
+            null,
+            75m,
+            false,
+            null,
+            null));
+
+        Assert.Equal(HttpStatusCode.BadRequest, missingIdentityResponse.StatusCode);
+
+        var trackedResponse = await _client.PostAsJsonAsync("/api/donations/public-submit", new PublicDonationSubmissionRequest(
+            false,
+            "Jamie Rivera",
+            "jamie.rivera@example.org",
+            75m,
+            true,
+            "Monthly",
+            "Tracked demo gift"));
+
+        Assert.True(trackedResponse.IsSuccessStatusCode, await trackedResponse.Content.ReadAsStringAsync());
+        var trackedPayload = await trackedResponse.Content.ReadFromJsonAsync<PublicDonationSubmissionResponse>();
+
+        Assert.NotNull(trackedPayload);
+        Assert.False(trackedPayload!.IsAnonymous);
+        Assert.Equal("Jamie Rivera", trackedPayload.SupporterName);
+        Assert.Equal("Monthly", trackedPayload.RecurringInterval);
+    }
+
+    [Fact]
     public async Task StaffCannotAccessDonorOnlyImpactEndpoints()
     {
         await LoginAsStaffAsync();
@@ -399,6 +497,96 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         var donations = await donorHistory.Content.ReadFromJsonAsync<List<DonationResponse>>();
         Assert.NotNull(donations);
         Assert.NotEmpty(donations!);
+    }
+
+    [Fact]
+    public async Task PublicDonorRegistration_CreatesSupporterAndSignsIn()
+    {
+        var email = $"new-donor-{Guid.NewGuid():N}@example.com";
+        var response = await _client.PostAsJsonAsync("/api/auth/register-donor", new
+        {
+            email,
+            password = "DonorPortal!234",
+            fullName = "New Donor",
+            region = "Mountain West",
+            country = "United States",
+            phone = "+1 801 555 0199"
+        });
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var auth = await response.Content.ReadFromJsonAsync<AuthResponse>();
+        Assert.NotNull(auth);
+        Assert.NotNull(auth!.User);
+        Assert.Contains("Donor", auth.User.Roles);
+        Assert.NotNull(auth.User.SupporterId);
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var supporter = await dbContext.Supporters.FindAsync(auth.User.SupporterId);
+            Assert.NotNull(supporter);
+            Assert.Equal(email, supporter!.Email);
+            Assert.Equal("MonetaryDonor", supporter.SupporterType);
+            Assert.Equal("Donor", supporter.RelationshipType);
+            Assert.Equal("Website", supporter.AcquisitionChannel);
+        }
+
+        var donorHistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        Assert.True(donorHistoryResponse.IsSuccessStatusCode, await donorHistoryResponse.Content.ReadAsStringAsync());
+        var donorHistory = await donorHistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(donorHistory);
+        Assert.Empty(donorHistory!);
+    }
+
+    [Fact]
+    public async Task PublicDonorRegistration_WithExistingEmail_ReturnsBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/api/auth/register-donor", new
+        {
+            email = "donor@intex.local",
+            password = "DonorPortal!234",
+            fullName = "Duplicate Donor",
+            region = "Mountain West",
+            country = "United States"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var payload = await response.Content.ReadAsStringAsync();
+        Assert.Contains("already exists", payload, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task AuthenticatedDonor_CanSubmitTrackedPublicDonation_AndSeeItInHistory()
+    {
+        await LoginAsDonorAsync();
+
+        var beforeHistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        var beforeHistory = await beforeHistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(beforeHistory);
+
+        var submitResponse = await _client.PostAsJsonAsync("/api/donations/public-submit", new
+        {
+            isAnonymous = false,
+            donorName = (string?)null,
+            donorEmail = (string?)null,
+            amount = 125m,
+            isRecurring = false,
+            recurringInterval = (string?)null,
+            notes = "Tracked donor checkout"
+        });
+
+        Assert.True(submitResponse.IsSuccessStatusCode, await submitResponse.Content.ReadAsStringAsync());
+        var submitPayload = await submitResponse.Content.ReadFromJsonAsync<PublicDonationSubmissionResponse>();
+        Assert.NotNull(submitPayload);
+        Assert.False(submitPayload!.IsAnonymous);
+
+        var afterHistoryResponse = await _client.GetAsync("/api/donations/my-history");
+        var afterHistory = await afterHistoryResponse.Content.ReadFromJsonAsync<List<DonationResponse>>();
+        Assert.NotNull(afterHistory);
+        Assert.Equal(beforeHistory!.Count + 1, afterHistory!.Count);
+        var created = Assert.Single(afterHistory, donation => donation.Id == submitPayload.DonationId);
+        Assert.NotEmpty(created.Allocations);
     }
 
     [Fact]

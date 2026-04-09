@@ -229,21 +229,19 @@ public class DonationsController(
             return BadRequest(new { message = "Recurring interval is required when recurring is selected." });
         }
 
-        var normalizedEmail = request.DonorEmail.Trim().ToLowerInvariant();
-        var donorName = request.DonorName.Trim();
-
-        var supporter = await dbContext.Supporters.FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail);
-        if (supporter is null)
+        Supporter supporter;
+        var authenticatedSupporterId = ResolveSupporterId();
+        if (request.IsAnonymous)
         {
             supporter = new Supporter
             {
                 SupporterType = "Individual",
-                DisplayName = donorName,
-                FirstName = donorName,
+                DisplayName = "Anonymous donor",
+                FirstName = "Anonymous",
                 RelationshipType = "Donor",
                 Region = "Unknown",
                 Country = "Unknown",
-                Email = normalizedEmail,
+                Email = $"anonymous+{Guid.NewGuid():N}@tanglaw.demo",
                 Status = "Active",
                 FirstDonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 AcquisitionChannel = "Web",
@@ -252,9 +250,57 @@ public class DonationsController(
             dbContext.Supporters.Add(supporter);
             await dbContext.SaveChangesAsync();
         }
-        else if (!string.Equals(supporter.DisplayName, donorName, StringComparison.Ordinal))
+        else if (authenticatedSupporterId.HasValue)
         {
-            supporter.DisplayName = donorName;
+            var linkedSupporter = await dbContext.Supporters.FirstOrDefaultAsync(x => x.Id == authenticatedSupporterId.Value);
+            if (linkedSupporter is null)
+            {
+                return BadRequest(new { message = "Your donor account is missing a linked supporter record. Please sign in again or contact support." });
+            }
+
+            supporter = linkedSupporter;
+        }
+        else
+        {
+            var donorName = request.DonorName?.Trim() ?? string.Empty;
+            var donorEmail = request.DonorEmail?.Trim() ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(donorName))
+            {
+                return BadRequest(new { message = "Please enter your name for a tracked donation." });
+            }
+
+            if (string.IsNullOrWhiteSpace(donorEmail))
+            {
+                return BadRequest(new { message = "Please enter your email for a tracked donation." });
+            }
+
+            var normalizedEmail = donorEmail.ToLowerInvariant();
+            supporter = await dbContext.Supporters.FirstOrDefaultAsync(x => x.Email.ToLower() == normalizedEmail)
+                ?? new Supporter
+                {
+                    SupporterType = "Individual",
+                    DisplayName = donorName,
+                    FirstName = donorName,
+                    RelationshipType = "Donor",
+                    Region = "Unknown",
+                    Country = "Unknown",
+                    Email = normalizedEmail,
+                    Status = "Active",
+                    FirstDonationDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                    AcquisitionChannel = "Web",
+                    CreatedAtUtc = DateTime.UtcNow
+                };
+
+            if (supporter.Id == 0)
+            {
+                dbContext.Supporters.Add(supporter);
+                await dbContext.SaveChangesAsync();
+            }
+            else if (!string.Equals(supporter.DisplayName, donorName, StringComparison.Ordinal))
+            {
+                supporter.DisplayName = donorName;
+            }
         }
 
         var donation = new Donation
@@ -273,6 +319,7 @@ public class DonationsController(
                 : $"Recurring interval: {recurringInterval}. {request.Notes}".Trim(),
         };
 
+        donation.Allocations = await BuildPublicDonationAllocationsAsync(request.Amount, donation.DonationDate);
         dbContext.Donations.Add(donation);
         await dbContext.SaveChangesAsync();
 
@@ -280,10 +327,15 @@ public class DonationsController(
             donation.Id,
             supporter.Id,
             supporter.DisplayName,
+            request.IsAnonymous,
             request.Amount,
             request.IsRecurring,
             recurringInterval,
-            "Donation submitted successfully."));
+            request.IsAnonymous
+                ? "Anonymous donation submitted successfully."
+                : authenticatedSupporterId.HasValue
+                    ? "Donor account donation submitted successfully."
+                    : "Tracked donation submitted successfully."));
     }
 
     [HttpPut("{id:int}")]
@@ -359,6 +411,76 @@ public class DonationsController(
     {
         var supporterIdClaim = User.FindFirstValue("supporter_id");
         return int.TryParse(supporterIdClaim, out var supporterId) ? supporterId : null;
+    }
+
+    private async Task<List<DonationAllocation>> BuildPublicDonationAllocationsAsync(decimal amount, DateOnly allocationDate)
+    {
+        var primarySafehouse = await dbContext.Safehouses
+            .OrderBy(x => x.Id)
+            .Select(x => new { x.Id })
+            .FirstOrDefaultAsync();
+
+        if (primarySafehouse is null)
+        {
+            return [];
+        }
+
+        var monetaryAllocations = await dbContext.DonationAllocations
+            .Include(x => x.Donation)
+            .Where(x => x.Donation!.DonationType == "Monetary")
+            .ToListAsync();
+
+        var configuredAreas = donationImpactOptions.Value.ProgramAreaUnitCosts.Keys.ToList();
+        Dictionary<string, decimal> areaSplits;
+
+        if (monetaryAllocations.Count == 0)
+        {
+            var equalWeight = configuredAreas.Count == 0 ? 0m : 1m / configuredAreas.Count;
+            areaSplits = configuredAreas.ToDictionary(area => area, _ => equalWeight, StringComparer.OrdinalIgnoreCase);
+        }
+        else
+        {
+            var totalAllocated = monetaryAllocations.Sum(x => x.AmountAllocated);
+            areaSplits = monetaryAllocations
+                .GroupBy(x => x.ProgramArea)
+                .ToDictionary(
+                    group => group.Key,
+                    group => totalAllocated <= 0 ? 0m : group.Sum(x => x.AmountAllocated) / totalAllocated,
+                    StringComparer.OrdinalIgnoreCase);
+        }
+
+        var orderedAreas = areaSplits
+            .OrderByDescending(x => x.Value)
+            .ThenBy(x => x.Key)
+            .ToList();
+
+        var allocations = new List<DonationAllocation>();
+        var allocatedTotal = 0m;
+
+        for (var index = 0; index < orderedAreas.Count; index++)
+        {
+            var split = orderedAreas[index];
+            var allocatedAmount = index == orderedAreas.Count - 1
+                ? Math.Round(amount - allocatedTotal, 2)
+                : Math.Round(amount * split.Value, 2);
+
+            if (allocatedAmount <= 0m)
+            {
+                continue;
+            }
+
+            allocations.Add(new DonationAllocation
+            {
+                SafehouseId = primarySafehouse.Id,
+                ProgramArea = split.Key,
+                AmountAllocated = allocatedAmount,
+                AllocationDate = allocationDate
+            });
+
+            allocatedTotal += allocatedAmount;
+        }
+
+        return allocations;
     }
 
     private static DonationResponse MapDonation(Donation donation) =>

@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using Intex.Api.Authorization;
 using Intex.Api.DTOs;
+using Intex.Api.Data;
+using Intex.Api.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Intex.Api.Controllers;
 
@@ -15,6 +18,7 @@ namespace Intex.Api.Controllers;
 [Route("api/[controller]")]
 public class AuthController(
     IConfiguration configuration,
+    ApplicationDbContext dbContext,
     UserManager<ApplicationUser> userManager,
     SignInManager<ApplicationUser> signInManager) : ControllerBase
 {
@@ -101,6 +105,71 @@ public class AuthController(
         }
 
         // Do not sign in as the new user — the admin's cookie session must remain active.
+        return Created("/api/auth/me", new AuthResponse(await MapUserProfileAsync(user)));
+    }
+
+    [HttpPost("register-donor")]
+    [AllowAnonymous]
+    [EnableRateLimiting("auth-login")]
+    public async Task<ActionResult<AuthResponse>> RegisterDonor(PublicDonorRegisterRequest request)
+    {
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+        var fullName = request.FullName.Trim();
+        var region = request.Region.Trim();
+        var country = request.Country.Trim();
+        var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : request.Phone.Trim();
+
+        if (await userManager.FindByEmailAsync(normalizedEmail) is not null)
+        {
+            return BadRequest(new { message = "An account with that email already exists. Sign in to view your donor dashboard." });
+        }
+
+        if (await dbContext.Supporters.AnyAsync(x => x.Email.ToLower() == normalizedEmail))
+        {
+            return BadRequest(new { message = "A donor record already exists for that email. Sign in to continue." });
+        }
+
+        var nameParts = SplitFullName(fullName);
+        var supporter = new Supporter
+        {
+            SupporterType = "MonetaryDonor",
+            DisplayName = fullName,
+            FirstName = nameParts.firstName,
+            LastName = nameParts.lastName,
+            RelationshipType = "Donor",
+            Region = region,
+            Country = country,
+            Email = normalizedEmail,
+            Phone = phone,
+            Status = "Active",
+            AcquisitionChannel = "Website",
+            CreatedAtUtc = DateTime.UtcNow
+        };
+
+        dbContext.Supporters.Add(supporter);
+        await dbContext.SaveChangesAsync();
+
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = normalizedEmail,
+            Email = normalizedEmail,
+            FullName = fullName,
+            EmailConfirmed = true,
+            SupporterId = supporter.Id
+        };
+
+        var createResult = await userManager.CreateAsync(user, request.Password);
+        if (!createResult.Succeeded)
+        {
+            dbContext.Supporters.Remove(supporter);
+            await dbContext.SaveChangesAsync();
+            return BadRequest(new { errors = createResult.Errors.Select(x => x.Description) });
+        }
+
+        await userManager.AddToRoleAsync(user, RoleNames.Donor);
+        await signInManager.SignInAsync(user, isPersistent: false);
+
         return Created("/api/auth/me", new AuthResponse(await MapUserProfileAsync(user)));
     }
 
@@ -282,4 +351,17 @@ public class AuthController(
     private static bool IsGoogleConfigured(IConfiguration configuration) =>
         !string.IsNullOrWhiteSpace(configuration["Authentication:Google:ClientId"]) &&
         !string.IsNullOrWhiteSpace(configuration["Authentication:Google:ClientSecret"]);
+
+    private static (string firstName, string? lastName) SplitFullName(string fullName)
+    {
+        var parts = fullName
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        if (parts.Length <= 1)
+        {
+            return (fullName, null);
+        }
+
+        return (parts[0], string.Join(' ', parts.Skip(1)));
+    }
 }

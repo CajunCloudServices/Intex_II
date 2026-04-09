@@ -23,9 +23,46 @@ public record ProcessProgressSummaryDto(int ProgressNoted, int ConcernsFlagged, 
 
 public record PublicImpactMetricDto(string Label, string Value);
 
+public record PublicImpactResourceUseItemDto(
+    string ProgramArea,
+    decimal AmountAllocated,
+    decimal SharePercent);
+
+public record PublicImpactCapacityRowDto(
+    string SafehouseName,
+    int CurrentOccupancy,
+    int CapacityGirls);
+
+public record PublicImpactSummaryDto(
+    int TotalOccupancy,
+    int TotalCapacity,
+    int SafehouseCount,
+    int HomeVisitsThisMonth,
+    DateOnly? HomeVisitsReportingMonth);
+
+public record PublicImpactOverallSummaryDto(
+    decimal TotalTrackedSupport,
+    int TotalHomeVisitsRecorded,
+    int SafehouseCount,
+    int PublishedReportingMonths,
+    int CurrentOccupancy,
+    int TotalCapacity);
+
 public record PublicImpactSnapshotResponse(
     int Id,
     DateOnly SnapshotDate,
     string Headline,
     string SummaryText,
-    IReadOnlyList<PublicImpactMetricDto> Metrics);
+    int? TotalResidents,
+    decimal? AvgHealthScore,
+    decimal? AvgEducationProgress,
+    decimal? DonationsTotalForMonth,
+    int HomeVisitsThisMonth,
+    bool IsDisplayValid);
+
+public record PublicImpactDashboardResponse(
+    IReadOnlyList<PublicImpactSnapshotResponse> Snapshots,
+    IReadOnlyList<PublicImpactResourceUseItemDto> ResourceUse,
+    IReadOnlyList<PublicImpactCapacityRowDto> CapacityRows,
+    PublicImpactSummaryDto Summary,
+    PublicImpactOverallSummaryDto OverallSummary);

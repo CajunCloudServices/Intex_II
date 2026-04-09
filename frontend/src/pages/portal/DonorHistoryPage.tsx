@@ -1,11 +1,13 @@
-import { useDeferredValue, useEffect, useState } from 'react';
+import { useDeferredValue, useEffect, useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import type { Donation, DonationImpactPrediction, DonorAllocationBreakdown, DonorImpactSummary } from '../../api/types';
 import { useAuth } from '../../hooks/useAuth';
 import { MetricCard, SectionCard } from '../../components/ui/Cards';
 import { DataTable } from '../../components/ui/DataTable';
-import { DetailList, DetailPanel } from '../../components/ui/DetailPanel';
+import { DetailList } from '../../components/ui/DetailPanel';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
+import { Pagination } from '../../components/ui/Pagination';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
 
 export function DonorHistoryPage() {
@@ -20,14 +22,15 @@ export function DonorHistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedDonationId, setSelectedDonationId] = useState<number | null>(null);
+  const [historyPage, setHistoryPage] = useState(1);
   const deferredSearch = useDeferredValue(search);
+  const PAGE_SIZE = 8;
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const loadDonations = async () => {
     if (!user) return;
-
     setLoading(true);
     setError(null);
-
     try {
       const [history, summary, breakdown] = await Promise.all([
         api.donorHistory(),
@@ -38,7 +41,7 @@ export function DonorHistoryPage() {
       setImpactSummary(summary);
       setAllocationBreakdown(breakdown);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load donor history.');
+      setError(err instanceof Error ? err.message : 'Failed to load your giving history.');
     } finally {
       setLoading(false);
     }
@@ -51,107 +54,199 @@ export function DonorHistoryPage() {
       setPrediction(null);
       return;
     }
-
     setPredicting(true);
     try {
       setPrediction(await api.donorImpactPrediction(amount));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to estimate donation impact.');
+      setError(err instanceof Error ? err.message : 'Failed to estimate impact.');
     } finally {
       setPredicting(false);
     }
   };
 
-  useEffect(() => {
-    void loadDonations();
-  }, [user]);
+  useEffect(() => { void loadDonations(); }, [user]);
+  useEffect(() => { void estimateImpact(); }, [user]);
+  useEffect(() => { setHistoryPage(1); }, [deferredSearch]);
 
-  useEffect(() => {
-    void estimateImpact();
-  }, [user]);
-
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   const normalizedSearch = normalizeText(deferredSearch);
-  const filteredDonations = donations.filter((donation) => {
-    if (!normalizedSearch) return true;
+  const filteredDonations = donations
+    .filter((d) => {
+      if (!normalizedSearch) return true;
+      return (
+        normalizeText(d.supporterName).includes(normalizedSearch) ||
+        normalizeText(d.donationType).includes(normalizedSearch) ||
+        normalizeText(d.campaignName ?? 'Direct support').includes(normalizedSearch) ||
+        normalizeText(d.channelSource).includes(normalizedSearch)
+      );
+    })
+    .sort((a, b) => new Date(b.donationDate).getTime() - new Date(a.donationDate).getTime());
 
-    return (
-      normalizeText(donation.supporterName).includes(normalizedSearch) ||
-      normalizeText(donation.donationType).includes(normalizedSearch) ||
-      normalizeText(donation.campaignName ?? '').includes(normalizedSearch) ||
-      normalizeText(donation.channelSource).includes(normalizedSearch)
-    );
-  });
+  const totalGiven = donations.reduce((sum, d) => sum + (d.amount ?? d.estimatedValue), 0);
+  const recurringCount = donations.filter((d) => d.isRecurring).length;
+  const selectedDonation = donations.find((d) => d.id === selectedDonationId) ?? null;
 
-  const totalGiven = donations.reduce((sum, donation) => sum + (donation.amount ?? donation.estimatedValue), 0);
-  const recurringCount = donations.filter((donation) => donation.isRecurring).length;
+  const totalPages = Math.ceil(filteredDonations.length / PAGE_SIZE);
+  const pagedDonations = filteredDonations.slice((historyPage - 1) * PAGE_SIZE, historyPage * PAGE_SIZE);
 
   return (
-    <div className="page-shell">
+    <div className="page-shell donor-page">
       <div className="page-header">
         <div>
-          <span className="eyebrow">Donor portal</span>
-          <h1>My impact dashboard</h1>
-          <p>Review your giving history, where allocations were directed, and estimate what your next donation could support.</p>
+          <span className="eyebrow">Welcome back, {user.fullName.split(' ')[0]}</span>
+          <h1>Your giving</h1>
         </div>
+        <Link className="primary-button" to="/donate">Donate</Link>
       </div>
 
       <section className="page-grid three">
         <MetricCard
-          label="Lifetime giving"
+          label="Total given"
           value={formatMoney(impactSummary?.totalDonated ?? totalGiven)}
-          detail="Total recorded across your donor profile."
+          detail={`${impactSummary?.donationCount ?? donations.length} gifts recorded`}
           accent
         />
         <MetricCard
-          label="Contribution count"
+          label="Gifts"
           value={String(impactSummary?.donationCount ?? donations.length)}
-          detail="Visible donor history rows."
+          detail="Your full giving history"
         />
         <MetricCard
-          label="Recurring gifts"
+          label="Monthly gifts"
           value={String(impactSummary?.recurringDonationCount ?? recurringCount)}
-          detail={`Average gift: ${formatMoney(impactSummary?.averageDonationAmount ?? 0)}`}
+          detail={`Avg. ${formatMoney(impactSummary?.averageDonationAmount ?? 0)} per gift`}
         />
       </section>
 
-      <section className="page-grid two dashboard-split">
-        <SectionCard title="Allocation destinations" subtitle="How your donations have been distributed by safehouse and program area.">
+      <SectionCard
+        title="History"
+        actions={
+          <input
+            aria-label="Search donations"
+            className="inline-search donor-search"
+            placeholder="Campaign or type..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        }
+      >
+        {loading ? (
+          <LoadingState label="Loading your gifts..." />
+        ) : error ? (
+          <ErrorState message={error} onRetry={loadDonations} />
+        ) : filteredDonations.length === 0 ? (
+          <EmptyState title="No donations found" message="Try clearing the search." />
+        ) : (
+          <div className="donor-history-table" ref={tableRef}>
+            <div className="donor-table-page" key={`${historyPage}-${deferredSearch}`}>
+              <DataTable
+                columns={['Date', 'Amount', 'Campaign', 'Type']}
+                rows={pagedDonations.map((d) => [
+                  <button
+                    className="table-link-button"
+                    key={`r-${d.id}`}
+                    onClick={() => setSelectedDonationId(d.id === selectedDonationId ? null : d.id)}
+                    type="button"
+                  >
+                    {formatDate(d.donationDate)}
+                  </button>,
+                  formatMoney(d.amount ?? d.estimatedValue),
+                  d.campaignName ?? 'Direct support',
+                  d.donationType,
+                ])}
+                emptyMessage="No matching records."
+              />
+            </div>
+            <Pagination
+              page={historyPage}
+              totalPages={totalPages}
+              totalItems={filteredDonations.length}
+              pageSize={PAGE_SIZE}
+              onChange={(p) => {
+                setHistoryPage(p);
+                tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }}
+            />
+          </div>
+        )}
+      </SectionCard>
+
+      {selectedDonation ? (
+        <div className="donor-receipt">
+          <div className="donor-receipt-top">
+            <h3>Receipt — {formatDate(selectedDonation.donationDate)}</h3>
+            <button className="ghost-button" onClick={() => setSelectedDonationId(null)} type="button">
+              Close
+            </button>
+          </div>
+          <div className="donor-receipt-body">
+            <DetailList
+              items={[
+                { label: 'Amount', value: formatMoney(selectedDonation.amount ?? selectedDonation.estimatedValue) },
+                { label: 'Campaign', value: selectedDonation.campaignName ?? 'Direct support' },
+                { label: 'Channel', value: selectedDonation.channelSource },
+                { label: 'Type', value: selectedDonation.donationType },
+                { label: 'Recurring', value: selectedDonation.isRecurring ? 'Yes' : 'No' },
+                { label: 'Currency', value: selectedDonation.currencyCode ?? 'N/A' },
+              ]}
+            />
+            {selectedDonation.allocations.length > 0 ? (
+              <div>
+                <p className="donor-receipt-alloc-label">Where it went</p>
+                <ul className="donor-receipt-alloc-list">
+                  {selectedDonation.allocations.map((a) => (
+                    <li key={a.id}>
+                      <span>{a.safehouseName} — {a.programArea}</span>
+                      <strong>{formatMoney(a.amountAllocated)}</strong>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            <button className="ghost-button donor-receipt-print" onClick={() => window.print()} type="button">
+              Print receipt
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      <section className="page-grid two donor-bottom-grid">
+        <SectionCard title="Where it went">
           {allocationBreakdown && allocationBreakdown.items.length > 0 ? (
             <DataTable
-              caption="Donor allocation breakdown"
-              columns={['Safehouse', 'Program area', 'Allocated total', 'Share']}
+              columns={['Program area', 'Amount', 'Share']}
               rows={allocationBreakdown.items.map((item) => [
-                item.safehouseName,
                 item.programArea,
                 formatMoney(item.totalAllocated),
                 `${item.sharePercent.toFixed(1)}%`,
               ])}
-              emptyMessage="No allocation records are available yet."
+              emptyMessage="No allocations yet."
             />
           ) : (
-            <EmptyState title="No allocations yet" message="Allocation details appear once your first donation is recorded." />
+            <EmptyState title="No allocations yet" message="Appears once your first donation is recorded." />
           )}
         </SectionCard>
 
         <SectionCard
-          title="Estimate donation outcomes"
-          subtitle="Preview what a new donation could enable based on historical allocation mix."
+          title="Estimate impact"
           actions={
             <div className="filter-row">
               <input
-                aria-label="Prediction amount"
+                aria-label="Estimate amount"
                 className="inline-search"
                 min="1"
                 step="0.01"
                 type="number"
                 value={predictionAmount}
-                onChange={(event) => setPredictionAmount(event.target.value)}
+                onChange={(e) => setPredictionAmount(e.target.value)}
               />
-              <button className="primary-button" disabled={predicting} onClick={() => void estimateImpact()} type="button">
+              <button
+                className="primary-button"
+                disabled={predicting}
+                onClick={() => void estimateImpact()}
+                type="button"
+              >
                 {predicting ? 'Estimating...' : 'Estimate'}
               </button>
             </div>
@@ -160,111 +255,20 @@ export function DonorHistoryPage() {
           {prediction ? (
             <>
               <DataTable
-                caption="Predicted outcomes by program area"
-                columns={['Program area', 'Allocated', 'Outcome unit', 'Estimated outcome']}
-                rows={prediction.outcomes.map((outcome) => [
-                  outcome.programArea,
-                  formatMoney(outcome.allocatedAmount),
-                  `${outcome.outcomeUnit} @ ${formatMoney(outcome.unitCost)}`,
-                  `${outcome.estimatedUnits.toFixed(2)} ${outcome.outcomeUnit}`,
+                columns={['Program area', 'Allocated', 'Outcome']}
+                rows={prediction.outcomes.map((o) => [
+                  o.programArea,
+                  formatMoney(o.allocatedAmount),
+                  `${o.estimatedUnits.toFixed(1)} ${o.outcomeUnit}`,
                 ])}
-                emptyMessage="No prediction outcomes available."
+                emptyMessage="No predictions available."
               />
               <p className="muted-inline">{prediction.assumptions}</p>
             </>
           ) : (
-            <EmptyState title="Enter a donation amount" message="Set an amount and click Estimate to preview outcomes." />
+            <EmptyState title="Enter an amount" message="Set a number above and tap Estimate." />
           )}
         </SectionCard>
-      </section>
-
-      <section className="page-grid two dashboard-split">
-        <SectionCard
-          title="Donation history"
-          subtitle="Search your record by campaign, channel, or contribution type. Select a row to view a receipt."
-          actions={
-            <input
-              aria-label="Search donor history"
-              className="inline-search"
-              placeholder="Search contributions..."
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          }
-        >
-          {loading ? (
-            <LoadingState label="Loading donor history..." />
-          ) : error ? (
-            <ErrorState message={error} onRetry={loadDonations} />
-          ) : filteredDonations.length === 0 ? (
-            <EmptyState title="No matching contributions" message="Try another search term or clear the filter." />
-          ) : (
-            <DataTable
-              caption="Donor-facing contribution history"
-              columns={['Date', 'Amount', 'Type', 'Campaign', 'Channel', 'Program areas']}
-              rows={filteredDonations.map((donation) => [
-                <button
-                  className="table-link-button"
-                  key={`receipt-${donation.id}`}
-                  onClick={() => setSelectedDonationId(donation.id)}
-                  type="button"
-                >
-                  {formatDate(donation.donationDate)}
-                </button>,
-                formatMoney(donation.amount ?? donation.estimatedValue),
-                donation.donationType,
-                donation.campaignName ?? 'Direct support',
-                donation.channelSource,
-                donation.allocations.map((a) => `${a.safehouseName} (${a.programArea})`).join('; '),
-              ])}
-              emptyMessage="No matching donor records."
-            />
-          )}
-        </SectionCard>
-
-        <DetailPanel
-          title={selectedDonationId ? `Donation #${selectedDonationId}` : 'Receipt'}
-          subtitle="Select a donation to view receipt details and program allocations."
-        >
-          {(() => {
-            const selected = donations.find((d) => d.id === selectedDonationId) ?? null;
-            if (!selected) {
-              return <EmptyState title="No donation selected" message="Choose a row from the table to view its receipt." />;
-            }
-            return (
-              <>
-                <DetailList
-                  items={[
-                    { label: 'Date', value: formatDate(selected.donationDate) },
-                    { label: 'Amount', value: formatMoney(selected.amount ?? selected.estimatedValue) },
-                    { label: 'Currency', value: selected.currencyCode ?? 'N/A' },
-                    { label: 'Type', value: selected.donationType },
-                    { label: 'Campaign', value: selected.campaignName ?? 'Direct support' },
-                    { label: 'Channel', value: selected.channelSource },
-                    { label: 'Recurring', value: selected.isRecurring ? 'Yes' : 'No' },
-                  ]}
-                />
-                {selected.allocations.length > 0 ? (
-                  <div>
-                    <p className="detail-inner-label">Impact allocation</p>
-                    <ul className="detail-inner-list">
-                      {selected.allocations.map((a) => (
-                        <li key={a.id}>
-                          {a.safehouseName} — {a.programArea} ({formatMoney(a.amountAllocated)})
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-                <div className="detail-panel-actions">
-                  <button className="ghost-button" onClick={() => window.print()} type="button">
-                    Print receipt
-                  </button>
-                </div>
-              </>
-            );
-          })()}
-        </DetailPanel>
       </section>
     </div>
   );

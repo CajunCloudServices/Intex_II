@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 function setIframeHeightToContent(iframe: HTMLIFrameElement | null) {
@@ -27,9 +27,15 @@ export function MlInsightsDashboardPage() {
     'intervention-mix': 'intervention-mix-dashboard.html',
     'incident-archetypes': 'incident-archetypes-dashboard.html',
     'resident-trajectory': 'resident-trajectory-dashboard.html',
+    campaign: 'campaign-timing-dashboard.html',
+    incidents: 'incident-archetypes-dashboard.html',
+    intervention: 'intervention-mix-dashboard.html',
+    'content-mix': 'social-content-mix-dashboard.html',
+    safehouse: 'safehouse-load-dashboard.html',
   };
   const selectedPath = dashboardPathByKey[dashboardKey ?? ''] ?? 'counseling-admin-dashboard.html';
-  const src = `${base}ml-dashboards/${selectedPath}?embed=1`;
+  const cacheBuster = useMemo(() => Date.now().toString(), []);
+  const src = `${base}ml-dashboards/${selectedPath}?embed=1&v=${cacheBuster}`;
 
   const onIframeLoad = useCallback(() => {
     const iframe = iframeRef.current;

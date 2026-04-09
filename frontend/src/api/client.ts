@@ -1,15 +1,17 @@
 function resolveApiBaseUrl() {
   const configured = import.meta.env.VITE_API_URL?.trim();
   if (configured) {
-    return configured.replace(/\/+$/, '');
+    return configured.replace(/\/+$/, "");
   }
 
   // Dev: same-origin `/api` so HttpOnly auth cookies stay first-party (Vite proxies to the API).
   if (import.meta.env.DEV) {
-    return '/api';
+    return "/api";
   }
 
-  throw new Error('Missing VITE_API_URL. Set the frontend API base URL for this deployment.');
+  throw new Error(
+    "Missing VITE_API_URL. Set the frontend API base URL for this deployment.",
+  );
 }
 
 const API_BASE_URL = resolveApiBaseUrl();
@@ -22,9 +24,9 @@ export class ApiError extends Error {
   status: number;
   details: string;
 
-  constructor(status: number, message: string, details = '') {
+  constructor(status: number, message: string, details = "") {
     super(message);
-    this.name = 'ApiError';
+    this.name = "ApiError";
     this.status = status;
     this.details = details;
   }
@@ -32,60 +34,100 @@ export class ApiError extends Error {
 
 type RequestOptions = RequestInit;
 
-export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+function buildGenericHttpErrorMessage(status: number, statusText: string) {
+  if (status >= 500) {
+    return "The service is temporarily unavailable. Please try again in a moment.";
+  }
+
+  if (status === 404) {
+    return "The requested data could not be found.";
+  }
+
+  return statusText
+    ? `Request failed: ${statusText}`
+    : `Request failed with ${status}`;
+}
+
+export async function apiRequest<T>(
+  path: string,
+  options: RequestOptions = {},
+): Promise<T> {
   const headers = new Headers(options.headers);
 
   const body = options.body;
   const shouldSetJsonContentType =
-    !headers.has('Content-Type') &&
-    typeof body === 'string' &&
+    !headers.has("Content-Type") &&
+    typeof body === "string" &&
     body.length > 0 &&
-    !(options.method && options.method.toUpperCase() === 'GET');
+    !(options.method && options.method.toUpperCase() === "GET");
 
   if (shouldSetJsonContentType) {
-    headers.set('Content-Type', 'application/json');
+    headers.set("Content-Type", "application/json");
   }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
-    credentials: 'include',
+    credentials: "include",
     ...options,
     headers,
   });
 
   if (!response.ok) {
     const text = await response.text();
-    let message = `Request failed with ${response.status}`;
+    const contentType =
+      response.headers.get("content-type")?.toLowerCase() ?? "";
+    const looksLikeHtml =
+      contentType.includes("text/html") || /^\s*</.test(text);
+    let message = buildGenericHttpErrorMessage(
+      response.status,
+      response.statusText,
+    );
 
-    try {
-      const parsed = JSON.parse(text) as {
-        message?: string;
-        errors?: Array<string | { field?: string; message?: string }>;
-      };
-      const formattedErrors = parsed.errors
-        ?.map((entry) => {
-          if (typeof entry === 'string') {
-            return entry;
-          }
-          if (!entry) {
-            return '';
-          }
-          return entry.field ? `${entry.field}: ${entry.message ?? 'Invalid value.'}` : (entry.message ?? 'Invalid value.');
-        })
-        .filter(Boolean)
-        .join(', ');
-      message = parsed.message ?? formattedErrors ?? message;
-    } catch {
-      if (text) {
-        message = text;
+    if (!looksLikeHtml && text) {
+      try {
+        const parsed = JSON.parse(text) as {
+          message?: string;
+          title?: string;
+          detail?: string;
+          errors?: Array<string | { field?: string; message?: string }>;
+        };
+        const formattedErrors = parsed.errors
+          ?.map((entry) => {
+            if (typeof entry === "string") {
+              return entry;
+            }
+            if (!entry) {
+              return "";
+            }
+            return entry.field
+              ? `${entry.field}: ${entry.message ?? "Invalid value."}`
+              : (entry.message ?? "Invalid value.");
+          })
+          .filter(Boolean)
+          .join(", ");
+        message =
+          parsed.message ??
+          formattedErrors ??
+          parsed.detail ??
+          parsed.title ??
+          message;
+      } catch {
+        if (text && !contentType.includes("text/plain")) {
+          message = buildGenericHttpErrorMessage(
+            response.status,
+            response.statusText,
+          );
+        } else if (text) {
+          message = text;
+        }
       }
     }
 
-    if (response.status === 401) {
+    if (response.status === 401 && path !== '/auth/me') {
       window.dispatchEvent(new CustomEvent('intex:unauthorized'));
     }
 
     if (response.status === 403) {
-      window.dispatchEvent(new CustomEvent('intex:forbidden'));
+      window.dispatchEvent(new CustomEvent("intex:forbidden"));
     }
 
     throw new ApiError(response.status, message, text);

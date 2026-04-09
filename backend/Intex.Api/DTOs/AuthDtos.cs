@@ -14,6 +14,14 @@ public record RegisterRequest(
     string[]? Roles,
     int? SupporterId);
 
+public record PublicDonorRegisterRequest(
+    [Required, EmailAddress] string Email,
+    [Required, MinLength(14)] string Password,
+    [Required, StringLength(200, MinimumLength = 2)] string FullName,
+    [Required, StringLength(100, MinimumLength = 2)] string Region,
+    [Required, StringLength(100, MinimumLength = 2)] string Country,
+    [Phone, StringLength(50)] string? Phone);
+
 /// <summary>Cookie session established server-side; no token is returned to the client.</summary>
 public record AuthResponse(UserProfileDto User);
 

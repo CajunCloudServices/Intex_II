@@ -18,16 +18,16 @@ const mlDashboardLinks = [
   { to: '/portal/ml-insights/counseling', label: 'Counseling sessions' },
   { to: '/portal/ml-insights/donor', label: 'Donor lapse risk' },
   { to: '/portal/ml-insights/reintegration', label: 'Reintegration outlook' },
-  { to: '/portal/ml-insights/social', label: 'Social posts & gifts' },
-  { to: '/portal/ml-insights/social-content-mix', label: 'Content mix & referrals' },
-  { to: '/portal/ml-insights/campaign-timing', label: 'Campaign timing' },
-  { to: '/portal/ml-insights/safehouse-load', label: 'Safehouse load risk' },
-  { to: '/portal/ml-insights/intervention-mix', label: 'Intervention mix' },
+  { to: '/portal/ml-insights/social', label: 'Social media analytics' },
+  { to: '/portal/ml-insights/social-content-mix', label: 'Social content mix efficiency' },
+  { to: '/portal/ml-insights/campaign-timing', label: 'Campaign timing & seasonality' },
+  { to: '/portal/ml-insights/safehouse-load', label: 'Safehouse operational load' },
+  { to: '/portal/ml-insights/intervention-mix', label: 'Intervention mix effectiveness' },
   { to: '/portal/ml-insights/incident-archetypes', label: 'Incident archetypes' },
   { to: '/portal/ml-insights/resident-trajectory', label: 'Resident trajectory' },
 ];
 
-const donorLinks = [{ to: '/portal/donor-history', label: 'My Contributions', shortLabel: 'MC' }];
+const donorLinks = [{ to: '/portal/my-impact', label: 'My Contributions', shortLabel: 'MC' }];
 const publicLinks = [
   { to: '/', label: 'Home' },
   { to: '/impact', label: 'Impact' },
@@ -64,6 +64,8 @@ export function AppShell() {
   }, []);
 
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
+  const isAdminOnly = Boolean(user?.roles.includes('Admin'));
+  const portalTitle = isDonorOnly ? 'Donor Portal' : isAdminOnly ? 'Admin Portal' : 'Staff Portal';
   const portalLinks = isDonorOnly ? donorLinks : staffLinks;
   const userInitials = user?.fullName
     .split(/\s+/)
@@ -113,9 +115,6 @@ export function AppShell() {
                   <strong>{user.fullName}</strong>
                   <span>{isDonorOnly ? 'Donor portal access' : 'Internal network'}</span>
                 </div>
-                <div className="topbar-avatar" aria-hidden="true">
-                  {userInitials || 'TP'}
-                </div>
               </div>
             ) : null}
 
@@ -161,8 +160,7 @@ export function AppShell() {
           <>
             <aside className={`sidebar${mobileNavOpen ? ' sidebar-open' : ''}`}>
               <div className="sidebar-brand">
-                <div className="sidebar-brand-title">Staff Portal</div>
-                <div className="sidebar-brand-subtitle">{isDonorOnly ? 'Donor network' : 'Internal network'}</div>
+                <div className="sidebar-brand-title">{portalTitle}</div>
               </div>
 
               <div className="sidebar-heading">Navigation</div>

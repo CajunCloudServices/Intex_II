@@ -80,8 +80,9 @@ public record DonationImpactPredictionResponse(
     decimal EstimatedVictimsImpacted);
 
 public record PublicDonationSubmissionRequest(
-    [Required, StringLength(120)] string DonorName,
-    [Required, EmailAddress, StringLength(320)] string DonorEmail,
+    bool IsAnonymous,
+    [StringLength(120)] string? DonorName,
+    [EmailAddress, StringLength(320)] string? DonorEmail,
     [Range(typeof(decimal), "0.01", "999999999.99")] decimal Amount,
     bool IsRecurring,
     [StringLength(30)] string? RecurringInterval,
@@ -91,6 +92,7 @@ public record PublicDonationSubmissionResponse(
     int DonationId,
     int SupporterId,
     string SupporterName,
+    bool IsAnonymous,
     decimal Amount,
     bool IsRecurring,
     string? RecurringInterval,

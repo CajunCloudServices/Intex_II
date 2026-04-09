@@ -24,13 +24,17 @@ export interface AuthResponse {
   user: UserProfile;
 }
 
-export interface AuthProvidersResponse {
-  googleEnabled: boolean;
+export interface PublicDonorRegisterRequest {
+  email: string;
+  password: string;
+  fullName: string;
+  region: string;
+  country: string;
+  phone?: string | null;
 }
 
-export interface PublicImpactMetric {
-  label: string;
-  value: string;
+export interface AuthProvidersResponse {
+  googleEnabled: boolean;
 }
 
 export interface PublicImpactSnapshot {
@@ -38,7 +42,49 @@ export interface PublicImpactSnapshot {
   snapshotDate: string;
   headline: string;
   summaryText: string;
-  metrics: PublicImpactMetric[];
+  totalResidents?: number | null;
+  avgHealthScore?: number | null;
+  avgEducationProgress?: number | null;
+  donationsTotalForMonth?: number | null;
+  homeVisitsThisMonth: number;
+  isDisplayValid: boolean;
+}
+
+export interface PublicImpactResourceUseItem {
+  programArea: string;
+  amountAllocated: number;
+  sharePercent: number;
+}
+
+export interface PublicImpactCapacityRow {
+  safehouseName: string;
+  currentOccupancy: number;
+  capacityGirls: number;
+}
+
+export interface PublicImpactSummary {
+  totalOccupancy: number;
+  totalCapacity: number;
+  safehouseCount: number;
+  homeVisitsThisMonth: number;
+  homeVisitsReportingMonth?: string | null;
+}
+
+export interface PublicImpactOverallSummary {
+  totalTrackedSupport: number;
+  totalHomeVisitsRecorded: number;
+  safehouseCount: number;
+  publishedReportingMonths: number;
+  currentOccupancy: number;
+  totalCapacity: number;
+}
+
+export interface PublicImpactDashboard {
+  snapshots: PublicImpactSnapshot[];
+  resourceUse: PublicImpactResourceUseItem[];
+  capacityRows: PublicImpactCapacityRow[];
+  summary: PublicImpactSummary;
+  overallSummary: PublicImpactOverallSummary;
 }
 
 export interface DashboardSummary {
@@ -576,8 +622,9 @@ export interface DonationRequest {
 }
 
 export interface PublicDonationSubmissionRequest {
-  donorName: string;
-  donorEmail: string;
+  isAnonymous: boolean;
+  donorName?: string | null;
+  donorEmail?: string | null;
   amount: number;
   isRecurring: boolean;
   recurringInterval?: string | null;
@@ -588,6 +635,7 @@ export interface PublicDonationSubmissionResponse {
   donationId: number;
   supporterId: number;
   supporterName: string;
+  isAnonymous: boolean;
   amount: number;
   isRecurring: boolean;
   recurringInterval?: string | null;

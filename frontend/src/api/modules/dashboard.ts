@@ -4,11 +4,11 @@ import type {
   CaseConference,
   CaseConferenceRequest,
   DashboardSummary,
-  PublicImpactSnapshot,
+  PublicImpactDashboard,
 } from '../types';
 
 export const dashboardApi = {
-  publicImpact: () => apiRequest<PublicImpactSnapshot[]>('/public-impact'),
+  publicImpact: () => apiRequest<PublicImpactDashboard>('/public-impact'),
 
   auditLog: () => apiRequest<AuditEvent[]>('/audit-log'),
 
