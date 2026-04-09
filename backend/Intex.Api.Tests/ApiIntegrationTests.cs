@@ -574,6 +574,143 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task StaffCanCreateUpdateAndDeleteResident()
+    {
+        await LoginAsStaffAsync();
+
+        var createResponse = await _client.PostAsJsonAsync("/api/residents", new
+        {
+            caseControlNumber = $"C{Random.Shared.Next(1000, 9999)}",
+            internalCode = $"LS-{Random.Shared.Next(1000, 9999)}",
+            safehouseId = 1,
+            caseStatus = "Active",
+            sex = "F",
+            dateOfBirth = new DateOnly(2012, 1, 5),
+            birthStatus = "Marital",
+            placeOfBirth = "Davao City",
+            religion = "Roman Catholic",
+            caseCategory = "Neglected",
+            subCatOrphaned = false,
+            isTrafficked = true,
+            subCatChildLabor = false,
+            isPhysicalAbuseCase = true,
+            isSexualAbuseCase = false,
+            subCatOsaec = false,
+            subCatCicl = false,
+            subCatAtRisk = true,
+            subCatStreetChild = false,
+            subCatChildWithHiv = false,
+            isPwd = false,
+            pwdType = (string?)null,
+            hasSpecialNeeds = false,
+            specialNeedsDiagnosis = (string?)null,
+            familyIs4Ps = true,
+            familySoloParent = false,
+            familyIndigenous = false,
+            familyParentPwd = false,
+            familyInformalSettler = true,
+            dateOfAdmission = new DateOnly(2025, 4, 1),
+            referralSource = "NGO",
+            referringAgencyPerson = "Staff Worker",
+            dateColbRegistered = (DateOnly?)null,
+            dateColbObtained = (DateOnly?)null,
+            assignedSocialWorker = "SW-22",
+            initialCaseAssessment = "Staff-created resident record for permission verification.",
+            dateCaseStudyPrepared = new DateOnly(2025, 4, 3),
+            reintegrationType = "Family Reunification",
+            reintegrationStatus = "In Progress",
+            initialRiskLevel = "High",
+            currentRiskLevel = "Medium",
+            dateEnrolled = new DateOnly(2025, 4, 2),
+            dateClosed = (DateOnly?)null,
+            restrictedNotes = "Staff mutation test",
+            interventionPlans = new[]
+            {
+                new
+                {
+                    planCategory = "Psychosocial",
+                    planDescription = "Stabilize trauma supports.",
+                    servicesProvided = "Counseling",
+                    targetValue = (decimal?)null,
+                    targetDate = new DateOnly(2025, 5, 1),
+                    status = "Open",
+                    caseConferenceDate = new DateOnly(2025, 4, 10)
+                }
+            }
+        });
+
+        Assert.True(createResponse.IsSuccessStatusCode, await createResponse.Content.ReadAsStringAsync());
+        var created = await createResponse.Content.ReadFromJsonAsync<ResidentResponse>();
+        Assert.NotNull(created);
+
+        var updateResponse = await _client.PutAsJsonAsync($"/api/residents/{created!.Id}", new
+        {
+            caseControlNumber = created.CaseControlNumber,
+            internalCode = created.InternalCode,
+            safehouseId = created.SafehouseId,
+            caseStatus = "Transferred",
+            sex = created.Sex,
+            dateOfBirth = created.DateOfBirth,
+            birthStatus = created.BirthStatus,
+            placeOfBirth = created.PlaceOfBirth,
+            religion = created.Religion,
+            caseCategory = created.CaseCategory,
+            subCatOrphaned = created.SubCatOrphaned,
+            isTrafficked = created.IsTrafficked,
+            subCatChildLabor = created.SubCatChildLabor,
+            isPhysicalAbuseCase = created.IsPhysicalAbuseCase,
+            isSexualAbuseCase = created.IsSexualAbuseCase,
+            subCatOsaec = created.SubCatOsaec,
+            subCatCicl = created.SubCatCicl,
+            subCatAtRisk = created.SubCatAtRisk,
+            subCatStreetChild = created.SubCatStreetChild,
+            subCatChildWithHiv = created.SubCatChildWithHiv,
+            isPwd = created.IsPwd,
+            pwdType = created.PwdType,
+            hasSpecialNeeds = created.HasSpecialNeeds,
+            specialNeedsDiagnosis = created.SpecialNeedsDiagnosis,
+            familyIs4Ps = created.FamilyIs4Ps,
+            familySoloParent = true,
+            familyIndigenous = created.FamilyIndigenous,
+            familyParentPwd = created.FamilyParentPwd,
+            familyInformalSettler = created.FamilyInformalSettler,
+            dateOfAdmission = created.DateOfAdmission,
+            referralSource = created.ReferralSource,
+            referringAgencyPerson = created.ReferringAgencyPerson,
+            dateColbRegistered = created.DateColbRegistered,
+            dateColbObtained = created.DateColbObtained,
+            assignedSocialWorker = "SW-23",
+            initialCaseAssessment = created.InitialCaseAssessment,
+            dateCaseStudyPrepared = created.DateCaseStudyPrepared,
+            reintegrationType = created.ReintegrationType,
+            reintegrationStatus = "Completed",
+            initialRiskLevel = created.InitialRiskLevel,
+            currentRiskLevel = "Low",
+            dateEnrolled = created.DateEnrolled,
+            dateClosed = new DateOnly(2025, 6, 1),
+            restrictedNotes = created.RestrictedNotes,
+            interventionPlans = new[]
+            {
+                new
+                {
+                    planCategory = "Reintegration",
+                    planDescription = "Complete transition follow-up.",
+                    servicesProvided = "Case conference",
+                    targetValue = 1m,
+                    targetDate = new DateOnly(2025, 5, 20),
+                    status = "InProgress",
+                    caseConferenceDate = new DateOnly(2025, 4, 20)
+                }
+            }
+        });
+
+        Assert.True(updateResponse.IsSuccessStatusCode, await updateResponse.Content.ReadAsStringAsync());
+
+        var deleteResponse = await _client.DeleteAsync($"/api/residents/{created.Id}?confirm=true");
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task AdminMutation_CreatesAuditLogEntry()
     {
         await LoginAsAdminAsync();
@@ -858,55 +995,6 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
                         amountAllocated = 25m,
                         allocationDate = DateOnly.FromDateTime(DateTime.UtcNow),
                         allocationNotes = "Blocked"
-                    }
-                }
-            }
-        };
-
-        yield return new object[]
-        {
-            "/api/residents",
-            new
-            {
-                caseControlNumber = "RBAC-001",
-                internalCode = "RBAC-001",
-                safehouseId = 1,
-                caseStatus = "Active",
-                dateOfBirth = new DateOnly(2011, 1, 1),
-                placeOfBirth = "Manila",
-                religion = "Catholic",
-                caseCategory = "Trafficking",
-                isTrafficked = true,
-                isPhysicalAbuseCase = false,
-                isSexualAbuseCase = true,
-                hasSpecialNeeds = false,
-                specialNeedsDiagnosis = (string?)null,
-                familyIs4Ps = true,
-                familySoloParent = false,
-                familyIndigenous = false,
-                familyInformalSettler = false,
-                dateOfAdmission = DateOnly.FromDateTime(DateTime.UtcNow),
-                referralSource = "DSWD",
-                referringAgencyPerson = "Blocked",
-                assignedSocialWorker = "Blocked",
-                initialCaseAssessment = "Blocked resident",
-                reintegrationType = "Family",
-                reintegrationStatus = "Assessment",
-                initialRiskLevel = "High",
-                currentRiskLevel = "High",
-                dateClosed = (DateOnly?)null,
-                restrictedNotes = (string?)null,
-                interventionPlans = new[]
-                {
-                    new
-                    {
-                        planCategory = "Education",
-                        planDescription = "Blocked",
-                        servicesProvided = "Blocked",
-                        targetValue = 1m,
-                        targetDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(30)),
-                        status = "Open",
-                        caseConferenceDate = (DateOnly?)null
                     }
                 }
             }

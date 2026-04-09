@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { LogoMark } from '../../components/brand/LogoMark';
 
 function ImpactIcon({ kind }: { kind: 'homes' | 'care' | 'hubs' | 'goal' }) {
   if (kind === 'homes') {

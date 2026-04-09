@@ -53,7 +53,7 @@ export function CaseloadInventoryPage() {
   const [residentErrors, setResidentErrors] = useState<ValidationErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const deferredSearch = useDeferredValue(search);
-  const isAdmin = user?.roles.includes('Admin') ?? false;
+  const canManageCases = user?.roles.includes('Admin') || user?.roles.includes('Staff') || false;
 
   const loadResidents = async () => {
     if (!user) return;
@@ -195,7 +195,7 @@ export function CaseloadInventoryPage() {
           <h1>Caseload inventory</h1>
           <p>Manage resident records, welfare-agency case details, referral context, and reintegration tracking in one inventory.</p>
         </div>
-        {isAdmin ? (
+        {canManageCases ? (
           <div className="page-header-actions">
             <Link className="ghost-button" to="/portal/caseload/new">
               New case
@@ -232,7 +232,7 @@ export function CaseloadInventoryPage() {
       ) : (
         <SectionCard
           title="Resident inventory"
-          subtitle={isAdmin ? 'Admins can view, update, or delete cases. Staff can search and review the caseload.' : 'Staff can search, filter, and review resident case records.'}
+          subtitle={canManageCases ? 'Staff and admins can create, update, and delete resident case records.' : 'Staff can search, filter, and review resident case records.'}
         >
           <div className="caseload-filter-grid">
             <label className="caseload-filter-card caseload-filter-card-search">
@@ -349,7 +349,7 @@ export function CaseloadInventoryPage() {
                     >
                       View
                     </button>
-                    {isAdmin ? (
+                    {canManageCases ? (
                       <>
                         <button
                           className="ghost-button"
@@ -403,7 +403,7 @@ export function CaseloadInventoryPage() {
                 <p>{viewedResident.safehouseName} · {viewedResident.caseCategory} · {viewedResident.assignedSocialWorker}</p>
               </div>
               <div className="detail-panel-actions">
-                {isAdmin ? (
+                {canManageCases ? (
                   <button
                     className="ghost-button"
                     onClick={() => openEditModal(viewedResident)}
@@ -501,7 +501,7 @@ export function CaseloadInventoryPage() {
         </div>
       ) : null}
 
-      {isAdmin && editingResidentId ? (
+      {canManageCases && editingResidentId ? (
         <div className="modal-backdrop resident-modal-backdrop" onClick={closeEditModal}>
           <div
             aria-modal="true"
