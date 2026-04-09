@@ -23,4 +23,10 @@ public class DonationImpactOptions
 
     // Heuristic used for donor-facing "lives impacted" estimate.
     public decimal AverageCostPerVictim { get; set; } = 250m;
+
+    // Hide tiny line-items that are not meaningful to donors.
+    public decimal MinimumAllocationAmount { get; set; } = 25m;
+
+    // Keep donor-facing breakdown focused on highest-impact areas.
+    public int MaxProgramsShown { get; set; } = 3;
 }

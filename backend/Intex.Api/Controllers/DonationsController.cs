@@ -135,41 +135,8 @@ public class DonationsController(
             .ToListAsync();
 
         var options = donationImpactOptions.Value;
-        var fallbackAreas = options.ProgramAreaUnitCosts.Keys.ToList();
-
-        Dictionary<string, decimal> areaSplits;
-        if (monetaryAllocations.Count == 0)
-        {
-            var equalWeight = fallbackAreas.Count == 0 ? 0 : 1m / fallbackAreas.Count;
-            areaSplits = fallbackAreas.ToDictionary(a => a, _ => equalWeight, StringComparer.OrdinalIgnoreCase);
-        }
-        else
-        {
-            var total = monetaryAllocations.Sum(x => x.AmountAllocated);
-            areaSplits = monetaryAllocations
-                .GroupBy(x => x.ProgramArea)
-                .ToDictionary(
-                    group => group.Key,
-                    group => total <= 0 ? 0m : group.Sum(x => x.AmountAllocated) / total,
-                    StringComparer.OrdinalIgnoreCase);
-        }
-
-        var outcomes = areaSplits
-            .OrderByDescending(x => x.Value)
-            .Select(split =>
-            {
-                var allocatedAmount = Math.Round(amount * split.Value, 2);
-                var unitCost = options.ProgramAreaUnitCosts.TryGetValue(split.Key, out var configuredCost) ? configuredCost : 100m;
-                var unit = options.ProgramAreaOutcomeUnits.TryGetValue(split.Key, out var configuredUnit) ? configuredUnit : "outcome units";
-                var estimatedUnits = unitCost <= 0 ? 0m : Math.Round(allocatedAmount / unitCost, 2);
-                return new DonationImpactPredictionOutcomeResponse(
-                    split.Key,
-                    allocatedAmount,
-                    unit,
-                    unitCost,
-                    estimatedUnits);
-            })
-            .ToList();
+        var selectedSplits = BuildSelectedAreaSplits(monetaryAllocations, options, amount);
+        var outcomes = BuildOutcomeRows(selectedSplits, options, amount);
 
         var averageCostPerVictim = options.AverageCostPerVictim <= 0 ? 250m : options.AverageCostPerVictim;
         // Donor-facing estimate should represent whole people, never decimals.
@@ -179,7 +146,7 @@ public class DonationsController(
         return Ok(new DonationImpactPredictionResponse(
             amount,
             outcomes,
-            "Prediction uses weighted historical allocation mix and configured unit costs. People impacted are shown as a whole-person estimate.",
+            "Prediction uses weighted historical allocation mix across configured program areas, then consolidates tiny amounts into top priorities for clearer donor guidance. People impacted are shown as a whole-person estimate.",
             estimatedVictimsImpacted));
     }
 
@@ -431,30 +398,8 @@ public class DonationsController(
             .Include(x => x.Donation)
             .Where(x => x.Donation!.DonationType == "Monetary")
             .ToListAsync();
-
-        var configuredAreas = donationImpactOptions.Value.ProgramAreaUnitCosts.Keys.ToList();
-        Dictionary<string, decimal> areaSplits;
-
-        if (monetaryAllocations.Count == 0)
-        {
-            var equalWeight = configuredAreas.Count == 0 ? 0m : 1m / configuredAreas.Count;
-            areaSplits = configuredAreas.ToDictionary(area => area, _ => equalWeight, StringComparer.OrdinalIgnoreCase);
-        }
-        else
-        {
-            var totalAllocated = monetaryAllocations.Sum(x => x.AmountAllocated);
-            areaSplits = monetaryAllocations
-                .GroupBy(x => x.ProgramArea)
-                .ToDictionary(
-                    group => group.Key,
-                    group => totalAllocated <= 0 ? 0m : group.Sum(x => x.AmountAllocated) / totalAllocated,
-                    StringComparer.OrdinalIgnoreCase);
-        }
-
-        var orderedAreas = areaSplits
-            .OrderByDescending(x => x.Value)
-            .ThenBy(x => x.Key)
-            .ToList();
+        var options = donationImpactOptions.Value;
+        var orderedAreas = BuildSelectedAreaSplits(monetaryAllocations, options, amount);
 
         var allocations = new List<DonationAllocation>();
         var allocatedTotal = 0m;
@@ -483,6 +428,113 @@ public class DonationsController(
         }
 
         return allocations;
+    }
+
+    private static List<KeyValuePair<string, decimal>> BuildSelectedAreaSplits(
+        List<DonationAllocation> monetaryAllocations,
+        DonationImpactOptions options,
+        decimal amount)
+    {
+        var configuredAreas = options.ProgramAreaUnitCosts.Keys
+            .Concat(options.ProgramAreaOutcomeUnits.Keys)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        if (configuredAreas.Count == 0)
+        {
+            return [];
+        }
+
+        var historicalTotals = monetaryAllocations
+            .GroupBy(x => x.ProgramArea, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.AmountAllocated), StringComparer.OrdinalIgnoreCase);
+
+        var totalHistorical = historicalTotals.Values.Sum();
+        var baseSplits = configuredAreas.ToDictionary(
+            area => area,
+            area => totalHistorical <= 0m
+                ? 1m / configuredAreas.Count
+                : (historicalTotals.TryGetValue(area, out var v) ? v / totalHistorical : 0m),
+            StringComparer.OrdinalIgnoreCase);
+
+        // Normalize in case configured keys and historical keys drift.
+        var splitTotal = baseSplits.Values.Sum();
+        if (splitTotal <= 0m)
+        {
+            var equal = 1m / configuredAreas.Count;
+            baseSplits = configuredAreas.ToDictionary(a => a, _ => equal, StringComparer.OrdinalIgnoreCase);
+        }
+        else
+        {
+            baseSplits = baseSplits.ToDictionary(
+                x => x.Key,
+                x => x.Value / splitTotal,
+                StringComparer.OrdinalIgnoreCase);
+        }
+
+        var maxProgramsShown = Math.Max(1, options.MaxProgramsShown);
+        var minimumAllocationAmount = Math.Max(0m, options.MinimumAllocationAmount);
+        var candidates = baseSplits
+            .OrderByDescending(x => x.Value)
+            .ThenBy(x => x.Key)
+            .Take(maxProgramsShown)
+            .ToList();
+
+        var filtered = candidates
+            .Where((x, idx) => idx == 0 || Math.Round(amount * x.Value, 2) >= minimumAllocationAmount)
+            .ToList();
+
+        if (filtered.Count == 0)
+        {
+            filtered = [candidates[0]];
+        }
+
+        var filteredTotal = filtered.Sum(x => x.Value);
+        if (filteredTotal <= 0m)
+        {
+            return filtered.Select(x => new KeyValuePair<string, decimal>(x.Key, 1m / filtered.Count)).ToList();
+        }
+
+        return filtered
+            .Select(x => new KeyValuePair<string, decimal>(x.Key, x.Value / filteredTotal))
+            .ToList();
+    }
+
+    private static List<DonationImpactPredictionOutcomeResponse> BuildOutcomeRows(
+        List<KeyValuePair<string, decimal>> areaSplits,
+        DonationImpactOptions options,
+        decimal amount)
+    {
+        var outcomes = new List<DonationImpactPredictionOutcomeResponse>();
+        var allocatedTotal = 0m;
+
+        for (var index = 0; index < areaSplits.Count; index++)
+        {
+            var split = areaSplits[index];
+            var allocatedAmount = index == areaSplits.Count - 1
+                ? Math.Round(amount - allocatedTotal, 2)
+                : Math.Round(amount * split.Value, 2);
+
+            if (allocatedAmount <= 0m)
+            {
+                continue;
+            }
+
+            var unitCost = options.ProgramAreaUnitCosts.TryGetValue(split.Key, out var configuredCost) ? configuredCost : 100m;
+            var unit = options.ProgramAreaOutcomeUnits.TryGetValue(split.Key, out var configuredUnit) ? configuredUnit : "outcome units";
+            var estimatedUnits = unitCost <= 0 ? 0m : Math.Round(allocatedAmount / unitCost, 2);
+
+            outcomes.Add(new DonationImpactPredictionOutcomeResponse(
+                split.Key,
+                allocatedAmount,
+                unit,
+                unitCost,
+                estimatedUnits));
+
+            allocatedTotal += allocatedAmount;
+        }
+
+        return outcomes;
     }
 
     private static DonationResponse MapDonation(Donation donation) =>
