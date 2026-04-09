@@ -13,6 +13,8 @@ export function validateResidentForm(form: ResidentRequest): ValidationErrors {
   errors = withError(errors, 'caseControlNumber', validateRequired(form.caseControlNumber, 'Case control number'));
   errors = withError(errors, 'internalCode', validateRequired(form.internalCode, 'Internal code'));
   errors = withError(errors, 'caseStatus', validateRequired(form.caseStatus, 'Case status'));
+  errors = withError(errors, 'sex', validateRequired(form.sex, 'Sex'));
+  errors = withError(errors, 'birthStatus', validateRequired(form.birthStatus, 'Birth status'));
   errors = withError(errors, 'caseCategory', validateRequired(form.caseCategory, 'Case category'));
   errors = withError(errors, 'dateOfBirth', validateDateNotFuture(form.dateOfBirth, 'Date of birth'));
   errors = withError(errors, 'dateOfAdmission', validateDateRequired(form.dateOfAdmission, 'Date of admission'));
@@ -23,6 +25,12 @@ export function validateResidentForm(form: ResidentRequest): ValidationErrors {
   errors = withError(errors, 'initialCaseAssessment', validateRequired(form.initialCaseAssessment, 'Initial case assessment'));
   errors = withError(errors, 'initialRiskLevel', validateRequired(form.initialRiskLevel, 'Initial risk level'));
   errors = withError(errors, 'currentRiskLevel', validateRequired(form.currentRiskLevel, 'Current risk level'));
+  if (form.isPwd) {
+    errors = withError(errors, 'pwdType', validateRequired(form.pwdType ?? '', 'PWD type'));
+  }
+  if (form.hasSpecialNeeds) {
+    errors = withError(errors, 'specialNeedsDiagnosis', validateRequired(form.specialNeedsDiagnosis ?? '', 'Special needs diagnosis'));
+  }
   errors = withError(errors, 'planCategory', validateRequired(firstPlan?.planCategory ?? '', 'Plan category'));
   errors = withError(errors, 'planStatus', validateRequired(firstPlan?.status ?? '', 'Plan status'));
   errors = withError(errors, 'planTargetDate', validateDateRequired(firstPlan?.targetDate ?? '', 'Plan target date'));

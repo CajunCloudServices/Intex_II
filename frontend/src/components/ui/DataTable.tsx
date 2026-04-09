@@ -3,11 +3,13 @@ export function DataTable({
   rows,
   emptyMessage = 'No rows to show yet.',
   caption,
+  onRowClick,
 }: {
   columns: string[];
   rows: Array<Array<React.ReactNode>>;
   emptyMessage?: string;
   caption?: string;
+  onRowClick?: (rowIndex: number) => void;
 }) {
   return (
     <div className="table-wrap">
@@ -23,7 +25,11 @@ export function DataTable({
         <tbody>
           {rows.length > 0 ? (
             rows.map((row, index) => (
-              <tr key={index}>
+              <tr
+                key={index}
+                className={onRowClick ? 'data-table-row-clickable' : undefined}
+                onClick={onRowClick ? () => onRowClick(index) : undefined}
+              >
                 {row.map((cell, cellIndex) => (
                   <td key={`${index}-${cellIndex}`} data-label={columns[cellIndex] ?? `Column ${cellIndex + 1}`}>
                     {cell ?? '—'}

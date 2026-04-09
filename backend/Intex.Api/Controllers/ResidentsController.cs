@@ -118,28 +118,44 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
         resident.InternalCode = request.InternalCode;
         resident.SafehouseId = request.SafehouseId;
         resident.CaseStatus = request.CaseStatus;
+        resident.Sex = request.Sex;
         resident.DateOfBirth = request.DateOfBirth;
+        resident.BirthStatus = request.BirthStatus;
         resident.PlaceOfBirth = request.PlaceOfBirth;
         resident.Religion = request.Religion;
         resident.CaseCategory = request.CaseCategory;
+        resident.SubCatOrphaned = request.SubCatOrphaned;
         resident.IsTrafficked = request.IsTrafficked;
+        resident.SubCatChildLabor = request.SubCatChildLabor;
         resident.IsPhysicalAbuseCase = request.IsPhysicalAbuseCase;
         resident.IsSexualAbuseCase = request.IsSexualAbuseCase;
+        resident.SubCatOsaec = request.SubCatOsaec;
+        resident.SubCatCicl = request.SubCatCicl;
+        resident.SubCatAtRisk = request.SubCatAtRisk;
+        resident.SubCatStreetChild = request.SubCatStreetChild;
+        resident.SubCatChildWithHiv = request.SubCatChildWithHiv;
+        resident.IsPwd = request.IsPwd;
+        resident.PwdType = request.PwdType;
         resident.HasSpecialNeeds = request.HasSpecialNeeds;
         resident.SpecialNeedsDiagnosis = request.SpecialNeedsDiagnosis;
         resident.FamilyIs4Ps = request.FamilyIs4Ps;
         resident.FamilySoloParent = request.FamilySoloParent;
         resident.FamilyIndigenous = request.FamilyIndigenous;
+        resident.FamilyParentPwd = request.FamilyParentPwd;
         resident.FamilyInformalSettler = request.FamilyInformalSettler;
         resident.DateOfAdmission = request.DateOfAdmission;
         resident.ReferralSource = request.ReferralSource;
         resident.ReferringAgencyPerson = request.ReferringAgencyPerson;
+        resident.DateColbRegistered = request.DateColbRegistered;
+        resident.DateColbObtained = request.DateColbObtained;
         resident.AssignedSocialWorker = request.AssignedSocialWorker;
         resident.InitialCaseAssessment = request.InitialCaseAssessment;
+        resident.DateCaseStudyPrepared = request.DateCaseStudyPrepared;
         resident.ReintegrationType = request.ReintegrationType;
         resident.ReintegrationStatus = request.ReintegrationStatus;
         resident.InitialRiskLevel = request.InitialRiskLevel;
         resident.CurrentRiskLevel = request.CurrentRiskLevel;
+        resident.DateEnrolled = request.DateEnrolled;
         resident.DateClosed = request.DateClosed;
         resident.RestrictedNotes = request.RestrictedNotes;
 
@@ -175,28 +191,44 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
             resident.SafehouseId,
             resident.Safehouse?.Name ?? "Unknown safehouse",
             resident.CaseStatus,
+            resident.Sex,
             resident.DateOfBirth,
+            resident.BirthStatus,
             resident.PlaceOfBirth,
             resident.Religion,
             resident.CaseCategory,
+            resident.SubCatOrphaned,
             resident.IsTrafficked,
+            resident.SubCatChildLabor,
             resident.IsPhysicalAbuseCase,
             resident.IsSexualAbuseCase,
+            resident.SubCatOsaec,
+            resident.SubCatCicl,
+            resident.SubCatAtRisk,
+            resident.SubCatStreetChild,
+            resident.SubCatChildWithHiv,
+            resident.IsPwd,
+            resident.PwdType,
             resident.HasSpecialNeeds,
             resident.SpecialNeedsDiagnosis,
             resident.FamilyIs4Ps,
             resident.FamilySoloParent,
             resident.FamilyIndigenous,
+            resident.FamilyParentPwd,
             resident.FamilyInformalSettler,
             resident.DateOfAdmission,
             resident.ReferralSource,
             resident.ReferringAgencyPerson,
+            resident.DateColbRegistered,
+            resident.DateColbObtained,
             resident.AssignedSocialWorker,
             resident.InitialCaseAssessment,
+            resident.DateCaseStudyPrepared,
             resident.ReintegrationType,
             resident.ReintegrationStatus,
             resident.InitialRiskLevel,
             resident.CurrentRiskLevel,
+            resident.DateEnrolled,
             resident.DateClosed,
             resident.RestrictedNotes,
             resident.InterventionPlans

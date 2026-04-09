@@ -824,7 +824,23 @@ namespace Intex.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("BirthStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateOnly?>("DateCaseStudyPrepared")
+                        .HasColumnType("date");
+
                     b.Property<DateOnly?>("DateClosed")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("DateColbObtained")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("DateColbRegistered")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly?>("DateEnrolled")
                         .HasColumnType("date");
 
                     b.Property<DateOnly>("DateOfAdmission")
@@ -840,6 +856,9 @@ namespace Intex.Api.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("FamilyIs4Ps")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("FamilyParentPwd")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("FamilySoloParent")
@@ -863,6 +882,9 @@ namespace Intex.Api.Migrations
                     b.Property<bool>("IsPhysicalAbuseCase")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPwd")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsSexualAbuseCase")
                         .HasColumnType("boolean");
 
@@ -871,6 +893,9 @@ namespace Intex.Api.Migrations
 
                     b.Property<string>("PlaceOfBirth")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PwdType")
                         .HasColumnType("text");
 
                     b.Property<string>("ReferralSource")
@@ -896,8 +921,33 @@ namespace Intex.Api.Migrations
                     b.Property<int>("SafehouseId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Sex")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("SpecialNeedsDiagnosis")
                         .HasColumnType("text");
+
+                    b.Property<bool>("SubCatAtRisk")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubCatChildLabor")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubCatChildWithHiv")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubCatCicl")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubCatOrphaned")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubCatOsaec")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubCatStreetChild")
+                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 

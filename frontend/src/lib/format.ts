@@ -51,6 +51,10 @@ export function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
-export function normalizeText(value: string) {
-  return value.trim().toLowerCase();
+export function normalizeText(value: unknown) {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  return String(value).trim().toLowerCase();
 }

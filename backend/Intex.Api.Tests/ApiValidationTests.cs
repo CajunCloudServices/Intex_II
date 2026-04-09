@@ -88,28 +88,44 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
             internalCode = "",
             safehouseId = 0,
             caseStatus = "",
+            sex = "",
             dateOfBirth = DateOnly.FromDateTime(DateTime.UtcNow),
+            birthStatus = "",
             placeOfBirth = "",
             religion = "",
             caseCategory = "",
+            subCatOrphaned = false,
             isTrafficked = false,
+            subCatChildLabor = false,
             isPhysicalAbuseCase = false,
             isSexualAbuseCase = false,
+            subCatOsaec = false,
+            subCatCicl = false,
+            subCatAtRisk = false,
+            subCatStreetChild = false,
+            subCatChildWithHiv = false,
+            isPwd = false,
+            pwdType = (string?)null,
             hasSpecialNeeds = false,
             specialNeedsDiagnosis = (string?)null,
             familyIs4Ps = false,
             familySoloParent = false,
             familyIndigenous = false,
+            familyParentPwd = false,
             familyInformalSettler = false,
             dateOfAdmission = DateOnly.FromDateTime(DateTime.UtcNow),
             referralSource = "",
             referringAgencyPerson = (string?)null,
+            dateColbRegistered = (DateOnly?)null,
+            dateColbObtained = (DateOnly?)null,
             assignedSocialWorker = "",
             initialCaseAssessment = "",
+            dateCaseStudyPrepared = (DateOnly?)null,
             reintegrationType = (string?)null,
             reintegrationStatus = (string?)null,
             initialRiskLevel = "",
             currentRiskLevel = "",
+            dateEnrolled = (DateOnly?)null,
             dateClosed = (DateOnly?)null,
             restrictedNotes = (string?)null,
             interventionPlans = Array.Empty<object>()
@@ -117,6 +133,76 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         await AssertHasValidationErrorShapeAsync(response, "CaseControlNumber");
+    }
+
+    [Fact]
+    public async Task ResidentCreate_WithInvalidEnumFields_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/residents", new
+        {
+            caseControlNumber = "C1234",
+            internalCode = "LS-1234",
+            safehouseId = 1,
+            caseStatus = "Archived",
+            sex = "X",
+            dateOfBirth = new DateOnly(2011, 1, 1),
+            birthStatus = "Maybe",
+            placeOfBirth = "Cebu",
+            religion = "Catholic",
+            caseCategory = "Neglected",
+            subCatOrphaned = false,
+            isTrafficked = false,
+            subCatChildLabor = false,
+            isPhysicalAbuseCase = false,
+            isSexualAbuseCase = false,
+            subCatOsaec = false,
+            subCatCicl = false,
+            subCatAtRisk = false,
+            subCatStreetChild = false,
+            subCatChildWithHiv = false,
+            isPwd = false,
+            pwdType = (string?)null,
+            hasSpecialNeeds = false,
+            specialNeedsDiagnosis = (string?)null,
+            familyIs4Ps = false,
+            familySoloParent = false,
+            familyIndigenous = false,
+            familyParentPwd = false,
+            familyInformalSettler = false,
+            dateOfAdmission = new DateOnly(2025, 1, 1),
+            referralSource = "NGO",
+            referringAgencyPerson = (string?)null,
+            dateColbRegistered = (DateOnly?)null,
+            dateColbObtained = (DateOnly?)null,
+            assignedSocialWorker = "SW-01",
+            initialCaseAssessment = "Assessment",
+            dateCaseStudyPrepared = (DateOnly?)null,
+            reintegrationType = (string?)null,
+            reintegrationStatus = (string?)null,
+            initialRiskLevel = "Low",
+            currentRiskLevel = "Low",
+            dateEnrolled = (DateOnly?)null,
+            dateClosed = (DateOnly?)null,
+            restrictedNotes = (string?)null,
+            interventionPlans = new[]
+            {
+                new
+                {
+                    planCategory = "Psychosocial",
+                    planDescription = "Description",
+                    servicesProvided = "Counseling",
+                    targetValue = (decimal?)null,
+                    targetDate = new DateOnly(2025, 2, 1),
+                    status = "Open",
+                    caseConferenceDate = (DateOnly?)null
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "Sex");
     }
 
     [Fact]
