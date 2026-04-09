@@ -3,6 +3,7 @@ import {
   validateCurrency,
   validateDateRequired,
   validateEmail,
+  validateOptionalCurrencyNonNegative,
   validatePhone,
   validateRequired,
   withError,
@@ -30,6 +31,7 @@ export function validateDonationForm(form: DonationRequest): ValidationErrors {
   errors = withError(errors, 'donationType', validateRequired(form.donationType, 'Donation type'));
   errors = withError(errors, 'donationDate', validateDateRequired(form.donationDate, 'Donation date'));
   errors = withError(errors, 'channelSource', validateRequired(form.channelSource, 'Channel'));
+  errors = withError(errors, 'amount', validateOptionalCurrencyNonNegative(form.amount, 'Amount'));
   errors = withError(errors, 'estimatedValue', validateCurrency(form.estimatedValue, 'Estimated value'));
   errors = withError(errors, 'impactUnit', validateRequired(form.impactUnit, 'Impact unit'));
   errors = withError(errors, 'programArea', validateRequired(firstAllocation?.programArea ?? '', 'Program area'));

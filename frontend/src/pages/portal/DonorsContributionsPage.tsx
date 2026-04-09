@@ -28,7 +28,7 @@ import { validateDonationForm, validateSupporterForm } from './forms/donorsFormV
 import { SupporterRecordForm } from './forms/SupporterRecordForm';
 
 const SUPPORTERS_PAGE_SIZE = 10;
-const DONATIONS_PAGE_SIZE = 10;
+const DONATIONS_PAGE_SIZE = 4;
 
 type SummaryItem = {
   label: string;
@@ -83,7 +83,6 @@ export function DonorsContributionsPage() {
   const [supporterPage, setSupporterPage] = useState(1);
   const [donationPage, setDonationPage] = useState(1);
   const [selectedSupporterKey, setSelectedSupporterKey] = useState<string | null>(null);
-  const [selectedDonationId, setSelectedDonationId] = useState<number | null>(null);
   const [editingSupporterId, setEditingSupporterId] = useState<number | null>(null);
   const [editingDonationId, setEditingDonationId] = useState<number | null>(null);
   const [supporterForm, setSupporterForm] = useState<SupporterRequest>(defaultSupporterForm);
@@ -112,7 +111,6 @@ export function DonorsContributionsPage() {
       setDonations(donationsData);
       setSafehouses(safehouseData);
       setChurnRiskSummary(churnRiskData);
-      setSelectedDonationId((current) => current ?? donationsData[0]?.id ?? null);
       setDonationForm((current) => (current.allocations[0].safehouseId > 0 ? current : createDonationForm(safehouseData[0]?.id)));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load donor data.');
@@ -124,6 +122,25 @@ export function DonorsContributionsPage() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (!editingDonationId) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        resetDonationForm();
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editingDonationId]);
 
   const supporterDonations = useMemo(() => {
     const grouped = new Map<number, Donation[]>();
@@ -280,7 +297,6 @@ export function DonorsContributionsPage() {
   }, [donationPage, donationTotalPages]);
 
   const selectedSupporterEntry = allSupporterEntries.find((entry) => entry.key === selectedSupporterKey) ?? allSupporterEntries[0] ?? null;
-  const selectedDonation = donations.find((donation) => donation.id === selectedDonationId) ?? sortedDonations[0] ?? null;
   const selectedSupporterProgramMix = useMemo(
     () =>
       summarizeAllocations(selectedSupporterEntry?.donationHistory ?? [], (allocation) => `${allocation.programArea} • ${allocation.safehouseName}`)
@@ -295,9 +311,6 @@ export function DonorsContributionsPage() {
         .slice(0, 4),
     [selectedSupporterEntry],
   );
-  const selectedDonationAllocationTotal = selectedDonation
-    ? selectedDonation.allocations.reduce((sum, allocation) => sum + allocation.amountAllocated, 0)
-    : 0;
 
   const totalRaised = donations.reduce((sum, donation) => sum + donationValue(donation), 0);
   const recurringDonations = donations.filter((donation) => donation.isRecurring).length;
@@ -454,7 +467,6 @@ export function DonorsContributionsPage() {
     try {
       await api.deleteDonation(id);
       setFeedback({ tone: 'success', message: 'Contribution deleted.' });
-      if (selectedDonationId === id) setSelectedDonationId(null);
       await loadData();
     } catch (err) {
       setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Contribution delete failed.' });
@@ -743,33 +755,35 @@ export function DonorsContributionsPage() {
             </SectionCard>
           ) : null}
 
-          <section className="page-grid two donor-workspace-grid">
+          <section>
             <SectionCard
               title="Contribution activity"
               subtitle="Review monetary, in-kind, time, skills, and social contributions with clear allocation context."
               actions={
-                <div className="filter-row donor-filter-row">
+                <div className="filter-row donor-filter-row donor-filter-grid">
                   <input
                     aria-label="Search contributions"
-                    className="inline-search"
+                    className="inline-search donor-filter-search"
                     placeholder="Search supporter, campaign, allocation..."
                     value={donationSearch}
                     onChange={(event) => setDonationSearch(event.target.value)}
                   />
-                  <select className="inline-select" value={donationTypeFilter} onChange={(event) => setDonationTypeFilter(event.target.value)}>
-                    {donationTypeOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                  <select className="inline-select" value={donationSupporterFilter} onChange={(event) => setDonationSupporterFilter(event.target.value)}>
-                    {donationSupporterOptions.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="donor-filter-select-row">
+                    <select className="inline-select donor-filter-select" value={donationTypeFilter} onChange={(event) => setDonationTypeFilter(event.target.value)}>
+                      {donationTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    <select className="inline-select donor-filter-select" value={donationSupporterFilter} onChange={(event) => setDonationSupporterFilter(event.target.value)}>
+                      {donationSupporterOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               }
             >
@@ -780,71 +794,116 @@ export function DonorsContributionsPage() {
                   <div className="donation-activity-list">
                     {paginatedDonations.map((donation) => {
                       const primaryAllocation = donation.allocations[0] ?? null;
+                      const extraAllocationCount = Math.max(0, donation.allocations.length - 1);
+                      const metadataItems = [
+                        { label: 'Channel', value: humanizeLabel(donation.channelSource) },
+                        { label: 'Campaign', value: donation.campaignName || 'Direct support' },
+                        { label: 'Frequency', value: donation.isRecurring ? 'Recurring' : 'One-time' },
+                        { label: 'Impact unit', value: donation.impactUnit },
+                      ];
 
                       return (
-                        <article className={`donation-card${donation.id === selectedDonation?.id ? ' is-selected' : ''}`} key={donation.id}>
-                          <button className="donation-card-main" onClick={() => setSelectedDonationId(donation.id)} type="button">
+                        <article className="donation-card donation-card-grid" key={donation.id}>
+                          <div className="donation-card-main">
                             <div className="donation-card-head">
-                              <div>
+                              <div className="donation-card-title-group">
                                 <h3>{donation.supporterName}</h3>
-                                <p>{formatDate(donation.donationDate)} • {humanizeLabel(donation.donationType)}</p>
+                                <p>
+                                  <span className="supporter-pill donation-type-pill">{humanizeLabel(donation.donationType)}</span>
+                                </p>
+                                <span>{formatDate(donation.donationDate)}</span>
                               </div>
+
+                              {isAdmin ? (
+                                <div className="donation-card-header-actions">
+                                  <button
+                                    className="ghost-button donation-card-action-button"
+                                    onClick={() => {
+                                      setEditingDonationId(donation.id);
+                                      setDonationForm({
+                                        supporterId: donation.supporterId,
+                                        donationType: donation.donationType,
+                                        donationDate: donation.donationDate,
+                                        channelSource: donation.channelSource,
+                                        currencyCode: donation.currencyCode ?? '',
+                                        amount: donation.amount,
+                                        estimatedValue: donation.estimatedValue,
+                                        impactUnit: donation.impactUnit,
+                                        isRecurring: donation.isRecurring,
+                                        campaignName: donation.campaignName ?? '',
+                                        notes: donation.notes ?? '',
+                                        allocations:
+                                          donation.allocations.length > 0
+                                            ? donation.allocations.map((allocation) => ({
+                                                safehouseId: allocation.safehouseId,
+                                                programArea: allocation.programArea,
+                                                amountAllocated: allocation.amountAllocated,
+                                                allocationDate: allocation.allocationDate,
+                                                allocationNotes: allocation.allocationNotes ?? '',
+                                              }))
+                                            : createDonationForm(safehouses[0]?.id).allocations,
+                                      });
+                                    }}
+                                    type="button"
+                                  >
+                                    Edit
+                                  </button>
+
+                                  <button
+                                    className="ghost-button danger-button donation-card-action-button"
+                                    onClick={() => void deleteDonation(donation.id)}
+                                    type="button"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              ) : null}
+                            </div>
+
+                            <div className="donation-card-value">
+                              <span>Tracked value</span>
                               <strong>{formatMoney(donationValue(donation))}</strong>
                             </div>
-                            <div className="donation-card-tags">
-                              <span className="supporter-pill">{humanizeLabel(donation.channelSource)}</span>
-                              <span className="supporter-pill">{donation.isRecurring ? 'Recurring' : 'One-time'}</span>
-                              <span className="supporter-pill">{donation.campaignName || 'Direct support'}</span>
+
+                            <dl className="donation-card-metadata">
+                              {metadataItems.map((item) => (
+                                <div key={item.label}>
+                                  <dt>{item.label}</dt>
+                                  <dd>{item.value}</dd>
+                                </div>
+                              ))}
+                            </dl>
+
+                            <div className="donation-card-allocation-summary">
+                              <div className="donation-card-allocation">
+                                <span>Primary allocation</span>
+                                {primaryAllocation ? (
+                                  <>
+                                    <strong>{primaryAllocation.safehouseName}</strong>
+                                    <p>{primaryAllocation.programArea}</p>
+                                    <small>
+                                      {formatMoney(primaryAllocation.amountAllocated)} • {formatDate(primaryAllocation.allocationDate)}
+                                    </small>
+                                  </>
+                                ) : (
+                                  <>
+                                    <strong>No allocation recorded</strong>
+                                    <p>Assign a safehouse and program area to complete the contribution record.</p>
+                                  </>
+                                )}
+                              </div>
+
+                              {extraAllocationCount > 0 ? <span className="donation-allocation-overflow">+{extraAllocationCount} more allocations</span> : null}
                             </div>
-                            <div className="donation-card-allocation">
-                              <span>Primary allocation</span>
-                              <strong>
-                                {primaryAllocation
-                                  ? `${primaryAllocation.safehouseName} • ${primaryAllocation.programArea}`
-                                  : 'No allocation recorded'}
-                              </strong>
-                            </div>
-                          </button>
-                          <div className="supporter-directory-actions">
-                            <button className="ghost-button" onClick={() => setSelectedDonationId(donation.id)} type="button">View</button>
-                            {isAdmin ? (
-                              <>
-                                <button
-                                  className="ghost-button"
-                                  onClick={() => {
-                                    setEditingDonationId(donation.id);
-                                    setDonationForm({
-                                      supporterId: donation.supporterId,
-                                      donationType: donation.donationType,
-                                      donationDate: donation.donationDate,
-                                      channelSource: donation.channelSource,
-                                      currencyCode: donation.currencyCode ?? '',
-                                      amount: donation.amount,
-                                      estimatedValue: donation.estimatedValue,
-                                      impactUnit: donation.impactUnit,
-                                      isRecurring: donation.isRecurring,
-                                      campaignName: donation.campaignName ?? '',
-                                      notes: donation.notes ?? '',
-                                      allocations:
-                                        donation.allocations.length > 0
-                                          ? donation.allocations.map((allocation) => ({
-                                              safehouseId: allocation.safehouseId,
-                                              programArea: allocation.programArea,
-                                              amountAllocated: allocation.amountAllocated,
-                                              allocationDate: allocation.allocationDate,
-                                              allocationNotes: allocation.allocationNotes ?? '',
-                                            }))
-                                          : createDonationForm(safehouses[0]?.id).allocations,
-                                    });
-                                  }}
-                                  type="button"
-                                >
-                                  Edit
-                                </button>
-                                <button className="ghost-button danger-button" onClick={() => void deleteDonation(donation.id)} type="button">Delete</button>
-                              </>
+
+                            {donation.notes ? (
+                              <div className="donation-card-notes">
+                                <span>Notes</span>
+                                <p>{donation.notes}</p>
+                              </div>
                             ) : null}
                           </div>
+
                         </article>
                       );
                     })}
@@ -860,68 +919,47 @@ export function DonorsContributionsPage() {
                 </>
               )}
             </SectionCard>
-
-            <DetailPanel
-              title={selectedDonation ? `${selectedDonation.supporterName} contribution` : 'Contribution details'}
-              subtitle="Review the selected contribution and how it was allocated across safehouses and program areas."
-            >
-              {selectedDonation ? (
-                <>
-                  <DetailList
-                    items={[
-                      { label: 'Date', value: formatDate(selectedDonation.donationDate) },
-                      { label: 'Type', value: humanizeLabel(selectedDonation.donationType) },
-                      { label: 'Supporter', value: selectedDonation.supporterName },
-                      { label: 'Tracked value', value: formatMoney(donationValue(selectedDonation)) },
-                      { label: 'Channel', value: humanizeLabel(selectedDonation.channelSource) },
-                      { label: 'Campaign', value: selectedDonation.campaignName || 'Direct support' },
-                      { label: 'Impact unit', value: selectedDonation.impactUnit },
-                      { label: 'Recurring', value: selectedDonation.isRecurring ? 'Yes' : 'No' },
-                      { label: 'Allocation total', value: formatMoney(selectedDonationAllocationTotal) },
-                      { label: 'Notes', value: selectedDonation.notes || 'No notes recorded' },
-                    ]}
-                  />
-
-                  <PanelList
-                    title="Allocation breakdown"
-                    items={selectedDonation.allocations.map((allocation) => ({
-                      label: `${allocation.safehouseName} • ${allocation.programArea}`,
-                      amount: formatMoney(allocation.amountAllocated),
-                      detail: `${formatDate(allocation.allocationDate)}${allocation.allocationNotes ? ` • ${allocation.allocationNotes}` : ''}`,
-                    }))}
-                    emptyMessage="No allocation records attached to this contribution."
-                  />
-                </>
-              ) : (
-                <EmptyState title="No contribution selected" message="Choose a contribution to inspect the full allocation details." />
-              )}
-            </DetailPanel>
           </section>
 
-          {isAdmin && editingDonationId ? (
-            <SectionCard
-              title="Edit contribution"
-              subtitle="Keep the full contribution record accurate while preserving its primary safehouse allocation."
-              actions={
-                <button className="ghost-button" onClick={resetDonationForm} type="button">
-                  Cancel edit
-                </button>
-              }
-            >
-              <DonationRecordForm
-                donationForm={donationForm}
-                setDonationForm={setDonationForm}
-                donationErrors={donationErrors}
-                supporterOptions={supporterOptions}
-                safehouses={safehouses}
-                onSubmit={handleDonationSubmit}
-                submitting={submitting === 'donation'}
-                submitLabel="Update contribution"
-              />
-            </SectionCard>
-          ) : null}
         </>
       )}
+
+      {isAdmin && editingDonationId ? (
+        <div
+          className="modal-backdrop donation-edit-backdrop"
+          onClick={resetDonationForm}
+        >
+          <div
+            aria-labelledby="donation-edit-title"
+            aria-modal="true"
+            className="modal-surface donation-edit-modal"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+          >
+            <div className="donation-edit-modal-header">
+              <div>
+                <h2 id="donation-edit-title">Edit contribution</h2>
+                <p>Keep the full contribution record accurate while preserving its primary safehouse allocation.</p>
+              </div>
+              <button className="ghost-button" onClick={resetDonationForm} type="button">
+                Close
+              </button>
+            </div>
+
+            <DonationRecordForm
+              donationForm={donationForm}
+              setDonationForm={setDonationForm}
+              donationErrors={donationErrors}
+              supporterOptions={supporterOptions}
+              safehouses={safehouses}
+              onSubmit={handleDonationSubmit}
+              onCancel={resetDonationForm}
+              submitting={submitting === 'donation'}
+              submitLabel="Save Changes"
+            />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

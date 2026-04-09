@@ -45,6 +45,14 @@ export function validateCurrency(value: number | null | undefined, label: string
   return value > 0 ? null : `${label} must be greater than 0.`;
 }
 
+export function validateOptionalCurrencyNonNegative(value: number | null | undefined, label: string): string | null {
+  if (value == null || Number.isNaN(value)) {
+    return null;
+  }
+
+  return value >= 0 ? null : `${label} cannot be negative.`;
+}
+
 export function validateDateNotFuture(value: string, label: string): string | null {
   if (!value) {
     return `${label} is required.`;
