@@ -32,7 +32,15 @@ export const caseManagementApi = {
       method: 'DELETE',
     }),
 
-  processRecordings: () => apiRequest<ProcessRecording[]>('/process-recordings'),
+  processRecordings: (filters?: { residentId?: number }) => {
+    const params = new URLSearchParams();
+    if (filters?.residentId) {
+      params.set('residentId', String(filters.residentId));
+    }
+
+    const query = params.toString();
+    return apiRequest<ProcessRecording[]>(query ? `/process-recordings?${query}` : '/process-recordings');
+  },
 
   createProcessRecording: (payload: ProcessRecordingRequest) =>
     apiRequest<ProcessRecording>('/process-recordings', {

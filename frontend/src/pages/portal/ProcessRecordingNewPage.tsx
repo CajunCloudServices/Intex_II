@@ -18,6 +18,7 @@ export function ProcessRecordingNewPage() {
   const [recordingForm, setRecordingForm] = useState<ProcessRecordingRequest>(createRecordingForm());
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
+  const isAdmin = user?.roles.includes('Admin') ?? false;
 
   useEffect(() => {
     if (!user) return;
@@ -52,7 +53,7 @@ export function ProcessRecordingNewPage() {
     try {
       const payload = {
         ...recordingForm,
-        restrictedNotes: recordingForm.restrictedNotes || null,
+        restrictedNotes: isAdmin ? recordingForm.restrictedNotes || null : null,
       };
       await api.createProcessRecording(payload);
       navigate('/portal/process-recordings');
@@ -91,6 +92,7 @@ export function ProcessRecordingNewPage() {
             onSubmit={handleSubmit}
             submitting={submitting}
             submitLabel="Create process recording"
+            showRestrictedNotes={isAdmin}
           />
         </SectionCard>
       )}

@@ -2,6 +2,9 @@ import type { FormEvent } from 'react';
 import type { ProcessRecordingRequest, Resident } from '../../../api/types';
 import { CheckboxField, FormGrid, FormSection } from '../../../components/ui/FormPrimitives';
 
+const SESSION_TYPE_OPTIONS = ['Individual', 'Group'] as const;
+const EMOTIONAL_STATE_OPTIONS = ['Calm', 'Anxious', 'Sad', 'Angry', 'Hopeful', 'Withdrawn', 'Happy', 'Distressed'] as const;
+
 type ProcessRecordingFormProps = {
   recordingForm: ProcessRecordingRequest;
   setRecordingForm: React.Dispatch<React.SetStateAction<ProcessRecordingRequest>>;
@@ -9,6 +12,7 @@ type ProcessRecordingFormProps = {
   onSubmit: (event: FormEvent) => void;
   submitting: boolean;
   submitLabel: string;
+  showRestrictedNotes?: boolean;
 };
 
 export function ProcessRecordingForm({
@@ -18,6 +22,7 @@ export function ProcessRecordingForm({
   onSubmit,
   submitting,
   submitLabel,
+  showRestrictedNotes = true,
 }: ProcessRecordingFormProps) {
   return (
     <form className="stack-form" onSubmit={onSubmit}>
@@ -43,7 +48,13 @@ export function ProcessRecordingForm({
           </label>
           <label>
             <span>Session type</span>
-            <input value={recordingForm.sessionType} onChange={(event) => setRecordingForm({ ...recordingForm, sessionType: event.target.value })} required />
+            <select value={recordingForm.sessionType} onChange={(event) => setRecordingForm({ ...recordingForm, sessionType: event.target.value })} required>
+              {SESSION_TYPE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             <span>Duration (minutes)</span>
@@ -51,11 +62,29 @@ export function ProcessRecordingForm({
           </label>
           <label>
             <span>Observed state</span>
-            <input value={recordingForm.emotionalStateObserved} onChange={(event) => setRecordingForm({ ...recordingForm, emotionalStateObserved: event.target.value })} required />
+            <select value={recordingForm.emotionalStateObserved} onChange={(event) => setRecordingForm({ ...recordingForm, emotionalStateObserved: event.target.value })} required>
+              <option value="" disabled>
+                Select emotional state
+              </option>
+              {EMOTIONAL_STATE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             <span>End state</span>
-            <input value={recordingForm.emotionalStateEnd} onChange={(event) => setRecordingForm({ ...recordingForm, emotionalStateEnd: event.target.value })} required />
+            <select value={recordingForm.emotionalStateEnd} onChange={(event) => setRecordingForm({ ...recordingForm, emotionalStateEnd: event.target.value })} required>
+              <option value="" disabled>
+                Select emotional state
+              </option>
+              {EMOTIONAL_STATE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
         </FormGrid>
       </FormSection>
@@ -83,10 +112,12 @@ export function ProcessRecordingForm({
         <CheckboxField label="Referral made" checked={recordingForm.referralMade} onChange={(checked) => setRecordingForm({ ...recordingForm, referralMade: checked })} />
       </div>
 
-      <label>
-        <span>Restricted notes</span>
-        <textarea value={recordingForm.restrictedNotes ?? ''} onChange={(event) => setRecordingForm({ ...recordingForm, restrictedNotes: event.target.value })} rows={3} />
-      </label>
+      {showRestrictedNotes ? (
+        <label>
+          <span>Restricted notes</span>
+          <textarea value={recordingForm.restrictedNotes ?? ''} onChange={(event) => setRecordingForm({ ...recordingForm, restrictedNotes: event.target.value })} rows={3} />
+        </label>
+      ) : null}
 
       <div className="form-actions">
         <button className="primary-button" disabled={submitting} type="submit">

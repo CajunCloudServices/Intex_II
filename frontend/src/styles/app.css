@@ -5676,6 +5676,404 @@ body {
   border-top: 1px solid rgba(81, 69, 50, 0.08);
 }
 
+.process-recordings-page .section-card {
+  overflow: hidden;
+}
+
+.process-recording-toolbar-shell {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.process-recording-toolbar {
+  display: grid;
+  grid-template-columns: minmax(16rem, 2.2fr) repeat(3, minmax(10.5rem, 1fr));
+  gap: 1rem 1.1rem;
+  align-items: end;
+  width: 100%;
+}
+
+.process-recording-filter-card {
+  display: grid;
+  gap: 0.48rem;
+  min-width: 0;
+}
+
+.process-recording-filter-card span,
+.process-recording-table-summary p,
+.process-recording-session-cell span,
+.process-recording-state-stack span,
+.process-recording-modal-eyebrow,
+.process-recording-detail-card span,
+.process-recording-note-card span,
+.process-recording-history-header p {
+  color: var(--color-text-soft);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.process-recording-filter-search {
+  min-width: 18rem;
+}
+
+.process-recording-toolbar-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.process-recording-clear-filter {
+  justify-self: start;
+}
+
+.process-recording-table-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.2rem 0 1rem;
+  flex-wrap: wrap;
+}
+
+.process-recording-table-summary p,
+.process-recording-table-summary span {
+  margin: 0;
+}
+
+.process-recording-table-summary span {
+  color: var(--color-text-soft);
+  font-size: 0.92rem;
+}
+
+.process-recording-subhead {
+  display: grid;
+  gap: 0.24rem;
+  padding: 0 0 0.85rem;
+}
+
+.process-recording-subhead h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  line-height: 1.2;
+}
+
+.process-recording-subhead p {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 0.9rem;
+}
+
+.process-recording-table-wrap .data-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.process-recording-table-wrap .data-table th,
+.process-recording-table-wrap .data-table td {
+  width: auto;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.process-recording-table-wrap .data-table th:first-child,
+.process-recording-table-wrap .data-table td:first-child {
+  text-align: left;
+  padding-left: 1.15rem;
+}
+
+.process-recording-table-wrap .data-table th:last-child,
+.process-recording-table-wrap .data-table td:last-child {
+  text-align: right;
+  padding-right: 1.15rem;
+}
+
+.process-recording-table-wrap .data-table td:last-child {
+  white-space: nowrap;
+}
+
+.process-recording-table-wrap .table-link-button {
+  justify-self: center;
+}
+
+.process-recording-table-wrap .data-table td:first-child .table-link-button {
+  justify-self: start;
+}
+
+.process-recording-table-wrap .data-table td:last-child .table-actions {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+}
+
+.process-recording-risk-table td:nth-child(6),
+.process-recording-risk-table th:nth-child(6) {
+  text-align: center;
+}
+
+.process-recording-risk-table th:nth-child(1),
+.process-recording-risk-table td:nth-child(1) {
+  width: 14%;
+}
+
+.process-recording-risk-table th:nth-child(2),
+.process-recording-risk-table td:nth-child(2) {
+  width: 13%;
+}
+
+.process-recording-risk-table th:nth-child(3),
+.process-recording-risk-table td:nth-child(3) {
+  width: 12%;
+}
+
+.process-recording-risk-table th:nth-child(4),
+.process-recording-risk-table td:nth-child(4) {
+  width: 18%;
+}
+
+.process-recording-risk-table th:nth-child(5),
+.process-recording-risk-table td:nth-child(5) {
+  width: 9%;
+}
+
+.process-recording-risk-table th:nth-child(6),
+.process-recording-risk-table td:nth-child(6) {
+  width: 34%;
+}
+
+.process-recording-session-table th:nth-child(1),
+.process-recording-session-table td:nth-child(1) {
+  width: 10%;
+}
+
+.process-recording-session-table th:nth-child(2),
+.process-recording-session-table td:nth-child(2) {
+  width: 14%;
+}
+
+.process-recording-session-table th:nth-child(3),
+.process-recording-session-table td:nth-child(3) {
+  width: 9%;
+}
+
+.process-recording-session-table th:nth-child(4),
+.process-recording-session-table td:nth-child(4) {
+  width: 12%;
+}
+
+.process-recording-session-table th:nth-child(5),
+.process-recording-session-table td:nth-child(5) {
+  width: 19%;
+}
+
+.process-recording-session-table th:nth-child(6),
+.process-recording-session-table td:nth-child(6) {
+  width: 12%;
+}
+
+.process-recording-session-table th:nth-child(7),
+.process-recording-session-table td:nth-child(7) {
+  width: 24%;
+}
+
+.process-recording-date-link {
+  font-weight: 600;
+}
+
+.process-recording-session-cell,
+.process-recording-state-stack {
+  display: grid;
+  gap: 0.28rem;
+}
+
+.process-recording-session-cell strong {
+  font-size: 0.95rem;
+}
+
+.process-recording-state-stack span {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0.82rem;
+}
+
+.process-recording-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.process-recording-signal-pill,
+.process-recording-signal-muted {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.85rem;
+  padding: 0.22rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.process-recording-signal-pill {
+  background: rgba(81, 69, 50, 0.08);
+  color: var(--color-text);
+}
+
+.process-recording-signal-muted {
+  background: rgba(81, 69, 50, 0.05);
+  color: var(--color-text-soft);
+}
+
+.process-recording-modal-backdrop {
+  z-index: 90;
+}
+
+.process-recording-view-modal,
+.process-recording-edit-modal {
+  display: grid;
+  gap: 1.2rem;
+  padding: 1.35rem;
+}
+
+.process-recording-view-modal {
+  width: min(100%, 72rem);
+}
+
+.process-recording-edit-modal {
+  width: min(100%, 60rem);
+}
+
+.process-recording-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(81, 69, 50, 0.08);
+}
+
+.process-recording-modal-header h2,
+.process-recording-history-header h3,
+.process-recording-modal-section h3 {
+  margin: 0;
+}
+
+.process-recording-modal-header p,
+.process-recording-modal-section p {
+  margin: 0.35rem 0 0;
+}
+
+.process-recording-modal-body {
+  display: grid;
+  gap: 1rem;
+}
+
+.process-recording-modal-section {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.05rem;
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(81, 69, 50, 0.08);
+}
+
+.process-recording-detail-grid,
+.process-recording-note-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.process-recording-detail-card,
+.process-recording-note-card {
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: rgba(81, 69, 50, 0.05);
+}
+
+.process-recording-detail-card strong,
+.process-recording-detail-value,
+.process-recording-note-card p {
+  overflow-wrap: anywhere;
+}
+
+.process-recording-detail-value {
+  font-weight: 700;
+}
+
+.process-recording-note-card p {
+  margin: 0;
+}
+
+.process-recording-restricted-section {
+  background: linear-gradient(135deg, rgba(255, 245, 216, 0.95), rgba(255, 252, 247, 0.98));
+}
+
+.process-recording-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.process-recording-history-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 0.35rem;
+}
+
+.process-recording-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(81, 69, 50, 0.1);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+}
+
+.process-recording-history-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(81, 69, 50, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.process-recording-history-item.is-active {
+  border-color: rgba(153, 111, 0, 0.35);
+  background: linear-gradient(135deg, rgba(255, 245, 216, 0.95), rgba(255, 255, 255, 0.92));
+}
+
+.process-recording-history-item div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.process-recording-history-item span {
+  color: var(--color-text-soft);
+  font-size: 0.85rem;
+}
+
+.process-recording-edit-modal .stack-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.process-recording-edit-modal .form-actions {
+  justify-content: flex-end;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(81, 69, 50, 0.08);
+}
+
 .donation-card-value,
 .donation-card-notes {
   display: grid;
@@ -6110,7 +6508,8 @@ body {
   }
 
   .donor-filter-grid,
-  .donor-filter-select-row {
+  .donor-filter-select-row,
+  .process-recording-toolbar {
     width: 100%;
     grid-template-columns: 1fr;
   }
@@ -6148,6 +6547,17 @@ body {
 
   .donation-edit-modal-header {
     flex-direction: column;
+  }
+
+  .process-recording-modal-header,
+  .process-recording-history-header,
+  .process-recording-history-item {
+    flex-direction: column;
+  }
+
+  .process-recording-detail-grid,
+  .process-recording-note-grid {
+    grid-template-columns: 1fr;
   }
 
   .donation-edit-modal .form-actions {
