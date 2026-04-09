@@ -404,7 +404,7 @@ body {
 
 .detail-panel {
   border-radius: var(--tl-radius-xl);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--tl-gold-dark) 70%, #000 30%), color-mix(in srgb, var(--tl-text) 80%, #000 20%));
+  background: linear-gradient(135deg, #b4dcd6 0%, #e6f5f2 42%, #ffeccb 100%);
   box-shadow: var(--tl-ambient-shadow);
 }
 
@@ -3161,7 +3161,7 @@ textarea {
 
 .detail-panel-header p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--tl-text-muted);
 }
 
 .detail-panel-neutral .detail-panel-header p {
@@ -4596,13 +4596,13 @@ body {
 }
 
 .detail-panel-actions .ghost-button {
-  color: white;
-  border-color: rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.08);
+  color: #1a6b63;
+  border-color: rgba(26, 107, 99, 0.35);
+  background: rgba(26, 107, 99, 0.06);
 }
 
 .detail-panel-actions .ghost-button:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(26, 107, 99, 0.12);
 }
 
 /* Editorial media — token-based border and shadow */
@@ -5135,8 +5135,8 @@ body {
   gap: 0.9rem;
   padding: 1.15rem;
   border-radius: 1rem;
-  background: linear-gradient(180deg, rgba(39, 25, 0, 0.94), rgba(88, 58, 0, 0.96));
-  color: var(--color-surface-lowest);
+  background: linear-gradient(135deg, #b4dcd6 0%, #e6f5f2 42%, #ffeccb 100%);
+  color: var(--tl-text);
   box-shadow: var(--shadow-soft);
 }
 
@@ -5159,10 +5159,14 @@ body {
 
 .risk-card-top p,
 .donation-card-head p,
-.supporter-directory-head p,
+.supporter-directory-head p {
+  margin: 0;
+  color: var(--tl-text-muted);
+}
+
 .risk-card-action {
   margin: 0;
-  color: rgba(255, 255, 255, 0.74);
+  color: var(--tl-text-muted);
 }
 
 .risk-score {
@@ -5172,7 +5176,8 @@ body {
   min-width: 4.25rem;
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(26, 107, 99, 0.14);
+  color: #1a6b63;
   font-weight: 700;
 }
 
@@ -5198,14 +5203,14 @@ body {
 }
 
 .risk-card .supporter-pill {
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.82);
+  background: rgba(26, 107, 99, 0.08);
+  color: var(--tl-text-muted);
 }
 
 .risk-card-foot {
   padding-top: 0.15rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  border-top: 1px solid rgba(26, 107, 99, 0.15);
+  color: var(--tl-text-muted);
 }
 
 .donor-workspace-grid {
