@@ -121,7 +121,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
             .Select(x => new HomeVisitationResponse(
                 x.Id,
                 x.ResidentId,
-                x.Resident!.CaseControlNumber,
+                x.Resident?.CaseControlNumber ?? $"Resident {x.ResidentId}",
                 x.VisitDate,
                 x.SocialWorker,
                 x.VisitType,

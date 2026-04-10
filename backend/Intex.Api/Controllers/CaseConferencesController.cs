@@ -104,7 +104,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
             .Select(x => new CaseConferenceResponse(
                 x.Id,
                 x.ResidentId,
-                x.Resident!.CaseControlNumber,
+                x.Resident?.CaseControlNumber ?? $"Resident {x.ResidentId}",
                 x.ConferenceDate,
                 x.LeadWorker,
                 x.Attendees,

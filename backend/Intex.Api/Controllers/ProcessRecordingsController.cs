@@ -125,7 +125,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
             .Select(x => new ProcessRecordingResponse(
                 x.Id,
                 x.ResidentId,
-                x.Resident!.CaseControlNumber,
+                x.Resident?.CaseControlNumber ?? $"Resident {x.ResidentId}",
                 x.SessionDate,
                 x.SocialWorker,
                 x.SessionType,
