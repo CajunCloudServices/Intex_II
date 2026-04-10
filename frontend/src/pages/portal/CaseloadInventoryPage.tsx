@@ -15,6 +15,7 @@ import { combineUnavailableSections, describeUnavailableSection, getRequestError
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
 import { buildWorkerOptions } from './forms/homeVisitationDefaults';
 import { createResidentForm } from './forms/residentFormDefaults';
+import { formatResidentPlanStatus, normalizeResidentPlanStatusForApi, normalizeResidentPlanStatusForForm } from './forms/residentPlanStatus';
 import { ResidentRecordForm } from './forms/ResidentRecordForm';
 import { extractResidentFieldErrors, validateResidentForm } from './forms/residentFormValidation';
 
@@ -511,7 +512,7 @@ export function CaseloadInventoryPage() {
                 <h3>Current intervention plan</h3>
                 <div className="resident-detail-grid">
                   <ResidentDetail label="Plan category" value={viewedResident.interventionPlans[0]?.planCategory ?? 'No plan recorded'} />
-                  <ResidentDetail label="Plan status" value={formatInterventionStatus(viewedResident.interventionPlans[0]?.status)} />
+                  <ResidentDetail label="Plan status" value={formatResidentPlanStatus(viewedResident.interventionPlans[0]?.status)} />
                   <ResidentDetail label="Target date" value={formatOptionalDate(viewedResident.interventionPlans[0]?.targetDate)} />
                   <ResidentDetail label="Services provided" value={viewedResident.interventionPlans[0]?.servicesProvided ?? 'No services recorded'} />
                   <ResidentDetail label="Plan description" value={viewedResident.interventionPlans[0]?.planDescription ?? 'No plan recorded'} />
@@ -617,7 +618,7 @@ function mapResidentToForm(resident: Resident, fallbackSafehouseId?: number): Re
           servicesProvided: plan.servicesProvided,
           targetValue: plan.targetValue ?? null,
           targetDate: plan.targetDate,
-          status: plan.status,
+          status: normalizeResidentPlanStatusForForm(plan.status),
           caseConferenceDate: plan.caseConferenceDate ?? '',
         }))
       : createResidentForm(fallbackSafehouseId).interventionPlans,
@@ -656,7 +657,7 @@ function sanitizeResidentPayload(residentForm: ResidentRequest): ResidentRequest
       planCategory: sanitizeText(plan.planCategory),
       planDescription: sanitizeText(plan.planDescription),
       servicesProvided: sanitizeText(plan.servicesProvided),
-      status: sanitizeText(plan.status),
+      status: normalizeResidentPlanStatusForApi(sanitizeText(plan.status)),
       targetValue: plan.targetValue || null,
       caseConferenceDate: plan.caseConferenceDate || null,
     })),
@@ -684,11 +685,6 @@ function toYesNo(value: boolean) {
 
 function formatOptionalDate(value?: string | null) {
   return value ? formatDate(value) : 'Not recorded';
-}
-
-function formatInterventionStatus(value?: string | null) {
-  if (!value) return 'Not set';
-  return value === 'InProgress' ? 'In Progress' : value;
 }
 
 function formatResidentAge(dateOfBirth: string, referenceDate?: string | null) {

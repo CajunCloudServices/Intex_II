@@ -9,6 +9,7 @@ type ProcessRecordingFormProps = {
   recordingForm: ProcessRecordingRequest;
   setRecordingForm: React.Dispatch<React.SetStateAction<ProcessRecordingRequest>>;
   residents: Resident[];
+  socialWorkerOptions?: string[];
   onSubmit: (event: FormEvent) => void;
   submitting: boolean;
   submitLabel: string;
@@ -19,13 +20,19 @@ export function ProcessRecordingForm({
   recordingForm,
   setRecordingForm,
   residents,
+  socialWorkerOptions = [],
   onSubmit,
   submitting,
   submitLabel,
   showRestrictedNotes = true,
 }: ProcessRecordingFormProps) {
+  const workerOptions =
+    socialWorkerOptions.includes(recordingForm.socialWorker) || !recordingForm.socialWorker
+      ? socialWorkerOptions
+      : [recordingForm.socialWorker, ...socialWorkerOptions];
+
   return (
-    <form className="stack-form" onSubmit={onSubmit}>
+    <form className="stack-form" onSubmit={onSubmit} noValidate>
       <FormSection title="Session metadata">
         <FormGrid>
           <label>
@@ -44,7 +51,16 @@ export function ProcessRecordingForm({
           </label>
           <label>
             <span>Social worker</span>
-            <input value={recordingForm.socialWorker} onChange={(event) => setRecordingForm({ ...recordingForm, socialWorker: event.target.value })} required />
+            <select value={recordingForm.socialWorker} onChange={(event) => setRecordingForm({ ...recordingForm, socialWorker: event.target.value })} required>
+              <option value="" disabled>
+                Select social worker
+              </option>
+              {workerOptions.map((worker) => (
+                <option key={worker} value={worker}>
+                  {worker}
+                </option>
+              ))}
+            </select>
           </label>
           <label>
             <span>Session type</span>

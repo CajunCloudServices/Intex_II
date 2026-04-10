@@ -262,13 +262,36 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.AutoReplenishment = true;
     });
 
-    options.AddFixedWindowLimiter("public-submit", limiterOptions =>
+    options.AddPolicy("public-submit", context =>
     {
-        limiterOptions.PermitLimit = isTestEnvironment ? 1_000_000 : 5;
-        limiterOptions.Window = TimeSpan.FromMinutes(1);
-        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-        limiterOptions.QueueLimit = 0;
-        limiterOptions.AutoReplenishment = true;
+        var authenticatedDonorId = context.User.FindFirst("supporter_id")?.Value
+            ?? context.User.Identity?.Name;
+
+        if (!string.IsNullOrWhiteSpace(authenticatedDonorId) && context.User.Identity?.IsAuthenticated == true)
+        {
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: $"donor:{authenticatedDonorId}",
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = isTestEnvironment ? 1_000_000 : 60,
+                    Window = TimeSpan.FromMinutes(1),
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                    QueueLimit = 0,
+                    AutoReplenishment = true
+                });
+        }
+
+        var remoteIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: $"public:{remoteIp}",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = isTestEnvironment ? 1_000_000 : 5,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0,
+                AutoReplenishment = true
+            });
     });
 });
 
@@ -423,8 +446,12 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-app.UseRateLimiter();
 
+// CORS and preflight handling must run before the rate limiter so that OPTIONS
+// preflight requests always receive proper Access-Control-* headers even when
+// the rate limit bucket is exhausted. A bare 429 with no CORS headers causes
+// the browser to permanently block subsequent cross-origin requests with
+// "Failed to fetch" for the duration of the preflight cache window.
 app.Use(async (context, next) =>
 {
     var origin = context.Request.Headers.Origin.ToString();
@@ -471,6 +498,10 @@ app.Use(async (context, next) =>
 });
 
 app.UseCors("Frontend");
+// Rate limiter runs after CORS so that even rejected (429) responses carry
+// the correct Access-Control-* headers and the browser never sees a bare 429
+// that fails the preflight check for subsequent requests.
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
