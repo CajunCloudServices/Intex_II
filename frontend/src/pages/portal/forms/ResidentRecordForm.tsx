@@ -15,9 +15,12 @@ type ResidentRecordFormProps = {
   setResidentForm: React.Dispatch<React.SetStateAction<ResidentRequest>>;
   residentErrors: ValidationErrors;
   safehouses: Safehouse[];
+  socialWorkerOptions?: string[];
   onSubmit: (event: FormEvent) => void;
   submitting: boolean;
   submitLabel: string;
+  caseControlNumberReadOnly?: boolean;
+  internalCodeReadOnly?: boolean;
 };
 
 const CASE_STATUS_OPTIONS = ['Active', 'Closed', 'Transferred'];
@@ -56,11 +59,18 @@ export function ResidentRecordForm({
   setResidentForm,
   residentErrors,
   safehouses,
+  socialWorkerOptions = [],
   onSubmit,
   submitting,
   submitLabel,
+  caseControlNumberReadOnly = false,
+  internalCodeReadOnly = false,
 }: ResidentRecordFormProps) {
   const firstPlan = residentForm.interventionPlans[0];
+  const workerOptions =
+    socialWorkerOptions.includes(residentForm.assignedSocialWorker) || !residentForm.assignedSocialWorker
+      ? socialWorkerOptions
+      : [residentForm.assignedSocialWorker, ...socialWorkerOptions];
 
   const updatePlan = (field: keyof NonNullable<ResidentRequest['interventionPlans'][number]>, value: string | number | null) => {
     setResidentForm({
@@ -75,30 +85,33 @@ export function ResidentRecordForm({
   };
 
   return (
-    <form className="stack-form" onSubmit={onSubmit}>
+    <form className="stack-form" onSubmit={onSubmit} noValidate>
       <FormSection title="Core case information">
         <FormGrid>
           <ValidatedTextField
             label="Case control number"
             required
-            hint="Use letters, numbers, and dashes."
+            hint={caseControlNumberReadOnly ? 'Automatically generated to avoid duplicate case numbers.' : 'Use letters, numbers, and dashes.'}
             value={residentForm.caseControlNumber}
             onChange={(e) => setResidentForm({ ...residentForm, caseControlNumber: e.target.value })}
             error={residentErrors.caseControlNumber}
+            readOnly={caseControlNumberReadOnly}
           />
           <ValidatedTextField
             label="Internal code"
             required
-            hint="Internal short code, example: LS-0001."
+            hint={internalCodeReadOnly ? 'Automatically generated from the intake year and next available sequence.' : 'Internal short code, example: LS-0001.'}
             value={residentForm.internalCode}
             onChange={(e) => setResidentForm({ ...residentForm, internalCode: e.target.value })}
             error={residentErrors.internalCode}
+            readOnly={internalCodeReadOnly}
           />
           <ValidatedSelectField
             label="Safehouse"
             required
             value={residentForm.safehouseId}
             onChange={(e) => setResidentForm({ ...residentForm, safehouseId: Number(e.target.value) })}
+            error={residentErrors.safehouseId}
           >
             {safehouses.map((safehouse) => (
               <option key={safehouse.id} value={safehouse.id}>
@@ -281,9 +294,11 @@ export function ResidentRecordForm({
           <ValidatedTextField
             label="Assigned social worker"
             required
+            list="worker-suggestions"
             value={residentForm.assignedSocialWorker}
             onChange={(e) => setResidentForm({ ...residentForm, assignedSocialWorker: e.target.value })}
             error={residentErrors.assignedSocialWorker}
+            placeholder="Enter social worker name"
           />
           <ValidatedTextField
             label="Case study prepared"
@@ -292,6 +307,13 @@ export function ResidentRecordForm({
             onChange={(e) => setResidentForm({ ...residentForm, dateCaseStudyPrepared: e.target.value })}
           />
         </FormGrid>
+        {workerOptions.length > 0 ? (
+          <datalist id="worker-suggestions">
+            {workerOptions.map((worker) => (
+              <option key={worker} value={worker} />
+            ))}
+          </datalist>
+        ) : null}
       </FormSection>
 
       <FormSection title="Risk and reintegration">
@@ -394,6 +416,7 @@ export function ResidentRecordForm({
             type="date"
             value={firstPlan?.caseConferenceDate ?? ''}
             onChange={(e) => updatePlan('caseConferenceDate', e.target.value)}
+            error={residentErrors.caseConferenceDate}
           />
           <ValidatedTextField
             label="Services provided"

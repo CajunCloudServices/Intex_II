@@ -6,7 +6,12 @@
       "Bash(sed -n '115,125p' AuditHistoryPage.tsx)",
       "Bash(sed -n '365,380p' DonorsContributionsPage.tsx)",
       "Bash(sed -n '290,305p' HomeVisitationsPage.tsx)",
-      "Bash(sed -n '385,400p' HomeVisitationsPage.tsx)"
+      "Bash(sed -n '385,400p' HomeVisitationsPage.tsx)",
+      "Bash(grep -h \"\\\\[Http\\\\|route\\\\|Route\\\\]\" \"/Users/oliviaspringer/Library/CloudStorage/OneDrive-BrighamYoungUniversity/Winter 2026/INTEX II/Intex_II/backend/Intex.Api/Controllers\"/*.cs)",
+      "Bash(grep -h \"Route\\(\\\\\"api/\" \"/Users/oliviaspringer/Library/CloudStorage/OneDrive-BrighamYoungUniversity/Winter 2026/INTEX II/Intex_II/backend/Intex.Api/Controllers\"/*.cs)",
+      "Bash(npx tsc:*)",
+      "Bash(dotnet build:*)",
+      "Bash(xargs cat:*)"
     ]
   }
 }

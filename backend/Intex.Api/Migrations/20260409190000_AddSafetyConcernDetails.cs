@@ -1,3 +1,5 @@
+using Intex.Api.Data;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -5,6 +7,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Intex.Api.Migrations
 {
     /// <inheritdoc />
+    [DbContext(typeof(ApplicationDbContext))]
+    [Migration("20260409190000_AddSafetyConcernDetails")]
     public partial class AddSafetyConcernDetails : Migration
     {
         /// <inheritdoc />

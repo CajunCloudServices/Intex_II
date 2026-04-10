@@ -6,6 +6,7 @@ using CsvHelper.Configuration;
 using Intex.Api.Entities;
 using Intex.Api.Models.Options;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Options;
 
 namespace Intex.Api.Data.Seed;
@@ -90,6 +91,9 @@ public sealed class CsvRelationalSeeder(
 
         return new CsvSeedResult(errors.Count == 0, importedCounts, errors);
     }
+
+    public Task ReconcileIdentitySequencesAsync(CancellationToken cancellationToken = default)
+        => ResetImportedIdentitySequencesAsync(cancellationToken);
 
     private string ResolveCsvRoot()
     {
@@ -189,9 +193,21 @@ public sealed class CsvRelationalSeeder(
     {
         var text = GetNullableString(row, key);
         if (text is null) return null;
-        return DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var dateTime)
-            ? dateTime
-            : null;
+        if (!DateTime.TryParse(
+                text,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var dateTime))
+        {
+            return null;
+        }
+
+        return dateTime.Kind switch
+        {
+            DateTimeKind.Utc => dateTime,
+            DateTimeKind.Unspecified => DateTime.SpecifyKind(dateTime, DateTimeKind.Utc),
+            _ => dateTime.ToUniversalTime()
+        };
     }
 
     private static string NormalizeMetricPayloadJson(string? raw)
@@ -840,8 +856,103 @@ public sealed class CsvRelationalSeeder(
         importedCounts["process_recordings"] = await ImportProcessRecordingsAsync(csvRoot, errors, cancellationToken);
         importedCounts["safehouse_monthly_metrics"] = await ImportSafehouseMonthlyMetricsAsync(csvRoot, errors, cancellationToken);
         importedCounts["public_impact_snapshots"] = await ImportPublicImpactSnapshotsAsync(csvRoot, cancellationToken);
+        await ResetImportedIdentitySequencesAsync(cancellationToken);
         await ValidateRelationalIntegrityAsync(errors, cancellationToken);
     }
+
+    private async Task ResetImportedIdentitySequencesAsync(CancellationToken cancellationToken)
+    {
+        if (!dbContext.Database.IsNpgsql())
+        {
+            logger.LogInformation("Skipping PostgreSQL identity sequence reconciliation for non-Npgsql database provider.");
+            return;
+        }
+
+        var entities = new[]
+        {
+            typeof(Safehouse),
+            typeof(Partner),
+            typeof(Supporter),
+            typeof(SocialMediaPost),
+            typeof(Resident),
+            typeof(PartnerAssignment),
+            typeof(Donation),
+            typeof(DonationAllocation),
+            typeof(InKindDonationItem),
+            typeof(EducationRecord),
+            typeof(HealthWellbeingRecord),
+            typeof(InterventionPlan),
+            typeof(IncidentReport),
+            typeof(HomeVisitation),
+            typeof(ProcessRecording),
+            typeof(SafehouseMonthlyMetric),
+            typeof(PublicImpactSnapshot)
+        };
+
+        foreach (var entityClrType in entities)
+        {
+            await ResetIdentitySequenceAsync(entityClrType, cancellationToken);
+        }
+    }
+
+    private async Task ResetIdentitySequenceAsync(Type entityClrType, CancellationToken cancellationToken)
+    {
+        var entityType = dbContext.Model.FindEntityType(entityClrType);
+        if (entityType is null)
+        {
+            return;
+        }
+
+        var tableName = entityType.GetTableName();
+        if (string.IsNullOrWhiteSpace(tableName))
+        {
+            return;
+        }
+
+        var schema = entityType.GetSchema() ?? "public";
+        var primaryKey = entityType.FindPrimaryKey();
+        if (primaryKey?.Properties.Count != 1)
+        {
+            return;
+        }
+
+        var keyProperty = primaryKey.Properties[0];
+        if (keyProperty.ClrType != typeof(int))
+        {
+            return;
+        }
+
+        var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+        var columnName = keyProperty.GetColumnName(storeObject);
+        if (string.IsNullOrWhiteSpace(columnName))
+        {
+            return;
+        }
+
+        var qualifiedTableName = $"{QuoteIdentifier(schema)}.{QuoteIdentifier(tableName)}";
+        var sql = $"""
+            SELECT setval(sequence_name, next_value, false)
+            FROM (
+                SELECT pg_get_serial_sequence('{EscapeSqlLiteral(qualifiedTableName)}', '{EscapeSqlLiteral(columnName)}') AS sequence_name,
+                       COALESCE((SELECT MAX({QuoteIdentifier(columnName)}) FROM {qualifiedTableName}), 0) + 1 AS next_value
+            ) AS seq
+            WHERE sequence_name IS NOT NULL;
+            """;
+
+        await dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+
+        logger.LogInformation(
+            "CSV relational seed synchronized identity sequence for {Schema}.{Table}.{Column}.",
+            schema,
+            tableName,
+            columnName);
+    }
+
+    private static string QuoteIdentifier(string identifier)
+        => $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
+
+    private static string EscapeSqlLiteral(string value)
+        => value.Replace("'", "''", StringComparison.Ordinal);
 
     private async Task ValidateRelationalIntegrityAsync(ICollection<string> errors, CancellationToken cancellationToken)
     {

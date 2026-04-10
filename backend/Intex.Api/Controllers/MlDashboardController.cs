@@ -48,6 +48,9 @@ public class MlDashboardController(IWebHostEnvironment environment, IOptions<MlD
         var path = Path.Combine(dataDir, $"{fileKey}.json");
         path = Path.GetFullPath(path);
         dataDir = Path.GetFullPath(dataDir);
+
+        // Resolve and compare full paths so a crafted route value cannot escape the
+        // dashboard data directory even if deployment paths are customized.
         if (!path.StartsWith(dataDir, StringComparison.Ordinal))
         {
             return BadRequest();

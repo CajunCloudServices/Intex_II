@@ -19,10 +19,15 @@ import { Pagination } from '../../components/ui/Pagination';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
-import { formatCompactMoney, formatDate, formatMoney, normalizeText } from '../../lib/format';
+import { compareDateStringsDesc, formatCompactMoney, formatDate, formatMoney, normalizeText } from '../../lib/format';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
-import { createDonationForm, defaultSupporterForm } from './forms/donorFormDefaults';
+import {
+  createDonationForm,
+  createDonationFormFromRecord,
+  createSupporterFormFromRecord,
+  defaultSupporterForm,
+} from './forms/donorFormDefaults';
 import { DonationRecordForm } from './forms/DonationRecordForm';
 import { validateDonationForm, validateSupporterForm } from './forms/donorsFormValidation';
 import { SupporterRecordForm } from './forms/SupporterRecordForm';
@@ -154,27 +159,8 @@ export function DonorsContributionsPage() {
   }, [loadData]);
 
   useEffect(() => {
-    if (!editingDonationId && !editingSupporterId) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        if (editingDonationId) {
-          resetDonationForm();
-        } else if (editingSupporterId) {
-          resetSupporterForm();
-        }
-      }
-    };
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [editingDonationId, editingSupporterId]);
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
 
   const supporterDonations = useMemo(() => {
     const grouped = new Map<number, Donation[]>();
@@ -187,17 +173,18 @@ export function DonorsContributionsPage() {
     grouped.forEach((items, supporterId) => {
       grouped.set(
         supporterId,
-        [...items].sort((left, right) => new Date(right.donationDate).getTime() - new Date(left.donationDate).getTime()),
+        [...items].sort((left, right) => compareDateStringsDesc(left.donationDate, right.donationDate)),
       );
     });
 
     return grouped;
   }, [donations]);
 
+  // The directory intentionally treats anonymous giving as one grouped entry while keeping named supporters separate.
   const anonymousSupporters = useMemo(() => supporters.filter(isAnonymousSupporter), [supporters]);
   const namedSupporters = useMemo(() => supporters.filter((supporter) => !isAnonymousSupporter(supporter)), [supporters]);
   const sortedDonations = useMemo(
-    () => [...donations].sort((left, right) => new Date(right.donationDate).getTime() - new Date(left.donationDate).getTime()),
+    () => [...donations].sort((left, right) => compareDateStringsDesc(left.donationDate, right.donationDate)),
     [donations],
   );
 
@@ -362,19 +349,44 @@ export function DonorsContributionsPage() {
     [donations],
   );
 
-  if (!user) return null;
+  // These summary cards are intentionally "at a glance" rollups, not exact mirrors of every table filter on the page.
 
-  const resetSupporterForm = () => {
+  const resetSupporterForm = useCallback(() => {
     setEditingSupporterId(null);
     setSupporterErrors({});
     setSupporterForm(defaultSupporterForm);
-  };
+  }, []);
 
-  const resetDonationForm = () => {
+  const resetDonationForm = useCallback(() => {
     setEditingDonationId(null);
     setDonationErrors({});
     setDonationForm(createDonationForm(safehouses[0]?.id));
-  };
+  }, [safehouses]);
+
+  useEffect(() => {
+    if (!editingDonationId && !editingSupporterId) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (editingDonationId) {
+          resetDonationForm();
+        } else if (editingSupporterId) {
+          resetSupporterForm();
+        }
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [editingDonationId, editingSupporterId, resetDonationForm, resetSupporterForm]);
+
+  if (!user) return null;
 
   const handleSupporterSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -549,7 +561,7 @@ export function DonorsContributionsPage() {
         </SectionCard>
       ) : null}
 
-      {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {feedback && !editingSupporterId ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
       {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
@@ -639,22 +651,9 @@ export function DonorsContributionsPage() {
                                 onClick={() => {
                                   const supporter = supporters.find((item) => item.id === entry.supporterId);
                                   if (!supporter) return;
+                                  setFeedback(null);
                                   setEditingSupporterId(supporter.id);
-                                  setSupporterForm({
-                                    supporterType: supporter.supporterType,
-                                    displayName: supporter.displayName,
-                                    organizationName: supporter.organizationName ?? '',
-                                    firstName: supporter.firstName ?? '',
-                                    lastName: supporter.lastName ?? '',
-                                    relationshipType: supporter.relationshipType,
-                                    region: supporter.region,
-                                    country: supporter.country,
-                                    email: supporter.email,
-                                    phone: supporter.phone ?? '',
-                                    status: supporter.status,
-                                    firstDonationDate: supporter.firstDonationDate ?? '',
-                                    acquisitionChannel: supporter.acquisitionChannel,
-                                  });
+                                  setSupporterForm(createSupporterFormFromRecord(supporter));
                                 }}
                                 type="button"
                               >
@@ -758,29 +757,7 @@ export function DonorsContributionsPage() {
                                     className="ghost-button donation-card-action-button"
                                     onClick={() => {
                                       setEditingDonationId(donation.id);
-                                      setDonationForm({
-                                        supporterId: donation.supporterId,
-                                        donationType: donation.donationType,
-                                        donationDate: donation.donationDate,
-                                        channelSource: donation.channelSource,
-                                        currencyCode: donation.currencyCode ?? '',
-                                        amount: donation.amount,
-                                        estimatedValue: donation.estimatedValue,
-                                        impactUnit: donation.impactUnit,
-                                        isRecurring: donation.isRecurring,
-                                        campaignName: donation.campaignName ?? '',
-                                        notes: donation.notes ?? '',
-                                        allocations:
-                                          donation.allocations.length > 0
-                                            ? donation.allocations.map((allocation) => ({
-                                                safehouseId: allocation.safehouseId,
-                                                programArea: allocation.programArea,
-                                                amountAllocated: allocation.amountAllocated,
-                                                allocationDate: allocation.allocationDate,
-                                                allocationNotes: allocation.allocationNotes ?? '',
-                                              }))
-                                            : createDonationForm(safehouses[0]?.id).allocations,
-                                      });
+                                      setDonationForm(createDonationFormFromRecord(donation, safehouses[0]?.id));
                                     }}
                                     type="button"
                                   >
@@ -921,6 +898,8 @@ export function DonorsContributionsPage() {
               </button>
             </div>
 
+            {feedback && editingSupporterId ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+
             <SupporterRecordForm
               supporterForm={supporterForm}
               setSupporterForm={setSupporterForm}
@@ -1054,9 +1033,10 @@ function buildAnonymousEntry(
 ): SupporterDirectoryEntry | null {
   if (anonymousSupporters.length === 0) return null;
 
+  // Keep anonymous contributions grouped so list views do not imply separate identifiable donor profiles.
   const donationHistory = anonymousSupporters
     .flatMap((supporter) => supporterDonations.get(supporter.id) ?? [])
-    .sort((left, right) => new Date(right.donationDate).getTime() - new Date(left.donationDate).getTime());
+    .sort((left, right) => compareDateStringsDesc(left.donationDate, right.donationDate));
 
   return {
     key: 'anonymous',

@@ -10,9 +10,9 @@ import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
 import { useAuth } from '../../hooks/useAuth';
-import { formatDate, formatMoney, normalizeText } from '../../lib/format';
+import { compareDateStringsDesc, formatDate, formatMoney, normalizeText } from '../../lib/format';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
-import { defaultSupporterForm } from './forms/donorFormDefaults';
+import { createSupporterFormFromRecord, defaultSupporterForm } from './forms/donorFormDefaults';
 import { validateSupporterForm } from './forms/donorsFormValidation';
 import { SupporterRecordForm } from './forms/SupporterRecordForm';
 
@@ -71,6 +71,10 @@ export function SupporterDonationHistoryPage() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
 
   useEffect(() => {
     setHistoryPage(1);
@@ -172,7 +176,7 @@ export function SupporterDonationHistoryPage() {
             )
           );
         })
-        .sort((left, right) => new Date(right.donationDate).getTime() - new Date(left.donationDate).getTime()),
+        .sort((left, right) => compareDateStringsDesc(left.donationDate, right.donationDate)),
     [normalizedSearch, scopedDonations],
   );
 
@@ -208,23 +212,10 @@ export function SupporterDonationHistoryPage() {
     const supporter = supporters.find((item) => item.id === Number(historySubject?.id));
     if (!supporter) return;
 
+    setFeedback(null);
     setEditingSupporterId(supporter.id);
     setSupporterErrors({});
-    setSupporterForm({
-      supporterType: supporter.supporterType,
-      displayName: supporter.displayName,
-      organizationName: supporter.organizationName ?? '',
-      firstName: supporter.firstName ?? '',
-      lastName: supporter.lastName ?? '',
-      relationshipType: supporter.relationshipType,
-      region: supporter.region,
-      country: supporter.country,
-      email: supporter.email,
-      phone: supporter.phone ?? '',
-      status: supporter.status,
-      firstDonationDate: supporter.firstDonationDate ?? '',
-      acquisitionChannel: supporter.acquisitionChannel,
-    });
+    setSupporterForm(createSupporterFormFromRecord(supporter));
   };
 
   const handleSupporterSubmit = async (event: FormEvent) => {
@@ -289,7 +280,7 @@ export function SupporterDonationHistoryPage() {
         </div>
       </div>
 
-      {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {feedback && !editingSupporterId ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
 
       {loading ? (
         <LoadingState label="Loading supporter history..." />
@@ -410,6 +401,8 @@ export function SupporterDonationHistoryPage() {
                 Close
               </button>
             </div>
+
+            {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
 
             <SupporterRecordForm
               supporterForm={supporterForm}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import type { DashboardSummary, SafehousePerformanceSummary, SocialAnalytics } from '../../api/types';
@@ -31,7 +31,7 @@ export function AdminDashboardPage() {
   const [conferencePage, setConferencePage] = useState(1);
   const [socialPage, setSocialPage] = useState(1);
 
-  const loadSummary = async () => {
+  const loadSummary = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setError(null);
@@ -67,9 +67,9 @@ export function AdminDashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  useEffect(() => { void loadSummary(); }, [user]);
+  useEffect(() => { void loadSummary(); }, [loadSummary]);
 
   if (!user) return null;
 

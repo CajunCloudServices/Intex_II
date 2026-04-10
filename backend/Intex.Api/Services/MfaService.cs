@@ -1,6 +1,4 @@
-using System;
 using System.Text;
-using System.Threading.Tasks;
 using Intex.Api.DTOs;
 using Intex.Api.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +23,7 @@ public class MfaService(UserManager<ApplicationUser> userManager)
         var encodedEmail = Uri.EscapeDataString(email);
         var encodedIssuer = Uri.EscapeDataString(Issuer);
 
+        // Authenticator apps expect the otpauth URI to use URL-encoded label parts and the raw secret key.
         var uri = $"otpauth://totp/{encodedIssuer}:{encodedEmail}" +
                   $"?secret={unformattedKey}&issuer={encodedIssuer}&digits=6";
 
@@ -36,13 +35,18 @@ public class MfaService(UserManager<ApplicationUser> userManager)
 
     private static string FormatKey(string key)
     {
-        // Break into groups of 4 characters separated by spaces
+        // Group the shared key for manual entry without changing the underlying secret.
         var result = new StringBuilder();
         for (int i = 0; i < key.Length; i++)
         {
-            if (i > 0 && i % 4 == 0) result.Append(' ');
+            if (i > 0 && i % 4 == 0)
+            {
+                result.Append(' ');
+            }
+
             result.Append(key[i]);
         }
+
         return result.ToString().ToLowerInvariant();
     }
 }

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
@@ -18,6 +19,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
     public async Task<ActionResult<DonationTrendsResponse>> GetDonationTrends()
     {
         var monthlyRows = await dbContext.Donations
+            .AsNoTracking()
             .GroupBy(x => new { x.DonationDate.Year, x.DonationDate.Month })
             .Select(group => new
             {
@@ -38,6 +40,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var contributionMix = (await dbContext.Donations
+            .AsNoTracking()
             .GroupBy(x => x.DonationType)
             .Select(group => new ContributionMixDto(
                 group.Key,
@@ -48,6 +51,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var campaignSummaries = (await dbContext.Donations
+            .AsNoTracking()
             .Where(x => !string.IsNullOrWhiteSpace(x.CampaignName))
             .GroupBy(x => x.CampaignName!)
             .Select(group => new CampaignSummaryDto(
@@ -59,6 +63,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var channelSummaries = (await dbContext.Donations
+            .AsNoTracking()
             .GroupBy(x => x.ChannelSource)
             .Select(group => new ChannelSummaryDto(
                 group.Key,
@@ -68,8 +73,8 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .OrderByDescending(x => x.TotalAmount)
             .ToList();
 
-        var recurring = await dbContext.Donations.CountAsync(x => x.IsRecurring);
-        var oneTime = await dbContext.Donations.CountAsync(x => !x.IsRecurring);
+        var recurring = await dbContext.Donations.AsNoTracking().CountAsync(x => x.IsRecurring);
+        var oneTime = await dbContext.Donations.AsNoTracking().CountAsync(x => !x.IsRecurring);
 
         return Ok(new DonationTrendsResponse(
             totals,
@@ -84,6 +89,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
     public async Task<ActionResult<ResidentOutcomesResponse>> GetResidentOutcomes()
     {
         var interventionStatuses = (await dbContext.InterventionPlans
+            .AsNoTracking()
             .GroupBy(x => x.Status)
             .Select(group => new { group.Key, Count = group.Count() })
             .ToListAsync())
@@ -92,6 +98,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var riskDistribution = (await dbContext.Residents
+            .AsNoTracking()
             .GroupBy(x => x.CurrentRiskLevel)
             .Select(group => new { group.Key, Count = group.Count() })
             .ToListAsync())
@@ -100,6 +107,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var reintegrationStatuses = (await dbContext.Residents
+            .AsNoTracking()
             .Where(x => x.ReintegrationStatus != null)
             .GroupBy(x => x.ReintegrationStatus!)
             .Select(group => new { group.Key, Count = group.Count() })
@@ -109,14 +117,14 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var progressSummary = new ProcessRecordingSummaryDto(
-            await dbContext.ProcessRecordings.CountAsync(x => x.ProgressNoted),
-            await dbContext.ProcessRecordings.CountAsync(x => x.ConcernsFlagged),
-            await dbContext.ProcessRecordings.CountAsync(x => x.ReferralMade));
+            await dbContext.ProcessRecordings.AsNoTracking().CountAsync(x => x.ProgressNoted),
+            await dbContext.ProcessRecordings.AsNoTracking().CountAsync(x => x.ConcernsFlagged),
+            await dbContext.ProcessRecordings.AsNoTracking().CountAsync(x => x.ReferralMade));
 
         var followUpBurden = new FollowUpBurdenDto(
-            await dbContext.HomeVisitations.CountAsync(x => x.FollowUpNeeded),
-            await dbContext.IncidentReports.CountAsync(x => !x.Resolved),
-            await dbContext.Residents.CountAsync(x => x.CurrentRiskLevel == "High" || x.CurrentRiskLevel == "Critical"));
+            await dbContext.HomeVisitations.AsNoTracking().CountAsync(x => x.FollowUpNeeded),
+            await dbContext.IncidentReports.AsNoTracking().CountAsync(x => !x.Resolved),
+            await dbContext.Residents.AsNoTracking().CountAsync(x => x.CurrentRiskLevel == "High" || x.CurrentRiskLevel == "Critical"));
 
         return Ok(new ResidentOutcomesResponse(
             interventionStatuses,
@@ -130,6 +138,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
     public async Task<ActionResult<SafehousePerformanceResponse>> GetSafehousePerformance()
     {
         var safehouses = await dbContext.Safehouses
+            .AsNoTracking()
             .Include(x => x.Residents)
             .Include(x => x.IncidentReports)
             .Include(x => x.DonationAllocations)
@@ -145,10 +154,12 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToListAsync();
 
         var monthlyTrends = (await dbContext.SafehouseMonthlyMetrics
+            .AsNoTracking()
             .Include(x => x.Safehouse)
             .OrderBy(x => x.SafehouseId)
             .ThenBy(x => x.MonthStart)
             .ToListAsync())
+            // Group in memory so each trend row can preserve chronological points for a single safehouse.
             .GroupBy(x => new { x.SafehouseId, x.Safehouse!.Name })
             .Select(group => new SafehouseTrendRowDto(
                 group.Key.SafehouseId,
@@ -171,6 +182,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
     public async Task<ActionResult<ReintegrationSummaryResponse>> GetReintegrationSummary()
     {
         var statuses = (await dbContext.Residents
+            .AsNoTracking()
             .Where(x => x.ReintegrationStatus != null)
             .GroupBy(x => x.ReintegrationStatus!)
             .Select(group => new { group.Key, Count = group.Count() })
@@ -180,6 +192,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var types = (await dbContext.Residents
+            .AsNoTracking()
             .Where(x => x.ReintegrationType != null)
             .GroupBy(x => x.ReintegrationType!)
             .Select(group => new { group.Key, Count = group.Count() })
@@ -191,14 +204,15 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
         return Ok(new ReintegrationSummaryResponse(
             statuses,
             types,
-            await dbContext.Residents.CountAsync(x => x.CaseStatus == "Closed"),
-            await dbContext.Residents.CountAsync(x => x.CaseStatus == "Active")));
+            await dbContext.Residents.AsNoTracking().CountAsync(x => x.CaseStatus == "Closed"),
+            await dbContext.Residents.AsNoTracking().CountAsync(x => x.CaseStatus == "Active")));
     }
 
     [HttpGet("outreach-performance")]
     public async Task<ActionResult<OutreachPerformanceResponse>> GetOutreachPerformance()
     {
         var platformSummaries = (await dbContext.SocialMediaPosts
+            .AsNoTracking()
             .GroupBy(x => x.Platform)
             .Select(group => new
             {
@@ -217,6 +231,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
             .ToList();
 
         var recentPosts = await dbContext.SocialMediaPosts
+            .AsNoTracking()
             .OrderByDescending(x => x.CreatedAtUtc)
             .Take(8)
             .Select(x => new OutreachPerformanceRowDto(
@@ -231,7 +246,9 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
     }
 
     [HttpGet("social-analytics")]
-    public async Task<ActionResult<SocialAnalyticsResponse>> GetSocialAnalytics([FromQuery] int page = 1, [FromQuery] int pageSize = 25)
+    public async Task<ActionResult<SocialAnalyticsResponse>> GetSocialAnalytics(
+        [FromQuery, Range(1, int.MaxValue)] int page = 1,
+        [FromQuery, Range(1, 100)] int pageSize = 25)
     {
         page = Math.Max(1, page);
         pageSize = Math.Clamp(pageSize, 1, 100);
@@ -397,6 +414,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
                 "No social post history is available yet. Add post records before using the advisor."));
         }
 
+        // Use a simple additive baseline so staff can reason about the output and compare it with real campaign tests.
         var baseline = posts.Average(x => x.EstimatedDonationValuePhp);
         var hasCallToActionBoost = posts
             .Where(x => x.HasCallToAction)
@@ -472,7 +490,7 @@ public class ReportsController(ApplicationDbContext dbContext) : ControllerBase
     }
 
     [HttpGet("counseling-risk")]
-    public async Task<ActionResult<CounselingRiskSummaryResponse>> GetCounselingRiskSummary([FromQuery] int top = 15)
+    public async Task<ActionResult<CounselingRiskSummaryResponse>> GetCounselingRiskSummary([FromQuery, Range(1, 50)] int top = 15)
     {
         var recordings = await dbContext.ProcessRecordings
             .AsNoTracking()

@@ -15,6 +15,14 @@ export function formatCompactMoney(value: number) {
   }).format(value);
 }
 
+/** Donation impact “units” (kits, sessions, etc.) — trim trailing zeros when whole. */
+export function formatImpactUnits(n: number): string {
+  if (!Number.isFinite(n)) return '—';
+  const r = Math.round(n);
+  if (Math.abs(n - r) < 1e-6) return String(r);
+  return n < 10 ? n.toFixed(2) : n.toFixed(1);
+}
+
 /** Calendar dates from the API (YYYY-MM-DD / DateOnly) must not use UTC midnight parsing or US timezones show the wrong day. */
 export function formatDate(value: string) {
   if (!value?.trim()) {
@@ -49,6 +57,26 @@ export function formatDateTime(value: string) {
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(value));
+}
+
+export function dateStringToTime(value: string) {
+  const dateOnly = value.length >= 10 ? value.slice(0, 10) : value;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOnly);
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+    if (Number.isFinite(y) && Number.isFinite(mo) && Number.isFinite(d)) {
+      return new Date(y, mo - 1, d).getTime();
+    }
+  }
+
+  return new Date(value).getTime();
+}
+
+/** UI tables sort API ISO date strings newest-first in several places; keep date-only parsing consistent. */
+export function compareDateStringsDesc(left: string, right: string) {
+  return dateStringToTime(right) - dateStringToTime(left);
 }
 
 export function normalizeText(value: unknown) {

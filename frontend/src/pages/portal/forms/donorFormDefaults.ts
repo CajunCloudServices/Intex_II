@@ -1,4 +1,4 @@
-import type { DonationRequest, SupporterRequest } from '../../../api/types';
+import type { Donation, DonationRequest, Supporter, SupporterRequest } from '../../../api/types';
 
 export const defaultSupporterForm: SupporterRequest = {
   supporterType: 'MonetaryDonor',
@@ -39,5 +39,49 @@ export function createDonationForm(safehouseId?: number): DonationRequest {
         allocationNotes: '',
       },
     ],
+  };
+}
+
+export function createSupporterFormFromRecord(supporter: Supporter): SupporterRequest {
+  return {
+    supporterType: supporter.supporterType,
+    displayName: supporter.displayName,
+    organizationName: supporter.organizationName ?? '',
+    firstName: supporter.firstName ?? '',
+    lastName: supporter.lastName ?? '',
+    relationshipType: supporter.relationshipType,
+    region: supporter.region,
+    country: supporter.country,
+    email: supporter.email,
+    phone: supporter.phone ?? '',
+    status: supporter.status,
+    firstDonationDate: supporter.firstDonationDate ?? '',
+    acquisitionChannel: supporter.acquisitionChannel,
+  };
+}
+
+export function createDonationFormFromRecord(donation: Donation, fallbackSafehouseId?: number): DonationRequest {
+  return {
+    supporterId: donation.supporterId,
+    donationType: donation.donationType,
+    donationDate: donation.donationDate,
+    channelSource: donation.channelSource,
+    currencyCode: donation.currencyCode ?? '',
+    amount: donation.amount,
+    estimatedValue: donation.estimatedValue,
+    impactUnit: donation.impactUnit,
+    isRecurring: donation.isRecurring,
+    campaignName: donation.campaignName ?? '',
+    notes: donation.notes ?? '',
+    allocations:
+      donation.allocations.length > 0
+        ? donation.allocations.map((allocation) => ({
+            safehouseId: allocation.safehouseId,
+            programArea: allocation.programArea,
+            amountAllocated: allocation.amountAllocated,
+            allocationDate: allocation.allocationDate,
+            allocationNotes: allocation.allocationNotes ?? '',
+          }))
+        : createDonationForm(fallbackSafehouseId).allocations,
   };
 }

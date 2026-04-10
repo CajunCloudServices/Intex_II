@@ -1,27 +1,7 @@
-import { createContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import type { PublicDonorRegisterRequest, UserProfile } from '../api/types';
-
-type AuthContextValue = {
-  user: UserProfile | null;
-  loading: boolean;
-  login: (email: string, password: string) => Promise<UserProfile>;
-  registerDonor: (payload: {
-    email: string;
-    password: string;
-    fullName: string;
-    region: string;
-    country: string;
-    phone?: string | null;
-  }) => Promise<UserProfile>;
-  /** After Google redirect the session cookie is already set — refresh profile from the API. */
-  refreshSession: () => Promise<UserProfile>;
-  logout: () => Promise<void>;
-  authMessage: string | null;
-  clearAuthMessage: () => void;
-};
-
-export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+import { AuthContext } from './auth-context';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);

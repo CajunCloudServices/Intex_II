@@ -9,7 +9,23 @@ public record InterventionPlanRequest(
     [Range(typeof(decimal), "0.01", "999999999.99")] decimal? TargetValue,
     DateOnly TargetDate,
     [Required, StringLength(20), RegularExpression(ValidationPatterns.InterventionStatus)] string Status,
-    DateOnly? CaseConferenceDate);
+    DateOnly? CaseConferenceDate) : IValidatableObject
+{
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (TargetDate == default)
+        {
+            yield return new ValidationResult("Target date is required.", [nameof(TargetDate)]);
+        }
+
+        if (CaseConferenceDate.HasValue && TargetDate != default && CaseConferenceDate.Value > TargetDate)
+        {
+            yield return new ValidationResult(
+                "Case conference date cannot be after the target date.",
+                [nameof(CaseConferenceDate), nameof(TargetDate)]);
+        }
+    }
+}
 
 public record ResidentRequest(
     [Required, StringLength(20), RegularExpression(ValidationPatterns.CaseCode)] string CaseControlNumber,
@@ -56,7 +72,71 @@ public record ResidentRequest(
     DateOnly? DateEnrolled,
     DateOnly? DateClosed,
     [StringLength(4000)] string? RestrictedNotes,
-    [Required, MinLength(1)] List<InterventionPlanRequest> InterventionPlans);
+    [Required, MinLength(1)] List<InterventionPlanRequest> InterventionPlans) : IValidatableObject
+{
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        if (DateOfBirth == default)
+        {
+            yield return new ValidationResult("Date of birth is required.", [nameof(DateOfBirth)]);
+        }
+        else if (DateOfBirth > today)
+        {
+            yield return new ValidationResult("Date of birth cannot be in the future.", [nameof(DateOfBirth)]);
+        }
+
+        if (DateOfAdmission == default)
+        {
+            yield return new ValidationResult("Date of admission is required.", [nameof(DateOfAdmission)]);
+        }
+        else if (DateOfBirth != default && DateOfAdmission < DateOfBirth)
+        {
+            yield return new ValidationResult("Date of admission cannot be earlier than date of birth.", [nameof(DateOfAdmission)]);
+        }
+
+        if (IsPwd && string.IsNullOrWhiteSpace(PwdType))
+        {
+            yield return new ValidationResult("PWD type is required when the resident is marked as PWD.", [nameof(PwdType)]);
+        }
+
+        if (HasSpecialNeeds && string.IsNullOrWhiteSpace(SpecialNeedsDiagnosis))
+        {
+            yield return new ValidationResult(
+                "Special needs diagnosis is required when special needs is enabled.",
+                [nameof(SpecialNeedsDiagnosis)]);
+        }
+
+        if (DateColbRegistered.HasValue && DateColbObtained.HasValue && DateColbObtained < DateColbRegistered)
+        {
+            yield return new ValidationResult(
+                "Date COLB obtained cannot be earlier than date COLB registered.",
+                [nameof(DateColbObtained), nameof(DateColbRegistered)]);
+        }
+
+        if (DateCaseStudyPrepared.HasValue && DateOfAdmission != default && DateCaseStudyPrepared < DateOfAdmission)
+        {
+            yield return new ValidationResult(
+                "Case study preparation date cannot be earlier than date of admission.",
+                [nameof(DateCaseStudyPrepared), nameof(DateOfAdmission)]);
+        }
+
+        if (DateEnrolled.HasValue && DateOfAdmission != default && DateEnrolled < DateOfAdmission)
+        {
+            yield return new ValidationResult(
+                "Enrollment date cannot be earlier than date of admission.",
+                [nameof(DateEnrolled), nameof(DateOfAdmission)]);
+        }
+
+        if (DateClosed.HasValue && DateOfAdmission != default && DateClosed < DateOfAdmission)
+        {
+            yield return new ValidationResult(
+                "Date closed cannot be earlier than date of admission.",
+                [nameof(DateClosed), nameof(DateOfAdmission)]);
+        }
+    }
+}
 
 public record InterventionPlanResponse(
     int Id,

@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { api } from '../../api';
 import type { CounselingRiskSummary, ProcessRecording, ProcessRecordingRequest, Resident } from '../../api/types';
@@ -47,7 +47,7 @@ export function ProcessRecordingPage() {
   const canManageRecordings = user?.roles.includes('Admin') || user?.roles.includes('Staff') || false;
   const canViewRestrictedNotes = isAdmin;
 
-  const loadRecordings = async (residentId?: number) => {
+  const loadRecordings = useCallback(async (residentId?: number) => {
     if (!user) return;
 
     setLoading(true);
@@ -66,6 +66,7 @@ export function ProcessRecordingPage() {
       const residentData = residentResult.status === 'fulfilled' ? residentResult.value : [];
       setRecordings(recordingData);
       setResidents(residentData);
+      // Keep the page usable even if the deployed risk endpoint is unavailable by showing curated demo scoring.
       setCounselingRiskSummary(MOCK_COUNSELING_RISK_SUMMARY);
       setRecordingForm((current) => (current.residentId > 0 ? current : createRecordingForm(residentData[0]?.id)));
 
@@ -91,12 +92,12 @@ export function ProcessRecordingPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     const residentId = residentFilter === 'All' ? undefined : Number(residentFilter);
     void loadRecordings(Number.isFinite(residentId) ? residentId : undefined);
-  }, [user, residentFilter]);
+  }, [loadRecordings, residentFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -109,6 +110,7 @@ export function ProcessRecordingPage() {
 
   const recordingLookup = useMemo(() => {
     const lookup = new Map<number, ProcessRecording>();
+    // Modal history can include rows outside the currently filtered table, so merge both sources into one lookup.
     for (const recording of residentHistory) {
       lookup.set(recording.id, recording);
     }
@@ -119,9 +121,10 @@ export function ProcessRecordingPage() {
   }, [recordings, residentHistory]);
 
   const viewedRecording = viewRecordingId ? recordingLookup.get(viewRecordingId) ?? null : null;
+  const viewedResidentId = viewedRecording?.residentId ?? null;
 
   useEffect(() => {
-    if (!user || !viewedRecording) {
+    if (!user || !viewedResidentId) {
       setResidentHistory([]);
       setResidentHistoryLoading(false);
       return;
@@ -130,7 +133,8 @@ export function ProcessRecordingPage() {
     let cancelled = false;
     setResidentHistoryLoading(true);
 
-    void api.processRecordings({ residentId: viewedRecording.residentId })
+    // Fetch the full resident-specific note history lazily so the main workspace does not over-fetch by default.
+    void api.processRecordings({ residentId: viewedResidentId })
       .then((history) => {
         if (!cancelled) {
           setResidentHistory(history);
@@ -150,7 +154,7 @@ export function ProcessRecordingPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, viewedRecording?.residentId]);
+  }, [user, viewedResidentId]);
 
   useEffect(() => {
     setResidentHistoryPage(1);

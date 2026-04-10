@@ -44,12 +44,12 @@
     "model_drivers": [
       {
         "feature": "recency",
-        "importance": 0.3178668768540347,
+        "importance": 0.31786687685403464,
         "share_top5_pct": 42
       },
       {
         "feature": "total value",
-        "importance": 0.2134484299192715,
+        "importance": 0.2134484299192714,
         "share_top5_pct": 28
       },
       {
@@ -59,7 +59,7 @@
       },
       {
         "feature": "frequency",
-        "importance": 0.07060705962301539,
+        "importance": 0.0706070596230154,
         "share_top5_pct": 9
       },
       {
@@ -84,89 +84,89 @@
   "causal_logistic_coefficients": [
     {
       "feature": "recency",
-      "coefficient": 1.7153793816959657
+      "coefficient": 1.715379381695966
     },
     {
       "feature": "supporter_type_SkillsContributor",
-      "coefficient": 0.7435519605719919
+      "coefficient": 0.7435519605719921
     },
     {
       "feature": "n_campaigns",
-      "coefficient": 0.24992297676545205
+      "coefficient": 0.2499229767654521
     },
     {
       "feature": "total_value",
-      "coefficient": -0.21334922852059113
+      "coefficient": -0.21334922852059127
     },
     {
       "feature": "acquisition_channel_WordOfMouth",
-      "coefficient": -0.21197176872635234
+      "coefficient": -0.21197176872635218
     },
     {
       "feature": "supporter_type_MonetaryDonor",
-      "coefficient": -0.18938943286020776
+      "coefficient": -0.18938943286020785
     },
     {
       "feature": "n_inkind",
-      "coefficient": -0.18915720002583733
+      "coefficient": -0.18915720002583727
     },
     {
       "feature": "acquisition_channel_Website",
-      "coefficient": -0.1774440513354785
+      "coefficient": -0.17744405133547853
     },
     {
       "feature": "n_monetary",
-      "coefficient": -0.14778067832342093
+      "coefficient": -0.14778067832342096
     },
     {
       "feature": "tenure_days",
-      "coefficient": -0.12652292968855822
+      "coefficient": -0.12652292968855824
     },
     {
       "feature": "supporter_type_Volunteer",
-      "coefficient": -0.12639870293488145
+      "coefficient": -0.1263987029348814
     },
     {
       "feature": "n_time",
-      "coefficient": 0.12436294863043057
+      "coefficient": 0.12436294863043033
     },
     {
       "feature": "frequency",
-      "coefficient": -0.10888972038836231
+      "coefficient": -0.10888972038836227
     },
     {
       "feature": "acquisition_channel_Event",
-      "coefficient": 0.0786910806173473
+      "coefficient": 0.07869108061734727
     },
     {
       "feature": "supporter_type_PartnerOrganization",
-      "coefficient": 0.07575763316196873
+      "coefficient": 0.07575763316196882
     },
     {
       "feature": "acquisition_channel_SocialMedia",
-      "coefficient": 0.05414938021704152
+      "coefficient": 0.05414938021704125
     },
     {
       "feature": "supporter_type_SocialMediaAdvocate",
-      "coefficient": -0.020310377650382565
+      "coefficient": -0.020310377650382454
     },
     {
       "feature": "acquisition_channel_PartnerReferral",
-      "coefficient": 0.015147936405661156
+      "coefficient": 0.015147936405660999
     },
     {
       "feature": "pct_recurring",
-      "coefficient": 0.0068227548625134265
+      "coefficient": 0.006822754862513269
     }
   ],
   "random_forest_importances": [
     {
       "feature": "recency",
-      "importance": 0.3178668768540347
+      "importance": 0.31786687685403464
     },
     {
       "feature": "total_value",
-      "importance": 0.2134484299192715
+      "importance": 0.2134484299192714
     },
     {
       "feature": "tenure_days",
@@ -174,7 +174,7 @@
     },
     {
       "feature": "frequency",
-      "importance": 0.07060705962301539
+      "importance": 0.0706070596230154
     },
     {
       "feature": "n_monetary",
@@ -186,7 +186,7 @@
     },
     {
       "feature": "n_time",
-      "importance": 0.05497580256621321
+      "importance": 0.054975802566213205
     },
     {
       "feature": "n_campaigns",
@@ -198,7 +198,7 @@
     },
     {
       "feature": "supporter_type_SkillsContributor",
-      "importance": 0.016975673085085425
+      "importance": 0.01697567308508542
     },
     {
       "feature": "supporter_type_MonetaryDonor",
@@ -206,7 +206,7 @@
     },
     {
       "feature": "acquisition_channel_SocialMedia",
-      "importance": 0.010385826404773599
+      "importance": 0.0103858264047736
     },
     {
       "feature": "acquisition_channel_WordOfMouth",
@@ -218,11 +218,11 @@
     },
     {
       "feature": "supporter_type_Volunteer",
-      "importance": 0.00609589360102229
+      "importance": 0.006095893601022288
     },
     {
       "feature": "acquisition_channel_PartnerReferral",
-      "importance": 0.004297319586453809
+      "importance": 0.00429731958645381
     },
     {
       "feature": "supporter_type_SocialMediaAdvocate",
@@ -230,7 +230,7 @@
     },
     {
       "feature": "supporter_type_PartnerOrganization",
-      "importance": 0.0032975153136080948
+      "importance": 0.003297515313608094
     },
     {
       "feature": "acquisition_channel_Website",
@@ -241,32 +241,38 @@
     {
       "channel": "Church",
       "churn_rate": 0.5,
-      "n": 6
+      "n": 6,
+      "n_churned": 3
     },
     {
       "channel": "Event",
       "churn_rate": 0.5,
-      "n": 8
+      "n": 8,
+      "n_churned": 4
     },
     {
       "channel": "PartnerReferral",
       "churn_rate": 0.5,
-      "n": 6
+      "n": 6,
+      "n_churned": 3
     },
     {
       "channel": "SocialMedia",
       "churn_rate": 0.38461538461538464,
-      "n": 13
+      "n": 13,
+      "n_churned": 5
     },
     {
       "channel": "Website",
       "churn_rate": 0.46153846153846156,
-      "n": 13
+      "n": 13,
+      "n_churned": 6
     },
     {
       "channel": "WordOfMouth",
       "churn_rate": 0.42857142857142855,
-      "n": 14
+      "n": 14,
+      "n_churned": 6
     }
   ],
   "churn_by_supporter_type": [

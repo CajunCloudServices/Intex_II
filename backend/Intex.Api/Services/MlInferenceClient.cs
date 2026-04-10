@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using Intex.Api.DTOs;
+using Intex.Api.Infrastructure;
 using Intex.Api.Models.Options;
 using Microsoft.Extensions.Options;
 
@@ -34,19 +35,63 @@ public class MlInferenceClient(
                 "Reintegration inference failed with status {StatusCode}. Body: {Body}",
                 (int)response.StatusCode,
                 body);
+
+            if (!options.EnableLocalFallback)
+            {
+                throw new HttpProblemException(
+                    StatusCodes.Status503ServiceUnavailable,
+                    "ML inference unavailable",
+                    "The reintegration scoring service is temporarily unavailable.",
+                    options.ReintegrationEndpoint);
+            }
+        }
+        catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            logger.LogWarning(exception, "Reintegration inference request timed out.");
+            if (!options.EnableLocalFallback)
+            {
+                throw new HttpProblemException(
+                    StatusCodes.Status504GatewayTimeout,
+                    "ML inference timed out",
+                    "The reintegration scoring service did not respond in time.",
+                    options.ReintegrationEndpoint,
+                    exception);
+            }
+        }
+        catch (HttpRequestException exception)
+        {
+            logger.LogWarning(exception, "Failed reaching remote reintegration inference endpoint.");
+            if (!options.EnableLocalFallback)
+            {
+                throw new HttpProblemException(
+                    StatusCodes.Status503ServiceUnavailable,
+                    "ML inference unavailable",
+                    "The reintegration scoring service could not be reached.",
+                    options.ReintegrationEndpoint,
+                    exception);
+            }
         }
         catch (Exception exception)
         {
             logger.LogWarning(exception, "Failed calling remote reintegration inference endpoint.");
             if (!options.EnableLocalFallback)
             {
-                throw;
+                throw new HttpProblemException(
+                    StatusCodes.Status503ServiceUnavailable,
+                    "ML inference unavailable",
+                    "The reintegration scoring service failed unexpectedly.",
+                    options.ReintegrationEndpoint,
+                    exception);
             }
         }
 
         if (!options.EnableLocalFallback)
         {
-            throw new InvalidOperationException("ML inference call failed and fallback is disabled.");
+            throw new HttpProblemException(
+                StatusCodes.Status503ServiceUnavailable,
+                "ML inference unavailable",
+                "The reintegration scoring service is unavailable and local fallback is disabled.",
+                options.ReintegrationEndpoint);
         }
 
         return BuildFallbackPrediction(features);

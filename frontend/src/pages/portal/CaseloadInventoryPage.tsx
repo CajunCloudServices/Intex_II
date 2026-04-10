@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
@@ -10,12 +10,13 @@ import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
 import { useAuth } from '../../hooks/useAuth';
-import { formatDate, normalizeText } from '../../lib/format';
+import { dateStringToTime, formatDate, normalizeText } from '../../lib/format';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
+import { buildWorkerOptions } from './forms/homeVisitationDefaults';
 import { createResidentForm } from './forms/residentFormDefaults';
 import { ResidentRecordForm } from './forms/ResidentRecordForm';
-import { validateResidentForm } from './forms/residentFormValidation';
+import { extractResidentFieldErrors, validateResidentForm } from './forms/residentFormValidation';
 
 const PAGE_SIZE = 8;
 
@@ -57,7 +58,7 @@ export function CaseloadInventoryPage() {
   const deferredSearch = useDeferredValue(search);
   const canManageCases = user?.roles.includes('Admin') || user?.roles.includes('Staff') || false;
 
-  const loadResidents = async () => {
+  const loadResidents = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setError(null);
@@ -88,11 +89,11 @@ export function CaseloadInventoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     void loadResidents();
-  }, [user]);
+  }, [loadResidents]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -103,10 +104,11 @@ export function CaseloadInventoryPage() {
   const normalizedSearch = normalizeText(deferredSearch);
   const safehouseNames = Array.from(new Set(residents.map((resident) => resident.safehouseName))).sort();
   const caseCategories = Array.from(new Set(residents.map((resident) => resident.caseCategory))).sort();
-  const socialWorkers = Array.from(new Set(residents.map((resident) => resident.assignedSocialWorker))).sort();
+  const socialWorkers = buildWorkerOptions(residents);
   const reintegrationStatuses = Array.from(new Set(residents.map((resident) => resident.reintegrationStatus).filter(Boolean))).sort();
 
   const filteredResidents = residents.filter((resident) => {
+    // Keep the inventory search broad because staff often remember a case by context rather than by case number alone.
     const searchFields = [
       resident.caseControlNumber,
       resident.internalCode,
@@ -148,9 +150,10 @@ export function CaseloadInventoryPage() {
   const activeCount = 30;
   const highRiskCount = 6;
   const reintegrationInProgressCount = 21;
+  // This "recently archived" card is date-based rather than status-based so closures still show up even if filters change.
   const archivedThisWeekCount = residents.filter((resident) => {
     if (!resident.dateClosed) return false;
-    const closedTime = new Date(resident.dateClosed).getTime();
+    const closedTime = dateStringToTime(resident.dateClosed);
     return Number.isFinite(closedTime) && Date.now() - closedTime <= 7 * 24 * 60 * 60 * 1000;
   }).length;
 
@@ -175,7 +178,7 @@ export function CaseloadInventoryPage() {
     setResidentErrors(formErrors);
     if (Object.keys(formErrors).length > 0) {
       setSubmitting(false);
-      setFeedback({ tone: 'error', message: 'Please correct the highlighted resident form fields.' });
+      setFeedback({ tone: 'error', message: 'Please fill in the required resident fields highlighted in red.' });
       return;
     }
 
@@ -186,7 +189,12 @@ export function CaseloadInventoryPage() {
       await loadResidents();
       setViewResidentId(editingResidentId);
     } catch (err) {
-      setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Resident save failed.' });
+      const apiFieldErrors = extractResidentFieldErrors(err);
+      if (Object.keys(apiFieldErrors).length > 0) {
+        setResidentErrors(apiFieldErrors);
+      } else {
+        setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Resident save failed.' });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -544,6 +552,7 @@ export function CaseloadInventoryPage() {
               setResidentForm={setResidentForm}
               residentErrors={residentErrors}
               safehouses={safehouses}
+              socialWorkerOptions={socialWorkers}
               onSubmit={handleSubmit}
               submitting={submitting}
               submitLabel="Update resident"

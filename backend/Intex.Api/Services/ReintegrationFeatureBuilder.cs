@@ -16,6 +16,8 @@ public class ReintegrationFeatureBuilder(ApplicationDbContext dbContext) : IRein
 
     public async Task<ReintegrationFeaturePayload?> BuildAsync(int residentId, CancellationToken cancellationToken = default)
     {
+        // Keep the feature builder explicit and query-per-domain so changes to one data
+        // source do not quietly reshape the rest of the feature contract.
         var resident = await dbContext.Residents
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == residentId, cancellationToken);
@@ -92,6 +94,8 @@ public class ReintegrationFeatureBuilder(ApplicationDbContext dbContext) : IRein
             highSeverityIncidentCount);
     }
 
+    // Emotional state values are normalized into a simple ordinal scale so the downstream
+    // model can reason about change over time without depending on raw label strings.
     private static int MapEmotion(string emotion) =>
         emotion.Trim().ToLowerInvariant() switch
         {

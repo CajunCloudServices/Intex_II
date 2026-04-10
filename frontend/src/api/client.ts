@@ -35,6 +35,10 @@ export class ApiError extends Error {
 type RequestOptions = RequestInit;
 
 function buildGenericHttpErrorMessage(status: number, statusText: string) {
+  if (status === 429) {
+    return "Too many requests were sent. Please wait a moment and try again.";
+  }
+
   if (status >= 500) {
     return "The service is temporarily unavailable. Please try again in a moment.";
   }
@@ -65,11 +69,19 @@ export async function apiRequest<T>(
     headers.set("Content-Type", "application/json");
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    credentials: "include",
-    ...options,
-    headers,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      credentials: "include",
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    const message = error instanceof Error
+      ? `The app could not reach the server. ${error.message}`
+      : "The app could not reach the server. Check your connection and try again.";
+    throw new ApiError(0, message);
+  }
 
   if (!response.ok) {
     const text = await response.text();

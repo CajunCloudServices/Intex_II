@@ -350,6 +350,30 @@ app.Use(async (context, next) =>
     {
         await next();
     }
+    catch (HttpProblemException exception)
+    {
+        if (context.Response.HasStarted)
+        {
+            throw;
+        }
+
+        app.Logger.LogWarning(
+            exception,
+            "Handled API problem {StatusCode} for {Method} {Path}{QueryString} (trace {TraceId})",
+            exception.StatusCode,
+            context.Request.Method,
+            context.Request.Path,
+            context.Request.QueryString,
+            context.TraceIdentifier);
+        context.Response.Clear();
+        context.Response.StatusCode = exception.StatusCode;
+        context.Response.ContentType = "application/problem+json";
+
+        var problem = exception.ToProblemDetails();
+        problem.Extensions["traceId"] = context.TraceIdentifier;
+
+        await context.Response.WriteAsJsonAsync(problem, options: null, contentType: "application/problem+json");
+    }
     catch (Exception exception)
     {
         if (context.Response.HasStarted)
@@ -380,7 +404,7 @@ app.Use(async (context, next) =>
         };
         problem.Extensions["traceId"] = context.TraceIdentifier;
 
-        await context.Response.WriteAsJsonAsync(problem);
+        await context.Response.WriteAsJsonAsync(problem, options: null, contentType: "application/problem+json");
     }
 });
 

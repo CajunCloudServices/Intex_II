@@ -1,11 +1,13 @@
 import type { DonationRequest, SupporterRequest } from '../../../api/types';
 import {
+  validateCurrencyCode,
   validateCurrency,
   validateDateRequired,
   validateEmail,
   validateOptionalCurrencyNonNegative,
   validatePhone,
   validateRequired,
+  validateRequiredSelection,
   withError,
   type ValidationErrors,
 } from '../../../lib/validation';
@@ -27,15 +29,33 @@ export function validateSupporterForm(form: SupporterRequest): ValidationErrors 
 export function validateDonationForm(form: DonationRequest): ValidationErrors {
   const firstAllocation = form.allocations[0];
   let errors: ValidationErrors = {};
-  errors = withError(errors, 'supporterId', form.supporterId > 0 ? null : 'Supporter is required.');
+  errors = withError(errors, 'supporterId', validateRequiredSelection(form.supporterId, 'Supporter'));
   errors = withError(errors, 'donationType', validateRequired(form.donationType, 'Donation type'));
   errors = withError(errors, 'donationDate', validateDateRequired(form.donationDate, 'Donation date'));
   errors = withError(errors, 'channelSource', validateRequired(form.channelSource, 'Channel'));
   errors = withError(errors, 'amount', validateOptionalCurrencyNonNegative(form.amount, 'Amount'));
   errors = withError(errors, 'estimatedValue', validateCurrency(form.estimatedValue, 'Estimated value'));
   errors = withError(errors, 'impactUnit', validateRequired(form.impactUnit, 'Impact unit'));
+  errors = withError(errors, 'currencyCode', form.amount != null && form.amount > 0 ? validateCurrencyCode(form.currencyCode) : null);
+  errors = withError(errors, 'safehouseId', validateRequiredSelection(firstAllocation?.safehouseId, 'Safehouse'));
   errors = withError(errors, 'programArea', validateRequired(firstAllocation?.programArea ?? '', 'Program area'));
   errors = withError(errors, 'amountAllocated', validateCurrency(firstAllocation?.amountAllocated, 'Allocated amount'));
   errors = withError(errors, 'allocationDate', validateDateRequired(firstAllocation?.allocationDate ?? '', 'Allocation date'));
+
+  if (form.donationType.trim() === 'Monetary' && (form.amount == null || Number.isNaN(form.amount) || form.amount <= 0)) {
+    errors = withError(errors, 'amount', 'Amount is required for monetary donations.');
+  }
+
+  if (
+    firstAllocation &&
+    Number.isFinite(firstAllocation.amountAllocated) &&
+    Number.isFinite(form.amount ?? form.estimatedValue)
+  ) {
+    const expectedTotal = form.amount ?? form.estimatedValue;
+    if (Math.abs(firstAllocation.amountAllocated - expectedTotal) > 0.01) {
+      errors = withError(errors, 'amountAllocated', 'Allocated amount must match the donation value.');
+    }
+  }
+
   return errors;
 }

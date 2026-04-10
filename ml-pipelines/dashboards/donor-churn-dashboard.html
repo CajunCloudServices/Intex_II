@@ -173,15 +173,20 @@
         return sortDir * String(av || "").localeCompare(String(bv || ""));
       }
 
-      function barList(title, items, valueFmt) {
-        const max = Math.max(...items.map((x) => x.value), 1);
+      /**
+       * Horizontal bar list. If scaleMax is set, bar width = (value / scaleMax) * 100 (capped at 100).
+       * Use scaleMax=100 when values are already 0–100 (e.g. lapse % by channel) so bars are comparable.
+       * Omit scaleMax to scale bars to the max value in the list (legacy behavior for mixed metrics).
+       */
+      function barList(title, items, valueFmt, scaleMax) {
+        const max = scaleMax != null ? scaleMax : Math.max(...items.map((x) => x.value), 1);
         return `
           <div class="panel" style="margin:0">
             <h2 style="margin:0 0 .55rem;font-size:.92rem">${title}</h2>
             ${items.map((r) => `
               <div style="margin:.45rem 0">
                 <div style="display:flex;justify-content:space-between;font-size:.78rem"><span>${esc(r.label)}</span><span>${valueFmt(r.value)}</span></div>
-                <div class="prob-bar"><i style="width:${(r.value / max) * 100}%"></i></div>
+                <div class="prob-bar"><i style="width:${Math.min(100, (r.value / max) * 100)}%"></i></div>
               </div>
             `).join("")}
           </div>
@@ -242,7 +247,13 @@
           value: (v.frequency / v.n) * (v.monetary / v.n) / Math.max(v.recency / v.n, 1)
         })).sort((a, b) => b.value - a.value).slice(0, 6);
 
-        const channel = [...data.churn_by_channel].map((r) => ({ label: r.channel, value: 100 * r.churn_rate })).sort((a,b)=>b.value-a.value);
+        const channel = [...data.churn_by_channel]
+          .map((r) => ({
+            label: `${r.channel} (n=${r.n ?? "?"})`,
+            value: 100 * (r.churn_rate || 0),
+            n: r.n,
+          }))
+          .sort((a, b) => b.value - a.value);
 
         const featureMap = {
           recency: "Recency",
@@ -259,10 +270,18 @@
             ${barList("1) Churn risk distribution", riskBins, (v) => v.toFixed(0))}
             ${barList("2) RFM segmentation (Recency/Frequency/Monetary)", rfmRows, (v) => v.toFixed(2))}
           </div>
-          <div class="split" style="grid-template-columns:1fr 1fr; margin-bottom:1rem">
-            ${barList("3) Churn by acquisition channel", channel, (v) => v.toFixed(1) + "%")}
+          <div class="split" style="grid-template-columns:1fr 1fr; margin-bottom:0.35rem">
+            ${barList(
+              "3) Historical lapse rate by acquisition channel",
+              channel,
+              (v) => v.toFixed(1) + "%",
+              100
+            )}
             ${barList("4) Top churn drivers", topDrivers, (v) => v.toFixed(1) + "%")}
           </div>
+          <p class="page-sub" style="margin:0 0 1rem;font-size:.72rem;color:var(--muted)">
+            Channel chart: bars use a <strong>0–100% scale</strong> (each bar’s width matches its lapse rate). Several channels at exactly 50% is usually <strong>small-sample rounding</strong> (e.g. 3 of 6 lapsed), not a display bug.
+          </p>
           <div class="panel" style="margin-bottom:1rem">
             <h2 style="margin:0 0 .45rem;font-size:.95rem">What this page tells you</h2>
             <p style="margin:0;font-size:.86rem;color:var(--text)">Who is about to stop donating, where revenue loss is coming from, and which donor behaviors signal risk.</p>

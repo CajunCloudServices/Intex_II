@@ -357,6 +357,14 @@ body {
   background: color-mix(in srgb, #ffffff 72%, #ffdad6 28%);
 }
 
+.feedback-banner-list {
+  margin: 0.35rem 0 0 1rem;
+  padding: 0;
+  list-style: disc;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 .feedback-info {
   border-color: color-mix(in srgb, var(--tl-gold-dark) 35%, transparent);
   background: color-mix(in srgb, #ffffff 68%, var(--tl-secondary) 32%);
@@ -3292,6 +3300,9 @@ textarea {
 
 .data-table tbody tr:hover {
   background: var(--color-surface-highest);
+}
+
+.data-table-row-clickable:hover {
   cursor: pointer;
 }
 
@@ -3311,6 +3322,137 @@ textarea {
   gap: 0.45rem;
   justify-content: flex-start;
   min-width: max-content;
+}
+
+.report-filter-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: flex-end;
+}
+
+.report-filter-field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: min(100%, 12rem);
+}
+
+.report-filter-field span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-soft);
+}
+
+.report-table-section,
+.report-chart-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.report-table-section + .report-table-section,
+.report-table-section + .stack-form,
+.report-chart-section {
+  margin-top: 1.35rem;
+}
+
+.report-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.report-table-copy {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.report-table-copy h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.report-table-copy p {
+  margin: 0;
+  color: var(--color-text-soft);
+}
+
+.report-table-meta {
+  padding: 0.5rem 0.8rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--tl-gold) 16%, white);
+  color: var(--tl-gold-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.report-table-section .pagination {
+  margin-top: 0.2rem;
+}
+
+.safehouse-trend-tabs {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 0.55rem;
+  padding-bottom: 0.3rem;
+}
+
+.safehouse-trend-tab {
+  grid-column: span 2;
+  padding: 0.8rem 1rem;
+  border: 1px solid color-mix(in srgb, var(--tl-outline) 48%, transparent);
+  border-radius: 1rem 1rem 0.45rem 0.45rem;
+  background: linear-gradient(180deg, rgba(255, 250, 241, 0.96), rgba(243, 237, 226, 0.96));
+  color: var(--color-text-soft);
+  font-weight: 700;
+  box-shadow: inset 0 -10px 18px rgba(81, 69, 50, 0.03);
+  min-width: 0;
+}
+
+.safehouse-trend-tab:nth-child(n + 6) {
+  grid-column: span 2;
+}
+
+.safehouse-trend-tab:nth-child(6) {
+  grid-column: 2 / span 2;
+}
+
+.safehouse-trend-tab:nth-child(7) {
+  grid-column: 4 / span 2;
+}
+
+.safehouse-trend-tab:nth-child(8) {
+  grid-column: 6 / span 2;
+}
+
+.safehouse-trend-tab:nth-child(9) {
+  grid-column: 8 / span 2;
+}
+
+.safehouse-trend-tab.active {
+  background: linear-gradient(180deg, rgba(255, 191, 37, 0.98), rgba(248, 171, 19, 0.96));
+  color: var(--tl-text-on-gold);
+  border-color: rgba(125, 88, 0, 0.35);
+  box-shadow: 0 12px 22px rgba(125, 88, 0, 0.12);
+}
+
+.safehouse-trend-panel {
+  padding: 1.1rem 1.15rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(81, 69, 50, 0.08);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(247, 243, 236, 0.96));
+}
+
+.safehouse-trend-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
 }
 
 .danger-button {
@@ -5646,6 +5788,52 @@ body {
   border: 1px solid rgba(81, 69, 50, 0.12);
   background: linear-gradient(180deg, rgba(255, 252, 247, 0.98), rgba(247, 243, 236, 0.98));
   box-shadow: 0 28px 80px rgba(34, 24, 8, 0.22);
+}
+
+.analytics-modal-backdrop {
+  z-index: 95;
+}
+
+.analytics-modal {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.4rem;
+}
+
+.analytics-view-modal {
+  width: min(100%, 56rem);
+}
+
+.analytics-edit-modal {
+  width: min(100%, 62rem);
+}
+
+.analytics-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(81, 69, 50, 0.08);
+}
+
+.analytics-modal-header h2 {
+  margin: 0;
+}
+
+.analytics-modal-header p {
+  margin: 0.35rem 0 0;
+  color: var(--color-text-soft);
+}
+
+.analytics-modal-body {
+  display: grid;
+  gap: 1rem;
+}
+
+.analytics-modal-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .donation-edit-modal {
