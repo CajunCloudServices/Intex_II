@@ -23,14 +23,14 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
             query = query.Where(x => x.ResidentId == residentId.Value);
         }
 
-        return Ok(await query.ToListAsync());
+        return Ok((await query.ToListAsync()).Select(MapResponse));
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<CaseConferenceResponse>> GetById(int id)
     {
         var conference = await BuildQuery().FirstOrDefaultAsync(x => x.Id == id);
-        return conference is null ? NotFound() : Ok(conference);
+        return conference is null ? NotFound() : Ok(MapResponse(conference));
     }
 
     [HttpPost]
@@ -42,7 +42,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
         await dbContext.SaveChangesAsync();
         await auditLogService.LogAsync("Create", nameof(CaseConference), entity.Id, $"Created case conference for resident #{entity.ResidentId}.", User);
 
-        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, await BuildQuery().FirstAsync(x => x.Id == entity.Id));
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, MapResponse(await BuildQuery().FirstAsync(x => x.Id == entity.Id)));
     }
 
     [HttpPut("{id:int}")]
@@ -58,7 +58,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
         MapRequest(entity, request);
         await dbContext.SaveChangesAsync();
         await auditLogService.LogAsync("Update", nameof(CaseConference), entity.Id, $"Updated case conference for resident #{entity.ResidentId}.", User);
-        return Ok(await BuildQuery().FirstAsync(x => x.Id == id));
+        return Ok(MapResponse(await BuildQuery().FirstAsync(x => x.Id == id)));
     }
 
     [HttpDelete("{id:int}")]
@@ -97,20 +97,22 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
         return entity;
     }
 
-    private IQueryable<CaseConferenceResponse> BuildQuery() =>
+    private IQueryable<CaseConference> BuildQuery() =>
         dbContext.CaseConferences
             .Include(x => x.Resident)
-            .OrderByDescending(x => x.ConferenceDate)
-            .Select(x => new CaseConferenceResponse(
-                x.Id,
-                x.ResidentId,
-                x.Resident!.CaseControlNumber,
-                x.ConferenceDate,
-                x.LeadWorker,
-                x.Attendees,
-                x.Purpose,
-                x.DecisionsMade,
-                x.FollowUpActions,
-                x.NextReviewDate,
-                x.Status));
+            .OrderByDescending(x => x.ConferenceDate);
+
+    private static CaseConferenceResponse MapResponse(CaseConference x) =>
+        new(
+            x.Id,
+            x.ResidentId,
+            x.Resident?.CaseControlNumber ?? $"Resident {x.ResidentId}",
+            x.ConferenceDate,
+            x.LeadWorker,
+            x.Attendees,
+            x.Purpose,
+            x.DecisionsMade,
+            x.FollowUpActions,
+            x.NextReviewDate,
+            x.Status);
 }

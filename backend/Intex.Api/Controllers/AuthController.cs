@@ -124,7 +124,7 @@ public class AuthController(
 
     [HttpPost("register-donor")]
     [AllowAnonymous]
-    [EnableRateLimiting("auth-login")]
+    [EnableRateLimiting("public-submit")]
     public async Task<ActionResult<AuthResponse>> RegisterDonor(PublicDonorRegisterRequest request)
     {
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
