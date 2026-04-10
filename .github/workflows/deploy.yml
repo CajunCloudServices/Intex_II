@@ -12,9 +12,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on:
-      - self-hosted
-      - cajuncloud-prod
+    runs-on: self-hosted
     steps:
       - name: Deploy on production runner
         run: /home/lajicpajam/bin/harborlight-deploy.sh
