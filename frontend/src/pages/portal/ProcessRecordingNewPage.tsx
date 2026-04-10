@@ -7,7 +7,7 @@ import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { SectionCard } from '../../components/ui/Cards';
 import { LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
-import { createRecordingForm } from './forms/processRecordingDefaults';
+import { buildProcessRecordingWorkerOptions, createRecordingForm } from './forms/processRecordingDefaults';
 import { ProcessRecordingForm } from './forms/ProcessRecordingForm';
 
 export function ProcessRecordingNewPage() {
@@ -19,6 +19,7 @@ export function ProcessRecordingNewPage() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const isAdmin = user?.roles.includes('Admin') ?? false;
+  const socialWorkerOptions = buildProcessRecordingWorkerOptions(residents);
 
   useEffect(() => {
     if (!user) return;
@@ -89,6 +90,7 @@ export function ProcessRecordingNewPage() {
             recordingForm={recordingForm}
             setRecordingForm={setRecordingForm}
             residents={residents}
+            socialWorkerOptions={socialWorkerOptions}
             onSubmit={handleSubmit}
             submitting={submitting}
             submitLabel="Create process recording"

@@ -10,6 +10,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { sanitizeOptionalText, sanitizeText } from '../../lib/validation';
 import { buildWorkerOptions } from './forms/homeVisitationDefaults';
 import { createResidentForm, generateNextCaseControlNumber, generateNextInternalCode } from './forms/residentFormDefaults';
+import { normalizeResidentPlanStatusForApi } from './forms/residentPlanStatus';
 import { extractResidentFieldErrors, validateResidentForm } from './forms/residentFormValidation';
 import { ResidentRecordForm } from './forms/ResidentRecordForm';
 import type { ValidationErrors } from '../../lib/validation';
@@ -130,7 +131,7 @@ export function CaseloadResidentNewPage() {
           planCategory: sanitizeText(plan.planCategory),
           planDescription: sanitizeText(plan.planDescription),
           servicesProvided: sanitizeText(plan.servicesProvided),
-          status: sanitizeText(plan.status),
+          status: normalizeResidentPlanStatusForApi(sanitizeText(plan.status)),
           targetValue: plan.targetValue || null,
           caseConferenceDate: plan.caseConferenceDate || null,
         })),

@@ -1,4 +1,4 @@
-import type { ProcessRecordingRequest } from '../../../api/types';
+import type { ProcessRecording, ProcessRecordingRequest, Resident } from '../../../api/types';
 
 export function createRecordingForm(residentId?: number): ProcessRecordingRequest {
   const today = new Date().toISOString().slice(0, 10);
@@ -18,4 +18,16 @@ export function createRecordingForm(residentId?: number): ProcessRecordingReques
     referralMade: false,
     restrictedNotes: '',
   };
+}
+
+export function buildProcessRecordingWorkerOptions(
+  residents: Resident[],
+  recordings: ProcessRecording[] = [],
+): string[] {
+  return Array.from(
+    new Set([
+      ...residents.map((resident) => resident.assignedSocialWorker),
+      ...recordings.map((recording) => recording.socialWorker),
+    ].filter(Boolean)),
+  ).sort((left, right) => left.localeCompare(right));
 }

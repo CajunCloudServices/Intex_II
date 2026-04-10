@@ -47,8 +47,9 @@ const REINTEGRATION_TYPE_OPTIONS = ['', 'Family Reunification', 'Foster Care', '
 const REINTEGRATION_STATUS_OPTIONS = ['', 'Not Started', 'In Progress', 'On Hold', 'Completed'];
 const INTERVENTION_STATUS_OPTIONS = [
   { value: 'Open', label: 'Open' },
-  { value: 'InProgress', label: 'In Progress' },
-  { value: 'Deferred', label: 'Deferred' },
+  { value: 'In Progress', label: 'In Progress' },
+  { value: 'On Hold', label: 'On Hold' },
+  { value: 'Achieved', label: 'Achieved' },
   { value: 'Closed', label: 'Closed' },
 ];
 const PLAN_CATEGORY_OPTIONS = ['Psychosocial', 'Health', 'Education', 'Legal', 'Family', 'Reintegration'];

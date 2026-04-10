@@ -11,7 +11,7 @@ public static class ValidationPatterns
     public const string ResidentSex = "^(F|M)$";
     public const string ResidentBirthStatus = "^(Marital|Non-Marital|Unknown)$";
     public const string RiskLevel = "^(Low|Medium|High|Critical)$";
-    public const string InterventionStatus = "^(Open|InProgress|Closed|Deferred)$";
+    public const string InterventionStatus = "^(Open|InProgress|In Progress|Closed|Deferred|On Hold|Achieved)$";
 
     public const string DonationType = "^(Monetary|InKind|Time|Skills|SocialMedia)$";
     public const string DonationChannel = "^(Direct|Website|Campaign|SocialMedia|Event|Referral)$";

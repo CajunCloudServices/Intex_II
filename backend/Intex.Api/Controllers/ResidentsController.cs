@@ -93,7 +93,7 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
             ServicesProvided = plan.ServicesProvided,
             TargetValue = plan.TargetValue,
             TargetDate = plan.TargetDate,
-            Status = plan.Status,
+            Status = NormalizeInterventionStatus(plan.Status),
             CaseConferenceDate = plan.CaseConferenceDate,
             CreatedAtUtc = DateTime.UtcNow,
             UpdatedAtUtc = DateTime.UtcNow
@@ -183,7 +183,7 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
                 ServicesProvided = plan.ServicesProvided,
                 TargetValue = plan.TargetValue,
                 TargetDate = plan.TargetDate,
-                Status = plan.Status,
+                Status = NormalizeInterventionStatus(plan.Status),
                 CaseConferenceDate = plan.CaseConferenceDate,
                 CreatedAtUtc = DateTime.UtcNow,
                 UpdatedAtUtc = DateTime.UtcNow
@@ -197,6 +197,17 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
         dbContext.Residents
             .Include(x => x.Safehouse)
             .Include(x => x.InterventionPlans);
+
+    private static string NormalizeInterventionStatus(string status)
+    {
+        var trimmed = status.Trim();
+        return trimmed switch
+        {
+            "InProgress" => "In Progress",
+            "Deferred" => "On Hold",
+            _ => trimmed
+        };
+    }
 
     private async Task<ActionResult?> ValidateResidentRequestAsync(ResidentRequest request, int? residentId = null)
     {

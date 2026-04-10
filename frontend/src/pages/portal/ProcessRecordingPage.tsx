@@ -13,7 +13,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { MOCK_COUNSELING_RISK_SUMMARY } from '../../lib/portalMockData';
-import { createRecordingForm } from './forms/processRecordingDefaults';
+import { buildProcessRecordingWorkerOptions, createRecordingForm } from './forms/processRecordingDefaults';
 import { ProcessRecordingForm } from './forms/ProcessRecordingForm';
 
 const PAGE_SIZE = 10;
@@ -46,6 +46,10 @@ export function ProcessRecordingPage() {
   const isAdmin = user?.roles.includes('Admin') ?? false;
   const canManageRecordings = user?.roles.includes('Admin') || user?.roles.includes('Staff') || false;
   const canViewRestrictedNotes = isAdmin;
+  const socialWorkerOptions = useMemo(
+    () => buildProcessRecordingWorkerOptions(residents, recordings),
+    [residents, recordings],
+  );
 
   const loadRecordings = useCallback(async (residentId?: number) => {
     if (!user) return;
@@ -626,6 +630,7 @@ export function ProcessRecordingPage() {
               recordingForm={recordingForm}
               setRecordingForm={setRecordingForm}
               residents={residents}
+              socialWorkerOptions={socialWorkerOptions}
               onSubmit={handleSubmit}
               submitting={submitting}
               submitLabel="Update process recording"
