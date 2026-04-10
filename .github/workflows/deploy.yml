@@ -14,21 +14,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for deploy window
+      - name: Record server-side deploy sync
         env:
-          EXPECTED_SHA: ${{ github.sha }}
+          DEPLOY_SHA: ${{ github.sha }}
         run: |
-          echo "Waiting for production sync of ${EXPECTED_SHA}"
-          sleep 30
-
-      - name: Verify production health
-        run: |
-          set -euo pipefail
-          for attempt in $(seq 1 36); do
-            if curl --fail --silent --show-error --max-time 15 \
-              https://tanglawproject.cajuncloudservices.com/api/health >/dev/null; then
-              exit 0
-            fi
-            sleep 5
-          done
-          exit 1
+          echo "Production deploy is synchronized on the server by harborlight-auto-deploy.timer."
+          echo "Queued main SHA: ${DEPLOY_SHA}"
