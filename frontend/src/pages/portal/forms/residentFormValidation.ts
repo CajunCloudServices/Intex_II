@@ -63,7 +63,7 @@ export function extractResidentFieldErrors(error: unknown): ValidationErrors {
     return undefined;
   };
 
-  return compactFieldErrors<ValidationErrors>({
+  const fieldErrors: Record<string, string | undefined> = {
     caseControlNumber: getFirstError('CaseControlNumber', 'caseControlNumber'),
     internalCode: getFirstError('InternalCode', 'internalCode'),
     safehouseId: getFirstError('SafehouseId', 'safehouseId'),
@@ -96,5 +96,7 @@ export function extractResidentFieldErrors(error: unknown): ValidationErrors {
     caseConferenceDate: getFirstError('InterventionPlans[0].CaseConferenceDate', 'CaseConferenceDate'),
     servicesProvided: getFirstError('InterventionPlans[0].ServicesProvided', 'ServicesProvided'),
     planDescription: getFirstError('InterventionPlans[0].PlanDescription', 'PlanDescription'),
-  });
+  };
+
+  return compactFieldErrors(fieldErrors) as ValidationErrors;
 }
