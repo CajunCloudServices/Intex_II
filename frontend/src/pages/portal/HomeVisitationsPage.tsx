@@ -452,7 +452,7 @@ export function HomeVisitationsPage() {
             )}
           </SectionCard>
 
-          <section className="page-grid two">
+          <section className="page-grid">
             <SectionCard
               title="Upcoming conferences"
               subtitle="See scheduled resident reviews that still need to happen."
