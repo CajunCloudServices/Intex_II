@@ -150,14 +150,6 @@ Important deployment note:
 
 That private-database/public-API split is the correct security posture for a production deployment.
 
-## Seeded Test Accounts
-
-These are for local development only:
-
-- `admin@intex.local` / `Admin!23456789`
-- `staff@intex.local` / `Staff!23456789`
-- `donor@intex.local` / `Donor!23456789`
-
 ## Environment Variables
 
 Copy from [`.env.example`](/Users/lajicpajam/School/Intex II/.env.example) or export manually.
