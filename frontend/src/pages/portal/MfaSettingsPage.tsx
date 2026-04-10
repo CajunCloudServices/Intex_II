@@ -4,7 +4,8 @@ import { api } from '../../api';
 import type { MfaSetupResponse } from '../../api/types';
 import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHeader';
 import { SectionCard } from '../../components/ui/Cards';
-import { ErrorState, SuccessState } from '../../components/ui/PageState';
+import { ErrorState } from '../../components/ui/PageState';
+import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 
 export function MfaSettingsPage() {
   const [setup, setSetup] = useState<MfaSetupResponse | null>(null);
@@ -51,13 +52,13 @@ export function MfaSettingsPage() {
 
   return (
     <div className="page-shell">
-      <StaffPortalPageHeader
-        eyebrow="Security"
-        title="Security settings"
-        description="Manage your multi-factor authentication preferences and verify a new authenticator app."
+      <StaffPortalPageHeader 
+        eyebrow="Security & Access"
+        title="Security Settings" 
+        description="Manage your Two-Factor Authentication (2FA) preferences here."
       />
 
-      {message && <SuccessState message={message} />}
+      {message && <FeedbackBanner tone="success" message={message} />}
       {error && <ErrorState message={error} />}
 
       <SectionCard title="Two-Factor Authentication (2FA)">

@@ -157,7 +157,7 @@ public class DonationsController(
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<DonationResponse>> Create(DonationRequest request)
     {
         var donation = new Donation
@@ -318,7 +318,7 @@ public class DonationsController(
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<DonationResponse>> Update(int id, DonationRequest request)
     {
         var donation = await dbContext.Donations
@@ -359,7 +359,7 @@ public class DonationsController(
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<IActionResult> Delete(int id, [FromQuery] bool confirm = false)
     {
         if (!confirm)

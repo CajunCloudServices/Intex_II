@@ -154,7 +154,7 @@ public class SupportersController(ApplicationDbContext dbContext, IAuditLogServi
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<SupporterResponse>> Create(SupporterRequest request)
     {
         var entity = new Supporter
@@ -183,7 +183,7 @@ public class SupportersController(ApplicationDbContext dbContext, IAuditLogServi
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<SupporterResponse>> Update(int id, SupporterRequest request)
     {
         var entity = await dbContext.Supporters.FindAsync(id);
@@ -212,7 +212,7 @@ public class SupportersController(ApplicationDbContext dbContext, IAuditLogServi
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<IActionResult> Delete(int id, [FromQuery] bool confirm = false)
     {
         if (!confirm)
