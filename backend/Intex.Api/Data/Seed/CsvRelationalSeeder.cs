@@ -92,6 +92,9 @@ public sealed class CsvRelationalSeeder(
         return new CsvSeedResult(errors.Count == 0, importedCounts, errors);
     }
 
+    public Task ReconcileIdentitySequencesAsync(CancellationToken cancellationToken = default)
+        => ResetImportedIdentitySequencesAsync(cancellationToken);
+
     private string ResolveCsvRoot()
     {
         if (!string.IsNullOrWhiteSpace(options.CsvPath))

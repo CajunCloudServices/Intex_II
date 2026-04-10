@@ -106,10 +106,11 @@ public class AppSeeder(
                     backfillResult.CsvRoot,
                     string.Join(", ", backfillResult.InsertedCounts.Select(x => $"{x.Key}={x.Value}")),
                     string.Join(", ", backfillResult.MatchedCounts.Select(x => $"{x.Key}={x.Value}")),
-                    backfillResult.Warnings.Count);
+                backfillResult.Warnings.Count);
             }
         }
 
+        await csvRelationalSeeder.ReconcileIdentitySequencesAsync();
         await SeedUsersAsync();
     }
 
