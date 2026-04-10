@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
@@ -15,8 +16,8 @@ public class AuditLogController(ApplicationDbContext dbContext) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<AuditLogResponse>>> GetAll(
         [FromQuery] string? entityType,
-        [FromQuery] int? entityId,
-        [FromQuery] string? actionType)
+        [FromQuery, Range(1, int.MaxValue)] int? entityId,
+        [FromQuery, StringLength(40)] string? actionType)
     {
         var query = dbContext.AuditLogs.AsQueryable();
 

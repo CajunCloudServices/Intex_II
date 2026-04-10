@@ -18,13 +18,11 @@ export function GoogleCallbackPage() {
   const [error, setError] = useState<string | null>(null);
 
   const callbackParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const remoteError = callbackParams.get('error');
+  const returnUrl = normalizeReturnUrl(callbackParams.get('returnUrl'));
 
   useEffect(() => {
-    const remoteError = callbackParams.get('error');
-    const returnUrl = normalizeReturnUrl(callbackParams.get('returnUrl'));
-
     if (remoteError) {
-      setError(remoteError);
       return;
     }
 
@@ -39,11 +37,13 @@ export function GoogleCallbackPage() {
     };
 
     void complete();
-  }, [callbackParams, refreshSession, navigate]);
+  }, [navigate, refreshSession, remoteError, returnUrl]);
+
+  const message = remoteError ?? error;
 
   return (
     <div className="page-shell narrow">
-      {error ? <ErrorState message={error} /> : <LoadingState label="Completing Google sign-in..." />}
+      {message ? <ErrorState message={message} /> : <LoadingState label="Completing Google sign-in..." />}
     </div>
   );
 }

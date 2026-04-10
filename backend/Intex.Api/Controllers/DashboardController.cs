@@ -19,20 +19,22 @@ public class DashboardController(ApplicationDbContext dbContext) : ControllerBas
         var monthStart = new DateOnly(utcNow.Year, utcNow.Month, 1);
         var monthStartUtc = new DateTime(utcNow.Year, utcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
         var donationsThisMonth = await dbContext.Donations
+            .AsNoTracking()
             .Where(x => x.DonationDate >= monthStart)
             .SumAsync(x => x.Amount ?? x.EstimatedValue);
 
         var response = new DashboardSummaryResponse(
-            await dbContext.Residents.CountAsync(x => x.CaseStatus == "Active"),
-            await dbContext.Safehouses.CountAsync(),
+            await dbContext.Residents.AsNoTracking().CountAsync(x => x.CaseStatus == "Active"),
+            await dbContext.Safehouses.AsNoTracking().CountAsync(),
             donationsThisMonth,
-            await dbContext.InterventionPlans.CountAsync(x => x.Status == "Open" || x.Status == "In Progress"),
-            await dbContext.HomeVisitations.CountAsync(x => x.VisitDate >= monthStart),
-            await dbContext.SocialMediaPosts.CountAsync(x => x.CreatedAtUtc >= monthStartUtc),
-            await dbContext.Residents.CountAsync(x => x.CurrentRiskLevel == "High" || x.CurrentRiskLevel == "Critical"),
-            await dbContext.HomeVisitations.CountAsync(x => x.FollowUpNeeded),
-            await dbContext.IncidentReports.CountAsync(x => !x.Resolved),
+            await dbContext.InterventionPlans.AsNoTracking().CountAsync(x => x.Status == "Open" || x.Status == "In Progress"),
+            await dbContext.HomeVisitations.AsNoTracking().CountAsync(x => x.VisitDate >= monthStart),
+            await dbContext.SocialMediaPosts.AsNoTracking().CountAsync(x => x.CreatedAtUtc >= monthStartUtc),
+            await dbContext.Residents.AsNoTracking().CountAsync(x => x.CurrentRiskLevel == "High" || x.CurrentRiskLevel == "Critical"),
+            await dbContext.HomeVisitations.AsNoTracking().CountAsync(x => x.FollowUpNeeded),
+            await dbContext.IncidentReports.AsNoTracking().CountAsync(x => !x.Resolved),
             await dbContext.Donations
+                .AsNoTracking()
                 .Include(x => x.Supporter)
                 .OrderByDescending(x => x.DonationDate)
                 .Take(5)
@@ -44,10 +46,12 @@ public class DashboardController(ApplicationDbContext dbContext) : ControllerBas
                     x.DonationType))
                 .ToListAsync(),
             await dbContext.Safehouses
+                .AsNoTracking()
                 .OrderBy(x => x.Name)
                 .Select(x => new SafehouseUtilizationDto(x.Name, x.CurrentOccupancy, x.CapacityGirls))
                 .ToListAsync(),
             await dbContext.CaseConferences
+                .AsNoTracking()
                 .Include(x => x.Resident)
                 .Where(x => x.ConferenceDate >= monthStart)
                 .OrderBy(x => x.ConferenceDate)
@@ -61,9 +65,9 @@ public class DashboardController(ApplicationDbContext dbContext) : ControllerBas
                     x.Status))
                 .ToListAsync(),
             new ProcessProgressSummaryDto(
-                await dbContext.ProcessRecordings.CountAsync(x => x.ProgressNoted),
-                await dbContext.ProcessRecordings.CountAsync(x => x.ConcernsFlagged),
-                await dbContext.ProcessRecordings.CountAsync(x => x.ReferralMade)));
+                await dbContext.ProcessRecordings.AsNoTracking().CountAsync(x => x.ProgressNoted),
+                await dbContext.ProcessRecordings.AsNoTracking().CountAsync(x => x.ConcernsFlagged),
+                await dbContext.ProcessRecordings.AsNoTracking().CountAsync(x => x.ReferralMade)));
 
         return Ok(response);
     }

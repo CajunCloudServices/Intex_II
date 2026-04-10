@@ -4,6 +4,7 @@ import { api } from '../../api';
 import { useAuth } from '../../hooks/useAuth';
 import { ErrorState, LoadingState } from '../../components/ui/PageState';
 import { formatMoney } from '../../lib/format';
+import { validateEmail, validatePassword, validatePhone } from '../../lib/validation';
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000];
 
@@ -121,8 +122,20 @@ export function DonatePage() {
       return;
     }
 
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setSubmitError(emailError);
+      return;
+    }
+
     if (!password) {
       setSubmitError('Please create a password.');
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setSubmitError(passwordError);
       return;
     }
 
@@ -138,6 +151,12 @@ export function DonatePage() {
 
     if (!country.trim()) {
       setSubmitError('Please enter your country.');
+      return;
+    }
+
+    const phoneError = validatePhone(phone);
+    if (phoneError) {
+      setSubmitError(phoneError);
       return;
     }
 

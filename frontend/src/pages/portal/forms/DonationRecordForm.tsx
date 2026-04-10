@@ -93,6 +93,7 @@ export function DonationRecordForm({
             hint="3-letter ISO code, ex: USD or PHP."
             value={donationForm.currencyCode ?? ''}
             onChange={(e) => setDonationForm({ ...donationForm, currencyCode: e.target.value })}
+            error={donationErrors.currencyCode}
           />
           <ValidatedTextField
             label="Amount"
@@ -143,6 +144,7 @@ export function DonationRecordForm({
                 allocations: [{ ...donationForm.allocations[0], safehouseId: Number(e.target.value) }],
               })
             }
+            error={donationErrors.safehouseId}
           >
             {safehouses.map((safehouse) => (
               <option key={safehouse.id} value={safehouse.id}>

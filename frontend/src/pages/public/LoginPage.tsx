@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { LogoMark } from '../../components/brand/LogoMark';
 import { SectionCard } from '../../components/ui/Cards';
 import { ErrorState } from '../../components/ui/PageState';
+import { validateEmail, validatePassword } from '../../lib/validation';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -38,6 +39,18 @@ export function LoginPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    const emailError = validateEmail(email);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
 
@@ -45,8 +58,8 @@ export function LoginPage() {
       const account = await login(email, password);
       const defaultRoute = account.roles.includes('Donor') && account.roles.length === 1 ? '/portal/my-impact' : '/portal/admin';
       navigate(redirectTo ?? defaultRoute, { replace: true });
-    } catch (err: any) {
-      if (err.message && err.message.includes('2FA_REQUIRED')) {
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.includes('2FA_REQUIRED')) {
         setRequiresMfa(true);
       } else {
         setError('Login failed. Check your email and password, then try again.');
@@ -58,6 +71,11 @@ export function LoginPage() {
 
   const handleMfaSubmit = async (event: FormEvent) => {
     event.preventDefault();
+    if (!/^\d{6,8}$/.test(mfaCode.replace(/[\s-]/g, ''))) {
+      setError('Enter a valid 6-8 digit verification code.');
+      return;
+    }
+
     setSubmitting(true);
     setError(null);
 

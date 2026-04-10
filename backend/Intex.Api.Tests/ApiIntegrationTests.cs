@@ -1,8 +1,14 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Intex.Api.DTOs;
 using Intex.Api.Data;
 using Intex.Api.Entities;
+using Intex.Api.Infrastructure;
+using Intex.Api.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +44,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     [Fact]
     public async Task PublicImpactEndpoint_ReturnsSeededSnapshot()
     {
+        // This guards the fixture seed contract that keeps the public dashboard useful in local/test environments.
         var response = await _client.GetAsync("/api/public-impact");
 
         response.EnsureSuccessStatusCode();
@@ -319,6 +326,7 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
     {
         await LoginAsAdminAsync();
 
+        // Keep a lightweight smoke test across the reporting surface so broad regressions fail fast.
         var donationTrends = await _client.GetAsync("/api/reports/donation-trends");
         var residentOutcomes = await _client.GetAsync("/api/reports/resident-outcomes");
         var safehousePerformance = await _client.GetAsync("/api/reports/safehouse-performance");
@@ -366,6 +374,58 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.True(payload.Posts[0].EngagementRate > 0, "First post should have a non-zero engagement rate.");
         Assert.True(payload.Totals.TotalPosts >= 1);
         Assert.NotEmpty(payload.PlatformSummaries);
+    }
+
+    [Fact]
+    public async Task TrendDeployments_ReturnAllNamedPipelinesWithReportAnchors()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.GetAsync("/api/reports/trend-deployments");
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var payload = await response.Content.ReadFromJsonAsync<TrendDeploymentSummaryResponse>();
+        Assert.NotNull(payload);
+        Assert.Equal(6, payload!.Rows.Count);
+        Assert.All(payload.Rows, row =>
+        {
+            Assert.StartsWith("/api/reports/trend-deployments#", row.EndpointPath, StringComparison.Ordinal);
+            Assert.False(string.IsNullOrWhiteSpace(row.PipelineKey));
+            Assert.False(string.IsNullOrWhiteSpace(row.PrimaryMetric));
+            Assert.False(string.IsNullOrWhiteSpace(row.Recommendation));
+        });
+    }
+
+    [Fact]
+    public async Task SocialPostAdvisor_ReturnsTopContributionsSortedByMagnitude()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/reports/social-post-advisor", new SocialPostAdvisorRequestDto(
+            "Facebook",
+            "Story",
+            "Video",
+            "Hopeful",
+            19,
+            4,
+            true,
+            true,
+            false,
+            0m));
+
+        Assert.True(response.IsSuccessStatusCode, await response.Content.ReadAsStringAsync());
+
+        var payload = await response.Content.ReadFromJsonAsync<SocialPostAdvisorResponseDto>();
+        Assert.NotNull(payload);
+        Assert.InRange(payload!.TopContributions.Count, 1, 5);
+        Assert.True(payload.PredictedDonationValuePhp >= 0m);
+        Assert.All(payload.TopContributions, contribution =>
+            Assert.False(string.IsNullOrWhiteSpace(contribution.Feature)));
+
+        var magnitudes = payload.TopContributions
+            .Select(contribution => Math.Abs(contribution.EffectAmountPhp))
+            .ToList();
+        Assert.Equal(magnitudes.OrderByDescending(value => value).ToList(), magnitudes);
     }
 
     [Fact]
@@ -911,9 +971,39 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
         Assert.Equal(1, auth.User.SupporterId);
     }
 
-    private async Task LoginAsAdminAsync()
+    [Fact]
+    public async Task MlEndpoint_WhenInferenceThrowsKnownProblem_ReturnsProblemJson()
     {
-        var login = await _client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));
+        using var problemFactory = new ProblemMlApiFactory();
+        using var client = problemFactory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        await LoginAsAdminAsync(client);
+
+        // Stub the ML client so this test exercises the global problem-details middleware instead of remote inference behavior.
+        var response = await client.GetAsync("/api/ml/reintegration-risk/1");
+
+        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+        Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
+
+        var payload = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(payload);
+        Assert.Equal("ML inference unavailable", payload!.Title);
+        Assert.Equal("Injected test failure.", payload.Detail);
+        Assert.Equal(503, payload.Status);
+
+        var raw = await response.Content.ReadAsStringAsync();
+        using var document = JsonDocument.Parse(raw);
+        Assert.True(document.RootElement.TryGetProperty("traceId", out var traceIdElement));
+        Assert.False(string.IsNullOrWhiteSpace(traceIdElement.GetString()));
+    }
+
+    private async Task LoginAsAdminAsync(HttpClient? client = null)
+    {
+        client ??= _client;
+        var login = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest("admin@intex.local", "Admin!23456789"));
         Assert.True(login.IsSuccessStatusCode, await login.Content.ReadAsStringAsync());
 
         var auth = await login.Content.ReadFromJsonAsync<AuthResponse>();
@@ -1098,5 +1188,29 @@ public class ApiIntegrationTests : IClassFixture<ApiFactory>
                 followUpRequired = true
             }
         };
+    }
+
+    private sealed class ProblemMlApiFactory : ApiFactory
+    {
+        protected override void ConfigureWebHost(IWebHostBuilder builder)
+        {
+            base.ConfigureWebHost(builder);
+            builder.ConfigureServices(services =>
+            {
+                services.AddScoped<IMlInferenceClient, ThrowingMlInferenceClient>();
+            });
+        }
+    }
+
+    private sealed class ThrowingMlInferenceClient : IMlInferenceClient
+    {
+        public Task<ReintegrationPredictionResponse> PredictReintegrationAsync(
+            ReintegrationFeaturePayload features,
+            CancellationToken cancellationToken = default) =>
+            throw new HttpProblemException(
+                StatusCodes.Status503ServiceUnavailable,
+                "ML inference unavailable",
+                "Injected test failure.",
+                "/test/ml");
     }
 }

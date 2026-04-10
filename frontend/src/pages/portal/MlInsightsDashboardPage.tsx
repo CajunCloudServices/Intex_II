@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 
 function setIframeHeightToContent(iframe: HTMLIFrameElement | null) {
@@ -34,8 +34,7 @@ export function MlInsightsDashboardPage() {
     safehouse: 'safehouse-load-dashboard.html',
   };
   const selectedPath = dashboardPathByKey[dashboardKey ?? ''] ?? 'counseling-admin-dashboard.html';
-  const cacheBuster = useMemo(() => Date.now().toString(), []);
-  const src = `${base}ml-dashboards/${selectedPath}?embed=1&v=${cacheBuster}`;
+  const src = `${base}ml-dashboards/${selectedPath}?embed=1`;
 
   const onIframeLoad = useCallback(() => {
     const iframe = iframeRef.current;
@@ -49,7 +48,7 @@ export function MlInsightsDashboardPage() {
     const ro = new ResizeObserver(update);
     ro.observe(iframe.contentDocument.body);
     resizeObserverRef.current = ro;
-  }, [src]);
+  }, []);
 
   useEffect(
     () => () => {

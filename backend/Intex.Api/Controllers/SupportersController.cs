@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
@@ -15,37 +16,20 @@ namespace Intex.Api.Controllers;
 public class SupportersController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SupporterResponse>>> GetAll([FromQuery] string? search)
+    public async Task<ActionResult<IEnumerable<SupporterResponse>>> GetAll([FromQuery, StringLength(200)] string? search)
     {
-        var query = dbContext.Supporters.Include(x => x.Donations).AsQueryable();
+        var query = BuildSupporterResponseQuery();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
+            var normalizedSearch = search.ToLower();
             query = query.Where(x =>
-                x.DisplayName.ToLower().Contains(search.ToLower()) ||
-                x.Email.ToLower().Contains(search.ToLower()));
+                x.DisplayName.ToLower().Contains(normalizedSearch) ||
+                x.Email.ToLower().Contains(normalizedSearch));
         }
 
         var supporters = await query
             .OrderBy(x => x.DisplayName)
-            .Select(x => new SupporterResponse(
-                x.Id,
-                x.SupporterType,
-                x.DisplayName,
-                x.OrganizationName,
-                x.FirstName,
-                x.LastName,
-                x.RelationshipType,
-                x.Region,
-                x.Country,
-                x.Email,
-                x.Phone,
-                x.Status,
-                x.FirstDonationDate,
-                x.AcquisitionChannel,
-                x.CreatedAtUtc,
-                x.Donations.Count,
-                x.Donations.Sum(d => d.Amount ?? d.EstimatedValue)))
             .ToListAsync();
 
         return Ok(supporters);
@@ -54,34 +38,15 @@ public class SupportersController(ApplicationDbContext dbContext, IAuditLogServi
     [HttpGet("{id:int}")]
     public async Task<ActionResult<SupporterResponse>> GetById(int id)
     {
-        var supporter = await dbContext.Supporters
-            .Include(x => x.Donations)
+        var supporter = await BuildSupporterResponseQuery()
             .Where(x => x.Id == id)
-            .Select(x => new SupporterResponse(
-                x.Id,
-                x.SupporterType,
-                x.DisplayName,
-                x.OrganizationName,
-                x.FirstName,
-                x.LastName,
-                x.RelationshipType,
-                x.Region,
-                x.Country,
-                x.Email,
-                x.Phone,
-                x.Status,
-                x.FirstDonationDate,
-                x.AcquisitionChannel,
-                x.CreatedAtUtc,
-                x.Donations.Count,
-                x.Donations.Sum(d => d.Amount ?? d.EstimatedValue)))
             .FirstOrDefaultAsync();
 
         return supporter is null ? NotFound() : Ok(supporter);
     }
 
     [HttpGet("churn-risk-summary")]
-    public async Task<ActionResult<DonorChurnRiskSummaryResponse>> GetChurnRiskSummary([FromQuery] int top = 15)
+    public async Task<ActionResult<DonorChurnRiskSummaryResponse>> GetChurnRiskSummary([FromQuery, Range(1, 50)] int top = 15)
     {
         var supporters = await dbContext.Supporters
             .AsNoTracking()
@@ -233,10 +198,10 @@ public class SupportersController(ApplicationDbContext dbContext, IAuditLogServi
         return NoContent();
     }
 
-    private async Task<SupporterResponse> BuildResponse(int id) =>
-        await dbContext.Supporters
+    private IQueryable<SupporterResponse> BuildSupporterResponseQuery() =>
+        dbContext.Supporters
+            .AsNoTracking()
             .Include(x => x.Donations)
-            .Where(x => x.Id == id)
             .Select(x => new SupporterResponse(
                 x.Id,
                 x.SupporterType,
@@ -254,6 +219,10 @@ public class SupportersController(ApplicationDbContext dbContext, IAuditLogServi
                 x.AcquisitionChannel,
                 x.CreatedAtUtc,
                 x.Donations.Count,
-                x.Donations.Sum(d => d.Amount ?? d.EstimatedValue)))
+                x.Donations.Sum(d => d.Amount ?? d.EstimatedValue)));
+
+    private async Task<SupporterResponse> BuildResponse(int id) =>
+        await BuildSupporterResponseQuery()
+            .Where(x => x.Id == id)
             .FirstAsync();
 }

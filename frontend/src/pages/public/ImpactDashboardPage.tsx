@@ -96,6 +96,7 @@ export function ImpactDashboardPage() {
       return [];
     }
 
+    // Keep the selected snapshot centered in a small local window instead of rendering every month at once.
     const moreRecent = validSnapshots.slice(Math.max(0, selectedSnapshotIndex - 3), selectedSnapshotIndex);
     const previous = validSnapshots.slice(selectedSnapshotIndex + 1, selectedSnapshotIndex + 4);
     return [...moreRecent, selectedSnapshot, ...previous];
@@ -109,6 +110,7 @@ export function ImpactDashboardPage() {
   const capacityPageSize = 4;
   const totalCapacityPages = Math.max(1, Math.ceil(capacityRows.length / capacityPageSize));
   const visibleCapacityRows = useMemo(() => {
+    // Clamp the page index so changing data sets never leaves the UI pointing at an empty page.
     const safePage = Math.min(capacityPage, Math.max(0, totalCapacityPages - 1));
     const startIndex = safePage * capacityPageSize;
     return capacityRows.slice(startIndex, startIndex + capacityPageSize);

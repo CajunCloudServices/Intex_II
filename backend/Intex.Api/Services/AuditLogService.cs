@@ -8,6 +8,8 @@ public class AuditLogService(ApplicationDbContext dbContext) : IAuditLogService
 {
     public async Task LogAsync(string actionType, string entityType, int entityId, string summary, ClaimsPrincipal user)
     {
+        // Audit logs should remain best-effort metadata about the acting user even if
+        // a particular auth flow did not populate every standard claim.
         var actorUserId = user.FindFirstValue(ClaimTypes.NameIdentifier);
         var actorEmail = user.FindFirstValue(ClaimTypes.Email) ?? "unknown";
 

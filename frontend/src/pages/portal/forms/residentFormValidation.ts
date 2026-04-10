@@ -1,5 +1,7 @@
 import type { ResidentRequest } from '../../../api/types';
 import {
+  validateCaseCode,
+  validateDateNotBefore,
   validateDateNotFuture,
   validateDateRequired,
   validateRequired,
@@ -10,8 +12,8 @@ import {
 export function validateResidentForm(form: ResidentRequest): ValidationErrors {
   const firstPlan = form.interventionPlans[0];
   let errors: ValidationErrors = {};
-  errors = withError(errors, 'caseControlNumber', validateRequired(form.caseControlNumber, 'Case control number'));
-  errors = withError(errors, 'internalCode', validateRequired(form.internalCode, 'Internal code'));
+  errors = withError(errors, 'caseControlNumber', validateCaseCode(form.caseControlNumber, 'Case control number'));
+  errors = withError(errors, 'internalCode', validateCaseCode(form.internalCode, 'Internal code'));
   errors = withError(errors, 'caseStatus', validateRequired(form.caseStatus, 'Case status'));
   errors = withError(errors, 'sex', validateRequired(form.sex, 'Sex'));
   errors = withError(errors, 'birthStatus', validateRequired(form.birthStatus, 'Birth status'));
@@ -25,6 +27,11 @@ export function validateResidentForm(form: ResidentRequest): ValidationErrors {
   errors = withError(errors, 'initialCaseAssessment', validateRequired(form.initialCaseAssessment, 'Initial case assessment'));
   errors = withError(errors, 'initialRiskLevel', validateRequired(form.initialRiskLevel, 'Initial risk level'));
   errors = withError(errors, 'currentRiskLevel', validateRequired(form.currentRiskLevel, 'Current risk level'));
+  errors = withError(errors, 'dateOfAdmission', validateDateNotBefore(form.dateOfAdmission, form.dateOfBirth, 'Date of admission', 'date of birth'));
+  errors = withError(errors, 'dateColbObtained', validateDateNotBefore(form.dateColbObtained ?? '', form.dateColbRegistered ?? '', 'Date COLB obtained', 'date COLB registered'));
+  errors = withError(errors, 'dateCaseStudyPrepared', validateDateNotBefore(form.dateCaseStudyPrepared ?? '', form.dateOfAdmission, 'Case study date', 'date of admission'));
+  errors = withError(errors, 'dateEnrolled', validateDateNotBefore(form.dateEnrolled ?? '', form.dateOfAdmission, 'Enrollment date', 'date of admission'));
+  errors = withError(errors, 'dateClosed', validateDateNotBefore(form.dateClosed ?? '', form.dateOfAdmission, 'Date closed', 'date of admission'));
   if (form.isPwd) {
     errors = withError(errors, 'pwdType', validateRequired(form.pwdType ?? '', 'PWD type'));
   }
@@ -34,6 +41,7 @@ export function validateResidentForm(form: ResidentRequest): ValidationErrors {
   errors = withError(errors, 'planCategory', validateRequired(firstPlan?.planCategory ?? '', 'Plan category'));
   errors = withError(errors, 'planStatus', validateRequired(firstPlan?.status ?? '', 'Plan status'));
   errors = withError(errors, 'planTargetDate', validateDateRequired(firstPlan?.targetDate ?? '', 'Plan target date'));
+  errors = withError(errors, 'caseConferenceDate', validateDateNotBefore(firstPlan?.targetDate ?? '', firstPlan?.caseConferenceDate ?? '', 'Plan target date', 'case conference date'));
   errors = withError(errors, 'servicesProvided', validateRequired(firstPlan?.servicesProvided ?? '', 'Services provided'));
   errors = withError(errors, 'planDescription', validateRequired(firstPlan?.planDescription ?? '', 'Plan description'));
   return errors;

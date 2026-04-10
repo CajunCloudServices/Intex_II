@@ -38,19 +38,11 @@ const publicLinks = [
 export function AppShell() {
   const { user, logout, authMessage, clearAuthMessage } = useAuth();
   const location = useLocation();
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [mlNavExpanded, setMlNavExpanded] = useState(() => location.pathname.startsWith('/portal/ml-insights'));
-
-  // Keep the drawer closed when navigation changes and stop the page from scrolling behind it.
-  useEffect(() => {
-    setMobileNavOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
-    if (location.pathname.startsWith('/portal/ml-insights')) {
-      setMlNavExpanded(true);
-    }
-  }, [location.pathname]);
+  const [mobileNavPath, setMobileNavPath] = useState<string | null>(null);
+  const [mlNavExpanded, setMlNavExpanded] = useState(false);
+  const mobileNavOpen = mobileNavPath === location.pathname;
+  const mlInsightsRoute = location.pathname.startsWith('/portal/ml-insights');
+  const mlNavOpen = mlInsightsRoute || mlNavExpanded;
 
   useEffect(() => {
     document.body.style.overflow = mobileNavOpen ? 'hidden' : '';
@@ -70,6 +62,8 @@ export function AppShell() {
   const headerLinks = user
     ? [...publicLinks, { to: '/portal', label: 'Portal' }]
     : [...publicLinks, { to: '/login', label: 'Login' }];
+  const closeMobileNav = () => setMobileNavPath(null);
+  const toggleMobileNav = () => setMobileNavPath((current) => current === location.pathname ? null : location.pathname);
 
   return (
     <div className="app-shell">
@@ -92,12 +86,12 @@ export function AppShell() {
           <div className="topbar-actions">
             <nav className="topbar-nav topbar-nav-desktop">
               {headerLinks.map((link) => (
-                <NavLink key={link.to} to={link.to} end={link.to === '/'}>
+                <NavLink key={link.to} to={link.to} end={link.to === '/'} onClick={closeMobileNav}>
                   {link.label}
                 </NavLink>
               ))}
               {user ? (
-                <button className="text-button" onClick={logout} type="button">
+                <button className="text-button" onClick={() => { closeMobileNav(); void logout(); }} type="button">
                   Sign out
                 </button>
               ) : null}
@@ -116,7 +110,7 @@ export function AppShell() {
               className="mobile-menu-button"
               aria-expanded={mobileNavOpen}
               aria-label="Open navigation menu"
-              onClick={() => setMobileNavOpen((open) => !open)}
+              onClick={toggleMobileNav}
               type="button"
             >
               Menu
@@ -135,12 +129,12 @@ export function AppShell() {
             ) : null}
             <nav className="topbar-mobile-nav">
               {headerLinks.map((link) => (
-                <NavLink key={link.to} to={link.to} end={link.to === '/'}>
+                <NavLink key={link.to} to={link.to} end={link.to === '/'} onClick={closeMobileNav}>
                   {link.label}
                 </NavLink>
               ))}
               {user ? (
-                <button className="text-button" onClick={logout} type="button">
+                <button className="text-button" onClick={() => { closeMobileNav(); void logout(); }} type="button">
                   Sign out
                 </button>
               ) : null}
@@ -181,17 +175,17 @@ export function AppShell() {
                 {!isDonorOnly ? (
                   <div className="sidebar-subnav-group">
                     <button
-                      className={`sidebar-subnav-toggle${location.pathname.startsWith('/portal/ml-insights') ? ' active' : ''}`}
+                      className={`sidebar-subnav-toggle${mlInsightsRoute ? ' active' : ''}`}
                       type="button"
                       onClick={() => setMlNavExpanded((open) => !open)}
-                      aria-expanded={mlNavExpanded}
+                      aria-expanded={mlNavOpen}
                     >
                       <span className="sidebar-link-mark" aria-hidden="true">
                         ML
                       </span>
                       <span>ML Insights</span>
                     </button>
-                    {mlNavExpanded ? (
+                    {mlNavOpen ? (
                       <div className="sidebar-subnav-links">
                         {mlDashboardLinks.map((mlLink) => (
                           <NavLink key={mlLink.to} to={mlLink.to}>
@@ -211,7 +205,7 @@ export function AppShell() {
                 <NavLink className="sidebar-utility-link" to="/impact">
                   Public impact
                 </NavLink>
-                <button className="sidebar-utility-link text-button" onClick={logout} type="button">
+                <button className="sidebar-utility-link text-button" onClick={() => void logout()} type="button">
                   Sign out
                 </button>
               </div>
@@ -221,7 +215,7 @@ export function AppShell() {
               <button
                 className="sidebar-backdrop"
                 aria-label="Close navigation menu"
-                onClick={() => setMobileNavOpen(false)}
+                onClick={closeMobileNav}
                 type="button"
               />
             ) : null}

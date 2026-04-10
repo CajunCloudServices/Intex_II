@@ -60,6 +60,8 @@ public static class PublicImpactMetricsParser
 
     private static IReadOnlyList<PublicImpactMetricDto> MapLegacyObject(JsonElement root)
     {
+        // Legacy CSV imports stored a single object instead of the newer [{ label, value }] array shape.
+        // Map it back into the UI-friendly list format so the public dashboard can treat both uniformly.
         var list = new List<PublicImpactMetricDto>();
 
         if (TryGetString(root, "month", out var month) && !string.IsNullOrWhiteSpace(month))
@@ -128,6 +130,7 @@ public static class PublicImpactMetricsParser
 
     private static bool TryGetProperty(JsonElement obj, string name, out JsonElement value)
     {
+        // Avoid binding to exact JSON casing because older imports and manual edits were not always normalized.
         foreach (var p in obj.EnumerateObject())
         {
             if (string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase))

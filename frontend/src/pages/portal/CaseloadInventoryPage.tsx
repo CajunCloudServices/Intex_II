@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
@@ -10,7 +10,7 @@ import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
 import { useAuth } from '../../hooks/useAuth';
-import { formatDate, normalizeText } from '../../lib/format';
+import { dateStringToTime, formatDate, normalizeText } from '../../lib/format';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
 import { createResidentForm } from './forms/residentFormDefaults';
@@ -57,7 +57,7 @@ export function CaseloadInventoryPage() {
   const deferredSearch = useDeferredValue(search);
   const canManageCases = user?.roles.includes('Admin') || user?.roles.includes('Staff') || false;
 
-  const loadResidents = async () => {
+  const loadResidents = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setError(null);
@@ -88,11 +88,11 @@ export function CaseloadInventoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     void loadResidents();
-  }, [user]);
+  }, [loadResidents]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -107,6 +107,7 @@ export function CaseloadInventoryPage() {
   const reintegrationStatuses = Array.from(new Set(residents.map((resident) => resident.reintegrationStatus).filter(Boolean))).sort();
 
   const filteredResidents = residents.filter((resident) => {
+    // Keep the inventory search broad because staff often remember a case by context rather than by case number alone.
     const searchFields = [
       resident.caseControlNumber,
       resident.internalCode,
@@ -148,9 +149,10 @@ export function CaseloadInventoryPage() {
   const activeCount = 30;
   const highRiskCount = 6;
   const reintegrationInProgressCount = 21;
+  // This "recently archived" card is date-based rather than status-based so closures still show up even if filters change.
   const archivedThisWeekCount = residents.filter((resident) => {
     if (!resident.dateClosed) return false;
-    const closedTime = new Date(resident.dateClosed).getTime();
+    const closedTime = dateStringToTime(resident.dateClosed);
     return Number.isFinite(closedTime) && Date.now() - closedTime <= 7 * 24 * 60 * 60 * 1000;
   }).length;
 

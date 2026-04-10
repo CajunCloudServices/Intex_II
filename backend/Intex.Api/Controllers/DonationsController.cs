@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
@@ -67,6 +68,7 @@ public class DonationsController(
         }
 
         var donations = await dbContext.Donations
+            .AsNoTracking()
             .Where(x => x.SupporterId == supporterId.Value)
             .ToListAsync();
 
@@ -95,6 +97,7 @@ public class DonationsController(
         }
 
         var allocations = await dbContext.DonationAllocations
+            .AsNoTracking()
             .Include(x => x.Donation)
             .Include(x => x.Safehouse)
             .Where(x => x.Donation!.SupporterId == supporterId.Value)
@@ -122,7 +125,7 @@ public class DonationsController(
 
     [HttpGet("predict-impact")]
     [AllowAnonymous]
-    public async Task<ActionResult<DonationImpactPredictionResponse>> PredictImpact([FromQuery] decimal amount)
+    public async Task<ActionResult<DonationImpactPredictionResponse>> PredictImpact([FromQuery, Range(typeof(decimal), "0.01", "999999999.99")] decimal amount)
     {
         if (amount <= 0)
         {
@@ -130,6 +133,7 @@ public class DonationsController(
         }
 
         var monetaryAllocations = await dbContext.DonationAllocations
+            .AsNoTracking()
             .Include(x => x.Donation)
             .Where(x => x.Donation!.DonationType == "Monetary")
             .ToListAsync();
@@ -372,6 +376,7 @@ public class DonationsController(
 
     private IQueryable<Donation> QueryDonations() =>
         dbContext.Donations
+            .AsNoTracking()
             .Include(x => x.Supporter)
             .Include(x => x.Allocations)
             .ThenInclude(x => x.Safehouse);
@@ -385,6 +390,7 @@ public class DonationsController(
     private async Task<List<DonationAllocation>> BuildPublicDonationAllocationsAsync(decimal amount, DateOnly allocationDate)
     {
         var primarySafehouse = await dbContext.Safehouses
+            .AsNoTracking()
             .OrderBy(x => x.Id)
             .Select(x => new { x.Id })
             .FirstOrDefaultAsync();
@@ -395,6 +401,7 @@ public class DonationsController(
         }
 
         var monetaryAllocations = await dbContext.DonationAllocations
+            .AsNoTracking()
             .Include(x => x.Donation)
             .Where(x => x.Donation!.DonationType == "Monetary")
             .ToListAsync();

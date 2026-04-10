@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useState, useRef } from 'react';
+import { useCallback, useDeferredValue, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import type { Donation, DonationImpactPrediction, DonorAllocationBreakdown, DonorImpactSummary } from '../../api/types';
@@ -8,7 +8,7 @@ import { DataTable } from '../../components/ui/DataTable';
 import { DetailList } from '../../components/ui/DetailPanel';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
-import { formatDate, formatMoney, normalizeText } from '../../lib/format';
+import { compareDateStringsDesc, formatDate, formatMoney, normalizeText } from '../../lib/format';
 
 export function DonorHistoryPage() {
   const { user } = useAuth();
@@ -27,7 +27,7 @@ export function DonorHistoryPage() {
   const PAGE_SIZE = 8;
   const tableRef = useRef<HTMLDivElement>(null);
 
-  const loadDonations = async () => {
+  const loadDonations = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     setError(null);
@@ -45,9 +45,9 @@ export function DonorHistoryPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const estimateImpact = async () => {
+  const estimateImpact = useCallback(async () => {
     if (!user) return;
     const amount = Number(predictionAmount);
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -62,10 +62,10 @@ export function DonorHistoryPage() {
     } finally {
       setPredicting(false);
     }
-  };
+  }, [predictionAmount, user]);
 
-  useEffect(() => { void loadDonations(); }, [user]);
-  useEffect(() => { void estimateImpact(); }, [user]);
+  useEffect(() => { void loadDonations(); }, [loadDonations]);
+  useEffect(() => { void estimateImpact(); }, [estimateImpact]);
   useEffect(() => { setHistoryPage(1); }, [deferredSearch]);
 
   if (!user) return null;
@@ -81,7 +81,7 @@ export function DonorHistoryPage() {
         normalizeText(d.channelSource).includes(normalizedSearch)
       );
     })
-    .sort((a, b) => new Date(b.donationDate).getTime() - new Date(a.donationDate).getTime());
+    .sort((a, b) => compareDateStringsDesc(a.donationDate, b.donationDate));
 
   const totalGiven = donations.reduce((sum, d) => sum + (d.amount ?? d.estimatedValue), 0);
   const recurringCount = donations.filter((d) => d.isRecurring).length;

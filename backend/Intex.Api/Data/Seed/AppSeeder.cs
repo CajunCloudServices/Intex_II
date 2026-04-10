@@ -45,6 +45,7 @@ public class AppSeeder(
             var preferCsv = string.Equals(options.Mode, "Csv", StringComparison.OrdinalIgnoreCase);
             if (preferCsv && options.ImportCsvOnStartup)
             {
+                // Prefer the relational CSV snapshot when requested, but keep fixture seed fallback so the app still boots locally.
                 var importResult = await csvRelationalSeeder.SeedAsync();
                 if (!importResult.Success)
                 {
@@ -181,7 +182,7 @@ public class AppSeeder(
                 AcquisitionChannel = "PartnerReferral",
                 CreatedAtUtc = new DateTime(2025, 7, 1, 9, 0, 0, DateTimeKind.Utc)
             },
-            // Second individual donor — used for donor isolation tests.
+            // Second individual donor keeps seeded donor-scoping tests meaningful by giving auth flows another supporter boundary.
             new Supporter
             {
                 SupporterType = "MonetaryDonor",
