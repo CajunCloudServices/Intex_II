@@ -15,6 +15,14 @@ export function formatCompactMoney(value: number) {
   }).format(value);
 }
 
+/** Donation impact “units” (kits, sessions, etc.) — trim trailing zeros when whole. */
+export function formatImpactUnits(n: number): string {
+  if (!Number.isFinite(n)) return '—';
+  const r = Math.round(n);
+  if (Math.abs(n - r) < 1e-6) return String(r);
+  return n < 10 ? n.toFixed(2) : n.toFixed(1);
+}
+
 /** Calendar dates from the API (YYYY-MM-DD / DateOnly) must not use UTC midnight parsing or US timezones show the wrong day. */
 export function formatDate(value: string) {
   if (!value?.trim()) {

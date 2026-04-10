@@ -160,11 +160,11 @@ def main() -> None:
         )
 
     churn_by_channel = (
-        supporters.groupby("acquisition_channel")["is_churned"]
-        .agg(["mean", "count"])
-        .reset_index()
+        supporters.groupby("acquisition_channel", as_index=False)["is_churned"]
+        .agg(churn_rate="mean", n="count", n_churned="sum")
+        .rename(columns={"acquisition_channel": "channel"})
     )
-    churn_by_channel.columns = ["channel", "churn_rate", "n"]
+    churn_by_channel["n_churned"] = churn_by_channel["n_churned"].astype(int)
     churn_by_type = (
         supporters.groupby("supporter_type")["is_churned"].agg(["mean", "count"]).reset_index()
     )

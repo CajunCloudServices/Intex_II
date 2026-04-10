@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api';
 import { useAuth } from '../../hooks/useAuth';
 import { ErrorState, LoadingState } from '../../components/ui/PageState';
-import { formatMoney } from '../../lib/format';
+import { formatImpactUnits, formatMoney } from '../../lib/format';
 import { validateEmail, validatePassword, validatePhone } from '../../lib/validation';
 
 const PRESET_AMOUNTS = [25, 50, 100, 250, 500, 1000];
@@ -463,7 +463,7 @@ export function DonatePage() {
                 <p className="home-muted">{prediction.assumptions}</p>
                 <div className="data-table-wrap donate-impact-table-wrap">
                   <table className="data-table donate-impact-table">
-                    <caption>Impact prediction</caption>
+                    <caption>Estimated breakdown by program area</caption>
                     <thead>
                       <tr>
                         <th scope="col">Program area</th>
@@ -480,12 +480,16 @@ export function DonatePage() {
                           <td>{formatMoney(row.allocatedAmount)}</td>
                           <td>{row.outcomeUnit}</td>
                           <td>{formatMoney(row.unitCost)}</td>
-                          <td>{row.estimatedUnits}</td>
+                          <td>{formatImpactUnits(row.estimatedUnits)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
+                <p className="home-muted" style={{ margin: 0, fontSize: '0.88rem', lineHeight: 1.5 }}>
+                  Rows include operations, transport, and other pillars whenever possible—the preview blends your amount with a
+                  balanced mix so the table is not limited to only education and wellbeing.
+                </p>
               </div>
             ) : null}
           </details>

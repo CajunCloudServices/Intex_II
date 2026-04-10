@@ -8,7 +8,13 @@ import { DataTable } from '../../components/ui/DataTable';
 import { DetailList } from '../../components/ui/DetailPanel';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
-import { compareDateStringsDesc, formatDate, formatMoney, normalizeText } from '../../lib/format';
+import {
+  compareDateStringsDesc,
+  formatDate,
+  formatImpactUnits,
+  formatMoney,
+  normalizeText,
+} from '../../lib/format';
 
 export function DonorHistoryPage() {
   const { user } = useAuth();
@@ -259,7 +265,7 @@ export function DonorHistoryPage() {
                 rows={prediction.outcomes.map((o) => [
                   o.programArea,
                   formatMoney(o.allocatedAmount),
-                  `${o.estimatedUnits.toFixed(1)} ${o.outcomeUnit}`,
+                  `${formatImpactUnits(o.estimatedUnits)} ${o.outcomeUnit}`,
                 ])}
                 emptyMessage="No predictions available."
               />

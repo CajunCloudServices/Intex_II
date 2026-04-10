@@ -159,7 +159,7 @@ public class DonationsController(
         return Ok(new DonationImpactPredictionResponse(
             amount,
             outcomes,
-            "Prediction uses weighted historical allocation mix across configured program areas, then consolidates tiny amounts into top priorities for clearer donor guidance. People impacted are shown as a whole-person estimate.",
+            "Estimates blend historical gift allocations with a balanced default mix so education, wellbeing, operations, transport, and other pillars stay visible. Additional rows drop off only when the dollar slice would be very small. People impacted are a simple whole-person estimate.",
             estimatedVictimsImpacted));
     }
 
@@ -493,8 +493,24 @@ public class DonationsController(
                 StringComparer.OrdinalIgnoreCase);
         }
 
+        var blend = Math.Clamp(options.PreviewMixBlendWeight, 0m, 1m);
+        if (blend > 0m)
+        {
+            var defaultMix = NormalizePreviewMix(options.DefaultPreviewAllocationMix, configuredAreas);
+            baseSplits = configuredAreas.ToDictionary(
+                area => area,
+                area => (1m - blend) * baseSplits.GetValueOrDefault(area, 0m) + blend * defaultMix.GetValueOrDefault(area, 0m),
+                StringComparer.OrdinalIgnoreCase);
+            var blendSum = baseSplits.Values.Sum();
+            if (blendSum > 0m)
+            {
+                baseSplits = baseSplits.ToDictionary(x => x.Key, x => x.Value / blendSum, StringComparer.OrdinalIgnoreCase);
+            }
+        }
+
         var maxProgramsShown = Math.Max(1, options.MaxProgramsShown);
         var minimumAllocationAmount = Math.Max(0m, options.MinimumAllocationAmount);
+        var minRows = Math.Max(1, options.MinimumProgramRowsToShow);
         var candidates = baseSplits
             .OrderByDescending(x => x.Value)
             .ThenBy(x => x.Key)
@@ -502,7 +518,9 @@ public class DonationsController(
             .ToList();
 
         var filtered = candidates
-            .Where((x, idx) => idx == 0 || Math.Round(amount * x.Value, 2) >= minimumAllocationAmount)
+            .Where((x, idx) =>
+                idx < minRows ||
+                Math.Round(amount * x.Value, 2) >= minimumAllocationAmount)
             .ToList();
 
         if (filtered.Count == 0)
@@ -556,6 +574,24 @@ public class DonationsController(
         }
 
         return outcomes;
+    }
+
+    private static Dictionary<string, decimal> NormalizePreviewMix(
+        IReadOnlyDictionary<string, decimal> mix,
+        IReadOnlyList<string> areas)
+    {
+        var raw = areas.ToDictionary(
+            a => a,
+            a => mix.TryGetValue(a, out var v) ? (v < 0m ? 0m : v) : 0m,
+            StringComparer.OrdinalIgnoreCase);
+        var sum = raw.Values.Sum();
+        if (sum <= 0m)
+        {
+            var equal = 1m / Math.Max(areas.Count, 1);
+            return areas.ToDictionary(a => a, _ => equal, StringComparer.OrdinalIgnoreCase);
+        }
+
+        return raw.ToDictionary(x => x.Key, x => x.Value / sum, StringComparer.OrdinalIgnoreCase);
     }
 
     private static DonationResponse MapDonation(Donation donation) =>
