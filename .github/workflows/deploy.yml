@@ -14,15 +14,21 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for server-side deploy sync
+      - name: Wait for deploy window
         env:
           EXPECTED_SHA: ${{ github.sha }}
         run: |
           echo "Waiting for production sync of ${EXPECTED_SHA}"
-          sleep 75
+          sleep 30
 
       - name: Verify production health
         run: |
           set -euo pipefail
-          curl --fail --silent --show-error --max-time 15 \
-            https://tanglawproject.cajuncloudservices.com/api/health >/dev/null
+          for attempt in $(seq 1 36); do
+            if curl --fail --silent --show-error --max-time 15 \
+              https://tanglawproject.cajuncloudservices.com/api/health >/dev/null; then
+              exit 0
+            fi
+            sleep 5
+          done
+          exit 1
