@@ -311,6 +311,76 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task ResidentCreate_WithDuplicateGeneratedIdentifiers_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/residents", new
+        {
+            caseControlNumber = "C0073",
+            internalCode = "R-2025-001",
+            safehouseId = 1,
+            caseStatus = "Active",
+            sex = "F",
+            dateOfBirth = new DateOnly(2012, 1, 1),
+            birthStatus = "Non-Marital",
+            placeOfBirth = "Cebu",
+            religion = "Catholic",
+            caseCategory = "Neglected",
+            subCatOrphaned = false,
+            isTrafficked = false,
+            subCatChildLabor = false,
+            isPhysicalAbuseCase = false,
+            isSexualAbuseCase = false,
+            subCatOsaec = false,
+            subCatCicl = false,
+            subCatAtRisk = false,
+            subCatStreetChild = false,
+            subCatChildWithHiv = false,
+            isPwd = false,
+            pwdType = (string?)null,
+            hasSpecialNeeds = false,
+            specialNeedsDiagnosis = (string?)null,
+            familyIs4Ps = false,
+            familySoloParent = false,
+            familyIndigenous = false,
+            familyParentPwd = false,
+            familyInformalSettler = false,
+            dateOfAdmission = new DateOnly(2026, 4, 1),
+            referralSource = "Government Agency",
+            referringAgencyPerson = (string?)null,
+            dateColbRegistered = (DateOnly?)null,
+            dateColbObtained = (DateOnly?)null,
+            assignedSocialWorker = "Ana Santos",
+            initialCaseAssessment = "Duplicate identifier test.",
+            dateCaseStudyPrepared = (DateOnly?)null,
+            reintegrationType = (string?)null,
+            reintegrationStatus = (string?)null,
+            initialRiskLevel = "Medium",
+            currentRiskLevel = "Medium",
+            dateEnrolled = (DateOnly?)null,
+            dateClosed = (DateOnly?)null,
+            restrictedNotes = (string?)null,
+            interventionPlans = new[]
+            {
+                new
+                {
+                    planCategory = "Psychosocial",
+                    planDescription = "Description",
+                    servicesProvided = "Counseling",
+                    targetValue = (decimal?)null,
+                    targetDate = new DateOnly(2026, 5, 1),
+                    status = "Open",
+                    caseConferenceDate = (DateOnly?)null
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "CaseControlNumber");
+    }
+
+    [Fact]
     public async Task PublicDonationSubmit_WithMissingRecurringInterval_ReturnsBadRequest()
     {
         var response = await _client.PostAsJsonAsync("/api/donations/public-submit", new

@@ -50,7 +50,7 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
     [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ResidentResponse>> Create(ResidentRequest request)
     {
-        var validationResult = ValidateResidentRequest(request);
+        var validationResult = await ValidateResidentRequestAsync(request);
         if (validationResult is not null)
         {
             return validationResult;
@@ -69,7 +69,7 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
     [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ResidentResponse>> Update(int id, ResidentRequest request)
     {
-        var validationResult = ValidateResidentRequest(request);
+        var validationResult = await ValidateResidentRequestAsync(request, id);
         if (validationResult is not null)
         {
             return validationResult;
@@ -198,9 +198,11 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
             .Include(x => x.Safehouse)
             .Include(x => x.InterventionPlans);
 
-    private ActionResult? ValidateResidentRequest(ResidentRequest request)
+    private async Task<ActionResult?> ValidateResidentRequestAsync(ResidentRequest request, int? residentId = null)
     {
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var normalizedCaseControlNumber = request.CaseControlNumber.Trim().ToUpperInvariant();
+        var normalizedInternalCode = request.InternalCode.Trim().ToUpperInvariant();
 
         if (request.DateOfBirth == default)
         {
@@ -266,6 +268,24 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
             ModelState.AddModelError(
                 nameof(request.DateClosed),
                 "Date closed cannot be earlier than date of admission.");
+        }
+
+        if (await dbContext.Residents.AsNoTracking().AnyAsync(x =>
+                x.Id != residentId &&
+                x.CaseControlNumber.ToUpper() == normalizedCaseControlNumber))
+        {
+            ModelState.AddModelError(
+                nameof(request.CaseControlNumber),
+                "Case control number already exists. Refresh the form to get the next available value.");
+        }
+
+        if (await dbContext.Residents.AsNoTracking().AnyAsync(x =>
+                x.Id != residentId &&
+                x.InternalCode.ToUpper() == normalizedInternalCode))
+        {
+            ModelState.AddModelError(
+                nameof(request.InternalCode),
+                "Internal code already exists. Refresh the form to get the next available value.");
         }
 
         if (ModelState.IsValid)
