@@ -124,7 +124,9 @@ export function DonorsContributionsPage() {
       setDonations(donationsData);
       setSafehouses(safehouseData);
       setChurnRiskSummary(churnRiskData);
-      setDonationForm((current) => (current.allocations[0].safehouseId > 0 ? current : createDonationForm(safehouseData[0]?.id)));
+      if (!editingDonationId) {
+        setDonationForm(createDonationForm(safehouseData[0]?.id));
+      }
 
       if (supportersResult.status === 'rejected') {
         warnings.push(describeUnavailableSection('Supporters', supportersResult.reason, 'Supporter records could not be loaded.'));

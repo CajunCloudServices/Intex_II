@@ -19,7 +19,7 @@ export const defaultSupporterForm: SupporterRequest = {
 export function createDonationForm(safehouseId?: number): DonationRequest {
   const today = new Date().toISOString().slice(0, 10);
   return {
-    supporterId: 1,
+    supporterId: 0,
     donationType: 'Monetary',
     donationDate: today,
     channelSource: 'Direct',
@@ -32,7 +32,7 @@ export function createDonationForm(safehouseId?: number): DonationRequest {
     notes: '',
     allocations: [
       {
-        safehouseId: safehouseId ?? 1,
+        safehouseId: safehouseId ?? 0,
         programArea: 'Wellbeing',
         amountAllocated: 100,
         allocationDate: today,
