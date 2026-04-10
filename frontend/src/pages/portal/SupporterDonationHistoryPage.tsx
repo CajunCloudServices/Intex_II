@@ -73,6 +73,10 @@ export function SupporterDonationHistoryPage() {
   }, [loadData]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
+
+  useEffect(() => {
     setHistoryPage(1);
   }, [deferredSearch]);
 
@@ -208,6 +212,7 @@ export function SupporterDonationHistoryPage() {
     const supporter = supporters.find((item) => item.id === Number(historySubject?.id));
     if (!supporter) return;
 
+    setFeedback(null);
     setEditingSupporterId(supporter.id);
     setSupporterErrors({});
     setSupporterForm({
@@ -289,7 +294,7 @@ export function SupporterDonationHistoryPage() {
         </div>
       </div>
 
-      {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {feedback && !editingSupporterId ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
 
       {loading ? (
         <LoadingState label="Loading supporter history..." />
@@ -410,6 +415,8 @@ export function SupporterDonationHistoryPage() {
                 Close
               </button>
             </div>
+
+            {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
 
             <SupporterRecordForm
               supporterForm={supporterForm}

@@ -1,7 +1,20 @@
 import type { FormEvent } from 'react';
 import type { SupporterRequest } from '../../../api/types';
-import { FormGrid, ValidatedTextField } from '../../../components/ui/FormPrimitives';
+import { FormGrid, ValidatedSelectField, ValidatedTextField } from '../../../components/ui/FormPrimitives';
 import type { ValidationErrors } from '../../../lib/validation';
+
+const supporterTypeOptions = [
+  'MonetaryDonor',
+  'InKindDonor',
+  'Volunteer',
+  'CorporatePartner',
+  'Foundation',
+  'Advocate',
+  'CommunityPartner',
+];
+
+const supporterStatusOptions = ['Active', 'Inactive'];
+const acquisitionChannelOptions = ['Website', 'Referral', 'Event', 'SocialMedia', 'Campaign', 'Direct'];
 
 type SupporterRecordFormProps = {
   supporterForm: SupporterRequest;
@@ -42,22 +55,32 @@ export function SupporterRecordForm({
           onChange={(e) => setSupporterForm({ ...supporterForm, email: e.target.value })}
           error={supporterErrors.email}
         />
-        <ValidatedTextField
+        <ValidatedSelectField
           label="Supporter type"
           required
-          hint="Examples: MonetaryDonor, CorporatePartner."
           value={supporterForm.supporterType}
           onChange={(e) => setSupporterForm({ ...supporterForm, supporterType: e.target.value })}
           error={supporterErrors.supporterType}
-        />
-        <ValidatedTextField
+        >
+          {supporterTypeOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </ValidatedSelectField>
+        <ValidatedSelectField
           label="Status"
           required
-          hint="Active or Inactive."
           value={supporterForm.status}
           onChange={(e) => setSupporterForm({ ...supporterForm, status: e.target.value })}
           error={supporterErrors.status}
-        />
+        >
+          {supporterStatusOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </ValidatedSelectField>
         <ValidatedTextField
           label="Relationship type"
           required
@@ -65,14 +88,19 @@ export function SupporterRecordForm({
           onChange={(e) => setSupporterForm({ ...supporterForm, relationshipType: e.target.value })}
           error={supporterErrors.relationshipType}
         />
-        <ValidatedTextField
+        <ValidatedSelectField
           label="Acquisition channel"
           required
-          hint="Examples: Website, Referral, Event."
           value={supporterForm.acquisitionChannel}
           onChange={(e) => setSupporterForm({ ...supporterForm, acquisitionChannel: e.target.value })}
           error={supporterErrors.acquisitionChannel}
-        />
+        >
+          {acquisitionChannelOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </ValidatedSelectField>
         <ValidatedTextField label="First name" value={supporterForm.firstName ?? ''} onChange={(e) => setSupporterForm({ ...supporterForm, firstName: e.target.value })} />
         <ValidatedTextField label="Last name" value={supporterForm.lastName ?? ''} onChange={(e) => setSupporterForm({ ...supporterForm, lastName: e.target.value })} />
         <ValidatedTextField

@@ -154,6 +154,10 @@ export function DonorsContributionsPage() {
   }, [loadData]);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
+
+  useEffect(() => {
     if (!editingDonationId && !editingSupporterId) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -549,7 +553,7 @@ export function DonorsContributionsPage() {
         </SectionCard>
       ) : null}
 
-      {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {feedback && !editingSupporterId ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
       {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
@@ -639,6 +643,7 @@ export function DonorsContributionsPage() {
                                 onClick={() => {
                                   const supporter = supporters.find((item) => item.id === entry.supporterId);
                                   if (!supporter) return;
+                                  setFeedback(null);
                                   setEditingSupporterId(supporter.id);
                                   setSupporterForm({
                                     supporterType: supporter.supporterType,
@@ -920,6 +925,8 @@ export function DonorsContributionsPage() {
                 Close
               </button>
             </div>
+
+            {feedback && editingSupporterId ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
 
             <SupporterRecordForm
               supporterForm={supporterForm}
