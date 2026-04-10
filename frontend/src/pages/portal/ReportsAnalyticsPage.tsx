@@ -178,14 +178,8 @@ export function ReportsAnalyticsPage() {
         residentDataResult,
       ] = results;
 
-      const trendData = trendResult.status === 'fulfilled' ? trendResult.value : null;
-      const outcomeData = outcomeResult.status === 'fulfilled' ? outcomeResult.value : null;
       const safehouseReport = safehouseReportResult.status === 'fulfilled' ? safehouseReportResult.value : null;
-      const reintegrationData = reintegrationResult.status === 'fulfilled' ? reintegrationResult.value : null;
       const reintegrationRiskData = reintegrationRiskResult.status === 'fulfilled' ? reintegrationRiskResult.value : null;
-      const outreachData = outreachResult.status === 'fulfilled' ? outreachResult.value : null;
-      const socialData = socialResult.status === 'fulfilled' ? socialResult.value : null;
-      const counselingRiskData = counselingRiskResult.status === 'fulfilled' ? counselingRiskResult.value : null;
       const trendDeploymentData = trendDeploymentResult.status === 'fulfilled' ? trendDeploymentResult.value : null;
       const safehouseData = safehouseDataResult.status === 'fulfilled' ? safehouseDataResult.value : [];
       const incidentData = incidentDataResult.status === 'fulfilled' ? incidentDataResult.value : [];

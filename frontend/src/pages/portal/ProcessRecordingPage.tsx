@@ -64,8 +64,6 @@ export function ProcessRecordingPage() {
 
       const recordingData = recordingResult.status === 'fulfilled' ? recordingResult.value : [];
       const residentData = residentResult.status === 'fulfilled' ? residentResult.value : [];
-      const counselingRiskData = counselingRiskResult.status === 'fulfilled' ? counselingRiskResult.value : null;
-
       setRecordings(recordingData);
       setResidents(residentData);
       setCounselingRiskSummary(MOCK_COUNSELING_RISK_SUMMARY);
