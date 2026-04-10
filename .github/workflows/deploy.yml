@@ -12,7 +12,17 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
-      - name: Deploy on production runner
-        run: /home/lajicpajam/bin/harborlight-deploy.sh
+      - name: Wait for server-side deploy sync
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          echo "Waiting for production sync of ${EXPECTED_SHA}"
+          sleep 75
+
+      - name: Verify production health
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --max-time 15 \
+            https://tanglawproject.cajuncloudservices.com/api/health >/dev/null
