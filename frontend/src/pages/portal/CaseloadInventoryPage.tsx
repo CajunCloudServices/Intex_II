@@ -13,9 +13,10 @@ import { useAuth } from '../../hooks/useAuth';
 import { dateStringToTime, formatDate, normalizeText } from '../../lib/format';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
+import { buildWorkerOptions } from './forms/homeVisitationDefaults';
 import { createResidentForm } from './forms/residentFormDefaults';
 import { ResidentRecordForm } from './forms/ResidentRecordForm';
-import { validateResidentForm } from './forms/residentFormValidation';
+import { extractResidentFieldErrors, validateResidentForm } from './forms/residentFormValidation';
 
 const PAGE_SIZE = 8;
 
@@ -103,7 +104,7 @@ export function CaseloadInventoryPage() {
   const normalizedSearch = normalizeText(deferredSearch);
   const safehouseNames = Array.from(new Set(residents.map((resident) => resident.safehouseName))).sort();
   const caseCategories = Array.from(new Set(residents.map((resident) => resident.caseCategory))).sort();
-  const socialWorkers = Array.from(new Set(residents.map((resident) => resident.assignedSocialWorker))).sort();
+  const socialWorkers = buildWorkerOptions(residents);
   const reintegrationStatuses = Array.from(new Set(residents.map((resident) => resident.reintegrationStatus).filter(Boolean))).sort();
 
   const filteredResidents = residents.filter((resident) => {
@@ -177,7 +178,7 @@ export function CaseloadInventoryPage() {
     setResidentErrors(formErrors);
     if (Object.keys(formErrors).length > 0) {
       setSubmitting(false);
-      setFeedback({ tone: 'error', message: 'Please correct the highlighted resident form fields.' });
+      setFeedback({ tone: 'error', message: 'Please fill in the required resident fields highlighted in red.' });
       return;
     }
 
@@ -188,7 +189,12 @@ export function CaseloadInventoryPage() {
       await loadResidents();
       setViewResidentId(editingResidentId);
     } catch (err) {
-      setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Resident save failed.' });
+      const apiFieldErrors = extractResidentFieldErrors(err);
+      if (Object.keys(apiFieldErrors).length > 0) {
+        setResidentErrors(apiFieldErrors);
+      } else {
+        setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Resident save failed.' });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -546,6 +552,7 @@ export function CaseloadInventoryPage() {
               setResidentForm={setResidentForm}
               residentErrors={residentErrors}
               safehouses={safehouses}
+              socialWorkerOptions={socialWorkers}
               onSubmit={handleSubmit}
               submitting={submitting}
               submitLabel="Update resident"

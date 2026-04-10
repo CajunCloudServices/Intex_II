@@ -1,40 +1,59 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api';
-import type { ResidentRequest, Safehouse } from '../../api/types';
+import type { Resident, ResidentRequest, Safehouse } from '../../api/types';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { SectionCard } from '../../components/ui/Cards';
 import { LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
 import { sanitizeOptionalText, sanitizeText } from '../../lib/validation';
-import { createResidentForm } from './forms/residentFormDefaults';
-import { validateResidentForm } from './forms/residentFormValidation';
+import { buildWorkerOptions } from './forms/homeVisitationDefaults';
+import { createResidentForm, generateNextCaseControlNumber, generateNextInternalCode } from './forms/residentFormDefaults';
+import { extractResidentFieldErrors, validateResidentForm } from './forms/residentFormValidation';
 import { ResidentRecordForm } from './forms/ResidentRecordForm';
 import type { ValidationErrors } from '../../lib/validation';
 
 export function CaseloadResidentNewPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [residents, setResidents] = useState<Resident[]>([]);
   const [safehouses, setSafehouses] = useState<Safehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [residentForm, setResidentForm] = useState<ResidentRequest>(createResidentForm());
   const [residentErrors, setResidentErrors] = useState<ValidationErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
+  const socialWorkerOptions = useMemo(() => buildWorkerOptions(residents), [residents]);
+  const nextCaseControlNumber = useMemo(() => generateNextCaseControlNumber(residents), [residents]);
+  const nextInternalCode = useMemo(
+    () => generateNextInternalCode(residents, residentForm.dateOfAdmission),
+    [residents, residentForm.dateOfAdmission],
+  );
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     void (async () => {
       try {
-        const safehouseData = await api.safehouses();
+        const [safehouseData, residentData] = await Promise.all([
+          api.safehouses(),
+          api.residents(),
+        ]);
         if (cancelled) return;
         setSafehouses(safehouseData);
-        setResidentForm((current) => (current.safehouseId > 0 ? current : createResidentForm(safehouseData[0]?.id)));
+        setResidents(residentData);
+        setResidentForm((current) => {
+          const seeded = current.safehouseId > 0 ? current : createResidentForm(safehouseData[0]?.id);
+          return {
+            ...seeded,
+            caseControlNumber: generateNextCaseControlNumber(residentData),
+            internalCode: generateNextInternalCode(residentData, seeded.dateOfAdmission),
+          };
+        });
       } catch (err) {
         if (!cancelled) {
-          setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Failed to load safehouses.' });
+          setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Failed to load resident intake options.' });
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -44,6 +63,20 @@ export function CaseloadResidentNewPage() {
       cancelled = true;
     };
   }, [user]);
+
+  useEffect(() => {
+    setResidentForm((current) => {
+      if (current.caseControlNumber === nextCaseControlNumber && current.internalCode === nextInternalCode) {
+        return current;
+      }
+
+      return {
+        ...current,
+        caseControlNumber: nextCaseControlNumber,
+        internalCode: nextInternalCode,
+      };
+    });
+  }, [nextCaseControlNumber, nextInternalCode]);
 
   if (!user) return null;
 
@@ -56,7 +89,12 @@ export function CaseloadResidentNewPage() {
     setResidentErrors(formErrors);
     if (Object.keys(formErrors).length > 0) {
       setSubmitting(false);
-      setFeedback({ tone: 'error', message: 'Please correct the highlighted resident form fields.' });
+      const errorMessages = Object.values(formErrors).filter(Boolean) as string[];
+      setFeedback({
+        tone: 'error',
+        message: `Please fix the following before saving:\n• ${errorMessages.join('\n• ')}`,
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -101,7 +139,12 @@ export function CaseloadResidentNewPage() {
       await api.createResident(payload);
       navigate('/portal/caseload');
     } catch (err) {
-      setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Resident save failed.' });
+      const apiFieldErrors = extractResidentFieldErrors(err);
+      if (Object.keys(apiFieldErrors).length > 0) {
+        setResidentErrors(apiFieldErrors);
+      } else {
+        setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Resident save failed.' });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -133,9 +176,12 @@ export function CaseloadResidentNewPage() {
             setResidentForm={setResidentForm}
             residentErrors={residentErrors}
             safehouses={safehouses}
+            socialWorkerOptions={socialWorkerOptions}
             onSubmit={handleSubmit}
             submitting={submitting}
             submitLabel="Create resident"
+            caseControlNumberReadOnly
+            internalCodeReadOnly
           />
         </SectionCard>
       )}

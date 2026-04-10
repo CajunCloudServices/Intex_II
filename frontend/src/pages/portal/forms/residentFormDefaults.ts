@@ -1,4 +1,4 @@
-import type { ResidentRequest } from '../../../api/types';
+import type { Resident, ResidentRequest } from '../../../api/types';
 
 export function createResidentForm(safehouseId?: number): ResidentRequest {
   const today = new Date().toISOString().slice(0, 10);
@@ -59,4 +59,27 @@ export function createResidentForm(safehouseId?: number): ResidentRequest {
       },
     ],
   };
+}
+
+export function generateNextCaseControlNumber(residents: Resident[]): string {
+  const maxValue = residents.reduce((currentMax, resident) => {
+    const match = /^C(\d+)$/.exec(resident.caseControlNumber.trim());
+    return match ? Math.max(currentMax, Number(match[1])) : currentMax;
+  }, 0);
+
+  return `C${String(maxValue + 1).padStart(4, '0')}`;
+}
+
+export function generateNextInternalCode(residents: Resident[], referenceDate?: string): string {
+  const year = Number(referenceDate?.slice(0, 4)) || new Date().getFullYear();
+  const maxValue = residents.reduce((currentMax, resident) => {
+    const match = /^R-(\d{4})-(\d+)$/.exec(resident.internalCode.trim());
+    if (!match || Number(match[1]) !== year) {
+      return currentMax;
+    }
+
+    return Math.max(currentMax, Number(match[2]));
+  }, 0);
+
+  return `R-${year}-${String(maxValue + 1).padStart(3, '0')}`;
 }

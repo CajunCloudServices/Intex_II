@@ -357,6 +357,14 @@ body {
   background: color-mix(in srgb, #ffffff 72%, #ffdad6 28%);
 }
 
+.feedback-banner-list {
+  margin: 0.35rem 0 0 1rem;
+  padding: 0;
+  list-style: disc;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
 .feedback-info {
   border-color: color-mix(in srgb, var(--tl-gold-dark) 35%, transparent);
   background: color-mix(in srgb, #ffffff 68%, var(--tl-secondary) 32%);
