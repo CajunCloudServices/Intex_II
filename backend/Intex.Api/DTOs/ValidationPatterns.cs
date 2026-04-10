@@ -14,8 +14,9 @@ public static class ValidationPatterns
     public const string InterventionStatus = "^(Open|InProgress|In Progress|Closed|Deferred|On Hold|Achieved)$";
 
     public const string DonationType = "^(Monetary|InKind|Time|Skills|SocialMedia)$";
-    public const string DonationChannel = "^(Direct|Website|Campaign|SocialMedia|Event|Referral)$";
+    public const string DonationChannel = "^(Direct|Website|Campaign|SocialMedia|Event|Referral|PartnerReferral)$";
 
-    public const string SupporterType = "^(MonetaryDonor|InKindDonor|Volunteer|CorporatePartner|Foundation|Advocate|CommunityPartner)$";
+    public const string SupporterType =
+        "^(MonetaryDonor|InKindDonor|Volunteer|SkillsContributor|SocialMediaAdvocate|PartnerOrganization|CorporatePartner|Foundation|Advocate|CommunityPartner)$";
     public const string SupporterStatus = "^(Active|Inactive)$";
 }

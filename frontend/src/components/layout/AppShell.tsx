@@ -14,6 +14,7 @@ const staffLinks = [
   { to: '/portal/home-visitations', label: 'Home Visitations', shortLabel: 'HV' },
   { to: '/portal/reports', label: 'Reports & Analytics', shortLabel: 'RA' },
 ];
+const adminOnlyLinks = [{ to: '/portal/audit-history', label: 'Audit History', shortLabel: 'AH' }];
 
 const mlDashboardLinks = [
   { to: '/portal/ml-insights/counseling', label: 'Counseling sessions' },
@@ -63,7 +64,7 @@ export function AppShell() {
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
   const isAdminOnly = Boolean(user?.roles.includes('Admin'));
   const portalTitle = isDonorOnly ? 'Donor Portal' : isAdminOnly ? 'Admin Portal' : 'Staff Portal';
-  const portalLinks = isDonorOnly ? donorLinks : staffLinks;
+  const portalLinks = isDonorOnly ? donorLinks : [...staffLinks, ...(isAdminOnly ? adminOnlyLinks : [])];
   const headerLinks = user
     ? [...publicLinks, { to: '/portal', label: 'Portal' }]
     : [...publicLinks, { to: '/login', label: 'Login' }];

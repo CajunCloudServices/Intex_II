@@ -3,10 +3,13 @@ import type { SupporterRequest } from '../../../api/types';
 import { FormGrid, ValidatedSelectField, ValidatedTextField } from '../../../components/ui/FormPrimitives';
 import type { ValidationErrors } from '../../../lib/validation';
 
-const supporterTypeOptions = [
+const baseSupporterTypeOptions = [
   'MonetaryDonor',
   'InKindDonor',
   'Volunteer',
+  'SkillsContributor',
+  'SocialMediaAdvocate',
+  'PartnerOrganization',
   'CorporatePartner',
   'Foundation',
   'Advocate',
@@ -14,7 +17,17 @@ const supporterTypeOptions = [
 ];
 
 const supporterStatusOptions = ['Active', 'Inactive'];
-const acquisitionChannelOptions = ['Website', 'Referral', 'Event', 'SocialMedia', 'Campaign', 'Direct'];
+const baseAcquisitionChannelOptions = [
+  'Website',
+  'SocialMedia',
+  'Event',
+  'WordOfMouth',
+  'PartnerReferral',
+  'Church',
+  'Referral',
+  'Campaign',
+  'Direct',
+];
 
 type SupporterRecordFormProps = {
   supporterForm: SupporterRequest;
@@ -35,6 +48,9 @@ export function SupporterRecordForm({
   submitting,
   submitLabel,
 }: SupporterRecordFormProps) {
+  const supporterTypeOptions = buildOptions(baseSupporterTypeOptions, supporterForm.supporterType);
+  const acquisitionChannelOptions = buildOptions(baseAcquisitionChannelOptions, supporterForm.acquisitionChannel);
+
   return (
     <form className="stack-form" onSubmit={onSubmit}>
       <FormGrid>
@@ -88,6 +104,13 @@ export function SupporterRecordForm({
           onChange={(e) => setSupporterForm({ ...supporterForm, relationshipType: e.target.value })}
           error={supporterErrors.relationshipType}
         />
+        <ValidatedTextField
+          label="First donation date"
+          type="date"
+          hint="Optional. Keep this aligned with the first recorded gift when known."
+          value={supporterForm.firstDonationDate ?? ''}
+          onChange={(e) => setSupporterForm({ ...supporterForm, firstDonationDate: e.target.value })}
+        />
         <ValidatedSelectField
           label="Acquisition channel"
           required
@@ -130,4 +153,13 @@ export function SupporterRecordForm({
       </div>
     </form>
   );
+}
+
+function buildOptions(options: string[], currentValue: string) {
+  const values = new Set(options);
+  if (currentValue.trim()) {
+    values.add(currentValue);
+  }
+
+  return [...values];
 }

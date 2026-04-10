@@ -17,6 +17,9 @@ type DonationRecordFormProps = {
   submitLabel: string;
 };
 
+const baseDonationTypeOptions = ['Monetary', 'InKind', 'Time', 'Skills', 'SocialMedia'];
+const baseChannelOptions = ['Direct', 'Website', 'Campaign', 'SocialMedia', 'Event', 'PartnerReferral', 'Referral'];
+
 export function DonationRecordForm({
   donationForm,
   setDonationForm,
@@ -28,8 +31,8 @@ export function DonationRecordForm({
   submitting,
   submitLabel,
 }: DonationRecordFormProps) {
-  const donationTypeOptions = ['Monetary', 'InKind', 'Time', 'Skills', 'SocialMedia'];
-  const channelOptions = ['Direct', 'Website', 'Campaign', 'SocialMedia', 'Event'];
+  const donationTypeOptions = buildOptions(baseDonationTypeOptions, donationForm.donationType);
+  const channelOptions = buildOptions(baseChannelOptions, donationForm.channelSource);
 
   return (
     <form className="stack-form" onSubmit={onSubmit}>
@@ -202,4 +205,13 @@ export function DonationRecordForm({
       </div>
     </form>
   );
+}
+
+function buildOptions(options: string[], currentValue: string) {
+  const values = new Set(options);
+  if (currentValue.trim()) {
+    values.add(currentValue);
+  }
+
+  return [...values];
 }
