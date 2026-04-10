@@ -44,7 +44,7 @@ export function ProcessRecordingPage() {
   const [submitting, setSubmitting] = useState(false);
   const deferredSearch = useDeferredValue(search);
   const isAdmin = user?.roles.includes('Admin') ?? false;
-  const canManageRecordings = user?.roles.includes('Admin') || user?.roles.includes('Staff') || false;
+  const canManageRecordings = user?.roles.includes('Admin') || false;
   const canViewRestrictedNotes = isAdmin;
   const socialWorkerOptions = useMemo(
     () => buildProcessRecordingWorkerOptions(residents, recordings),

@@ -47,7 +47,7 @@ export function HomeVisitationsPage() {
   const conferencePageSize = 8;
   const deferredSearch = useDeferredValue(search);
   const isAdmin = user?.roles.includes('Admin') ?? false;
-  const canManageRecords = (user?.roles.includes('Admin') ?? false) || (user?.roles.includes('Staff') ?? false);
+  const canManageRecords = user?.roles.includes('Admin') ?? false;
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -358,7 +358,7 @@ export function HomeVisitationsPage() {
         <>
           <SectionCard
             title="Home and field visit log"
-            subtitle={canManageRecords ? 'Staff can log, review, and update visit records from one workspace.' : 'Review and search visit records.'}
+            subtitle={canManageRecords ? 'Admins can log, review, and update visit records from one workspace.' : 'Review and search visit records.'}
             actions={
               <div className="home-visitations-filter-area">
                 <div className="filter-group home-visitations-filter-search">

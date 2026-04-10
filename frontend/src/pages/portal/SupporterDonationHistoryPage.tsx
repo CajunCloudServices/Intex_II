@@ -198,7 +198,7 @@ export function SupporterDonationHistoryPage() {
       .slice(0, 8);
   }, [scopedDonations]);
 
-  const canManageSupporters = (user?.roles.includes('Admin') ?? false) || (user?.roles.includes('Staff') ?? false);
+  const canManageSupporters = user?.roles.includes('Admin') ?? false;
   const canEditSupporter = !historySubject?.isAnonymousAggregate && historySubject?.id && canManageSupporters;
 
   const resetSupporterForm = () => {

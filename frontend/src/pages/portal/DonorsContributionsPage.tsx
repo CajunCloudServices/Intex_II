@@ -97,7 +97,7 @@ export function DonorsContributionsPage() {
   const [submitting, setSubmitting] = useState<string | null>(null);
   const deferredSupporterSearch = useDeferredValue(supporterSearch);
   const deferredDonationSearch = useDeferredValue(donationSearch);
-  const canManageDonors = (user?.roles.includes('Admin') ?? false) || (user?.roles.includes('Staff') ?? false);
+  const canManageDonors = user?.roles.includes('Admin') ?? false;
 
   const loadData = useCallback(async () => {
     if (!user) return;

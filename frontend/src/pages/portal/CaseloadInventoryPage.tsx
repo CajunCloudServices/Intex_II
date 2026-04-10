@@ -57,7 +57,7 @@ export function CaseloadInventoryPage() {
   const [residentErrors, setResidentErrors] = useState<ValidationErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const deferredSearch = useDeferredValue(search);
-  const canManageCases = user?.roles.includes('Admin') || user?.roles.includes('Staff') || false;
+  const canManageCases = user?.roles.includes('Admin') || false;
 
   const loadResidents = useCallback(async () => {
     if (!user) return;
@@ -260,7 +260,7 @@ export function CaseloadInventoryPage() {
       ) : (
         <SectionCard
           title="Resident inventory"
-          subtitle={canManageCases ? 'Staff and admins can create, update, and delete resident case records.' : 'Staff can search, filter, and review resident case records.'}
+          subtitle={canManageCases ? 'Admins can create, update, and delete resident case records.' : 'Staff can search, filter, and review resident case records.'}
         >
           <div className="caseload-filter-grid">
             <label className="caseload-filter-card caseload-filter-card-search">
