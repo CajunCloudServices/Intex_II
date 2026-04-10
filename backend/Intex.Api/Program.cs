@@ -261,6 +261,15 @@ builder.Services.AddRateLimiter(options =>
         limiterOptions.QueueLimit = 0;
         limiterOptions.AutoReplenishment = true;
     });
+
+    options.AddFixedWindowLimiter("public-submit", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = isTestEnvironment ? 1_000_000 : 5;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 0;
+        limiterOptions.AutoReplenishment = true;
+    });
 });
 
 builder.Services.AddCors(options =>
