@@ -189,9 +189,21 @@ public sealed class CsvRelationalSeeder(
     {
         var text = GetNullableString(row, key);
         if (text is null) return null;
-        return DateTime.TryParse(text, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var dateTime)
-            ? dateTime
-            : null;
+        if (!DateTime.TryParse(
+                text,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out var dateTime))
+        {
+            return null;
+        }
+
+        return dateTime.Kind switch
+        {
+            DateTimeKind.Utc => dateTime,
+            DateTimeKind.Unspecified => DateTime.SpecifyKind(dateTime, DateTimeKind.Utc),
+            _ => dateTime.ToUniversalTime()
+        };
     }
 
     private static string NormalizeMetricPayloadJson(string? raw)
