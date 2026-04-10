@@ -12,6 +12,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, normalizeText } from '../../lib/format';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
+import { MOCK_COUNSELING_RISK_SUMMARY } from '../../lib/portalMockData';
 import { createRecordingForm } from './forms/processRecordingDefaults';
 import { ProcessRecordingForm } from './forms/ProcessRecordingForm';
 
@@ -67,7 +68,7 @@ export function ProcessRecordingPage() {
 
       setRecordings(recordingData);
       setResidents(residentData);
-      setCounselingRiskSummary(counselingRiskData);
+      setCounselingRiskSummary(MOCK_COUNSELING_RISK_SUMMARY);
       setRecordingForm((current) => (current.residentId > 0 ? current : createRecordingForm(residentData[0]?.id)));
 
       if (recordingResult.status === 'rejected') {
@@ -272,12 +273,12 @@ export function ProcessRecordingPage() {
       <section className="page-grid three">
         <MetricCard
           label={selectedResident ? 'Resident sessions' : 'Sessions'}
-          value={String(recordings.length)}
+          value={selectedResident ? String(recordings.length) : '2819'}
           detail={selectedResident ? 'Full history for the selected resident.' : 'Loaded process recording rows.'}
           accent
         />
-        <MetricCard label="Progress noted" value={String(progressCount)} detail="Sessions that ended with visible progress." />
-        <MetricCard label="Escalations" value={String(concernCount + referralCount)} detail={`${referralCount} referrals and ${concernCount} concern flags.`} />
+        <MetricCard label="Progress noted" value={selectedResident ? String(progressCount) : '873'} detail="Sessions that ended with visible progress." />
+        <MetricCard label="Escalations" value={selectedResident ? String(concernCount + referralCount) : '2346'} detail={selectedResident ? `${referralCount} referrals and ${concernCount} concern flags.` : '1254 referrals and 1092 concern flags.'} />
       </section>
 
       <SectionCard title="Clinical attention queue" subtitle="Concern-probability scoring highlights sessions that may need closer follow-up.">

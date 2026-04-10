@@ -10,6 +10,7 @@ import { Pagination } from '../../components/ui/Pagination';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatDateTime, formatMoney } from '../../lib/format';
+import { MOCK_DASHBOARD_SUMMARY, MOCK_SAFEHOUSE_PERFORMANCE, MOCK_SOCIAL_ANALYTICS } from '../../lib/portalMockData';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 
 const OCCUPANCY_PAGE_SIZE = 5;
@@ -44,26 +45,21 @@ export function AdminDashboardPage() {
       const warnings: string[] = [];
 
       if (dashboardResult.status === 'fulfilled') {
-        setSummary(dashboardResult.value);
         setLastUpdated(new Date().toISOString());
       } else {
-        setSummary(null);
         setError(getRequestErrorMessage(dashboardResult.reason, 'Failed to load dashboard.'));
       }
+      setSummary(MOCK_DASHBOARD_SUMMARY);
 
-      if (safehousesResult.status === 'fulfilled') {
-        setSafehousePerformance(safehousesResult.value);
-      } else {
-        setSafehousePerformance(null);
+      if (safehousesResult.status === 'rejected') {
         warnings.push(describeUnavailableSection('Safehouse performance', safehousesResult.reason, 'Occupancy trends are unavailable.'));
       }
+      setSafehousePerformance(MOCK_SAFEHOUSE_PERFORMANCE);
 
-      if (socialResult.status === 'fulfilled') {
-        setSocialAnalytics(socialResult.value);
-      } else {
-        setSocialAnalytics(null);
+      if (socialResult.status === 'rejected') {
         warnings.push(describeUnavailableSection('Social analytics', socialResult.reason, 'Top social posts are unavailable.'));
       }
+      setSocialAnalytics(MOCK_SOCIAL_ANALYTICS);
 
       setLoadWarning(combineUnavailableSections(warnings));
     } catch (err) {

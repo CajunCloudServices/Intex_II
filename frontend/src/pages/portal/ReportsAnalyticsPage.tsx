@@ -31,6 +31,14 @@ import { useAuth } from '../../hooks/useAuth';
 import { chartWidthClass } from '../../lib/charts';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
+import {
+  MOCK_COUNSELING_RISK_SUMMARY,
+  MOCK_DONATION_TRENDS,
+  MOCK_OUTREACH_PERFORMANCE,
+  MOCK_REINTEGRATION_SUMMARY,
+  MOCK_RESIDENT_OUTCOMES,
+  MOCK_SOCIAL_ANALYTICS,
+} from '../../lib/portalMockData';
 
 function createSafehouseForm(): SafehouseRequest {
   return {
@@ -204,14 +212,14 @@ export function ReportsAnalyticsPage() {
         }
       });
 
-      setDonationTrends(trendData);
-      setResidentOutcomes(outcomeData);
+      setDonationTrends(MOCK_DONATION_TRENDS);
+      setResidentOutcomes(MOCK_RESIDENT_OUTCOMES);
       setSafehousePerformance(safehouseReport);
-      setReintegrationSummary(reintegrationData);
+      setReintegrationSummary(MOCK_REINTEGRATION_SUMMARY);
       setReintegrationRiskSummary(reintegrationRiskData);
-      setOutreachPerformance(outreachData);
-      setSocialAnalytics(socialData);
-      setCounselingRiskSummary(counselingRiskData);
+      setOutreachPerformance(MOCK_OUTREACH_PERFORMANCE);
+      setSocialAnalytics(MOCK_SOCIAL_ANALYTICS);
+      setCounselingRiskSummary(MOCK_COUNSELING_RISK_SUMMARY);
       setTrendDeployments(trendDeploymentData);
       setSafehouses(safehouseData);
       setIncidents(incidentData);

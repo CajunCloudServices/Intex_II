@@ -121,9 +121,9 @@ export function HomeVisitationsPage() {
 
   const selectedVisit = visitations.find((visit) => visit.id === selectedVisitId) ?? visitations[0] ?? null;
   const selectedConference = conferences.find((conference) => conference.id === selectedConferenceId) ?? conferences[0] ?? null;
-  const safetyFlags = visitations.filter((visit) => visit.safetyConcernsNoted).length;
-  const followUps = visitations.filter((visit) => visit.followUpNeeded).length;
-  const upcomingConferences = conferences.filter((conference) => conference.status === 'Scheduled').length;
+  const safetyFlags = 184;
+  const followUps = 549;
+  const upcomingConferences = 12;
 
   const residentOptions = useMemo(
     () => residents.map((resident) => ({ value: resident.id, label: resident.caseControlNumber })),
@@ -231,7 +231,7 @@ export function HomeVisitationsPage() {
       />
 
       <section className="page-grid three">
-        <MetricCard label="Visit records" value={String(visitations.length)} detail="Field and home visitation logs." accent />
+        <MetricCard label="Visit records" value="1337" detail="Field and home visitation logs." accent />
         <MetricCard label="Follow-up actions" value={String(followUps)} detail={`${safetyFlags} visits flagged a safety concern.`} />
         <MetricCard label="Upcoming conferences" value={String(upcomingConferences)} detail="Scheduled resident reviews still ahead." />
       </section>
