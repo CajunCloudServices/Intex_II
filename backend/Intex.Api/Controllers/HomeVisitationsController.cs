@@ -34,7 +34,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.StaffOrAdmin)]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<HomeVisitationResponse>> Create(HomeVisitationRequest request)
     {
         var entity = new HomeVisitation
@@ -63,7 +63,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.StaffOrAdmin)]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<HomeVisitationResponse>> Update(int id, HomeVisitationRequest request)
     {
         var entity = await dbContext.HomeVisitations.FindAsync(id);

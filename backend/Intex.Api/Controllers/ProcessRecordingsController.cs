@@ -34,7 +34,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.StaffOrAdmin)]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<ProcessRecordingResponse>> Create(ProcessRecordingRequest request)
     {
         var canManageRestrictedNotes = User.IsInRole(RoleNames.Admin);
@@ -64,7 +64,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.StaffOrAdmin)]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<ProcessRecordingResponse>> Update(int id, ProcessRecordingRequest request)
     {
         var entity = await dbContext.ProcessRecordings.FindAsync(id);

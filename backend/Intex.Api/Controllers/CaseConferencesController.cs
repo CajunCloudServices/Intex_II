@@ -34,7 +34,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.StaffOrAdmin)]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<CaseConferenceResponse>> Create(CaseConferenceRequest request)
     {
         var entity = MapRequest(new CaseConference(), request);
@@ -46,7 +46,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.StaffOrAdmin)]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<ActionResult<CaseConferenceResponse>> Update(int id, CaseConferenceRequest request)
     {
         var entity = await dbContext.CaseConferences.FindAsync(id);

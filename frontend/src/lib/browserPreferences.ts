@@ -1,6 +1,8 @@
 export type ConsentLevel = 'accepted' | 'essential-only';
+export type ThemePreference = 'light' | 'dark';
 
 const CONSENT_COOKIE = 'intex.cookie-consent';
+const THEME_COOKIE = 'intex.theme';
 
 function getCookie(name: string): string | null {
   const prefix = `${name}=`;
@@ -23,4 +25,13 @@ export function getConsentLevel(): ConsentLevel | null {
 
 export function saveConsentLevel(value: ConsentLevel) {
   setCookie(CONSENT_COOKIE, value, 60 * 60 * 24 * 365);
+}
+
+export function getThemePreference(): ThemePreference | null {
+  const value = getCookie(THEME_COOKIE);
+  return value === 'light' || value === 'dark' ? value : null;
+}
+
+export function saveThemePreference(value: ThemePreference) {
+  setCookie(THEME_COOKIE, value, 60 * 60 * 24 * 365);
 }

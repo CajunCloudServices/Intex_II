@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { getThemePreference, saveThemePreference, type ThemePreference } from '../../lib/browserPreferences';
 import { LogoMark } from '../brand/LogoMark';
 import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -40,6 +41,7 @@ export function AppShell() {
   const location = useLocation();
   const [mobileNavPath, setMobileNavPath] = useState<string | null>(null);
   const [mlNavExpanded, setMlNavExpanded] = useState(false);
+  const [theme, setTheme] = useState<ThemePreference>(() => getThemePreference() ?? 'light');
   const mobileNavOpen = mobileNavPath === location.pathname;
   const mlInsightsRoute = location.pathname.startsWith('/portal/ml-insights');
   const mlNavOpen = mlInsightsRoute || mlNavExpanded;
@@ -52,8 +54,9 @@ export function AppShell() {
   }, [mobileNavOpen]);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = 'default';
-  }, []);
+    document.documentElement.dataset.theme = theme;
+    saveThemePreference(theme);
+  }, [theme]);
 
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
   const isAdminOnly = Boolean(user?.roles.includes('Admin'));
@@ -64,6 +67,8 @@ export function AppShell() {
     : [...publicLinks, { to: '/login', label: 'Login' }];
   const closeMobileNav = () => setMobileNavPath(null);
   const toggleMobileNav = () => setMobileNavPath((current) => current === location.pathname ? null : location.pathname);
+  const toggleTheme = () => setTheme((current) => current === 'light' ? 'dark' : 'light');
+  const themeToggleLabel = theme === 'light' ? 'Dark mode' : 'Light mode';
 
   return (
     <div className="app-shell">
@@ -90,6 +95,14 @@ export function AppShell() {
                   {link.label}
                 </NavLink>
               ))}
+              <button
+                className="theme-toggle"
+                type="button"
+                aria-pressed={theme === 'dark'}
+                onClick={toggleTheme}
+              >
+                {themeToggleLabel}
+              </button>
               {user ? (
                 <button className="text-button" onClick={() => { closeMobileNav(); void logout(); }} type="button">
                   Sign out
@@ -133,6 +146,14 @@ export function AppShell() {
                   {link.label}
                 </NavLink>
               ))}
+              <button
+                className="theme-toggle"
+                type="button"
+                aria-pressed={theme === 'dark'}
+                onClick={toggleTheme}
+              >
+                {themeToggleLabel}
+              </button>
               {user ? (
                 <button className="text-button" onClick={() => { closeMobileNav(); void logout(); }} type="button">
                   Sign out
