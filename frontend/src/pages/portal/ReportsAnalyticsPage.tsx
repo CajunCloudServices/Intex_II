@@ -164,14 +164,14 @@ export function ReportsAnalyticsPage() {
       const warnings: string[] = [];
 
       const [
-        trendResult,
-        outcomeResult,
+        _trendResult,
+        _outcomeResult,
         safehouseReportResult,
-        reintegrationResult,
+        _reintegrationResult,
         reintegrationRiskResult,
-        outreachResult,
-        socialResult,
-        counselingRiskResult,
+        _outreachResult,
+        _socialResult,
+        _counselingRiskResult,
         trendDeploymentResult,
         safehouseDataResult,
         incidentDataResult,
