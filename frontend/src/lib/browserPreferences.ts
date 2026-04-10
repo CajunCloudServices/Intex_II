@@ -18,6 +18,10 @@ function setCookie(name: string, value: string, maxAgeSeconds: number) {
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${maxAgeSeconds}; SameSite=Lax`;
 }
 
+function deleteCookie(name: string) {
+  document.cookie = `${name}=; path=/; max-age=0; SameSite=Lax`;
+}
+
 export function getConsentLevel(): ConsentLevel | null {
   const value = getCookie(CONSENT_COOKIE);
   return value === 'accepted' || value === 'essential-only' ? value : null;
@@ -25,6 +29,9 @@ export function getConsentLevel(): ConsentLevel | null {
 
 export function saveConsentLevel(value: ConsentLevel) {
   setCookie(CONSENT_COOKIE, value, 60 * 60 * 24 * 365);
+  if (value !== 'accepted') {
+    deleteCookie(THEME_COOKIE);
+  }
 }
 
 export function getThemePreference(): ThemePreference | null {
@@ -33,5 +40,9 @@ export function getThemePreference(): ThemePreference | null {
 }
 
 export function saveThemePreference(value: ThemePreference) {
-  setCookie(THEME_COOKIE, value, 60 * 60 * 24 * 365);
+  if (getConsentLevel() === 'accepted') {
+    setCookie(THEME_COOKIE, value, 60 * 60 * 24 * 365);
+  } else {
+    deleteCookie(THEME_COOKIE);
+  }
 }

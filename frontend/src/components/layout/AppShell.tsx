@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { getThemePreference, saveThemePreference, type ThemePreference } from '../../lib/browserPreferences';
+import { getConsentLevel, getThemePreference, saveThemePreference, type ThemePreference } from '../../lib/browserPreferences';
 import { LogoMark } from '../brand/LogoMark';
 import { FeedbackBanner } from '../ui/FeedbackBanner';
 import { StatusBadge } from '../ui/StatusBadge';
@@ -55,7 +55,9 @@ export function AppShell() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    saveThemePreference(theme);
+    if (getConsentLevel() === 'accepted') {
+      saveThemePreference(theme);
+    }
   }, [theme]);
 
   const isDonorOnly = Boolean(user?.roles.length === 1 && user.roles.includes('Donor'));
