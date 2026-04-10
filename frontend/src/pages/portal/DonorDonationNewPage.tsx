@@ -33,7 +33,7 @@ export function DonorDonationNewPage() {
         if (cancelled) return;
         setSupporters(supportersData);
         setSafehouses(safehouseData);
-        setDonationForm((current) => (current.allocations[0].safehouseId > 0 ? current : createDonationForm(safehouseData[0]?.id)));
+        setDonationForm(createDonationForm(safehouseData[0]?.id));
       } catch (err) {
         if (!cancelled) {
           setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Failed to load donation form data.' });

@@ -42,6 +42,7 @@ export function DonationRecordForm({
             value={donationForm.supporterId}
             onChange={(e) => setDonationForm({ ...donationForm, supporterId: Number(e.target.value) })}
           >
+            <option value={0} disabled>— Select a supporter —</option>
             {supporterOptions.map((supporter) => (
               <option key={supporter.value} value={supporter.value}>
                 {supporter.label}
@@ -137,6 +138,7 @@ export function DonationRecordForm({
         <FormGrid>
           <ValidatedSelectField
             label="Safehouse"
+            required
             value={donationForm.allocations[0]?.safehouseId ?? 0}
             onChange={(e) =>
               setDonationForm({
@@ -146,6 +148,7 @@ export function DonationRecordForm({
             }
             error={donationErrors.safehouseId}
           >
+            <option value={0} disabled>— Select a safehouse —</option>
             {safehouses.map((safehouse) => (
               <option key={safehouse.id} value={safehouse.id}>
                 {safehouse.name}
