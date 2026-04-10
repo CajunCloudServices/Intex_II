@@ -65,6 +65,12 @@ You should see:
 5. spot-check login and one admin mutation flow
 6. verify authenticated `GET /api/safehouses`, `GET /api/residents`, and `GET /api/reports/trend-deployments` all return `200`
 
+## Automation Notes
+
+The intended deploy path is the `Deploy Tanglaw Project` GitHub Actions workflow on pushes to `main`.
+
+If GitHub Actions runner assignment is temporarily unavailable, the production host also runs `harborlight-auto-deploy.timer` once per minute. It fetches `origin/main`, compares it to `/home/lajicpajam/deployments/harborlight-nexus/.deploy-rev`, and only runs the deploy when the SHA changed.
+
 ## Rollback
 
 If a deploy breaks:
