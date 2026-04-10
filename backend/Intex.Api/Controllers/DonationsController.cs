@@ -144,7 +144,7 @@ public class DonationsController(
             .Select(g => new { ProgramArea = g.Key, Total = g.Sum(a => a.AmountAllocated) })
             .ToListAsync();
             
-        var historicalTotals = historicalTotalsList
+        var historicalTotals = monetaryAllocations
             .ToDictionary(x => x.ProgramArea, x => x.Total, StringComparer.OrdinalIgnoreCase);
 
         var options = donationImpactOptions.Value;
