@@ -34,7 +34,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<HomeVisitationResponse>> Create(HomeVisitationRequest request)
     {
         var entity = new HomeVisitation
@@ -45,10 +45,11 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
             VisitType = request.VisitType,
             LocationVisited = request.LocationVisited,
             FamilyMembersPresent = request.FamilyMembersPresent,
-            Purpose = request.Purpose,
-            Observations = request.Observations,
+            Purpose = request.Purpose ?? string.Empty,
+            Observations = request.Observations ?? string.Empty,
             FamilyCooperationLevel = request.FamilyCooperationLevel,
             SafetyConcernsNoted = request.SafetyConcernsNoted,
+            SafetyConcernDetails = request.SafetyConcernDetails,
             FollowUpNeeded = request.FollowUpNeeded,
             FollowUpNotes = request.FollowUpNotes,
             VisitOutcome = request.VisitOutcome
@@ -62,7 +63,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<HomeVisitationResponse>> Update(int id, HomeVisitationRequest request)
     {
         var entity = await dbContext.HomeVisitations.FindAsync(id);
@@ -77,10 +78,11 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
         entity.VisitType = request.VisitType;
         entity.LocationVisited = request.LocationVisited;
         entity.FamilyMembersPresent = request.FamilyMembersPresent;
-        entity.Purpose = request.Purpose;
-        entity.Observations = request.Observations;
+        entity.Purpose = request.Purpose ?? string.Empty;
+        entity.Observations = request.Observations ?? string.Empty;
         entity.FamilyCooperationLevel = request.FamilyCooperationLevel;
         entity.SafetyConcernsNoted = request.SafetyConcernsNoted;
+        entity.SafetyConcernDetails = request.SafetyConcernDetails;
         entity.FollowUpNeeded = request.FollowUpNeeded;
         entity.FollowUpNotes = request.FollowUpNotes;
         entity.VisitOutcome = request.VisitOutcome;
@@ -129,6 +131,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
                 x.Observations,
                 x.FamilyCooperationLevel,
                 x.SafetyConcernsNoted,
+                x.SafetyConcernDetails,
                 x.FollowUpNeeded,
                 x.FollowUpNotes,
                 x.VisitOutcome));

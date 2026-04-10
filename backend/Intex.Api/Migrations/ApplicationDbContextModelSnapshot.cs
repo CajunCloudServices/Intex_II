@@ -430,6 +430,9 @@ namespace Intex.Api.Migrations
                     b.Property<bool>("SafetyConcernsNoted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("SafetyConcernDetails")
+                        .HasColumnType("text");
+
                     b.Property<string>("SocialWorker")
                         .IsRequired()
                         .HasColumnType("text");

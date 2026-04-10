@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 
 export type StaffPortalHeaderAction = {
   label: string;
-  to: string;
+  to?: string;
+  onClick?: () => void;
 };
 
 type StaffPortalPageHeaderProps = {
@@ -31,9 +32,15 @@ export function StaffPortalPageHeader({
       {actions && actions.length > 0 ? (
         <div className="page-header-actions">
           {actions.map((action) => (
-            <Link key={action.to} className="ghost-button" to={action.to}>
-              {action.label}
-            </Link>
+            action.to ? (
+              <Link key={action.to} className="ghost-button" to={action.to}>
+                {action.label}
+              </Link>
+            ) : (
+              <button key={action.label} className="ghost-button" onClick={action.onClick} type="button">
+                {action.label}
+              </button>
+            )
           ))}
         </div>
       ) : null}

@@ -6,10 +6,10 @@ public record CaseConferenceRequest(
     [Range(1, int.MaxValue)] int ResidentId,
     DateOnly ConferenceDate,
     [Required, StringLength(120)] string LeadWorker,
-    [Required, StringLength(400)] string Attendees,
-    [Required, StringLength(500)] string Purpose,
-    [Required, StringLength(4000)] string DecisionsMade,
-    [Required, StringLength(4000)] string FollowUpActions,
+    [StringLength(400)] string? Attendees,
+    [StringLength(500)] string? Purpose,
+    [StringLength(4000)] string? DecisionsMade,
+    [StringLength(4000)] string? FollowUpActions,
     DateOnly? NextReviewDate,
     [Required, StringLength(40)] string Status);
 

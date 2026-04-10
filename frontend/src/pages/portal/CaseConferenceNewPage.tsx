@@ -2,20 +2,24 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api';
-import type { CaseConferenceRequest, Resident } from '../../api/types';
+import { ApiError } from '../../api/client';
+import type { CaseConference, CaseConferenceRequest, HomeVisitation, Resident } from '../../api/types';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { SectionCard } from '../../components/ui/Cards';
 import { LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
-import { createConferenceForm } from './forms/homeVisitationDefaults';
-import { CaseConferenceRecordForm } from './forms/CaseConferenceRecordForm';
+import { buildWorkerOptions, createConferenceForm } from './forms/homeVisitationDefaults';
+import { CaseConferenceRecordForm, type CaseConferenceFieldErrors } from './forms/CaseConferenceRecordForm';
 
 export function CaseConferenceNewPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [residents, setResidents] = useState<Resident[]>([]);
+  const [visitations, setVisitations] = useState<HomeVisitation[]>([]);
+  const [conferences, setConferences] = useState<CaseConference[]>([]);
   const [loading, setLoading] = useState(true);
   const [conferenceForm, setConferenceForm] = useState<CaseConferenceRequest>(createConferenceForm());
+  const [fieldErrors, setFieldErrors] = useState<CaseConferenceFieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
 
@@ -24,9 +28,15 @@ export function CaseConferenceNewPage() {
     let cancelled = false;
     void (async () => {
       try {
-        const residentData = await api.residents();
+        const [residentData, visitationData, conferenceData] = await Promise.all([
+          api.residents(),
+          api.homeVisitations(),
+          api.caseConferences(),
+        ]);
         if (cancelled) return;
         setResidents(residentData);
+        setVisitations(visitationData);
+        setConferences(conferenceData);
         setConferenceForm((current) => (current.residentId > 0 ? current : createConferenceForm(residentData[0]?.id)));
       } catch (err) {
         if (!cancelled) {
@@ -42,14 +52,22 @@ export function CaseConferenceNewPage() {
   }, [user]);
 
   const residentOptions = useMemo(() => residents.map((resident) => ({ value: resident.id, label: resident.caseControlNumber })), [residents]);
+  const workerOptions = useMemo(() => buildWorkerOptions(residents, visitations, conferences), [conferences, residents, visitations]);
 
   if (!user) return null;
 
   const handleConferenceSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!user) return;
+    const nextFieldErrors = validateCaseConferenceForm(conferenceForm);
+    if (Object.keys(nextFieldErrors).length > 0) {
+      setFieldErrors(nextFieldErrors);
+      setFeedback(null);
+      return;
+    }
     setSubmitting(true);
     setFeedback(null);
+    setFieldErrors({});
 
     try {
       const payload = {
@@ -59,7 +77,12 @@ export function CaseConferenceNewPage() {
       await api.createCaseConference(payload);
       navigate('/portal/home-visitations');
     } catch (err) {
-      setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Case conference save failed.' });
+      const apiFieldErrors = extractCaseConferenceFieldErrors(err);
+      if (Object.keys(apiFieldErrors).length > 0) {
+        setFieldErrors(apiFieldErrors);
+      } else {
+        setFeedback({ tone: 'error', message: err instanceof Error ? err.message : 'Case conference save failed.' });
+      }
     } finally {
       setSubmitting(false);
     }
@@ -90,6 +113,8 @@ export function CaseConferenceNewPage() {
             conferenceForm={conferenceForm}
             setConferenceForm={setConferenceForm}
             residentOptions={residentOptions}
+            workerOptions={workerOptions}
+            fieldErrors={fieldErrors}
             onSubmit={handleConferenceSubmit}
             submitting={submitting}
             submitLabel="Create case conference"
@@ -98,4 +123,42 @@ export function CaseConferenceNewPage() {
       )}
     </div>
   );
+}
+
+function validateCaseConferenceForm(form: CaseConferenceRequest): CaseConferenceFieldErrors {
+  const errors: CaseConferenceFieldErrors = {};
+  if (form.residentId <= 0) errors.residentId = 'Select a resident.';
+  if (!form.conferenceDate) errors.conferenceDate = 'Enter the conference date.';
+  if (!form.leadWorker.trim()) errors.leadWorker = 'Select the lead worker.';
+  if (!form.status.trim()) errors.status = 'Select the conference status.';
+  if (!form.purpose.trim()) errors.purpose = 'Enter the conference purpose.';
+  if (form.status !== 'Scheduled' && !form.decisionsMade.trim()) errors.decisionsMade = 'Enter the conference decisions.';
+  if (form.status !== 'Scheduled' && !form.followUpActions.trim()) errors.followUpActions = 'Enter the follow-up actions.';
+  return errors;
+}
+
+function extractCaseConferenceFieldErrors(error: unknown): CaseConferenceFieldErrors {
+  if (!(error instanceof ApiError) || !error.details) return {};
+  try {
+    const parsed = JSON.parse(error.details) as { errors?: Record<string, string[]> };
+    const apiErrors = parsed.errors ?? {};
+    return compactFieldErrors<CaseConferenceFieldErrors>({
+      residentId: apiErrors.ResidentId?.[0],
+      conferenceDate: apiErrors.ConferenceDate?.[0],
+      leadWorker: apiErrors.LeadWorker?.[0],
+      attendees: apiErrors.Attendees?.[0],
+      purpose: apiErrors.Purpose?.[0],
+      decisionsMade: apiErrors.DecisionsMade?.[0],
+      followUpActions: apiErrors.FollowUpActions?.[0],
+      status: apiErrors.Status?.[0],
+    });
+  } catch {
+    return {};
+  }
+}
+
+function compactFieldErrors<T extends Record<string, string | undefined>>(errors: T): T {
+  return Object.fromEntries(
+    Object.entries(errors).filter(([, value]) => Boolean(value)),
+  ) as T;
 }
