@@ -88,22 +88,31 @@ export async function apiRequest<T>(
           message?: string;
           title?: string;
           detail?: string;
-          errors?: Array<string | { field?: string; message?: string }>;
+          errors?: Array<string | { field?: string; message?: string }> | Record<string, string[]>;
         };
-        const formattedErrors = parsed.errors
-          ?.map((entry) => {
-            if (typeof entry === "string") {
-              return entry;
-            }
-            if (!entry) {
-              return "";
-            }
-            return entry.field
-              ? `${entry.field}: ${entry.message ?? "Invalid value."}`
-              : (entry.message ?? "Invalid value.");
-          })
-          .filter(Boolean)
-          .join(", ");
+
+        let formattedErrors: string | undefined;
+        if (Array.isArray(parsed.errors)) {
+          // Custom array format
+          formattedErrors = parsed.errors
+            .map((entry) => {
+              if (typeof entry === "string") return entry;
+              if (!entry) return "";
+              return entry.field
+                ? `${entry.field}: ${entry.message ?? "Invalid value."}`
+                : (entry.message ?? "Invalid value.");
+            })
+            .filter(Boolean)
+            .join("; ");
+        } else if (parsed.errors && typeof parsed.errors === "object") {
+          // ASP.NET Core model validation format: { "FieldName": ["message"] }
+          formattedErrors = Object.entries(parsed.errors as Record<string, string[]>)
+            .flatMap(([field, messages]) =>
+              messages.map((msg) => `${field}: ${msg}`)
+            )
+            .join("; ");
+        }
+
         message =
           parsed.message ??
           formattedErrors ??

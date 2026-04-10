@@ -3248,9 +3248,14 @@ textarea {
 }
 
 .data-table caption {
+  caption-side: top;
+  display: table-caption;
   text-align: left;
-  padding-bottom: 0.65rem;
-  color: var(--color-text-soft);
+  padding: 0.25rem 0.35rem 0.85rem;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .data-table th,
@@ -6074,6 +6079,167 @@ body {
   border-top: 1px solid rgba(81, 69, 50, 0.08);
 }
 
+.visit-flags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.visit-flag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+}
+
+.visit-flag-safety {
+  background: var(--color-error-surface);
+  color: var(--color-error-ink);
+}
+
+.visit-flag-followup {
+  background: var(--color-secondary-container);
+  color: var(--color-secondary-ink);
+}
+
+.visit-flag-none {
+  color: var(--color-text-soft);
+}
+
+.home-visitations-filter-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 320px;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(81, 69, 50, 0.08);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.home-visitations-filter-header {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.home-visitations-filter-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.home-visitations-filter-copy {
+  color: var(--color-text-soft);
+  font-size: 0.82rem;
+}
+
+.home-visitations-filter-search {
+  width: 100%;
+}
+
+.home-visitations-filter-search .inline-search {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.home-visitations-filter-selects {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.home-visitations-filter-selects .filter-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.home-visitations-filter-selects .inline-select {
+  width: 100%;
+  min-width: 0;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.filter-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-soft);
+}
+
+.section-card-hint {
+  color: var(--color-text-soft);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.home-visitations-modal-backdrop {
+  z-index: 90;
+}
+
+.home-visitations-view-modal,
+.home-visitations-edit-modal {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.4rem;
+}
+
+.home-visitations-view-modal {
+  width: min(100%, 72rem);
+}
+
+.home-visitations-edit-modal {
+  width: min(100%, 60rem);
+}
+
+.home-visitations-detail-grid,
+.home-visitations-note-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.home-visitations-detail-card,
+.home-visitations-note-card {
+  display: grid;
+  gap: 0.45rem;
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(81, 69, 50, 0.08);
+  background: rgba(255, 255, 255, 0.64);
+}
+
+.home-visitations-detail-card span,
+.home-visitations-note-card span {
+  color: var(--color-text-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.home-visitations-detail-value,
+.home-visitations-note-card p {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.home-visitations-detail-value .status-badge {
+  width: fit-content;
+}
+
 .donation-card-value,
 .donation-card-notes {
   display: grid;
@@ -6556,7 +6722,9 @@ body {
   }
 
   .process-recording-detail-grid,
-  .process-recording-note-grid {
+  .process-recording-note-grid,
+  .home-visitations-detail-grid,
+  .home-visitations-note-grid {
     grid-template-columns: 1fr;
   }
 

@@ -34,7 +34,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPost]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<CaseConferenceResponse>> Create(CaseConferenceRequest request)
     {
         var entity = MapRequest(new CaseConference(), request);
@@ -46,7 +46,7 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Policy = Policies.AdminOnly)]
+    [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<CaseConferenceResponse>> Update(int id, CaseConferenceRequest request)
     {
         var entity = await dbContext.CaseConferences.FindAsync(id);
@@ -88,10 +88,10 @@ public class CaseConferencesController(ApplicationDbContext dbContext, IAuditLog
         entity.ResidentId = request.ResidentId;
         entity.ConferenceDate = request.ConferenceDate;
         entity.LeadWorker = request.LeadWorker;
-        entity.Attendees = request.Attendees;
-        entity.Purpose = request.Purpose;
-        entity.DecisionsMade = request.DecisionsMade;
-        entity.FollowUpActions = request.FollowUpActions;
+        entity.Attendees = request.Attendees ?? string.Empty;
+        entity.Purpose = request.Purpose ?? string.Empty;
+        entity.DecisionsMade = request.DecisionsMade ?? string.Empty;
+        entity.FollowUpActions = request.FollowUpActions ?? string.Empty;
         entity.NextReviewDate = request.NextReviewDate;
         entity.Status = request.Status;
         return entity;

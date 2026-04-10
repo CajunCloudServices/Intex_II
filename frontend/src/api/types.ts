@@ -298,10 +298,11 @@ export interface HomeVisitation {
   visitType: string;
   locationVisited: string;
   familyMembersPresent: string;
-  purpose: string;
-  observations: string;
+  purpose?: string | null;
+  observations?: string | null;
   familyCooperationLevel: string;
   safetyConcernsNoted: boolean;
+  safetyConcernDetails?: string | null;
   followUpNeeded: boolean;
   followUpNotes?: string | null;
   visitOutcome: string;
@@ -742,6 +743,7 @@ export interface HomeVisitationRequest {
   observations: string;
   familyCooperationLevel: string;
   safetyConcernsNoted: boolean;
+  safetyConcernDetails: string;
   followUpNeeded: boolean;
   followUpNotes?: string | null;
   visitOutcome: string;

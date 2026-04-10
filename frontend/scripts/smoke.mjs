@@ -98,6 +98,10 @@ try {
   await adminPage.goto(`${baseUrl}/portal/home-visitations`, { waitUntil: 'networkidle' });
   await adminPage.getByRole('heading', { name: 'Home visitations & case conferences' }).waitFor();
   await adminPage.getByRole('heading', { name: 'Case conference history' }).waitFor();
+  await adminPage.getByRole('button', { name: 'Log Home Visit' }).waitFor();
+  await adminPage.locator('table').first().getByRole('button', { name: 'View' }).first().click();
+  await adminPage.getByRole('dialog', { name: 'Home visit details' }).waitFor();
+  await adminPage.getByRole('button', { name: 'Close' }).click();
 
   await adminPage.goto(`${baseUrl}/portal/caseload`, { waitUntil: 'networkidle' });
   await adminPage.getByRole('heading', { name: 'Caseload inventory' }).waitFor();

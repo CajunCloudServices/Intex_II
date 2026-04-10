@@ -1,5 +1,7 @@
 import { apiRequest } from '../client';
 import type {
+  CaseConference,
+  CaseConferenceRequest,
   HomeVisitation,
   HomeVisitationRequest,
   IncidentReport,
@@ -75,6 +77,25 @@ export const caseManagementApi = {
 
   deleteHomeVisitation: (id: number) =>
     apiRequest<void>(`/home-visitations/${id}?confirm=true`, {
+      method: 'DELETE',
+    }),
+
+  caseConferences: () => apiRequest<CaseConference[]>('/case-conferences'),
+
+  createCaseConference: (payload: CaseConferenceRequest) =>
+    apiRequest<CaseConference>('/case-conferences', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+
+  updateCaseConference: (id: number, payload: CaseConferenceRequest) =>
+    apiRequest<CaseConference>(`/case-conferences/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+
+  deleteCaseConference: (id: number) =>
+    apiRequest<void>(`/case-conferences/${id}?confirm=true`, {
       method: 'DELETE',
     }),
 

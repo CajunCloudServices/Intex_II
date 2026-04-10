@@ -13,6 +13,7 @@ public class HomeVisitation
     public string Observations { get; set; } = string.Empty;
     public string FamilyCooperationLevel { get; set; } = string.Empty;
     public bool SafetyConcernsNoted { get; set; }
+    public string? SafetyConcernDetails { get; set; }
     public bool FollowUpNeeded { get; set; }
     public string? FollowUpNotes { get; set; }
     public string VisitOutcome { get; set; } = string.Empty;
