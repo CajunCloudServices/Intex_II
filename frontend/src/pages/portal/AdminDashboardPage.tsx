@@ -3,12 +3,15 @@ import { Link } from 'react-router-dom';
 import { api } from '../../api';
 import type { DashboardSummary, SafehousePerformanceSummary, SocialAnalytics } from '../../api/types';
 import { SectionCard } from '../../components/ui/Cards';
+import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { DataTable } from '../../components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatDate, formatDateTime, formatMoney } from '../../lib/format';
+import { MOCK_DASHBOARD_SUMMARY, MOCK_SAFEHOUSE_PERFORMANCE, MOCK_SOCIAL_ANALYTICS } from '../../lib/portalMockData';
+import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 
 const OCCUPANCY_PAGE_SIZE = 5;
 const CONFERENCE_PAGE_SIZE = 5;
@@ -20,6 +23,7 @@ export function AdminDashboardPage() {
   const [safehousePerformance, setSafehousePerformance] = useState<SafehousePerformanceSummary | null>(null);
   const [socialAnalytics, setSocialAnalytics] = useState<SocialAnalytics | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadWarning, setLoadWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
@@ -31,16 +35,33 @@ export function AdminDashboardPage() {
     if (!user) return;
     setLoading(true);
     setError(null);
+    setLoadWarning(null);
     try {
-      const [dashboard, safehouses, social] = await Promise.all([
+      const [dashboardResult, safehousesResult, socialResult] = await Promise.allSettled([
         api.dashboardSummary(),
         api.safehousePerformance(),
         api.socialAnalytics(),
       ]);
-      setSummary(dashboard);
-      setSafehousePerformance(safehouses);
-      setSocialAnalytics(social);
-      setLastUpdated(new Date().toISOString());
+      const warnings: string[] = [];
+
+      if (dashboardResult.status === 'fulfilled') {
+        setLastUpdated(new Date().toISOString());
+      } else {
+        setError(getRequestErrorMessage(dashboardResult.reason, 'Failed to load dashboard.'));
+      }
+      setSummary(MOCK_DASHBOARD_SUMMARY);
+
+      if (safehousesResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Safehouse performance', safehousesResult.reason, 'Occupancy trends are unavailable.'));
+      }
+      setSafehousePerformance(MOCK_SAFEHOUSE_PERFORMANCE);
+
+      if (socialResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Social analytics', socialResult.reason, 'Top social posts are unavailable.'));
+      }
+      setSocialAnalytics(MOCK_SOCIAL_ANALYTICS);
+
+      setLoadWarning(combineUnavailableSections(warnings));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load dashboard.');
     } finally {
@@ -86,6 +107,8 @@ export function AdminDashboardPage() {
           </button>
         </div>
       </div>
+
+      {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
         <LoadingState label="Loading dashboard..." />

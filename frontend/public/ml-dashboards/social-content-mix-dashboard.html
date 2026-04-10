@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Content mix &amp; referrals — ML Insights</title>
+  <title>Content mix by platform — Lighthouse</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
   <script src="ml-metric-tooltip.js" defer></script>
 </head>
@@ -19,7 +19,7 @@
         <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
         <div>
           Tanglaw Project Admin
-          <span>Marketing · content mix</span>
+          <span>Marketing · content performance</span>
         </div>
       </div>
       <div>
@@ -44,26 +44,59 @@
       </p>
     </aside>
     <main>
-      <h1 class="page-title">Content mix &amp; referral efficiency</h1>
-      <p class="page-sub">Top referral quartile vs content attributes (random forest on pre-publish features).</p>
+      <h1 class="page-title">Post performance: platform × format</h1>
+      <p class="page-sub">
+        See which platform and post-type combinations earned the most donation referrals in this file, which formats averaged best overall, and how single posts score for “looks like past strong referrers”—without model jargon on the page.
+      </p>
 
       <div id="load-state" class="loading">Loading dashboard data…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
-        <div id="insight-root" aria-live="polite"></div>
+        <div class="kpi-row" id="kpis"></div>
+
+        <div class="panel insight-cta" style="margin-bottom: 1rem; border-left: 3px solid var(--accent, #c9a227)">
+          <h2 class="insight-cta-title" style="margin-top: 0">Which post types mattered most?</h2>
+          <ul class="insight-cta-list" id="impact-bullets" style="margin-bottom: 0"></ul>
+        </div>
+
+        <div class="split" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem">
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">How to read this page</h2>
+            <ul class="insight-cta-list" id="intro-bullets" style="margin: 0; padding-left: 1.1rem"></ul>
+          </div>
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Strong-referral score (single posts)</h2>
+            <p style="margin: 0; font-size: 0.85rem; color: var(--text)" id="score-explainer"></p>
+          </div>
+        </div>
+
         <div class="panel" style="margin-bottom: 1rem">
-          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">How to read the score</h2>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
-            <strong>Top-quartile probability</strong> estimates whether a post would land in the top 75th percentile of
-            <code>donation_referrals</code>, using the same features as the trend notebook. It supports planning, not a promise of outcomes.
-          </p>
+          <div class="panel-head">
+            <h2>Platform × post type</h2>
+            <p class="page-sub" style="margin: 0; max-width: 48rem">
+              Sorted by average referrals per post. Use this grid to compare mixes (e.g. Instagram Reel vs Facebook Story)—not to prove one channel “wins” forever.
+            </p>
+          </div>
+          <div class="table-wrap" style="max-height: 52vh">
+            <table>
+              <thead>
+                <tr>
+                  <th data-sort-mix="platform">Platform</th>
+                  <th data-sort-mix="post_type">Post type</th>
+                  <th data-sort-mix="posts">Posts</th>
+                  <th data-sort-mix="avg_referrals">Avg referrals</th>
+                  <th data-sort-mix="median_referrals">Median referrals</th>
+                  <th data-sort-mix="total_referrals">Total referrals</th>
+                  <th data-sort-mix="avg_strong_referral_score">Avg strong-referral score</th>
+                </tr>
+              </thead>
+              <tbody id="mix-tbody"></tbody>
+            </table>
+          </div>
         </div>
 
         <details class="data-fold" open>
-          <summary>
-            Post-level scores
-            <span class="fold-hint">Sort, search · all posts</span>
-          </summary>
+          <summary>All posts <span class="fold-hint">Sort · search</span></summary>
           <div class="fold-inner">
             <div class="panel">
               <div class="panel-head">
@@ -72,7 +105,7 @@
                   <input type="search" id="search" placeholder="Search platform, type, topic…" />
                 </div>
               </div>
-              <div class="table-wrap" style="max-height: 58vh">
+              <div class="table-wrap" style="max-height: 48vh">
                 <table>
                   <thead>
                     <tr>
@@ -81,8 +114,8 @@
                       <th data-sort="post_type">Post type</th>
                       <th data-sort="content_topic">Topic</th>
                       <th data-sort="donation_referrals">Referrals</th>
-                      <th data-sort="top_quartile_probability">P(top quartile)</th>
-                      <th data-sort="high_referral_actual">Top quartile (actual)</th>
+                      <th data-sort="top_quartile_probability">Strong-referral score</th>
+                      <th data-sort="high_referral_actual">Top quarter? (actual)</th>
                     </tr>
                   </thead>
                   <tbody id="tbody"></tbody>
@@ -91,21 +124,40 @@
             </div>
           </div>
         </details>
+
+        <details class="data-fold" style="margin-top: 0.75rem">
+          <summary>How scores were built <span class="fold-hint">Optional</span></summary>
+          <div class="fold-inner">
+            <p class="page-sub" id="method-note" style="margin: 0"></p>
+          </div>
+        </details>
       </div>
     </main>
   </div>
   <script src="ml-dashboard-helpers.js"></script>
-  <script src="ml-dashboard-insights.js"></script>
   <script>
     (function () {
       const loadState = document.getElementById("load-state");
       const errorState = document.getElementById("error-state");
       const dashboard = document.getElementById("dashboard");
       const tbody = document.getElementById("tbody");
+      const mixTbody = document.getElementById("mix-tbody");
       const search = document.getElementById("search");
+      const kpis = document.getElementById("kpis");
       let data = null;
       let sortKey = "top_quartile_probability";
       let sortDir = -1;
+      let mixSortKey = "avg_referrals";
+      let mixSortDir = -1;
+
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : "";
+
+      const STRONG_SCORE_HELP =
+        "0–100%: how much this post’s platform, format, topic, timing, and engagement resemble posts in this file that landed in the top quarter for donation referrals. " +
+        "Use it to prioritize editorial review before publish—not as a promise of results.";
 
       function showError(html) {
         loadState.style.display = "none";
@@ -123,12 +175,49 @@
         return (100 * Number(x || 0)).toFixed(1) + "%";
       }
 
+      function bulletsToList(el, items) {
+        if (!el || !items || !items.length) {
+          if (el) el.innerHTML = "<li>No summary loaded.</li>";
+          return;
+        }
+        el.innerHTML = items.map((t) => "<li>" + escapeHtml(t) + "</li>").join("");
+      }
+
       function cmp(a, b, key) {
         const va = a[key];
         const vb = b[key];
         if (typeof va === "boolean" && typeof vb === "boolean") return va === vb ? 0 : va ? 1 : -1;
         if (typeof va === "number" && typeof vb === "number") return va - vb;
         return String(va).localeCompare(String(vb));
+      }
+
+      function renderKpis(port, mixLen) {
+        const n = port?.n_posts ?? "—";
+        const topQ = port?.top_quartile_rate ?? 0;
+        kpis.innerHTML = `
+          <div class="kpi"><div class="label">Posts in file ${infoIcon("Every post in this export with referral counts.")}</div><div class="value">${n}</div></div>
+          <div class="kpi"><div class="label">In top quarter for referrals ${infoIcon("Share of posts that count as “strong referrers” in this dataset: top 25% by donation referral count.")}</div><div class="value">${fmtPct(topQ)}</div></div>
+          <div class="kpi"><div class="label">Platform × type combos ${infoIcon("Distinct pairs in the grid (e.g. Instagram + ImpactStory).")}</div><div class="value">${mixLen}</div></div>
+        `;
+      }
+
+      function renderMixTable() {
+        const mix = data.platform_type_performance || [];
+        const sorted = mix.slice().sort((a, b) => cmp(a, b, mixSortKey) * mixSortDir);
+        mixTbody.innerHTML = sorted
+          .map(
+            (r) => `
+          <tr>
+            <td>${escapeHtml(r.platform)}</td>
+            <td>${escapeHtml(r.post_type)}</td>
+            <td>${r.posts}</td>
+            <td>${Number(r.avg_referrals).toFixed(1)}</td>
+            <td>${Number(r.median_referrals).toFixed(1)}</td>
+            <td>${r.total_referrals}</td>
+            <td>${fmtPct(r.avg_strong_referral_score)}</td>
+          </tr>`
+          )
+          .join("");
       }
 
       function render() {
@@ -149,10 +238,11 @@
             <td>${escapeHtml(r.content_topic)}</td>
             <td>${r.donation_referrals}</td>
             <td>${fmtPct(r.top_quartile_probability)}</td>
-            <td>${r.high_referral_actual ? '<span class="badge badge-alert">Yes</span>' : '<span class="badge badge-ok">No</span>'}</td>
+            <td>${r.high_referral_actual ? '<span class="badge badge-ok">Yes</span>' : '<span class="badge">No</span>'}</td>
           </tr>`
           )
           .join("");
+        renderMixTable();
       }
 
       document.querySelectorAll("th[data-sort]").forEach((th) => {
@@ -166,6 +256,19 @@
           render();
         });
       });
+
+      document.querySelectorAll("th[data-sort-mix]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sortMix;
+          if (mixSortKey === k) mixSortDir *= -1;
+          else {
+            mixSortKey = k;
+            mixSortDir = k === "platform" || k === "post_type" ? 1 : -1;
+          }
+          renderMixTable();
+        });
+      });
+
       search.addEventListener("input", render);
 
       fetch("/api/ml-dashboard/data/social-content-mix-dashboard-data", { credentials: "include" })
@@ -177,13 +280,23 @@
           data = json;
           loadState.style.display = "none";
           dashboard.style.display = "block";
-          if (typeof renderInsightStory === "function" && data.insights) {
-            renderInsightStory(document.getElementById("insight-root"), data.insights, {
-              followupsFirst: true,
-              predSectionTitle: "Scores and predictions",
-              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
-            });
+          const pa = data.plain_answers || {};
+          bulletsToList(document.getElementById("intro-bullets"), pa.intro_bullets);
+          bulletsToList(document.getElementById("impact-bullets"), pa.impact_bullets);
+          document.getElementById("method-note").textContent = pa.method_note || "";
+          document.getElementById("score-explainer").textContent = STRONG_SCORE_HELP;
+
+          renderKpis(data.portfolio, (data.platform_type_performance || []).length);
+
+          const sqTh = document.querySelector('th[data-sort="top_quartile_probability"]');
+          if (sqTh) sqTh.innerHTML = "Strong-referral score " + infoIcon(STRONG_SCORE_HELP);
+          const avgStrongTh = document.querySelector('th[data-sort-mix="avg_strong_referral_score"]');
+          if (avgStrongTh) {
+            avgStrongTh.innerHTML =
+              "Avg strong-referral score " +
+              infoIcon("Mean of single-post strong-referral scores for rows in this platform × type cell. " + STRONG_SCORE_HELP);
           }
+
           render();
         })
         .catch(() => {

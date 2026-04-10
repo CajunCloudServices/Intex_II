@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Resident trajectory — ML Insights</title>
+  <title>Resident progress — Lighthouse</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
   <script src="ml-metric-tooltip.js" defer></script>
 </head>
@@ -17,7 +17,7 @@
         <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
         <div>
           Tanglaw Project Admin
-          <span>Case management · trajectory</span>
+          <span>Residents · progress view</span>
         </div>
       </div>
       <div>
@@ -39,18 +39,53 @@
       <p class="hint">Notebook: <code>resident-trajectory-archetypes.ipynb</code>. Regenerate: <code>python3 scripts/generate_resident_trajectory_dashboard_data.py</code></p>
     </aside>
     <main>
-      <h1 class="page-title">Resident trajectory archetypes</h1>
-      <p class="page-sub">Positive trajectory probability using cross-domain aggregates (current risk excluded from features in notebook).</p>
+      <h1 class="page-title">Resident progress snapshot</h1>
+      <p class="page-sub">
+        This page answers: (1) How many residents are on a positive path in the case file? (2) What activity does the tool lean on?
+        (3) Who might deserve a supervision check-in first? Scores rank people for discussion—they do not replace judgment.
+      </p>
       <div id="load-state" class="loading">Loading…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
-        <div id="insight-root" aria-live="polite"></div>
+        <div class="kpi-row" id="kpis"></div>
+
+        <div class="split" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem">
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">1) Who is moving forward in the record?</h2>
+            <ul class="insight-cta-list" id="answer-trajectory" style="margin: 0; padding-left: 1.1rem"></ul>
+          </div>
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">2) What does the tool notice in the data?</h2>
+            <ul class="insight-cta-list" id="answer-signals" style="margin: 0; padding-left: 1.1rem"></ul>
+          </div>
+        </div>
         <div class="panel" style="margin-bottom: 1rem">
-          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Label definition</h2>
+          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">3) Who to review first?</h2>
+          <ul class="insight-cta-list" id="answer-review" style="margin: 0; padding-left: 1.1rem"></ul>
+        </div>
+
+        <div class="panel" style="margin-bottom: 1rem">
+          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Labels and scores</h2>
+          <p style="margin: 0 0 0.55rem; font-size: 0.85rem; color: var(--text)">
+            <strong>Likelihood score (0–100%)</strong> is how much this resident’s <strong>program activity</strong>—education records, health check-ins, counseling sessions, home visits, plus safehouse, case category, and referral—<strong>looks like</strong> residents who were later marked on a <strong>positive path</strong> in the case file.
+            It is a <strong>similarity ranking</strong> from patterns in past data, not a promise about the future, not a clinical or legal judgment, and not a substitute for staff decisions.
+          </p>
           <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
-            <strong>Positive trajectory</strong> matches the notebook: risk improved vs intake and/or positive reintegration status. Scores use education, health, process, and visitation aggregates only.
+            <strong>Positive path</strong> in the last column matches the notebook: risk improved compared with intake and/or reintegration marked in progress or completed.
+            The score deliberately does <strong>not</strong> use today’s risk level as an input, so it does not double-count what is already in the case record.
           </p>
         </div>
+
+        <details class="data-fold" style="margin-bottom: 0.75rem">
+          <summary>How this was built <span class="fold-hint">Optional detail</span></summary>
+          <div class="fold-inner">
+            <p class="page-sub" id="method-note" style="margin: 0"></p>
+            <p class="page-sub" id="quality-note" style="margin: 0.65rem 0 0; font-size: 0.8rem; color: var(--muted)">
+              For staff who want the numbers: the notebook holds out residents for a fair check and reports how well the score lines up with the case label and with risk level. Open the notebook export for the full table.
+            </p>
+          </div>
+        </details>
+
         <details class="data-fold" open>
           <summary>Residents <span class="fold-hint">Sort · search</span></summary>
           <div class="fold-inner">
@@ -66,10 +101,10 @@
                       <th data-sort="resident_id">Resident</th>
                       <th data-sort="safehouse_id">House</th>
                       <th data-sort="case_category">Category</th>
-                      <th data-sort="positive_trajectory_probability">P(positive trajectory)</th>
+                      <th data-sort="positive_trajectory_probability">Likelihood score</th>
                       <th data-sort="process_count">Sessions</th>
-                      <th data-sort="health_mean">Health mean</th>
-                      <th data-sort="positive_trajectory_actual">Positive (actual)</th>
+                      <th data-sort="health_mean">Health (avg.)</th>
+                      <th data-sort="positive_trajectory_actual">Positive path (record)</th>
                     </tr>
                   </thead>
                   <tbody id="tbody"></tbody>
@@ -82,7 +117,6 @@
     </main>
   </div>
   <script src="ml-dashboard-helpers.js"></script>
-  <script src="ml-dashboard-insights.js"></script>
   <script>
     (function () {
       const loadState = document.getElementById("load-state");
@@ -90,9 +124,22 @@
       const dashboard = document.getElementById("dashboard");
       const tbody = document.getElementById("tbody");
       const search = document.getElementById("search");
+      const kpis = document.getElementById("kpis");
       let data = null;
       let sortKey = "positive_trajectory_probability";
       let sortDir = -1;
+
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : "";
+
+      const LIKELIHOOD_SCORE_HELP =
+        "Likelihood score is a number from 0% to 100%. The tool compares this resident’s activity in the file—education, health, counseling sessions, home visits, safehouse, case category, and referral—to patterns from residents who were later recorded on a positive path (risk improved and/or reintegration in progress or completed). " +
+        "A higher percent means ‘more like’ those past positive-path cases in the data; a lower percent means less like them. " +
+        "It does not use today’s risk level as an input. " +
+        "Use it to sort and prioritize conversations, not as proof someone will or won’t succeed.";
+
       function showError(html) {
         loadState.style.display = "none";
         errorState.style.display = "block";
@@ -106,12 +153,29 @@
       function fmtPct(x) {
         return (100 * Number(x || 0)).toFixed(1) + "%";
       }
+      function bulletsToList(el, items) {
+        if (!el || !items || !items.length) {
+          if (el) el.innerHTML = "<li>No summary loaded.</li>";
+          return;
+        }
+        el.innerHTML = items.map((t) => "<li>" + escapeHtml(t) + "</li>").join("");
+      }
       function cmp(a, b, key) {
         const va = a[key];
         const vb = b[key];
         if (typeof va === "boolean" && typeof vb === "boolean") return va === vb ? 0 : va ? 1 : -1;
         if (typeof va === "number" && typeof vb === "number") return va - vb;
         return String(va).localeCompare(String(vb));
+      }
+      function renderKpis(p) {
+        if (!p) return;
+        const th = typeof p.review_threshold === "number" ? p.review_threshold : 0.42;
+        kpis.innerHTML = `
+          <div class="kpi"><div class="label">Residents in file ${infoIcon("Count of residents included in this export after joins to education, health, sessions, and visits.")}</div><div class="value">${p.n_residents ?? "—"}</div></div>
+          <div class="kpi"><div class="label">On a positive path (record) ${infoIcon("Share of residents whose case record matches the notebook definition: risk improved since intake and/or reintegration in progress or completed.")}</div><div class="value">${fmtPct(p.positive_trajectory_rate ?? 0)}</div></div>
+          <div class="kpi"><div class="label">Typical likelihood score ${infoIcon("The middle value (median) of every resident’s likelihood score in this table—half are above, half below. " + LIKELIHOOD_SCORE_HELP)}</div><div class="value">${fmtPct(p.median_likelihood ?? 0)}</div></div>
+          <div class="kpi"><div class="label">Suggested reviews ${infoIcon("Residents whose likelihood score is below " + fmtPct(th) + ". For what “likelihood score” means, use the (i) on “Typical likelihood score” or on the table column. The cutoff is a practical triage line for supervision, not a medical or legal rule.")}</div><div class="value">${p.n_low_likelihood ?? "—"}</div><div class="sub">${p.n_low_likelihood_not_positive_record ?? "—"} also not positive on record</div></div>
+        `;
       }
       function render() {
         const q = (search.value || "").toLowerCase().trim();
@@ -156,13 +220,18 @@
           data = json;
           loadState.style.display = "none";
           dashboard.style.display = "block";
-          if (typeof renderInsightStory === "function" && data.insights) {
-            renderInsightStory(document.getElementById("insight-root"), data.insights, {
-              followupsFirst: true,
-              predSectionTitle: "Scores and predictions",
-              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
-            });
+          const pa = data.plain_answers || {};
+          bulletsToList(document.getElementById("answer-trajectory"), pa.trajectory_bullets);
+          bulletsToList(document.getElementById("answer-signals"), pa.signal_bullets);
+          bulletsToList(document.getElementById("answer-review"), pa.review_bullets);
+          const mn = document.getElementById("method-note");
+          if (mn) mn.textContent = pa.method_note || "";
+          const port = data.portfolio || {};
+          const likelihoodTh = document.querySelector('th[data-sort="positive_trajectory_probability"]');
+          if (likelihoodTh) {
+            likelihoodTh.innerHTML = "Likelihood score " + infoIcon(LIKELIHOOD_SCORE_HELP);
           }
+          renderKpis(port);
           render();
         })
         .catch(() => showError("<strong>Could not load JSON.</strong> Run <code>generate_resident_trajectory_dashboard_data.py</code>."));

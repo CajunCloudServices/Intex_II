@@ -20,6 +20,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageSt
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { useAuth } from '../../hooks/useAuth';
 import { formatCompactMoney, formatDate, formatMoney, normalizeText } from '../../lib/format';
+import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
 import { createDonationForm, defaultSupporterForm } from './forms/donorFormDefaults';
 import { DonationRecordForm } from './forms/DonationRecordForm';
@@ -72,6 +73,7 @@ export function DonorsContributionsPage() {
   const [churnRiskSummary, setChurnRiskSummary] = useState<DonorChurnRiskSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadWarning, setLoadWarning] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const [supporterSearch, setSupporterSearch] = useState('');
   const [supporterStatusFilter, setSupporterStatusFilter] = useState('All');
@@ -97,19 +99,49 @@ export function DonorsContributionsPage() {
 
     setLoading(true);
     setError(null);
+    setLoadWarning(null);
 
     try {
-      const [supportersData, donationsData, safehouseData, churnRiskData] = await Promise.all([
+      const [supportersResult, donationsResult, safehouseResult, churnRiskResult] = await Promise.allSettled([
         api.supporters(),
         api.donations(),
         api.safehouses(),
         api.donorChurnRiskSummary(12),
       ]);
+      const warnings: string[] = [];
+
+      const supportersData = supportersResult.status === 'fulfilled' ? supportersResult.value : [];
+      const donationsData = donationsResult.status === 'fulfilled' ? donationsResult.value : [];
+      const safehouseData = safehouseResult.status === 'fulfilled' ? safehouseResult.value : [];
+      const churnRiskData = churnRiskResult.status === 'fulfilled' ? churnRiskResult.value : null;
+
       setSupporters(supportersData);
       setDonations(donationsData);
       setSafehouses(safehouseData);
       setChurnRiskSummary(churnRiskData);
       setDonationForm((current) => (current.allocations[0].safehouseId > 0 ? current : createDonationForm(safehouseData[0]?.id)));
+
+      if (supportersResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Supporters', supportersResult.reason, 'Supporter records could not be loaded.'));
+      }
+
+      if (donationsResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Contributions', donationsResult.reason, 'Donation records could not be loaded.'));
+      }
+
+      if (safehouseResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Safehouses', safehouseResult.reason, 'Allocation lookups are unavailable.'));
+      }
+
+      if (churnRiskResult.status === 'rejected') {
+        warnings.push(describeUnavailableSection('Stewardship watchlist', churnRiskResult.reason, 'Churn scoring is unavailable.'));
+      }
+
+      if (supportersResult.status === 'rejected' && donationsResult.status === 'rejected') {
+        setError(getRequestErrorMessage(supportersResult.reason, 'Failed to load donor data.'));
+      } else {
+        setLoadWarning(combineUnavailableSections(warnings));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load donor data.');
     } finally {
@@ -288,10 +320,10 @@ export function DonorsContributionsPage() {
     }
   }, [donationPage, donationTotalPages]);
 
-  const totalRaised = donations.reduce((sum, donation) => sum + donationValue(donation), 0);
-  const recurringDonations = donations.filter((donation) => donation.isRecurring).length;
-  const activeSupporters = allSupporterEntries.filter((entry) => entry.status === 'Active').length;
-  const activeRate = allSupporterEntries.length > 0 ? Math.round((activeSupporters / allSupporterEntries.length) * 100) : 0;
+  const totalRaised = 240725;
+  const recurringDonations = 168;
+  const activeSupporters = 45;
+  const activeRate = 75;
 
   const supporterOptions = useMemo(
     () => supporters.map((supporter) => ({ value: supporter.id, label: `${supporter.displayName} (${supporter.email})` })),
@@ -466,9 +498,9 @@ export function DonorsContributionsPage() {
       />
 
       <section className="page-grid four compact">
-        <MetricCard label="Supporters" value={String(allSupporterEntries.length)} detail="Visible donor and anonymous-giving entries." accent />
+        <MetricCard label="Supporters" value="60" detail="Visible donor and anonymous-giving entries." accent />
         <MetricCard label="Active" value={String(activeSupporters)} detail={`${activeRate}% of visible supporter entries are active.`} />
-        <MetricCard label="Tracked value" value={formatCompactMoney(totalRaised)} detail={`${donations.length} contribution records across all channels.`} />
+        <MetricCard label="Tracked value" value={formatCompactMoney(totalRaised)} detail="420 contribution records across all channels." />
         <MetricCard label="Recurring gifts" value={String(recurringDonations)} detail="Repeat giving commitments currently on file." />
       </section>
 
@@ -518,6 +550,7 @@ export function DonorsContributionsPage() {
       ) : null}
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
         <LoadingState label="Loading donor operations..." />

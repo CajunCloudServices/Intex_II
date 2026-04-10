@@ -10,7 +10,9 @@ public class DonationImpactOptions
         ["Education"] = 150m,
         ["Wellbeing"] = 200m,
         ["Operations"] = 50m,
-        ["Transport"] = 300m
+        ["Transport"] = 300m,
+        ["Maintenance"] = 100m,
+        ["Outreach"] = 100m
     };
 
     public Dictionary<string, string> ProgramAreaOutcomeUnits { get; set; } = new(StringComparer.OrdinalIgnoreCase)
@@ -18,15 +20,17 @@ public class DonationImpactOptions
         ["Education"] = "school kits",
         ["Wellbeing"] = "counseling sessions",
         ["Operations"] = "meal equivalents",
-        ["Transport"] = "home visitation trips"
+        ["Transport"] = "home visitation trips",
+        ["Maintenance"] = "safehouse upkeep units",
+        ["Outreach"] = "community outreach activities"
     };
 
     // Heuristic used for donor-facing "lives impacted" estimate.
     public decimal AverageCostPerVictim { get; set; } = 250m;
 
     // Hide tiny line-items that are not meaningful to donors.
-    public decimal MinimumAllocationAmount { get; set; } = 25m;
+    public decimal MinimumAllocationAmount { get; set; } = 10m;
 
     // Keep donor-facing breakdown focused on highest-impact areas.
-    public int MaxProgramsShown { get; set; } = 3;
+    public int MaxProgramsShown { get; set; } = 6;
 }

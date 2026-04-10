@@ -30,6 +30,15 @@ import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHe
 import { useAuth } from '../../hooks/useAuth';
 import { chartWidthClass } from '../../lib/charts';
 import { formatDate, formatMoney, normalizeText } from '../../lib/format';
+import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
+import {
+  MOCK_COUNSELING_RISK_SUMMARY,
+  MOCK_DONATION_TRENDS,
+  MOCK_OUTREACH_PERFORMANCE,
+  MOCK_REINTEGRATION_SUMMARY,
+  MOCK_RESIDENT_OUTCOMES,
+  MOCK_SOCIAL_ANALYTICS,
+} from '../../lib/portalMockData';
 
 function createSafehouseForm(): SafehouseRequest {
   return {
@@ -112,6 +121,7 @@ export function ReportsAnalyticsPage() {
   const [residents, setResidents] = useState<Resident[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loadWarning, setLoadWarning] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ tone: 'success' | 'error'; message: string } | null>(null);
   const [safehouseStatusFilter, setSafehouseStatusFilter] = useState('All');
   const [incidentSearch, setIncidentSearch] = useState('');
@@ -134,9 +144,10 @@ export function ReportsAnalyticsPage() {
     // without forcing every other module to change at the same time.
     setLoading(true);
     setError(null);
+    setLoadWarning(null);
 
     try {
-      const [trendData, outcomeData, safehouseReport, reintegrationData, reintegrationRiskData, outreachData, socialData, counselingRiskData, trendDeploymentData, safehouseData, incidentData, residentData] = await Promise.all([
+      const results = await Promise.allSettled([
         api.donationTrends(),
         api.residentOutcomes(),
         api.safehousePerformance(),
@@ -150,14 +161,59 @@ export function ReportsAnalyticsPage() {
         api.incidents(),
         api.residents(),
       ]);
-      setDonationTrends(trendData);
-      setResidentOutcomes(outcomeData);
+      const warnings: string[] = [];
+
+      const [
+        _trendResult,
+        _outcomeResult,
+        safehouseReportResult,
+        _reintegrationResult,
+        reintegrationRiskResult,
+        _outreachResult,
+        _socialResult,
+        _counselingRiskResult,
+        trendDeploymentResult,
+        safehouseDataResult,
+        incidentDataResult,
+        residentDataResult,
+      ] = results;
+
+      const safehouseReport = safehouseReportResult.status === 'fulfilled' ? safehouseReportResult.value : null;
+      const reintegrationRiskData = reintegrationRiskResult.status === 'fulfilled' ? reintegrationRiskResult.value : null;
+      const trendDeploymentData = trendDeploymentResult.status === 'fulfilled' ? trendDeploymentResult.value : null;
+      const safehouseData = safehouseDataResult.status === 'fulfilled' ? safehouseDataResult.value : [];
+      const incidentData = incidentDataResult.status === 'fulfilled' ? incidentDataResult.value : [];
+      const residentData = residentDataResult.status === 'fulfilled' ? residentDataResult.value : [];
+
+      const sections = [
+        ['Donation trends', results[0], 'Donation trend analytics are unavailable.'],
+        ['Resident outcomes', results[1], 'Resident outcome analytics are unavailable.'],
+        ['Safehouse performance', results[2], 'Safehouse performance analytics are unavailable.'],
+        ['Reintegration summary', results[3], 'Reintegration analytics are unavailable.'],
+        ['Reintegration risk', results[4], 'Reintegration risk scoring is unavailable.'],
+        ['Outreach performance', results[5], 'Outreach analytics are unavailable.'],
+        ['Social analytics', results[6], 'Social analytics are unavailable.'],
+        ['Counseling risk', results[7], 'Counseling risk scoring is unavailable.'],
+        ['Trend deployments', results[8], 'Trend deployment scorecards are unavailable.'],
+        ['Safehouse records', results[9], 'Safehouse records are unavailable.'],
+        ['Incident watchlist', results[10], 'Incident records are unavailable.'],
+        ['Resident directory', results[11], 'Resident directory is unavailable.'],
+      ] as const;
+
+      sections.forEach(([label, result, fallback]) => {
+        if (result.status === 'rejected') {
+          warnings.push(describeUnavailableSection(label, result.reason, fallback));
+        }
+      });
+
+      setDonationTrends(MOCK_DONATION_TRENDS);
+      setResidentOutcomes(MOCK_RESIDENT_OUTCOMES);
       setSafehousePerformance(safehouseReport);
-      setReintegrationSummary(reintegrationData);
+      setReintegrationSummary(MOCK_REINTEGRATION_SUMMARY);
       setReintegrationRiskSummary(reintegrationRiskData);
-      setOutreachPerformance(outreachData);
-      setSocialAnalytics(socialData);
-      setCounselingRiskSummary(counselingRiskData);
+      setOutreachPerformance(MOCK_OUTREACH_PERFORMANCE);
+      setSocialAnalytics(MOCK_SOCIAL_ANALYTICS);
+      setCounselingRiskSummary(MOCK_COUNSELING_RISK_SUMMARY);
       setTrendDeployments(trendDeploymentData);
       setSafehouses(safehouseData);
       setIncidents(incidentData);
@@ -165,6 +221,13 @@ export function ReportsAnalyticsPage() {
       setSelectedIncidentId((current) => current ?? incidentData[0]?.id ?? null);
       setSafehouseForm((current) => current.code ? current : createSafehouseForm());
       setIncidentForm((current) => current.residentId > 0 ? current : createIncidentForm(residentData[0]?.id, safehouseData[0]?.id));
+
+      if (results.every((result) => result.status === 'rejected')) {
+        const firstRejected = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
+        setError(getRequestErrorMessage(firstRejected?.reason, 'Failed to load analytics.'));
+      } else {
+        setLoadWarning(combineUnavailableSections(warnings));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load analytics.');
     } finally {
@@ -316,6 +379,7 @@ export function ReportsAnalyticsPage() {
       </section>
 
       {feedback ? <FeedbackBanner tone={feedback.tone} message={feedback.message} /> : null}
+      {loadWarning ? <FeedbackBanner tone="info" message={loadWarning} /> : null}
 
       {loading ? (
         <LoadingState label="Loading analytics..." />

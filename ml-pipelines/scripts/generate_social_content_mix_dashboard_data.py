@@ -28,6 +28,28 @@ from trend_insight_json import safe_round, share_top5_drivers
 
 OUT = _ROOT / "json" / "social-content-mix-dashboard-data.json"
 
+DRIVER_PLAIN = {
+    "post type": "post format (carousel, story, reel, etc.)",
+    "platform": "which social platform",
+    "media type": "image, video, or other media type",
+    "sentiment tone": "tone of the caption",
+    "content topic": "topic tag on the post",
+    "has call to action": "whether the post asks the audience to do something",
+    "features resident story": "whether the post highlights a resident story",
+    "is boosted": "paid boost or not",
+    "post hour": "time of day posted",
+    "num hashtags": "number of hashtags",
+    "caption length": "how long the caption is",
+    "engagement rate": "engagement rate on the post",
+    "impressions": "impressions",
+    "reach": "reach",
+}
+
+
+def _humanize_driver(name: str) -> str:
+    key = str(name).strip().lower().replace("_", " ")
+    return DRIVER_PLAIN.get(key, key)
+
 
 def main() -> None:
     posts = load_table("social_media_posts")
@@ -113,7 +135,7 @@ def main() -> None:
     auc_rf = roc_auc_score(ytec, proba_rf)
     f1_rf = f1_score(ytec, pred_rf)
 
-    cv = cross_validate(rf, X, y_clf, cv=5, scoring=["roc_auc", "f1"])
+    cv = cross_validate(rf, X, y_clf, cv=5, scoring=["roc_auc", "f1"], n_jobs=1)
     cv_auc_mean = float(cv["test_roc_auc"].mean())
     cv_auc_std = float(cv["test_roc_auc"].std())
 
@@ -132,62 +154,134 @@ def main() -> None:
 
     top_feat = str(imp.index[0]) if len(imp) else "content mix"
 
+    proba_all = rf_full.predict_proba(X)[:, 1]
+    df_scored = df.reset_index(drop=True).copy()
+    df_scored.loc[:, "_strong_score"] = proba_all
+
+    mix = (
+        df_scored.groupby(["platform", "post_type"], as_index=False)
+        .agg(
+            posts=("post_id", "count"),
+            avg_referrals=("donation_referrals", "mean"),
+            median_referrals=("donation_referrals", "median"),
+            total_referrals=("donation_referrals", "sum"),
+            avg_strong_score=("_strong_score", "mean"),
+        )
+        .sort_values(["avg_referrals", "posts"], ascending=[False, False])
+    )
+    platform_type_performance: list[dict] = []
+    for _, r in mix.iterrows():
+        platform_type_performance.append(
+            {
+                "platform": str(r["platform"]),
+                "post_type": str(r["post_type"]),
+                "posts": int(r["posts"]),
+                "avg_referrals": float(r["avg_referrals"]),
+                "median_referrals": float(r["median_referrals"]),
+                "total_referrals": int(r["total_referrals"]),
+                "avg_strong_referral_score": float(r["avg_strong_score"]),
+            }
+        )
+
+    min_n = 3
+    by_type = (
+        df_scored.groupby("post_type", as_index=False)
+        .agg(posts=("post_id", "count"), avg_referrals=("donation_referrals", "mean"))
+        .query(f"posts >= {min_n}")
+        .sort_values("avg_referrals", ascending=False)
+    )
+    top_post_types: list[dict] = []
+    for _, r in by_type.head(8).iterrows():
+        top_post_types.append(
+            {
+                "post_type": str(r["post_type"]),
+                "posts": int(r["posts"]),
+                "avg_referrals": float(r["avg_referrals"]),
+            }
+        )
+
+    driver_lines = []
+    for i, row in enumerate(drivers[:5] if drivers else []):
+        label = _humanize_driver(str(row["feature"]))
+        pct = int(row["share_top5_pct"])
+        if i == 0:
+            driver_lines.append(
+                f"The strong-referral score leans most on {label} (about {pct}% of how it separates posts in this export)."
+            )
+        else:
+            driver_lines.append(f"It also weighs {label} (about {pct}% of that mix).")
+    if not driver_lines:
+        driver_lines = ["Post format and platform mix show the clearest differences in past referral counts."]
+
+    impact_bullets: list[str] = []
+    if top_post_types:
+        impact_bullets.append(
+            "By average referrals, the strongest post formats here are: "
+            + ", ".join(
+                f"{x['post_type']} (~{x['avg_referrals']:.1f} referrals/post, n={x['posts']})" for x in top_post_types[:5]
+            )
+            + "."
+        )
+    else:
+        impact_bullets.append(
+            "Not enough posts per format to rank formats; use the combo table once you have more volume."
+        )
+    impact_bullets.extend(driver_lines[:2])
+
+    plain_answers = {
+        "intro_bullets": [
+            "The main grid compares every platform × post type combo: how many posts you ran, typical referral counts, and totals.",
+            "“Strong referrals” means the top quarter of posts in this file by number of donation referrals—not a guarantee for the next post.",
+        ],
+        "impact_bullets": impact_bullets,
+        "method_note": (
+            "Strong-referral scores are from patterns in your historical posts (platform, format, topic, engagement, timing, and more). "
+            "They help prioritize what to review before publishing—they do not replace judgment or prove cause."
+        ),
+    }
+
     insights = {
-        "eyebrow": "REFERRAL VALUE PER POST",
-        "headline": "Which content mixes land in the top referral tier before you publish?",
+        "eyebrow": "SOCIAL CONTENT",
+        "headline": "Which platform and post formats drove the most referrals in this file?",
         "lede": (
-            f"About {100 * top_ref_share:.0f}% of posts sit in the top referral quartile by donation_referrals. "
-            f"Holdout ROC-AUC is {safe_round(auc_rf, 3)} (baseline {safe_round(auc_base, 3)}); 5-fold CV AUC ≈ {safe_round(cv_auc_mean, 3)}."
+            f"{len(df)} posts. About {100 * top_ref_share:.0f}% landed in the top quarter for donation referrals. "
+            f"Use the combo table for platform × format performance; technical model checks stay in the notebook."
         ),
         "prediction_cards": [
             {
-                "kicker": "Predictive model (holdout)",
-                "label": "ROC-AUC — top referral quartile",
-                "value": safe_round(auc_rf, 3),
-                "hint": f"F1 at 0.5 threshold: {safe_round(f1_rf, 3)}",
-                "definition": "Discrimination for predicting whether a post lands in the top quartile of donation_referrals.",
+                "kicker": "File snapshot",
+                "label": "Posts analyzed",
+                "value": str(len(df)),
+                "hint": f"~{100 * top_ref_share:.0f}% in top referral quarter",
+                "definition": "All posts in this export with referral counts.",
             },
             {
-                "kicker": "Explanatory model (holdout)",
-                "label": "R² on log donation value",
-                "value": safe_round(r2, 3),
-                "hint": f"MAE on log scale: {safe_round(mae, 3)}",
-                "definition": "How much variance in log-linked donation value the explanatory model explains on holdout posts.",
-            },
-            {
-                "kicker": "Portfolio",
-                "label": "Share of posts in top referral quartile",
-                "value": f"{100 * top_ref_share:.1f}%",
-                "hint": "Based on donation_referrals distribution",
-                "definition": "Baseline share of posts in the top referral quartile in this export.",
-            },
-            {
-                "kicker": "Top signal",
-                "label": "Strongest driver in permutation test",
+                "kicker": "Impact",
+                "label": "What mattered most in this run",
                 "value": top_feat.replace("_", " "),
-                "hint": "See table for per-post probabilities",
-                "definition": "Feature with highest permutation importance in this run—inspect drivers table for detail.",
+                "hint": "See dashboard card for plain-language drivers",
+                "definition": "Strongest input the model leaned on when ranking posts—associations only.",
+            },
+            {
+                "kicker": "Notebook",
+                "label": "Deeper metrics",
+                "value": "Open notebook",
+                "hint": "Holdout checks and CV if you need them",
+                "definition": "ROC-AUC, R², and related diagnostics live in social-content-mix-efficiency.ipynb.",
             },
         ],
         "cause_cards": [
             {
-                "kicker": "Association",
-                "title": "Content mix links to referrals and value",
-                "body": "Coefficients and importances describe patterns in historical posts—not guarantees for the next post.",
-                "definition": "Summaries are historical associations; they do not guarantee the next post will perform the same.",
-            },
-            {
-                "kicker": "How to use",
-                "title": "Plan before publish",
-                "body": "Use predicted top-quartile probability to prioritize review of mixes that look like past high-referral posts.",
-                "definition": "Suggested workflow: prioritize editorial review for posts with high predicted top-quartile probability.",
+                "kicker": "Fair use",
+                "title": "Past performance ≠ next post",
+                "body": "Averages and scores describe history. Audiences and algorithms change—treat this as planning input.",
+                "definition": "Historical association only.",
             },
         ],
         "model_drivers": drivers,
         "calls_to_action": [],
     }
 
-    proba_all = rf_full.predict_proba(X)[:, 1]
     rows = []
     for j, (_, r) in enumerate(df.iterrows()):
         rows.append(
@@ -204,12 +298,15 @@ def main() -> None:
     rows.sort(key=lambda x: -x["top_quartile_probability"])
     for c in rows[:3]:
         insights["calls_to_action"].append(
-            f"Review post #{c['post_id']} ({c['platform']}/{c['post_type']}) — top-quartile probability {c['top_quartile_probability']:.0%}."
+            f"Review post #{c['post_id']} ({c['platform']}/{c['post_type']}) — strong-referral score {c['top_quartile_probability']:.0%}."
         )
 
     payload = {
         "generated_note": "social-content-mix-efficiency.ipynb → generate_social_content_mix_dashboard_data.py",
         "insights": insights,
+        "plain_answers": plain_answers,
+        "platform_type_performance": platform_type_performance,
+        "top_post_types": top_post_types,
         "portfolio": {
             "n_posts": int(len(df)),
             "holdout_roc_auc": float(auc_rf),

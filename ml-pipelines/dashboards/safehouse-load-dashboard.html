@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Safehouse load risk — ML Insights</title>
+  <title>Safehouse comparison — Lighthouse</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
   <script src="ml-metric-tooltip.js" defer></script>
 </head>
@@ -17,7 +17,7 @@
         <img class="brand-mark-icon" src="/tanglaw-lantern.svg" alt="" width="40" height="40" decoding="async" />
         <div>
           Tanglaw Project Admin
-          <span>Operations · load risk</span>
+          <span>Operations · safehouse comparison</span>
         </div>
       </div>
       <div>
@@ -39,17 +39,47 @@
       <p class="hint">Notebook: <code>safehouse-operational-load-risk.ipynb</code>. Regenerate: <code>python3 scripts/generate_safehouse_load_dashboard_data.py</code></p>
     </aside>
     <main>
-      <h1 class="page-title">Safehouse operational load</h1>
-      <p class="page-sub">Elevated rolling incident load vs house-specific benchmark (see notebook target definition).</p>
+      <h1 class="page-title">Safehouse comparison: steadier vs. busier months</h1>
+      <p class="page-sub">
+        This page ranks safehouses using the months in your selected window: (1) Which sites show calmer, more typical incident patterns?
+        (2) Which show more months that spike above that house’s own usual? (3) What activity does the ranking react to? Scores support supervision—they do not replace context.
+      </p>
       <div id="load-state" class="loading">Loading…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
-        <div id="insight-root" aria-live="polite"></div>
+        <div class="kpi-row" id="kpis"></div>
+
+        <div class="split" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem">
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">1) How should I read the ranking?</h2>
+            <ul class="insight-cta-list" id="answer-ranking" style="margin: 0; padding-left: 1.1rem"></ul>
+          </div>
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">2) What does “heavier than usual” mean?</h2>
+            <ul class="insight-cta-list" id="answer-benchmark" style="margin: 0; padding-left: 1.1rem"></ul>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">3) Why do scores move up or down?</h2>
+          <ul class="insight-cta-list" id="answer-signals" style="margin: 0; padding-left: 1.1rem"></ul>
+        </div>
+
+        <div class="split" style="grid-template-columns: 1fr 1fr; margin-bottom: 1rem">
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Steadier in this window</h2>
+            <p class="page-sub" id="calm-blurb" style="margin: 0"></p>
+          </div>
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">More pressure in this window</h2>
+            <p class="page-sub" id="stress-blurb" style="margin: 0"></p>
+          </div>
+        </div>
+
         <div class="panel" style="margin-bottom: 1rem">
           <div class="panel-head">
-            <h2>Timeframe &amp; filters</h2>
+            <h2>Time window</h2>
             <div class="toolbar timeframe-toolbar">
-              <label class="timeframe-controls">History window (months back)
+              <label class="timeframe-controls">How far back (months)
                 <input id="timeframe-slider" class="timeline-range" type="range" min="1" max="36" step="1" value="12" />
                 <div class="timeframe-scale">
                   <span>1</span><span id="timeframe-slider-value">12 months</span><span>36</span>
@@ -62,26 +92,52 @@
                   <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
                 </div>
               </label>
-              <div class="timeframe-aside">Filters safehouse-month rows by month_start (first of month).</div>
+              <div class="timeframe-aside">Rankings and tables only use house-months inside this window.</div>
             </div>
           </div>
           <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
         </div>
-        <div class="panel" style="margin-bottom: 1rem">
-          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Score meaning</h2>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
-            <strong>P(elevated load)</strong> reflects the notebook’s random forest on lagged rolling rates and operational counts—not the raw same-month rate alone.
-          </p>
-        </div>
+
         <details class="data-fold" open>
-          <summary>Safehouse-month scores <span class="fold-hint">Sort · search</span></summary>
+          <summary>Safehouse ranking (this window) <span class="fold-hint">Calm → busy</span></summary>
           <div class="fold-inner">
             <div class="panel">
               <div class="panel-head">
-                <h2>Months</h2>
+                <h2>By safehouse</h2>
+                <p class="page-sub" style="margin: 0; max-width: 42rem">
+                  Rank 1 is the lowest average load pressure in the window (usually the steadiest pattern in the data). Use it to compare sites and plan follow-up—not as a final scorecard.
+                </p>
+              </div>
+              <div class="table-wrap" style="max-height: 42vh">
+                <table>
+                  <thead>
+                    <tr>
+                      <th data-sort-house="rank">Rank</th>
+                      <th data-sort-house="safehouse_id">House</th>
+                      <th data-sort-house="avg_pressure">Avg load pressure</th>
+                      <th data-sort-house="pct_months_heavy">% months heavier than usual</th>
+                      <th data-sort-house="incidents_per_resident_month">Incidents / resident-mo</th>
+                      <th data-sort-house="avg_incidents_per_res">Mean monthly ratio</th>
+                      <th data-sort-house="total_incidents">Total incidents</th>
+                      <th data-sort-house="n_months">Months counted</th>
+                    </tr>
+                  </thead>
+                  <tbody id="house-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details class="data-fold" open style="margin-top: 0.75rem">
+          <summary>Month-by-month detail <span class="fold-hint">Sort · search</span></summary>
+          <div class="fold-inner">
+            <div class="panel">
+              <div class="panel-head">
+                <h2>House-months</h2>
                 <div class="toolbar"><input type="search" id="search" placeholder="Safehouse id, date…" /></div>
               </div>
-              <div class="table-wrap" style="max-height: 58vh">
+              <div class="table-wrap" style="max-height: 50vh">
                 <table>
                   <thead>
                     <tr>
@@ -89,8 +145,8 @@
                       <th data-sort="month_start">Month</th>
                       <th data-sort="incident_rate">Incidents / resident</th>
                       <th data-sort="active_residents">Residents</th>
-                      <th data-sort="elevated_load_probability">P(elevated)</th>
-                      <th data-sort="above_bench_actual">Elevated (actual)</th>
+                      <th data-sort="elevated_load_probability">Load pressure score</th>
+                      <th data-sort="above_bench_actual">Heavier than usual?</th>
                       <th data-sort="incident_count">Incidents</th>
                     </tr>
                   </thead>
@@ -100,11 +156,20 @@
             </div>
           </div>
         </details>
+
+        <details class="data-fold" style="margin-top: 0.75rem">
+          <summary>How this was built <span class="fold-hint">Optional</span></summary>
+          <div class="fold-inner">
+            <p class="page-sub" id="method-note" style="margin: 0"></p>
+            <p class="page-sub" style="margin: 0.65rem 0 0; font-size: 0.8rem; color: var(--muted)">
+              For technical metrics (holdout checks, grouped validation), open the notebook export.
+            </p>
+          </div>
+        </details>
       </div>
     </main>
   </div>
   <script src="ml-dashboard-helpers.js"></script>
-  <script src="ml-dashboard-insights.js"></script>
   <script src="ml-timeframe-filter.js"></script>
   <script>
     (function () {
@@ -112,11 +177,25 @@
       const errorState = document.getElementById("error-state");
       const dashboard = document.getElementById("dashboard");
       const tbody = document.getElementById("tbody");
+      const houseTbody = document.getElementById("house-tbody");
       const search = document.getElementById("search");
+      const kpis = document.getElementById("kpis");
       let data = null;
       let tfRows = null;
       let sortKey = "elevated_load_probability";
       let sortDir = -1;
+      let houseSortKey = "rank";
+      let houseSortDir = 1;
+
+      const infoIcon = (msg) =>
+        window.MlDashboardHelpers && typeof window.MlDashboardHelpers.infoIcon === "function"
+          ? window.MlDashboardHelpers.infoIcon(msg)
+          : "";
+
+      const LOAD_PRESSURE_HELP =
+        "Load pressure score is 0–100%. It estimates how much this month’s mix of incidents, residents, visits, and sessions looks like past months at the same house that were flagged heavier than that house’s own rolling usual. " +
+        "Higher means the pattern is more like those busier months; lower means calmer vs that site’s history. It is not proof of fault or quality—use it to prioritize conversations.";
+
       function showError(html) {
         loadState.style.display = "none";
         errorState.style.display = "block";
@@ -130,6 +209,13 @@
       function fmtPct(x) {
         return (100 * Number(x || 0)).toFixed(1) + "%";
       }
+      function bulletsToList(el, items) {
+        if (!el || !items || !items.length) {
+          if (el) el.innerHTML = "<li>No summary loaded.</li>";
+          return;
+        }
+        el.innerHTML = items.map((t) => "<li>" + escapeHtml(t) + "</li>").join("");
+      }
       function cmp(a, b, key) {
         const va = a[key];
         const vb = b[key];
@@ -137,9 +223,122 @@
         if (typeof va === "number" && typeof vb === "number") return va - vb;
         return String(va).localeCompare(String(vb));
       }
+      function summarizeHouses(rows) {
+        const map = new Map();
+        for (const r of rows) {
+          const id = r.safehouse_id;
+          if (!map.has(id)) {
+            map.set(id, {
+              safehouse_id: id,
+              n_months: 0,
+              sum_p: 0,
+              sum_ir: 0,
+              heavy: 0,
+              total_incidents: 0,
+              sum_residents: 0,
+            });
+          }
+          const h = map.get(id);
+          h.n_months += 1;
+          h.sum_p += Number(r.elevated_load_probability || 0);
+          h.sum_ir += Number(r.incident_rate || 0);
+          if (r.above_bench_actual) h.heavy += 1;
+          h.total_incidents += Number(r.incident_count || 0);
+          h.sum_residents += Number(r.active_residents || 0);
+        }
+        const list = [];
+        for (const h of map.values()) {
+          const n = h.n_months;
+          const resMo = Math.max(h.sum_residents, 1);
+          list.push({
+            safehouse_id: h.safehouse_id,
+            n_months: n,
+            avg_pressure: h.sum_p / n,
+            pct_months_heavy: h.heavy / n,
+            avg_incidents_per_res: h.sum_ir / n,
+            incidents_per_resident_month: h.total_incidents / resMo,
+            total_incidents: h.total_incidents,
+            sum_residents: h.sum_residents,
+          });
+        }
+        list.sort((a, b) => a.avg_pressure - b.avg_pressure);
+        return list.map((x, i) => ({ ...x, rank: i + 1 }));
+      }
+      function renderKpis(rows) {
+        const nM = rows.length;
+        const houses = new Set(rows.map((r) => r.safehouse_id)).size;
+        const pctHeavy = rows.filter((r) => r.above_bench_actual).length / Math.max(nM, 1);
+        const sumInc = rows.reduce((s, r) => s + Number(r.incident_count || 0), 0);
+        const sumRes = rows.reduce((s, r) => s + Number(r.active_residents || 0), 0);
+        const incidentsPerResMonth = sumInc / Math.max(sumRes, 1);
+        const meanOfMonthlyRatios =
+          rows.reduce((s, r) => s + Number(r.incident_rate || 0), 0) / Math.max(nM, 1);
+        const avgPressure = rows.reduce((s, r) => s + Number(r.elevated_load_probability || 0), 0) / Math.max(nM, 1);
+        kpis.innerHTML = `
+          <div class="kpi"><div class="label">Safehouses in window ${infoIcon("Distinct safehouse IDs that have at least one month in the current time window.")}</div><div class="value">${houses}</div></div>
+          <div class="kpi"><div class="label">House-months in window ${infoIcon("Each row is one safehouse in one calendar month after you apply the slider.")}</div><div class="value">${nM}</div></div>
+          <div class="kpi"><div class="label">Months heavier than usual ${infoIcon("Share of rows where that month was above the house’s own rolling benchmark (see benchmark panel).")}</div><div class="value">${fmtPct(pctHeavy)}</div></div>
+          <div class="kpi"><div class="label">Typical load pressure ${infoIcon("Average of load pressure scores across all rows in the window. " + LOAD_PRESSURE_HELP)}</div><div class="value">${fmtPct(avgPressure)}</div></div>
+          <div class="kpi"><div class="label">Incidents per resident-month ${infoIcon(
+            "Total incidents in the window ÷ total resident headcount summed across months. Each month’s active resident count is added once, so this is incidents per resident-slot-month—usually easier to read than a tiny decimal. Example: 9 incidents and 3,000 resident-months ≈ 0.003."
+          )}</div><div class="value">${incidentsPerResMonth.toFixed(4)}</div><div class="sub">${sumInc} incidents · ${sumRes} resident-months</div></div>
+          <div class="kpi"><div class="label">Mean of monthly rates ${infoIcon(
+            "Alternative summary: for each house-month we compute incidents ÷ residents that month, then average those ratios with equal weight on every month. Many zero-incident months pull this number down, so it can look very small (e.g. 0.002) even when the resident-month rate above is a bit higher—they measure different things."
+          )}</div><div class="value">${meanOfMonthlyRatios.toFixed(4)}</div></div>
+        `;
+      }
+      function formatHouseLine(x) {
+        return (
+          "House " +
+          x.safehouse_id +
+          " — avg pressure " +
+          fmtPct(x.avg_pressure) +
+          ", " +
+          fmtPct(x.pct_months_heavy) +
+          " of months heavier than usual"
+        );
+      }
+      function renderHouseBlurbs(houses) {
+        const calm = document.getElementById("calm-blurb");
+        const stress = document.getElementById("stress-blurb");
+        if (!houses.length) {
+          calm.textContent = "No rows in this window.";
+          stress.textContent = "Adjust the time window.";
+          return;
+        }
+        const topN = Math.min(3, houses.length);
+        const calmList = houses.slice(0, topN).map(formatHouseLine);
+        const stressList = houses.slice(-topN).reverse().map(formatHouseLine);
+        calm.innerHTML =
+          "<strong>Lower pressure on average:</strong> " +
+          escapeHtml(calmList.join(" · ")) +
+          ".";
+        stress.innerHTML =
+          "<strong>Higher pressure on average:</strong> " +
+          escapeHtml(stressList.join(" · ")) +
+          ".";
+      }
+      function renderHouseTable(houses) {
+        const sorted = houses.slice().sort((a, b) => cmp(a, b, houseSortKey) * houseSortDir);
+        houseTbody.innerHTML = sorted
+          .map(
+            (h) => `
+          <tr>
+            <td>${h.rank}</td>
+            <td>${h.safehouse_id}</td>
+            <td>${fmtPct(h.avg_pressure)}</td>
+            <td>${fmtPct(h.pct_months_heavy)}</td>
+            <td>${h.incidents_per_resident_month.toFixed(4)}</td>
+            <td>${h.avg_incidents_per_res.toFixed(4)}</td>
+            <td>${h.total_incidents}</td>
+            <td>${h.n_months}</td>
+          </tr>`
+          )
+          .join("");
+      }
       function render() {
-        const q = (search.value || "").toLowerCase().trim();
         const base = tfRows !== null ? tfRows : data.rows || [];
+        const q = (search.value || "").toLowerCase().trim();
         let rows = base.filter((r) => {
           if (!q) return true;
           return [r.safehouse_id, r.month_start].join(" ").toLowerCase().includes(q);
@@ -159,6 +358,12 @@
           </tr>`
           )
           .join("");
+
+        const forAgg = tfRows !== null ? tfRows : data.rows || [];
+        const houses = summarizeHouses(forAgg);
+        renderKpis(forAgg);
+        renderHouseBlurbs(houses);
+        renderHouseTable(houses);
       }
       document.querySelectorAll("th[data-sort]").forEach((th) => {
         th.addEventListener("click", () => {
@@ -167,6 +372,17 @@
           else {
             sortKey = k;
             sortDir = k === "safehouse_id" || k === "month_start" ? 1 : -1;
+          }
+          render();
+        });
+      });
+      document.querySelectorAll("th[data-sort-house]").forEach((th) => {
+        th.addEventListener("click", () => {
+          const k = th.dataset.sortHouse;
+          if (houseSortKey === k) houseSortDir *= -1;
+          else {
+            houseSortKey = k;
+            houseSortDir = k === "rank" || k === "safehouse_id" ? 1 : -1;
           }
           render();
         });
@@ -181,12 +397,41 @@
           data = json;
           loadState.style.display = "none";
           dashboard.style.display = "block";
-          if (typeof renderInsightStory === "function" && data.insights) {
-            renderInsightStory(document.getElementById("insight-root"), data.insights, {
-              followupsFirst: true,
-              predSectionTitle: "Scores and predictions",
-              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
-            });
+          const pa = data.plain_answers || {};
+          bulletsToList(document.getElementById("answer-ranking"), pa.ranking_bullets);
+          bulletsToList(document.getElementById("answer-benchmark"), pa.benchmark_bullets);
+          bulletsToList(document.getElementById("answer-signals"), pa.signal_bullets);
+          const mn = document.getElementById("method-note");
+          if (mn) mn.textContent = pa.method_note || "";
+          const pressureTh = document.querySelector('th[data-sort="elevated_load_probability"]');
+          if (pressureTh) {
+            pressureTh.innerHTML = "Load pressure score " + infoIcon(LOAD_PRESSURE_HELP);
+          }
+          const avgPressureTh = document.querySelector('th[data-sort-house="avg_pressure"]');
+          if (avgPressureTh) {
+            avgPressureTh.innerHTML = "Avg load pressure " + infoIcon("Mean of load pressure scores for that house across months in the window. " + LOAD_PRESSURE_HELP);
+          }
+          const iprmTh = document.querySelector('th[data-sort-house="incidents_per_resident_month"]');
+          if (iprmTh) {
+            iprmTh.innerHTML =
+              "Incidents / resident-mo " +
+              infoIcon(
+                "This house’s total incidents in the window ÷ sum of active-resident counts across those months. Same idea as the KPI: one number for how dense incidents are relative to headcount over time."
+              );
+          }
+          const mmrTh = document.querySelector('th[data-sort-house="avg_incidents_per_res"]');
+          if (mmrTh) {
+            mmrTh.innerHTML =
+              "Mean monthly ratio " +
+              infoIcon(
+                "Average of (incidents ÷ residents) month by month, with every month weighted equally. Often smaller than incidents/resident-month because many months have zero incidents."
+              );
+          }
+          const irTh = document.querySelector('th[data-sort="incident_rate"]');
+          if (irTh) {
+            irTh.innerHTML =
+              "Incidents / resident " +
+              infoIcon("For this house in this calendar month only: incident count ÷ active residents that month.");
           }
           if (typeof initTimeframeFilter === "function") {
             initTimeframeFilter({

@@ -28,6 +28,43 @@ from trend_insight_json import safe_round, share_top5_drivers
 
 OUT = _ROOT / "json" / "safehouse-load-dashboard-data.json"
 
+FEATURE_PLAIN = {
+    "roll3_rate_lag1": "recent three-month incident pace (compared with earlier months at the same house)",
+    "mom_incident_rate": "change in incidents-per-resident vs the prior month",
+    "lag1_incident_rate": "last month’s incidents per resident",
+    "roll6_rate_lag1": "six-month incident pace leading into the month",
+    "lag1_proc_per_res": "counseling sessions per resident last month",
+    "lag1_visit_per_res": "home visits per resident last month",
+    "proc_per_resident": "counseling sessions per resident this month",
+    "visit_per_resident": "home visits per resident this month",
+    "process_recording_count": "count of counseling sessions recorded",
+    "home_visitation_count": "count of home visits",
+    "active_residents": "number of active residents",
+    "avg_education_progress": "average education progress score",
+    "avg_health_score": "average health score",
+    "month_num": "calendar month (seasonality)",
+    "safehouse_id": "which safehouse (site identity)",
+}
+
+
+def _plain_signals(imp: pd.Series) -> list[str]:
+    bullets: list[str] = []
+    top = [(str(n), float(v)) for n, v in imp.head(5).items() if float(v) > 1e-9]
+    if not top:
+        return [
+            "The view weighs recent incident activity and how it compares with each house’s own earlier months.",
+        ]
+    labels = [FEATURE_PLAIN.get(str(name), str(name).replace("_", " ")) for name, _ in top[:3]]
+    bullets.append(
+        "The tool pays the most attention to: "
+        + ", ".join(labels)
+        + ". Together that means recent workload and momentum matter more than a single raw number in isolation."
+    )
+    bullets.append(
+        "Why this is not blame: a higher score can reflect tougher cases, staffing gaps, or reporting practices—not only performance. Use rankings to ask questions, not to label a site good or bad."
+    )
+    return bullets
+
 
 def enrich_group(sub: pd.DataFrame) -> pd.DataFrame:
     sub = sub.copy()
@@ -157,7 +194,7 @@ def main() -> None:
             imp = pd.Series(perm.importances_mean, index=X.columns).sort_values(ascending=False).head(10)
             drivers = share_top5_drivers(imp)
 
-        cv = cross_validate(rf, X, y_cls, cv=gkf, scoring=["roc_auc", "f1"], groups=groups, n_jobs=-1)
+        cv = cross_validate(rf, X, y_cls, cv=gkf, scoring=["roc_auc", "f1"], groups=groups, n_jobs=1)
         cv_auc_m = float(cv["test_roc_auc"].mean())
         cv_f1_m = float(cv["test_f1"].mean())
 
@@ -181,39 +218,66 @@ def main() -> None:
     else:
         proba_all = np.zeros(len(X))
 
+    n_houses = int(m["safehouse_id"].nunique())
+    target_plain = (
+        "whether this month’s incident pattern is heavier than that house’s own recent usual (rolling benchmark), "
+        "not a fixed cutoff for all sites."
+        if cls_name == "above_roll3_median"
+        else "whether incident load moved up vs the prior month (used when the main benchmark label is too uniform)."
+    )
+
+    plain_answers = {
+        "ranking_bullets": [
+            "Houses are sorted by average load pressure score over the months you select: lower usually means steadier, calmer months in the data; higher means more months looked hot or rising compared with each site’s own past.",
+            "Use the list to decide where to dig in first—not as a final grade. Population, staffing, and data quality still belong in supervision.",
+        ],
+        "benchmark_bullets": [
+            "A month marked “heavier than usual” means that site’s incident pattern that month was above its own rolling benchmark from earlier months—not “bad compared to other cities.”",
+            "Load pressure score (0–100%) is how strongly this month’s signals resemble past months that were flagged heavy for that same house.",
+        ],
+        "signal_bullets": _plain_signals(imp) if len(imp) > 0 else _plain_signals(pd.Series([1.0], index=["roll3_rate_lag1"])),
+        "method_note": (
+            "Built from safehouse-month rows: incidents, residents, visits, sessions, and lagged rolling rates. "
+            "Patterns are learned from your export; they show association in history, not proof that one factor caused another."
+        ),
+    }
+
     insights = {
-        "eyebrow": "SAFEHOUSE LOAD VS INCIDENT RISK",
-        "headline": "Months where rolling incident load clears the house baseline",
-        "lede": f"Classification target: {cls_name}. Explanatory holdout R²={safe_round(r2, 3)} on log incident rate.",
+        "eyebrow": "SAFEHOUSE OPERATIONS",
+        "headline": "Which months looked heavier than usual for each house?",
+        "lede": (
+            f"{n_houses} safehouses and {len(m)} house-months in this export. "
+            f"Each month is scored against that site’s own recent pattern: {target_plain.rstrip('.')}."
+        ),
         "prediction_cards": [
             {
-                "kicker": "Predictive (holdout)",
-                "label": "ROC-AUC elevated load",
-                "value": safe_round(auc_rf, 3),
-                "hint": f"F1: {safe_round(f1_rf, 3)}",
-                "definition": "Discrimination for predicting elevated operational load vs baseline for a safehouse-month row.",
+                "kicker": "Snapshot",
+                "label": "Safehouses in file",
+                "value": str(n_houses),
+                "hint": f"{len(m)} house-month rows",
+                "definition": "Distinct sites and monthly observations in this export.",
             },
             {
-                "kicker": "GroupKFold CV",
-                "label": "Mean ROC-AUC",
-                "value": safe_round(cv_auc_m, 3),
-                "hint": f"Mean F1: {safe_round(cv_f1_m, 3)}",
-                "definition": "Mean ROC-AUC across grouped CV folds (stability of the load-risk model).",
+                "kicker": "Data check",
+                "label": "How often the label fired",
+                "value": f"{100 * float(y_cls.mean()):.0f}%",
+                "hint": "Share of months marked heavier than house benchmark (or positive momentum target)",
+                "definition": "Baseline rate of the outcome the score is trained to approximate.",
             },
             {
-                "kicker": "Explanatory",
-                "label": "R² log incident rate",
-                "value": safe_round(r2, 3),
-                "hint": f"MAE: {safe_round(mae, 3)}",
-                "definition": "Explanatory fit for log incident rate on held-out months.",
+                "kicker": "Note",
+                "label": "Technical quality",
+                "value": "See notebook",
+                "hint": "Holdout and grouped checks are in the notebook export.",
+                "definition": "ROC-AUC / CV metrics are omitted here; open safehouse-operational-load-risk.ipynb if you need them.",
             },
         ],
         "cause_cards": [
             {
-                "kicker": "Benchmark",
-                "title": "House-specific rolling median",
-                "body": "Elevated load compares this month to prior rolling signals—associations only.",
-                "definition": "Load is compared to each house’s own rolling history—not a single national threshold.",
+                "kicker": "Fair comparison",
+                "title": "House vs its own history",
+                "body": "Benchmarks roll within each safehouse so a busy site is not punished for being busier than a quiet one.",
+                "definition": "Rolling medians and lags are computed per safehouse_id.",
             }
         ],
         "model_drivers": drivers if drivers else [{"feature": "safehouse context", "importance": 1.0, "share_top5_pct": 100}],
@@ -236,14 +300,16 @@ def main() -> None:
     rows.sort(key=lambda x: -x["elevated_load_probability"])
     for c in rows[:3]:
         insights["calls_to_action"].append(
-            f"Watch safehouse {c['safehouse_id']} — {c['month_start']} P(elevated load)={c['elevated_load_probability']:.0%}."
+            f"Review safehouse {c['safehouse_id']} — {c['month_start']} (load pressure score {c['elevated_load_probability']:.0%})."
         )
 
     payload = {
         "generated_note": "safehouse-operational-load-risk.ipynb → generate_safehouse_load_dashboard_data.py",
         "insights": insights,
+        "plain_answers": plain_answers,
         "portfolio": {
             "n_rows": int(len(m)),
+            "n_safehouses": n_houses,
             "target": cls_name,
             "explanatory_r2": float(r2),
         },

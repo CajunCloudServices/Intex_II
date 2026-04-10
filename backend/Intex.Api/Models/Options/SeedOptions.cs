@@ -10,6 +10,9 @@ public class SeedOptions
     // When true, importer runs if domain tables are empty.
     public bool ImportCsvOnStartup { get; set; } = true;
 
+    // When true, a non-destructive CSV backfill runs even if domain tables already exist.
+    public bool BackfillCsvOnStartup { get; set; }
+
     // Optional absolute or relative path to CSV folder.
     public string? CsvPath { get; set; }
 }

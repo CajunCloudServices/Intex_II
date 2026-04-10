@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Incident archetypes — ML Insights</title>
+  <title>Incident patterns &amp; families — ML Insights</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
   <script src="ml-metric-tooltip.js" defer></script>
 </head>
@@ -39,12 +39,28 @@
       <p class="hint">Notebook: <code>incident-composition-archetypes.ipynb</code>. Regenerate: <code>python3 scripts/generate_incident_archetypes_dashboard_data.py</code></p>
     </aside>
     <main>
-      <h1 class="page-title">Incident composition archetypes</h1>
-      <p class="page-sub">High/Critical severity probability plus multiclass archetype label (resident group holdout).</p>
+      <h1 class="page-title">Incident patterns &amp; families</h1>
+      <p class="page-sub">
+        Plain-language view of your incident data. This page answers: (1) Do incidents fall into repeating profiles?
+        (2) How concerning is serious severity for each row? (3) What tends to show up alongside higher or lower severity?
+      </p>
       <div id="load-state" class="loading">Loading…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
-        <div id="insight-root" aria-live="polite"></div>
+        <div class="split" style="grid-template-columns: 1fr 1fr">
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem">1) Do incidents fall into repeating profiles?</h2>
+            <p class="page-sub" id="answer-profiles" style="margin: 0"></p>
+          </div>
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem">2) How concerning is serious severity?</h2>
+            <p class="page-sub" id="answer-escalation" style="margin: 0"></p>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <h2 style="margin: 0 0 0.45rem">3) What tends to show up alongside higher or lower severity?</h2>
+          <div class="page-sub" id="answer-severity" style="margin: 0"></div>
+        </div>
         <div class="panel" style="margin-bottom: 1rem">
           <div class="panel-head">
             <h2>Timeframe &amp; filters</h2>
@@ -67,12 +83,6 @@
           </div>
           <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
         </div>
-        <div class="panel" style="margin-bottom: 1rem">
-          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Scores</h2>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
-            <strong>P(High/Critical)</strong> comes from the auxiliary binary model. <strong>Predicted archetype</strong> is the multiclass bucket from the notebook’s top incident types.
-          </p>
-        </div>
         <details class="data-fold" open>
           <summary>Incidents <span class="fold-hint">Sort · search</span></summary>
           <div class="fold-inner">
@@ -89,10 +99,10 @@
                       <th data-sort="resident_id">Resident</th>
                       <th data-sort="incident_date">Date</th>
                       <th data-sort="incident_type">Type</th>
-                      <th data-sort="severity">Severity</th>
-                      <th data-sort="high_critical_probability">P(High/Crit)</th>
-                      <th data-sort="predicted_archetype">Archetype</th>
-                      <th data-sort="high_critical_actual">High/Crit (actual)</th>
+                      <th data-sort="severity">Severity (actual)</th>
+                      <th data-sort="high_critical_probability">Serious severity risk</th>
+                      <th data-sort="predicted_archetype">Predicted family</th>
+                      <th data-sort="high_critical_actual">Seriously severe? (actual)</th>
                     </tr>
                   </thead>
                   <tbody id="tbody"></tbody>
@@ -105,7 +115,6 @@
     </main>
   </div>
   <script src="ml-dashboard-helpers.js"></script>
-  <script src="ml-dashboard-insights.js"></script>
   <script src="ml-timeframe-filter.js"></script>
   <script>
     (function () {
@@ -114,6 +123,9 @@
       const dashboard = document.getElementById("dashboard");
       const tbody = document.getElementById("tbody");
       const search = document.getElementById("search");
+      const answerProfiles = document.getElementById("answer-profiles");
+      const answerEscalation = document.getElementById("answer-escalation");
+      const answerSeverity = document.getElementById("answer-severity");
       let data = null;
       let tfRows = null;
       let sortKey = "high_critical_probability";
@@ -131,6 +143,69 @@
       function fmtPct(x) {
         return (100 * Number(x || 0)).toFixed(1) + "%";
       }
+      function buildPlainAnswers(rows) {
+        const families = data.archetype_families || (data.plain_answers && data.plain_answers.archetype_families) || [];
+        const bullets = (data.plain_answers && data.plain_answers.severity_trend_bullets) || [];
+        const methodNote =
+          (data.plain_answers && data.plain_answers.method_note) ||
+          "Patterns come from past severity scores. They show association in historical data, not proof that one factor caused an outcome.";
+
+        if (!rows.length) {
+          answerProfiles.textContent = "No incidents fall in the selected timeframe.";
+          answerEscalation.textContent = "Narrow or widen the timeline to see serious-severity context.";
+          answerSeverity.innerHTML =
+            '<p style="margin:0">' +
+            escapeHtml(methodNote) +
+            "</p><p style=\"margin:0.5rem 0 0\">No rows to summarize.</p>";
+          return;
+        }
+
+        if (families.length > 0) {
+          answerProfiles.innerHTML =
+            "<strong>Yes—for planning we use a simple structure.</strong> The busiest incident types stay as their own families: <strong>" +
+            escapeHtml(families.join(", ")) +
+            '</strong>. Less common raw types roll up into <strong>Other</strong>. The <strong>Predicted family</strong> column is our best match from safehouse, timing, resident context, and <strong>only past incidents</strong> for that person—never anything after the listed date.';
+        } else {
+          answerProfiles.innerHTML =
+            '<strong>Yes—for planning we use a simple structure.</strong> The <strong>Predicted family</strong> column groups busy incident types by name and puts less common types in <strong>Other</strong>. Estimates use safehouse, timing, resident context, and <strong>only past incidents</strong>.';
+        }
+
+        const counts = {};
+        let hiRisk = 0;
+        let hiActual = 0;
+        rows.forEach((r) => {
+          const k = String(r.predicted_archetype || "Other");
+          counts[k] = (counts[k] || 0) + 1;
+          if (Number(r.high_critical_probability || 0) >= 0.5) hiRisk += 1;
+          if (r.high_critical_actual) hiActual += 1;
+        });
+        const topFam = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+        const topLine = topFam
+          ? ` In this view, “${escapeHtml(topFam[0])}” is the most common predicted family (${topFam[1]} of ${rows.length} rows).`
+          : "";
+
+        answerProfiles.innerHTML += topLine;
+
+        answerEscalation.innerHTML =
+          "<strong>Serious severity risk</strong> is an estimated chance the incident would be <strong>High or Critical</strong>, from the same context fields. " +
+          "It is a prioritization aid—compare it to the actual severity column and your own judgment. " +
+          "<strong>In this timeframe:</strong> " +
+          hiRisk +
+          " row(s) show risk at or above 50%; " +
+          hiActual +
+          " row(s) were seriously severe in the record.";
+
+        if (bullets.length) {
+          answerSeverity.innerHTML =
+            '<p style="margin:0 0 0.55rem">' +
+            escapeHtml(methodNote) +
+            '</p><ul style="margin:0;padding-left:1.2rem;line-height:1.45">' +
+            bullets.map((b) => '<li style="margin:0.35rem 0">' + escapeHtml(b) + "</li>").join("") +
+            "</ul>";
+        } else {
+          answerSeverity.innerHTML = '<p style="margin:0">' + escapeHtml(methodNote) + "</p>";
+        }
+      }
       function cmp(a, b, key) {
         const va = a[key];
         const vb = b[key];
@@ -145,6 +220,7 @@
           if (!q) return true;
           return [r.incident_id, r.resident_id, r.incident_type, r.severity].join(" ").toLowerCase().includes(q);
         });
+        buildPlainAnswers(base);
         rows = rows.slice().sort((a, b) => cmp(a, b, sortKey) * sortDir);
         tbody.innerHTML = rows
           .map(
@@ -186,13 +262,6 @@
           data = json;
           loadState.style.display = "none";
           dashboard.style.display = "block";
-          if (typeof renderInsightStory === "function" && data.insights) {
-            renderInsightStory(document.getElementById("insight-root"), data.insights, {
-              followupsFirst: true,
-              predSectionTitle: "Scores and predictions",
-              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
-            });
-          }
           if (typeof initTimeframeFilter === "function") {
             initTimeframeFilter({
               mode: "day",

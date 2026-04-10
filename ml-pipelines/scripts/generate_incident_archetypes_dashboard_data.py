@@ -33,6 +33,61 @@ from trend_insight_json import safe_round, share_top5_drivers
 
 OUT = _ROOT / "json" / "incident-archetypes-dashboard-data.json"
 
+_NUM_LABELS: dict[str, str] = {
+    "safehouse_id": "which safehouse the incident was tied to",
+    "resolved": "whether the incident was marked resolved",
+    "follow_up_required": "whether follow-up was required",
+    "month": "month of the year",
+    "dayofweek": "day of the week",
+    "prior_count_30d": "how many prior incidents the resident had in the last 30 days",
+    "prior_count_90d": "how many prior incidents the resident had in the last 90 days",
+    "days_since_last_inc": "days since this resident’s last incident",
+    "prior_max_severity": "the highest past severity for this resident before this incident",
+    "type_entropy_90d": "how mixed recent incident types were (more varied vs. more repetitive)",
+    "smoothed_rate": "how common this incident type is at that safehouse",
+}
+
+
+def _sklearn_name_to_plain(sk: str) -> str:
+    if sk.startswith("num__"):
+        key = sk[5:]
+        return _NUM_LABELS.get(key, key.replace("_", " "))
+    if sk.startswith("cat__"):
+        body = sk[5:]
+        mapping = [
+            ("current_risk_level_", "risk level listed as "),
+            ("reported_by_", "incidents recorded by staff/source "),
+            ("case_category_", "case category "),
+            ("referral_source_", "referral source "),
+        ]
+        for prefix, title in mapping:
+            if body.startswith(prefix):
+                return title + body[len(prefix) :].replace("_", " ")
+        return body.replace("_", " ")
+    return sk
+
+
+def build_severity_trend_bullets(lin: Pipeline, top_k: int = 5) -> list[str]:
+    """Plain-language lines from linear regression coefficients (associations, not causation)."""
+    model = lin.named_steps["model"]
+    prep = lin.named_steps["prep"]
+    names = prep.get_feature_names_out()
+    coefs = np.ravel(model.coef_)
+    n = min(len(names), len(coefs))
+    if n == 0:
+        return []
+    s = pd.Series(coefs[:n], index=names[:n])
+    s = s.reindex(s.abs().sort_values(ascending=False).index).head(top_k)
+    out: list[str] = []
+    for raw_name, coef in s.items():
+        plain = _sklearn_name_to_plain(str(raw_name))
+        direction = "higher" if coef > 0 else "lower"
+        out.append(
+            f"In past records, signals tied to {plain} line up with {direction} "
+            "severity scores on average. That is a historical pattern only—not proof that one caused the other."
+        )
+    return out
+
 
 def shannon_entropy(counts: np.ndarray) -> float:
     p = counts[counts > 0] / counts.sum()
@@ -120,19 +175,28 @@ def main() -> None:
     y_clf = df["incident_bucket"]
     y_bin = df["y_binary_high_sev"]
 
-    cat_cols = [c for c in X.columns if X[c].dtype == "object" or str(X[c].dtype) == "bool"]
-    num_cols = [c for c in X.columns if c not in cat_cols]
+    num_cols = [
+        "safehouse_id",
+        "resolved",
+        "follow_up_required",
+        "month",
+        "dayofweek",
+        "prior_count_30d",
+        "prior_count_90d",
+        "days_since_last_inc",
+        "prior_max_severity",
+        "type_entropy_90d",
+        "smoothed_rate",
+    ]
+    cat_cols = ["current_risk_level", "reported_by", "case_category", "referral_source"]
+    X[num_cols] = X[num_cols].apply(pd.to_numeric, errors="coerce")
     for c in cat_cols:
-        if X[c].dtype == "bool":
-            X.loc[:, c] = X[c].astype(int)
+        X[c] = X[c].astype("string").fillna("Unknown")
+
     prep = ColumnTransformer(
         [
             ("num", Pipeline([("impute", SimpleImputer(strategy="median")), ("scale", StandardScaler())]), num_cols),
-            (
-                "cat",
-                Pipeline([("impute", SimpleImputer(strategy="most_frequent")), ("oh", OneHotEncoder(handle_unknown="ignore"))]),
-                cat_cols,
-            ),
+            ("cat", Pipeline([("oh", OneHotEncoder(handle_unknown="ignore"))]), cat_cols),
         ]
     )
 
@@ -148,6 +212,7 @@ def main() -> None:
     pred_reg = lin.predict(Xte)
     r2 = r2_score(yte_reg, pred_reg)
     mae = mean_absolute_error(yte_reg, pred_reg)
+    severity_trend_bullets = build_severity_trend_bullets(lin, top_k=5)
 
     rf = Pipeline(
         [
@@ -234,46 +299,48 @@ def main() -> None:
     rf_multi_full.fit(X, y_clf)
     archetype_pred = rf_multi_full.predict(X)
 
+    archetype_families = [str(t) for t in top_types]
     insights = {
-        "eyebrow": "INCIDENT COMPOSITION ARCHETYPES",
-        "headline": "High or critical severity risk from incident context and resident history",
-        "lede": f"Multiclass accuracy (holdout) {safe_round(acc, 3)}; macro-F1 {safe_round(f1_macro, 3)}. Binary High/Critical AUC {safe_round(auc_bin, 3)}.",
+        "eyebrow": "INCIDENT PATTERNS",
+        "headline": "Repeating incident families, serious-severity risk, and what tends to track with severity",
+        "lede": f"Based on {len(df)} incidents: about {100 * float(y_bin.mean()):.0f}% were High or Critical. "
+        f"Estimates use timing, safehouse, resident context, and past incidents only (nothing after the incident date).",
         "prediction_cards": [
             {
-                "kicker": "Archetype model",
-                "label": "Holdout accuracy",
+                "kicker": "Incident family guess",
+                "label": "Holdout match rate",
                 "value": safe_round(acc, 3),
-                "hint": f"Macro-F1: {safe_round(f1_macro, 3)}",
-                "definition": "Share of holdout rows where predicted archetype matches the actual label (multiclass).",
+                "hint": f"How often the predicted family matched on held-back data",
+                "definition": "Share of test incidents where the predicted incident family matched the label we use in the pipeline.",
             },
             {
-                "kicker": "Binary High/Critical",
-                "label": "ROC-AUC",
+                "kicker": "Serious severity",
+                "label": "Separation score (holdout)",
                 "value": safe_round(auc_bin, 3),
-                "hint": f"F1: {safe_round(f1_bin, 3)}",
-                "definition": "Discrimination for high/critical severity vs other levels on held-out incidents.",
+                "hint": f"How well serious vs. lower severity sorts on held-back data",
+                "definition": "Technical check: how cleanly serious (High/Critical) separates from lower levels on data the model did not train on.",
             },
             {
-                "kicker": "Severity regression",
-                "label": "R² severity_num",
+                "kicker": "Severity trends",
+                "label": "Trend fit (holdout)",
                 "value": safe_round(r2, 3),
-                "hint": f"MAE: {safe_round(mae, 3)}",
-                "definition": "Explanatory fit for numeric severity on holdout data (variance explained).",
+                "hint": f"Average gap on severity scale: {safe_round(mae, 3)}",
+                "definition": "How well a simple severity line fits held-back rows (used only to summarize patterns, not to police individual cases).",
             },
             {
-                "kicker": "CV archetype",
-                "label": "5-fold accuracy mean",
+                "kicker": "Stability check",
+                "label": "Cross-check accuracy",
                 "value": safe_round(cv_acc_m, 3),
-                "hint": "Multiclass RandomForest",
-                "definition": "Mean multiclass accuracy across cross-validation folds (stability of archetype model).",
+                "hint": "Repeated slices of the data",
+                "definition": "How stable the family guess is when the data is split different ways.",
             },
         ],
         "cause_cards": [
             {
-                "kicker": "No future leakage",
-                "title": "Prior-window features",
-                "body": "Counts and entropy use only incidents before each row's date.",
-                "definition": "Feature policy: nothing after the incident’s own date is used when building history features.",
+                "kicker": "Fair timeline",
+                "title": "History uses only earlier incidents",
+                "body": "Counts, diversity, and past severity use only events before each incident’s date—never future outcomes.",
+                "definition": "Nothing that happened after the listed incident is fed into the history fields for that row.",
             }
         ],
         "model_drivers": drivers,
@@ -298,12 +365,24 @@ def main() -> None:
     rows.sort(key=lambda x: -x["high_critical_probability"])
     for c in rows[:3]:
         insights["calls_to_action"].append(
-            f"Prevention focus: incident {c['incident_id']} — P(High/Critical)={c['high_critical_probability']:.0%}, archetype {c['predicted_archetype']}."
+            f"Review incident {c['incident_id']}: estimated serious-severity risk {c['high_critical_probability']:.0%}, "
+            f"predicted family {c['predicted_archetype']}."
         )
+
+    plain_answers = {
+        "archetype_families": archetype_families,
+        "severity_trend_bullets": severity_trend_bullets,
+        "method_note": (
+            "The bullets below come from a simple model of severity scores (Low→Critical as 1→4). "
+            "They describe patterns in historical data, not proof that any factor caused an outcome."
+        ),
+    }
 
     payload = {
         "generated_note": "incident-composition-archetypes.ipynb → generate_incident_archetypes_dashboard_data.py",
         "insights": insights,
+        "archetype_families": archetype_families,
+        "plain_answers": plain_answers,
         "portfolio": {
             "n_incidents": int(len(df)),
             "high_sev_rate": float(y_bin.mean()),

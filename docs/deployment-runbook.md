@@ -12,7 +12,7 @@ This document describes the current production deployment shape used by Tanglaw 
 ## Server Expectations
 
 - Docker and Docker Compose installed
-- a server-side `.env` file with production secrets
+- a server-side `.env` file at `/home/lajicpajam/deployments/harborlight-nexus/.env` with production secrets
 - reverse proxy / TLS already configured in front of the app
 - database not publicly exposed to the internet
 
@@ -30,6 +30,8 @@ This document describes the current production deployment shape used by Tanglaw 
   - `AUTHENTICATION__GOOGLE__CLIENTSECRET`
 - host filtering: `AllowedHosts__0` (and further indices) or semicolon-separated `AllowedHosts` — see [production-environment.md](production-environment.md#allowedhosts-api-hostname-filtering)
 - behind a reverse proxy: `ForwardedHeaders__KnownProxyIPs__*` / `ForwardedHeaders__KnownNetworks__*` — see [production-environment.md](production-environment.md#forwarded-headers-reverse-proxy-trust)
+
+The deploy script rejects placeholder values such as `<PUT_DB_NAME_HERE>`. Keep example values out of the live server `.env`.
 
 ## Deploy Backend
 
@@ -57,10 +59,11 @@ You should see:
 ## Update Flow
 
 1. pull the new repo state on the server
-2. confirm `.env` still exists and still contains the needed secrets
+2. confirm `/home/lajicpajam/deployments/harborlight-nexus/.env` still exists and still contains the needed secrets
 3. rebuild with `docker compose ... up -d --build`
 4. re-run the health checks
 5. spot-check login and one admin mutation flow
+6. verify authenticated `GET /api/safehouses`, `GET /api/residents`, and `GET /api/reports/trend-deployments` all return `200`
 
 ## Rollback
 

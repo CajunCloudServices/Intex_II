@@ -13,13 +13,23 @@ public class AppSeeder(
     RoleManager<IdentityRole<Guid>> roleManager,
     UserManager<ApplicationUser> userManager,
     ICsvRelationalSeeder csvRelationalSeeder,
+    ICsvOperationalBackfillImporter csvOperationalBackfillImporter,
     IOptions<SeedOptions> seedOptions,
+    IHostEnvironment hostEnvironment,
     ILogger<AppSeeder> logger)
 {
     private readonly SeedOptions options = seedOptions.Value;
 
     public async Task SeedAsync()
     {
+        var resolvedCsvRoot = CsvSeedSupport.ResolveCsvRoot(options, hostEnvironment);
+        logger.LogInformation(
+            "DATA_SEED_CONFIG: Mode={Mode}; ImportCsvOnStartup={ImportCsvOnStartup}; BackfillCsvOnStartup={BackfillCsvOnStartup}; CsvRoot={CsvRoot}",
+            options.Mode,
+            options.ImportCsvOnStartup,
+            options.BackfillCsvOnStartup,
+            resolvedCsvRoot);
+
         // Roles must exist before user creation, because the seeded accounts are assigned
         // immediately after the domain rows are inserted.
         foreach (var roleName in RoleNames.All)
@@ -75,6 +85,28 @@ public class AppSeeder(
             logger.LogInformation(
                 "DATA_SEED: Domain tables already contain Safehouses rows; skipping CSV and fixture import. " +
                 "To force a full CSV load, use an empty database or truncate domain tables (see docs/dashboard-data-troubleshooting.md).");
+        }
+
+        if (string.Equals(options.Mode, "Csv", StringComparison.OrdinalIgnoreCase) && options.BackfillCsvOnStartup)
+        {
+            logger.LogInformation("DATA_BACKFILL: Explicit CSV operational backfill requested for non-empty database.");
+            var backfillResult = await csvOperationalBackfillImporter.BackfillAsync();
+            if (!backfillResult.Success)
+            {
+                foreach (var error in backfillResult.Errors.Take(25))
+                {
+                    logger.LogWarning("CSV backfill error: {Error}", error);
+                }
+            }
+            else
+            {
+                logger.LogInformation(
+                    "DATA_BACKFILL: Completed from {CsvRoot}. Inserted: {Inserted}. Matched existing: {Matched}. Warnings: {WarningCount}",
+                    backfillResult.CsvRoot,
+                    string.Join(", ", backfillResult.InsertedCounts.Select(x => $"{x.Key}={x.Value}")),
+                    string.Join(", ", backfillResult.MatchedCounts.Select(x => $"{x.Key}={x.Value}")),
+                    backfillResult.Warnings.Count);
+            }
         }
 
         await SeedUsersAsync();
@@ -882,6 +914,7 @@ public class AppSeeder(
         var users = new[]
         {
             new SeedUser("admin@intex.local", "Admin!23456789", "Avery Admin", RoleNames.Admin, null),
+            new SeedUser("deploy-verifier@intex.local", "Verifier!2345678", "Deploy Verifier", RoleNames.Admin, null, DisableTwoFactor: true),
             new SeedUser("staff@intex.local", "Staff!23456789", "Skyler Staff", RoleNames.Staff, null),
             new SeedUser("donor@intex.local", "Donor!23456789", "Jordan Lee", RoleNames.Donor, donorSupporterId),
             new SeedUser("donor2@intex.local", "Donor2!2345678", "Alex Rivera", RoleNames.Donor, donor2SupporterId)
@@ -950,8 +983,24 @@ public class AppSeeder(
             {
                 await userManager.AddToRoleAsync(user, seedUser.Role);
             }
+
+            if (seedUser.DisableTwoFactor)
+            {
+                if (user.TwoFactorEnabled)
+                {
+                    await userManager.SetTwoFactorEnabledAsync(user, false);
+                }
+
+                await userManager.ResetAuthenticatorKeyAsync(user);
+            }
         }
     }
 
-    private sealed record SeedUser(string Email, string Password, string FullName, string Role, int? SupporterId);
+    private sealed record SeedUser(
+        string Email,
+        string Password,
+        string FullName,
+        string Role,
+        int? SupporterId,
+        bool DisableTwoFactor = false);
 }

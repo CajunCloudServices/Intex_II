@@ -167,6 +167,8 @@ def main() -> None:
                 "high_value_probability": float(proba_all[j]),
                 "donation_type": str(r.get("donation_type", "") or ""),
                 "channel_source": str(r.get("channel_source", "") or ""),
+                "campaign_name": str(r.get("campaign_name", "") or ""),
+                "campaign_present": bool(int(r["campaign_present"])),
             }
         )
     rows.sort(key=lambda x: -x["high_value_probability"])

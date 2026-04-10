@@ -52,15 +52,15 @@ curl_retry \
   -o "${login_body}" \
   -X POST "${base_url}/api/auth/login" \
   -H 'Content-Type: application/json' \
-  --data '{"email":"admin@intex.local","password":"Admin!23456789"}'
+  --data '{"email":"deploy-verifier@intex.local","password":"Verifier!2345678"}'
 
 grep -qi '^set-cookie: Intex.Auth=' "${login_headers}"
-grep -q '"email":"admin@intex.local"' "${login_body}"
+grep -q '"email":"deploy-verifier@intex.local"' "${login_body}"
 
 auth_me_json="$(curl_retry \
   -b "${cookie_jar}" \
   "${base_url}/api/auth/me")"
-grep -q '"email":"admin@intex.local"' <<< "${auth_me_json}"
+grep -q '"email":"deploy-verifier@intex.local"' <<< "${auth_me_json}"
 
 dashboard_summary_json="$(curl_retry \
   -b "${cookie_jar}" \
@@ -79,6 +79,22 @@ ml_dashboard_json="$(curl_retry \
   -b "${cookie_jar}" \
   "${base_url}/api/ml-dashboard/data/counseling-dashboard-data")"
 grep -q '"generated_note"' <<< "${ml_dashboard_json}"
+
+echo "[verify] Checking case-management endpoints that depend on Resident schema"
+safehouses_json="$(curl_retry \
+  -b "${cookie_jar}" \
+  "${base_url}/api/safehouses")"
+grep -q '"id"' <<< "${safehouses_json}"
+
+residents_json="$(curl_retry \
+  -b "${cookie_jar}" \
+  "${base_url}/api/residents")"
+grep -q '"caseControlNumber"' <<< "${residents_json}"
+
+trend_deployments_json="$(curl_retry \
+  -b "${cookie_jar}" \
+  "${base_url}/api/reports/trend-deployments")"
+grep -q '"pipelineKey"' <<< "${trend_deployments_json}"
 
 echo "[verify] Checking donor login flow"
 curl_retry \

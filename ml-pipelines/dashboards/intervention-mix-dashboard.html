@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Intervention mix — ML Insights</title>
+  <title>Intervention mix &amp; mood — ML Insights</title>
   <link rel="stylesheet" href="ml-dashboard-shell.css" />
   <script src="ml-metric-tooltip.js" defer></script>
 </head>
@@ -39,12 +39,28 @@
       <p class="hint">Notebook: <code>intervention-mix-effectiveness.ipynb</code>. Regenerate: <code>python3 scripts/generate_intervention_mix_dashboard_data.py</code></p>
     </aside>
     <main>
-      <h1 class="page-title">Intervention mix effectiveness</h1>
-      <p class="page-sub">Concern probability from pre-session history and session context (resident group holdout in notebook).</p>
+      <h1 class="page-title">Counseling sessions &amp; intervention mix</h1>
+      <p class="page-sub">
+        Plain-language view of session data. This answers: (1) How much mood movement are we seeing alongside different session setups?
+        (2) Which visits deserve a closer look for concern follow-up? (3) What keeps showing up in the historical patterns?
+      </p>
       <div id="load-state" class="loading">Loading…</div>
       <div id="error-state" class="error-box" style="display: none"></div>
       <div id="dashboard" style="display: none">
-        <div id="insight-root" aria-live="polite"></div>
+        <div class="split" style="grid-template-columns: 1fr 1fr">
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem">1) Mood movement &amp; session setup</h2>
+            <p class="page-sub" id="answer-mood" style="margin: 0"></p>
+          </div>
+          <div class="panel">
+            <h2 style="margin: 0 0 0.45rem">2) Concern follow-up: what needs a closer look?</h2>
+            <p class="page-sub" id="answer-concern" style="margin: 0"></p>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom: 1rem">
+          <h2 style="margin: 0 0 0.45rem">3) What patterns keep repeating in the records?</h2>
+          <div class="page-sub" id="answer-patterns" style="margin: 0"></div>
+        </div>
         <div class="panel" style="margin-bottom: 1rem">
           <div class="panel-head">
             <h2>Timeframe &amp; filters</h2>
@@ -62,19 +78,13 @@
                   <button type="button" class="timeframe-link" id="all-time-btn">All time</button>
                 </div>
               </label>
-              <div class="timeframe-aside">Filters sessions by session_date.</div>
+              <div class="timeframe-aside">Filters sessions by session date.</div>
             </div>
           </div>
           <p id="timeframe-label" class="page-sub" style="margin: 0"></p>
         </div>
-        <div class="panel" style="margin-bottom: 1rem">
-          <h2 style="margin: 0 0 0.45rem; font-size: 0.92rem">Score meaning</h2>
-          <p style="margin: 0; font-size: 0.85rem; color: var(--text)">
-            <strong>P(concern)</strong> matches the notebook’s <code>concerns_flagged</code> classification using only information available before or at session start (prior-session aggregates).
-          </p>
-        </div>
         <details class="data-fold" open>
-          <summary>Session scores <span class="fold-hint">Sort · search</span></summary>
+          <summary>Session list <span class="fold-hint">Sort · search</span></summary>
           <div class="fold-inner">
             <div class="panel">
               <div class="panel-head">
@@ -89,10 +99,10 @@
                       <th data-sort="resident_id">Resident</th>
                       <th data-sort="session_date">Date</th>
                       <th data-sort="session_type">Type</th>
-                      <th data-sort="concern_probability">P(concern)</th>
-                      <th data-sort="emo_delta">Emotion Δ</th>
-                      <th data-sort="intervention_count">Interventions</th>
-                      <th data-sort="concern_actual">Concern (actual)</th>
+                      <th data-sort="concern_probability">Concern likelihood</th>
+                      <th data-sort="emo_delta">Mood change</th>
+                      <th data-sort="intervention_count">Interventions listed</th>
+                      <th data-sort="concern_actual">Concern flagged? (record)</th>
                     </tr>
                   </thead>
                   <tbody id="tbody"></tbody>
@@ -105,7 +115,6 @@
     </main>
   </div>
   <script src="ml-dashboard-helpers.js"></script>
-  <script src="ml-dashboard-insights.js"></script>
   <script src="ml-timeframe-filter.js"></script>
   <script>
     (function () {
@@ -114,6 +123,9 @@
       const dashboard = document.getElementById("dashboard");
       const tbody = document.getElementById("tbody");
       const search = document.getElementById("search");
+      const answerMood = document.getElementById("answer-mood");
+      const answerConcern = document.getElementById("answer-concern");
+      const answerPatterns = document.getElementById("answer-patterns");
       let data = null;
       let tfRows = null;
       let sortKey = "concern_probability";
@@ -131,6 +143,84 @@
       function fmtPct(x) {
         return (100 * Number(x || 0)).toFixed(1) + "%";
       }
+      function buildPlainAnswers(rows) {
+        const pa = data.plain_answers || {};
+        const tokens = pa.top_intervention_tokens || [];
+        const emotionBullets = pa.emotion_trend_bullets || [];
+        const concernCues = pa.concern_review_cues || [];
+        const methodNote =
+          pa.method_note ||
+          "These summaries are from past records only; they support judgment, not automatic decisions.";
+
+        if (!rows.length) {
+          answerMood.textContent = "No sessions fall in the selected timeframe.";
+          answerConcern.textContent = "Adjust the timeline to see concern follow-up context.";
+          answerPatterns.innerHTML = '<p style="margin:0">' + escapeHtml(methodNote) + "</p>";
+          return;
+        }
+
+        let sumDelta = 0;
+        let nDelta = 0;
+        let hiRisk = 0;
+        let hiActual = 0;
+        rows.forEach((r) => {
+          const d = Number(r.emo_delta);
+          if (!Number.isNaN(d)) {
+            sumDelta += d;
+            nDelta += 1;
+          }
+          if (Number(r.concern_probability || 0) >= 0.5) hiRisk += 1;
+          if (r.concern_actual) hiActual += 1;
+        });
+        const avgDelta = nDelta ? (sumDelta / nDelta).toFixed(2) : "—";
+        const tokenLine =
+          tokens.length > 0
+            ? " The tools most often highlighted in the mix labels are: <strong>" +
+              escapeHtml(tokens.join(", ")) +
+              "</strong> (plus other, less frequent techniques rolled into the model)."
+            : "";
+
+        answerMood.innerHTML =
+          "<strong>Mood change</strong> is a simple start → end score for the visit (higher means the person moved in a more positive direction on our scale; it is not a clinical diagnosis)." +
+          tokenLine +
+          " <strong>In this view,</strong> average mood change is <strong>" +
+          avgDelta +
+          "</strong> across " +
+          rows.length +
+          " session(s). Use the table to spot visits with strong shifts versus flat or negative movement.";
+
+        answerConcern.innerHTML =
+          "<strong>Concern likelihood</strong> estimates how much this visit resembles past sessions that were concern-flagged, using length, format, resident context, and <strong>only earlier sessions</strong> for that person." +
+          " It is a <strong>triage cue</strong> for supervisors—not a verdict." +
+          " <strong>In this timeframe:</strong> " +
+          hiRisk +
+          " session(s) show likelihood at or above 50%; " +
+          hiActual +
+          " session(s) were already flagged in the record.";
+
+        let patternsHtml =
+          '<p style="margin:0 0 0.55rem">' + escapeHtml(methodNote) + "</p>";
+        if (emotionBullets.length) {
+          patternsHtml +=
+            '<p style="margin:0 0 0.35rem;font-weight:600">Linked to mood movement (historical association):</p><ul style="margin:0 0 0.85rem;padding-left:1.2rem;line-height:1.45">';
+          emotionBullets.forEach(function (b) {
+            patternsHtml += '<li style="margin:0.3rem 0">' + escapeHtml(b) + "</li>";
+          });
+          patternsHtml += "</ul>";
+        }
+        if (concernCues.length) {
+          patternsHtml +=
+            '<p style="margin:0 0 0.35rem;font-weight:600">Often showing up when concern was flagged (review cues):</p><ul style="margin:0;padding-left:1.2rem;line-height:1.45">';
+          concernCues.forEach(function (b) {
+            patternsHtml += '<li style="margin:0.3rem 0">' + escapeHtml(b) + "</li>";
+          });
+          patternsHtml += "</ul>";
+        }
+        if (!emotionBullets.length && !concernCues.length) {
+          patternsHtml += "<p style=\"margin:0\">Re-run the data script to refresh pattern text.</p>";
+        }
+        answerPatterns.innerHTML = patternsHtml;
+      }
       function cmp(a, b, key) {
         const va = a[key];
         const vb = b[key];
@@ -141,6 +231,7 @@
       function render() {
         const q = (search.value || "").toLowerCase().trim();
         const base = tfRows !== null ? tfRows : data.rows || [];
+        buildPlainAnswers(base);
         let rows = base.filter((r) => {
           if (!q) return true;
           return [r.recording_id, r.resident_id, r.session_type, r.session_date].join(" ").toLowerCase().includes(q);
@@ -184,13 +275,6 @@
           data = json;
           loadState.style.display = "none";
           dashboard.style.display = "block";
-          if (typeof renderInsightStory === "function" && data.insights) {
-            renderInsightStory(document.getElementById("insight-root"), data.insights, {
-              followupsFirst: true,
-              predSectionTitle: "Scores and predictions",
-              causeSectionTitle: "Patterns in the data (associations, not proof of cause)",
-            });
-          }
           if (typeof initTimeframeFilter === "function") {
             initTimeframeFilter({
               mode: "day",
