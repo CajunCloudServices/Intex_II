@@ -51,6 +51,26 @@ export function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
+export function dateStringToTime(value: string) {
+  const dateOnly = value.length >= 10 ? value.slice(0, 10) : value;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateOnly);
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]);
+    const d = Number(m[3]);
+    if (Number.isFinite(y) && Number.isFinite(mo) && Number.isFinite(d)) {
+      return new Date(y, mo - 1, d).getTime();
+    }
+  }
+
+  return new Date(value).getTime();
+}
+
+/** UI tables sort API ISO date strings newest-first in several places; keep date-only parsing consistent. */
+export function compareDateStringsDesc(left: string, right: string) {
+  return dateStringToTime(right) - dateStringToTime(left);
+}
+
 export function normalizeText(value: unknown) {
   if (value === null || value === undefined) {
     return '';

@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
@@ -44,7 +45,7 @@ public class MlController(
 
     [HttpGet("reintegration-risk-summary")]
     public async Task<ActionResult<ReintegrationRiskSummaryResponse>> GetReintegrationRiskSummary(
-        [FromQuery] int top = 12,
+        [FromQuery, Range(1, 50)] int top = 12,
         CancellationToken cancellationToken = default)
     {
         var residents = await dbContext.Residents

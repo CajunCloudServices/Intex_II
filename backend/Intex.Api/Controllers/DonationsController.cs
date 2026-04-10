@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
@@ -68,6 +69,7 @@ public class DonationsController(
         }
 
         var donations = await dbContext.Donations
+            .AsNoTracking()
             .Where(x => x.SupporterId == supporterId.Value)
             .ToListAsync();
 
@@ -96,6 +98,7 @@ public class DonationsController(
         }
 
         var allocations = await dbContext.DonationAllocations
+            .AsNoTracking()
             .Include(x => x.Donation)
             .Include(x => x.Safehouse)
             .Where(x => x.Donation!.SupporterId == supporterId.Value)
@@ -124,14 +127,18 @@ public class DonationsController(
     [HttpGet("predict-impact")]
     [AllowAnonymous]
     [EnableRateLimiting("public-submit")]
-    public async Task<ActionResult<DonationImpactPredictionResponse>> PredictImpact([FromQuery] decimal amount)
+    public async Task<ActionResult<DonationImpactPredictionResponse>> PredictImpact(
+        [FromQuery, Range(typeof(decimal), "0.01", "999999999.99")] decimal amount)
+
     {
         if (amount <= 0)
         {
             return BadRequest(new { message = "Amount must be greater than 0." });
         }
 
-        var historicalTotalsList = await dbContext.DonationAllocations
+        var monetaryAllocations = await dbContext.DonationAllocations
+            .AsNoTracking()
+            .Include(x => x.Donation)
             .Where(x => x.Donation!.DonationType == "Monetary")
             .GroupBy(x => x.ProgramArea)
             .Select(g => new { ProgramArea = g.Key, Total = g.Sum(a => a.AmountAllocated) })
@@ -382,6 +389,7 @@ public class DonationsController(
 
     private IQueryable<Donation> QueryDonations() =>
         dbContext.Donations
+            .AsNoTracking()
             .Include(x => x.Supporter)
             .Include(x => x.Allocations)
             .ThenInclude(x => x.Safehouse);
@@ -395,6 +403,7 @@ public class DonationsController(
     private async Task<List<DonationAllocation>> BuildPublicDonationAllocationsAsync(decimal amount, DateOnly allocationDate)
     {
         var primarySafehouse = await dbContext.Safehouses
+            .AsNoTracking()
             .OrderBy(x => x.Id)
             .Select(x => new { x.Id })
             .FirstOrDefaultAsync();
@@ -405,6 +414,7 @@ public class DonationsController(
         }
 
         var historicalTotalsList = await dbContext.DonationAllocations
+            .AsNoTracking()
             .Where(x => x.Donation!.DonationType == "Monetary")
             .GroupBy(x => x.ProgramArea)
             .Select(g => new { ProgramArea = g.Key, Total = g.Sum(a => a.AmountAllocated) })

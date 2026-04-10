@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Intex.Api.Authorization;
 using Intex.Api.Data;
 using Intex.Api.DTOs;
@@ -15,7 +16,9 @@ namespace Intex.Api.Controllers;
 public class ResidentsController(ApplicationDbContext dbContext, IAuditLogService auditLogService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ResidentResponse>>> GetAll([FromQuery] string? status, [FromQuery] int? safehouseId)
+    public async Task<ActionResult<IEnumerable<ResidentResponse>>> GetAll(
+        [FromQuery, StringLength(20), RegularExpression(ValidationPatterns.ResidentCaseStatus)] string? status,
+        [FromQuery, Range(1, int.MaxValue)] int? safehouseId)
     {
         var query = BuildResidentEntityQuery();
 
@@ -47,6 +50,12 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
     [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ResidentResponse>> Create(ResidentRequest request)
     {
+        var validationResult = ValidateResidentRequest(request);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
+
         var resident = MapResident(new Resident { CreatedAtUtc = DateTime.UtcNow }, request);
         dbContext.Residents.Add(resident);
         await dbContext.SaveChangesAsync();
@@ -60,6 +69,12 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
     [Authorize(Policy = Policies.StaffOrAdmin)]
     public async Task<ActionResult<ResidentResponse>> Update(int id, ResidentRequest request)
     {
+        var validationResult = ValidateResidentRequest(request);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
+
         var resident = await dbContext.Residents
             .Include(x => x.InterventionPlans)
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -182,6 +197,100 @@ public class ResidentsController(ApplicationDbContext dbContext, IAuditLogServic
         dbContext.Residents
             .Include(x => x.Safehouse)
             .Include(x => x.InterventionPlans);
+
+    private ActionResult? ValidateResidentRequest(ResidentRequest request)
+    {
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        if (request.DateOfBirth == default)
+        {
+            ModelState.AddModelError(nameof(request.DateOfBirth), "Date of birth is required.");
+        }
+        else if (request.DateOfBirth > today)
+        {
+            ModelState.AddModelError(nameof(request.DateOfBirth), "Date of birth cannot be in the future.");
+        }
+
+        if (request.DateOfAdmission == default)
+        {
+            ModelState.AddModelError(nameof(request.DateOfAdmission), "Date of admission is required.");
+        }
+        else if (request.DateOfBirth != default && request.DateOfAdmission < request.DateOfBirth)
+        {
+            ModelState.AddModelError(nameof(request.DateOfAdmission), "Date of admission cannot be earlier than date of birth.");
+        }
+
+        if (request.IsPwd && string.IsNullOrWhiteSpace(request.PwdType))
+        {
+            ModelState.AddModelError(nameof(request.PwdType), "PWD type is required when the resident is marked as PWD.");
+        }
+
+        if (request.HasSpecialNeeds && string.IsNullOrWhiteSpace(request.SpecialNeedsDiagnosis))
+        {
+            ModelState.AddModelError(
+                nameof(request.SpecialNeedsDiagnosis),
+                "Special needs diagnosis is required when special needs is enabled.");
+        }
+
+        if (request.DateColbRegistered.HasValue &&
+            request.DateColbObtained.HasValue &&
+            request.DateColbObtained < request.DateColbRegistered)
+        {
+            ModelState.AddModelError(
+                nameof(request.DateColbObtained),
+                "Date COLB obtained cannot be earlier than date COLB registered.");
+        }
+
+        if (request.DateCaseStudyPrepared.HasValue &&
+            request.DateOfAdmission != default &&
+            request.DateCaseStudyPrepared < request.DateOfAdmission)
+        {
+            ModelState.AddModelError(
+                nameof(request.DateCaseStudyPrepared),
+                "Case study preparation date cannot be earlier than date of admission.");
+        }
+
+        if (request.DateEnrolled.HasValue &&
+            request.DateOfAdmission != default &&
+            request.DateEnrolled < request.DateOfAdmission)
+        {
+            ModelState.AddModelError(
+                nameof(request.DateEnrolled),
+                "Enrollment date cannot be earlier than date of admission.");
+        }
+
+        if (request.DateClosed.HasValue &&
+            request.DateOfAdmission != default &&
+            request.DateClosed < request.DateOfAdmission)
+        {
+            ModelState.AddModelError(
+                nameof(request.DateClosed),
+                "Date closed cannot be earlier than date of admission.");
+        }
+
+        if (ModelState.IsValid)
+        {
+            return null;
+        }
+
+        var errors = ModelState
+            .Where(entry => entry.Value?.Errors.Count > 0)
+            .SelectMany(entry => entry.Value!.Errors.Select(error => new
+            {
+                field = entry.Key,
+                message = string.IsNullOrWhiteSpace(error.ErrorMessage) ? "Invalid value." : error.ErrorMessage
+            }))
+            .ToList();
+
+        return BadRequest(new
+        {
+            title = "Validation failed",
+            message = "One or more input fields are invalid.",
+            status = StatusCodes.Status400BadRequest,
+            traceId = HttpContext.TraceIdentifier,
+            errors
+        });
+    }
 
     private static ResidentResponse MapResidentResponse(Resident resident) =>
         new(

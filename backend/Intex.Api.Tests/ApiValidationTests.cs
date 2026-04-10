@@ -206,6 +206,140 @@ public class ApiValidationTests : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task ResidentCreate_WithInvalidDateOrder_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/residents", new
+        {
+            caseControlNumber = "C1234",
+            internalCode = "LS-1234",
+            safehouseId = 1,
+            caseStatus = "Active",
+            sex = "F",
+            dateOfBirth = new DateOnly(2015, 1, 1),
+            birthStatus = "Marital",
+            placeOfBirth = "Cebu",
+            religion = "Catholic",
+            caseCategory = "Neglected",
+            subCatOrphaned = false,
+            isTrafficked = false,
+            subCatChildLabor = false,
+            isPhysicalAbuseCase = false,
+            isSexualAbuseCase = false,
+            subCatOsaec = false,
+            subCatCicl = false,
+            subCatAtRisk = false,
+            subCatStreetChild = false,
+            subCatChildWithHiv = false,
+            isPwd = true,
+            pwdType = "",
+            hasSpecialNeeds = true,
+            specialNeedsDiagnosis = "",
+            familyIs4Ps = false,
+            familySoloParent = false,
+            familyIndigenous = false,
+            familyParentPwd = false,
+            familyInformalSettler = false,
+            dateOfAdmission = new DateOnly(2014, 12, 31),
+            referralSource = "NGO",
+            referringAgencyPerson = (string?)null,
+            dateColbRegistered = new DateOnly(2025, 1, 10),
+            dateColbObtained = new DateOnly(2025, 1, 5),
+            assignedSocialWorker = "SW-01",
+            initialCaseAssessment = "Assessment",
+            dateCaseStudyPrepared = new DateOnly(2014, 12, 30),
+            reintegrationType = (string?)null,
+            reintegrationStatus = (string?)null,
+            initialRiskLevel = "Low",
+            currentRiskLevel = "Low",
+            dateEnrolled = new DateOnly(2014, 12, 30),
+            dateClosed = new DateOnly(2014, 12, 30),
+            restrictedNotes = (string?)null,
+            interventionPlans = new[]
+            {
+                new
+                {
+                    planCategory = "Psychosocial",
+                    planDescription = "Description",
+                    servicesProvided = "Counseling",
+                    targetValue = (decimal?)null,
+                    targetDate = new DateOnly(2025, 2, 1),
+                    status = "Open",
+                    caseConferenceDate = new DateOnly(2025, 1, 15)
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "PwdType");
+    }
+
+    [Fact]
+    public async Task DonationCreate_WithAllocationMismatch_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.PostAsJsonAsync("/api/donations", new
+        {
+            supporterId = 1,
+            donationType = "Monetary",
+            donationDate = new DateOnly(2026, 4, 1),
+            channelSource = "Website",
+            currencyCode = "USD",
+            amount = 100m,
+            estimatedValue = 100m,
+            impactUnit = "Meals",
+            isRecurring = false,
+            campaignName = (string?)null,
+            notes = (string?)null,
+            allocations = new[]
+            {
+                new
+                {
+                    safehouseId = 1,
+                    programArea = "Nutrition",
+                    amountAllocated = 60m,
+                    allocationDate = new DateOnly(2026, 4, 1),
+                    allocationNotes = (string?)null
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "Allocations");
+    }
+
+    [Fact]
+    public async Task PublicDonationSubmit_WithMissingRecurringInterval_ReturnsBadRequest()
+    {
+        var response = await _client.PostAsJsonAsync("/api/donations/public-submit", new
+        {
+            isAnonymous = false,
+            donorName = (string?)null,
+            donorEmail = (string?)null,
+            amount = 25m,
+            isRecurring = true,
+            recurringInterval = (string?)null,
+            notes = "Test"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "RecurringInterval");
+    }
+
+    [Fact]
+    public async Task SocialAnalytics_WithInvalidPageSize_ReturnsBadRequest()
+    {
+        await LoginAsAdminAsync();
+
+        var response = await _client.GetAsync("/api/reports/social-analytics?page=1&pageSize=0");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertHasValidationErrorShapeAsync(response, "pageSize");
+    }
+
+    [Fact]
     public async Task CaseConferenceCreate_WithMissingCoreFields_ReturnsBadRequest()
     {
         await LoginAsAdminAsync();

@@ -1,12 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { getConsentLevel, saveConsentLevel } from '../../lib/browserPreferences';
 
 export function CookieConsentBanner() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(!getConsentLevel());
-  }, []);
+  const [visible, setVisible] = useState(() => !getConsentLevel());
 
   if (!visible) {
     return null;

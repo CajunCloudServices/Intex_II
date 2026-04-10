@@ -394,6 +394,7 @@ export function ResidentRecordForm({
             type="date"
             value={firstPlan?.caseConferenceDate ?? ''}
             onChange={(e) => updatePlan('caseConferenceDate', e.target.value)}
+            error={residentErrors.caseConferenceDate}
           />
           <ValidatedTextField
             label="Services provided"

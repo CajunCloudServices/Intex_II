@@ -10,9 +10,9 @@ import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { EmptyState, ErrorState, LoadingState } from '../../components/ui/PageState';
 import { Pagination } from '../../components/ui/Pagination';
 import { useAuth } from '../../hooks/useAuth';
-import { formatDate, formatMoney, normalizeText } from '../../lib/format';
+import { compareDateStringsDesc, formatDate, formatMoney, normalizeText } from '../../lib/format';
 import { sanitizeOptionalText, sanitizeText, type ValidationErrors } from '../../lib/validation';
-import { defaultSupporterForm } from './forms/donorFormDefaults';
+import { createSupporterFormFromRecord, defaultSupporterForm } from './forms/donorFormDefaults';
 import { validateSupporterForm } from './forms/donorsFormValidation';
 import { SupporterRecordForm } from './forms/SupporterRecordForm';
 
@@ -176,7 +176,7 @@ export function SupporterDonationHistoryPage() {
             )
           );
         })
-        .sort((left, right) => new Date(right.donationDate).getTime() - new Date(left.donationDate).getTime()),
+        .sort((left, right) => compareDateStringsDesc(left.donationDate, right.donationDate)),
     [normalizedSearch, scopedDonations],
   );
 
@@ -215,21 +215,7 @@ export function SupporterDonationHistoryPage() {
     setFeedback(null);
     setEditingSupporterId(supporter.id);
     setSupporterErrors({});
-    setSupporterForm({
-      supporterType: supporter.supporterType,
-      displayName: supporter.displayName,
-      organizationName: supporter.organizationName ?? '',
-      firstName: supporter.firstName ?? '',
-      lastName: supporter.lastName ?? '',
-      relationshipType: supporter.relationshipType,
-      region: supporter.region,
-      country: supporter.country,
-      email: supporter.email,
-      phone: supporter.phone ?? '',
-      status: supporter.status,
-      firstDonationDate: supporter.firstDonationDate ?? '',
-      acquisitionChannel: supporter.acquisitionChannel,
-    });
+    setSupporterForm(createSupporterFormFromRecord(supporter));
   };
 
   const handleSupporterSubmit = async (event: FormEvent) => {

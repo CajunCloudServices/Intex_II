@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api';
-import { ApiError } from '../../api/client';
 import type { HomeVisitation, HomeVisitationRequest, Resident } from '../../api/types';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { SectionCard } from '../../components/ui/Cards';
 import { LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
+import { compactFieldErrors, extractApiFieldErrors } from '../../lib/apiErrors';
 import { buildVisitLocationOptions, buildWorkerOptions, createVisitationForm } from './forms/homeVisitationDefaults';
 import { HomeVisitationRecordForm, type HomeVisitationFieldErrors } from './forms/HomeVisitationRecordForm';
 
@@ -141,31 +141,19 @@ function validateHomeVisitationForm(form: HomeVisitationRequest): HomeVisitation
 }
 
 function extractHomeVisitationFieldErrors(error: unknown): HomeVisitationFieldErrors {
-  if (!(error instanceof ApiError) || !error.details) return {};
-  try {
-    const parsed = JSON.parse(error.details) as { errors?: Record<string, string[]> };
-    const apiErrors = parsed.errors ?? {};
-    return compactFieldErrors<HomeVisitationFieldErrors>({
-      residentId: apiErrors.ResidentId?.[0],
-      visitDate: apiErrors.VisitDate?.[0],
-      socialWorker: apiErrors.SocialWorker?.[0],
-      visitType: apiErrors.VisitType?.[0],
-      locationVisited: apiErrors.LocationVisited?.[0],
-      familyMembersPresent: apiErrors.FamilyMembersPresent?.[0],
-      purpose: apiErrors.Purpose?.[0],
-      observations: apiErrors.Observations?.[0],
-      familyCooperationLevel: apiErrors.FamilyCooperationLevel?.[0],
-      safetyConcernDetails: apiErrors.SafetyConcernDetails?.[0],
-      followUpNotes: apiErrors.FollowUpNotes?.[0],
-      visitOutcome: apiErrors.VisitOutcome?.[0],
-    });
-  } catch {
-    return {};
-  }
-}
-
-function compactFieldErrors<T extends Record<string, string | undefined>>(errors: T): T {
-  return Object.fromEntries(
-    Object.entries(errors).filter(([, value]) => Boolean(value)),
-  ) as T;
+  const apiErrors = extractApiFieldErrors(error);
+  return compactFieldErrors<HomeVisitationFieldErrors>({
+    residentId: apiErrors.ResidentId?.[0],
+    visitDate: apiErrors.VisitDate?.[0],
+    socialWorker: apiErrors.SocialWorker?.[0],
+    visitType: apiErrors.VisitType?.[0],
+    locationVisited: apiErrors.LocationVisited?.[0],
+    familyMembersPresent: apiErrors.FamilyMembersPresent?.[0],
+    purpose: apiErrors.Purpose?.[0],
+    observations: apiErrors.Observations?.[0],
+    familyCooperationLevel: apiErrors.FamilyCooperationLevel?.[0],
+    safetyConcernDetails: apiErrors.SafetyConcernDetails?.[0],
+    followUpNotes: apiErrors.FollowUpNotes?.[0],
+    visitOutcome: apiErrors.VisitOutcome?.[0],
+  });
 }

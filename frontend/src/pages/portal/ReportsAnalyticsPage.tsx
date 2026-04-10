@@ -1,4 +1,4 @@
-import { useDeferredValue, useEffect, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
 import { api } from '../../api';
 import type {
@@ -104,6 +104,21 @@ const REPORTS = [
 const DEFAULT_TABLE_PAGE_SIZE = 6;
 const LARGE_TABLE_PAGE_SIZE = 8;
 const TREND_BARS_PAGE_SIZE = 12;
+// Keep the partial-load warnings in the same order as the Promise.allSettled() calls below.
+const REPORT_SECTION_FALLBACKS = [
+  ['Donation trends', 'Donation trend analytics are unavailable.'],
+  ['Resident outcomes', 'Resident outcome analytics are unavailable.'],
+  ['Safehouse performance', 'Safehouse performance analytics are unavailable.'],
+  ['Reintegration summary', 'Reintegration analytics are unavailable.'],
+  ['Reintegration risk', 'Reintegration risk scoring is unavailable.'],
+  ['Outreach performance', 'Outreach analytics are unavailable.'],
+  ['Social analytics', 'Social analytics are unavailable.'],
+  ['Counseling risk', 'Counseling risk scoring is unavailable.'],
+  ['Trend deployments', 'Trend deployment scorecards are unavailable.'],
+  ['Safehouse records', 'Safehouse records are unavailable.'],
+  ['Incident watchlist', 'Incident records are unavailable.'],
+  ['Resident directory', 'Resident directory is unavailable.'],
+] as const;
 
 function paginateItems<T>(items: T[], page: number, pageSize: number) {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
@@ -196,6 +211,39 @@ function AnalyticsModal({
   );
 }
 
+function createSafehouseFormFromRecord(safehouse: Safehouse): SafehouseRequest {
+  return {
+    code: safehouse.code,
+    name: safehouse.name,
+    region: safehouse.region,
+    city: safehouse.city,
+    province: safehouse.province,
+    country: safehouse.country,
+    openDate: safehouse.openDate,
+    status: safehouse.status,
+    capacityGirls: safehouse.capacityGirls,
+    capacityStaff: safehouse.capacityStaff,
+    currentOccupancy: safehouse.currentOccupancy,
+    notes: safehouse.notes ?? '',
+  };
+}
+
+function createIncidentFormFromRecord(incident: IncidentReport): IncidentReportRequest {
+  return {
+    residentId: incident.residentId,
+    safehouseId: incident.safehouseId,
+    incidentDate: incident.incidentDate,
+    incidentType: incident.incidentType,
+    severity: incident.severity,
+    description: incident.description,
+    responseTaken: incident.responseTaken,
+    resolved: incident.resolved,
+    resolutionDate: incident.resolutionDate ?? '',
+    reportedBy: incident.reportedBy,
+    followUpRequired: incident.followUpRequired,
+  };
+}
+
 export function ReportsAnalyticsPage() {
   const { user } = useAuth();
   const [donationTrends, setDonationTrends] = useState<DonationTrends | null>(null);
@@ -242,7 +290,7 @@ export function ReportsAnalyticsPage() {
   const deferredIncidentSearch = useDeferredValue(incidentSearch);
   const isAdmin = user?.roles.includes('Admin') ?? false;
 
-  const loadAnalytics = async () => {
+  const loadAnalytics = useCallback(async () => {
     if (!user) return;
 
     // Reports come from several purpose-specific endpoints instead of one giant payload.
@@ -269,20 +317,7 @@ export function ReportsAnalyticsPage() {
       ]);
       const warnings: string[] = [];
 
-      const [
-        _trendResult,
-        _outcomeResult,
-        safehouseReportResult,
-        _reintegrationResult,
-        reintegrationRiskResult,
-        _outreachResult,
-        _socialResult,
-        _counselingRiskResult,
-        trendDeploymentResult,
-        safehouseDataResult,
-        incidentDataResult,
-        residentDataResult,
-      ] = results;
+      const [, , safehouseReportResult, , reintegrationRiskResult, , , , trendDeploymentResult, safehouseDataResult, incidentDataResult, residentDataResult] = results;
 
       const safehouseReport = safehouseReportResult.status === 'fulfilled' ? safehouseReportResult.value : null;
       const reintegrationRiskData = reintegrationRiskResult.status === 'fulfilled' ? reintegrationRiskResult.value : null;
@@ -291,27 +326,14 @@ export function ReportsAnalyticsPage() {
       const incidentData = incidentDataResult.status === 'fulfilled' ? incidentDataResult.value : [];
       const residentData = residentDataResult.status === 'fulfilled' ? residentDataResult.value : [];
 
-      const sections = [
-        ['Donation trends', results[0], 'Donation trend analytics are unavailable.'],
-        ['Resident outcomes', results[1], 'Resident outcome analytics are unavailable.'],
-        ['Safehouse performance', results[2], 'Safehouse performance analytics are unavailable.'],
-        ['Reintegration summary', results[3], 'Reintegration analytics are unavailable.'],
-        ['Reintegration risk', results[4], 'Reintegration risk scoring is unavailable.'],
-        ['Outreach performance', results[5], 'Outreach analytics are unavailable.'],
-        ['Social analytics', results[6], 'Social analytics are unavailable.'],
-        ['Counseling risk', results[7], 'Counseling risk scoring is unavailable.'],
-        ['Trend deployments', results[8], 'Trend deployment scorecards are unavailable.'],
-        ['Safehouse records', results[9], 'Safehouse records are unavailable.'],
-        ['Incident watchlist', results[10], 'Incident records are unavailable.'],
-        ['Resident directory', results[11], 'Resident directory is unavailable.'],
-      ] as const;
-
-      sections.forEach(([label, result, fallback]) => {
+      REPORT_SECTION_FALLBACKS.forEach(([label, fallback], index) => {
+        const result = results[index];
         if (result.status === 'rejected') {
           warnings.push(describeUnavailableSection(label, result.reason, fallback));
         }
       });
 
+      // Some analytics cards still use curated seed data so the page stays explorable while live modules roll in incrementally.
       setDonationTrends(MOCK_DONATION_TRENDS);
       setResidentOutcomes(MOCK_RESIDENT_OUTCOMES);
       setSafehousePerformance(safehouseReport);
@@ -340,11 +362,11 @@ export function ReportsAnalyticsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     void loadAnalytics();
-  }, [user]);
+  }, [loadAnalytics]);
 
   useEffect(() => {
     setSocialPostsPage(1);
@@ -399,6 +421,8 @@ export function ReportsAnalyticsPage() {
   const reintegrationRiskRows = reintegrationRiskSummary?.topRiskResidents ?? [];
   const counselingRiskRows = counselingRiskSummary?.topRiskSessions ?? [];
   const trendDeploymentRows = trendDeployments?.rows ?? [];
+  // The page mixes reporting modules, admin maintenance views, and advisory tools in one workspace,
+  // so derive each slice once here before handing smaller pieces to the UI sections below.
   const totalRaised = donationTrends?.monthlyTotals.reduce((sum, point) => sum + point.totalAmount, 0) ?? 0;
   const totalReferrals = outreachPerformance?.platformSummaries.reduce((sum, item) => sum + item.totalDonationReferrals, 0) ?? 0;
   const highRiskResidents = residentOutcomes?.followUpBurden.highRiskResidents ?? 0;
@@ -926,20 +950,7 @@ export function ReportsAnalyticsPage() {
                             onClick={() => {
                               setViewingSafehouseId(null);
                               setEditingSafehouseId(safehouse.id);
-                              setSafehouseForm({
-                                code: safehouse.code,
-                                name: safehouse.name,
-                                region: safehouse.region,
-                                city: safehouse.city,
-                                province: safehouse.province,
-                                country: safehouse.country,
-                                openDate: safehouse.openDate,
-                                status: safehouse.status,
-                                capacityGirls: safehouse.capacityGirls,
-                                capacityStaff: safehouse.capacityStaff,
-                                currentOccupancy: safehouse.currentOccupancy,
-                                notes: safehouse.notes ?? '',
-                              });
+                              setSafehouseForm(createSafehouseFormFromRecord(safehouse));
                             }}
                             type="button"
                           >
@@ -1056,19 +1067,7 @@ export function ReportsAnalyticsPage() {
                             onClick={() => {
                               setSelectedIncidentId(null);
                               setEditingIncidentId(incident.id);
-                              setIncidentForm({
-                                residentId: incident.residentId,
-                                safehouseId: incident.safehouseId,
-                                incidentDate: incident.incidentDate,
-                                incidentType: incident.incidentType,
-                                severity: incident.severity,
-                                description: incident.description,
-                                responseTaken: incident.responseTaken,
-                                resolved: incident.resolved,
-                                resolutionDate: incident.resolutionDate ?? '',
-                                reportedBy: incident.reportedBy,
-                                followUpRequired: incident.followUpRequired,
-                              });
+                              setIncidentForm(createIncidentFormFromRecord(incident));
                             }}
                             type="button"
                           >
@@ -1150,20 +1149,7 @@ export function ReportsAnalyticsPage() {
                     onClick={() => {
                       setViewingSafehouseId(null);
                       setEditingSafehouseId(selectedSafehouse.id);
-                      setSafehouseForm({
-                        code: selectedSafehouse.code,
-                        name: selectedSafehouse.name,
-                        region: selectedSafehouse.region,
-                        city: selectedSafehouse.city,
-                        province: selectedSafehouse.province,
-                        country: selectedSafehouse.country,
-                        openDate: selectedSafehouse.openDate,
-                        status: selectedSafehouse.status,
-                        capacityGirls: selectedSafehouse.capacityGirls,
-                        capacityStaff: selectedSafehouse.capacityStaff,
-                        currentOccupancy: selectedSafehouse.currentOccupancy,
-                        notes: selectedSafehouse.notes ?? '',
-                      });
+                      setSafehouseForm(createSafehouseFormFromRecord(selectedSafehouse));
                     }}
                     type="button"
                   >
@@ -1203,19 +1189,7 @@ export function ReportsAnalyticsPage() {
                     onClick={() => {
                       setSelectedIncidentId(null);
                       setEditingIncidentId(selectedIncident.id);
-                      setIncidentForm({
-                        residentId: selectedIncident.residentId,
-                        safehouseId: selectedIncident.safehouseId,
-                        incidentDate: selectedIncident.incidentDate,
-                        incidentType: selectedIncident.incidentType,
-                        severity: selectedIncident.severity,
-                        description: selectedIncident.description,
-                        responseTaken: selectedIncident.responseTaken,
-                        resolved: selectedIncident.resolved,
-                        resolutionDate: selectedIncident.resolutionDate ?? '',
-                        reportedBy: selectedIncident.reportedBy,
-                        followUpRequired: selectedIncident.followUpRequired,
-                      });
+                      setIncidentForm(createIncidentFormFromRecord(selectedIncident));
                     }}
                     type="button"
                   >

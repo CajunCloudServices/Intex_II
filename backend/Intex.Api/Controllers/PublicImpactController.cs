@@ -17,11 +17,13 @@ public class PublicImpactController(ApplicationDbContext dbContext, ILogger<Publ
     public async Task<ActionResult<PublicImpactDashboardResponse>> GetPublished()
     {
         var snapshotEntities = await dbContext.PublicImpactSnapshots
+            .AsNoTracking()
             .Where(x => x.IsPublished)
             .OrderByDescending(x => x.SnapshotDate)
             .ToListAsync();
 
         var homeVisitsByMonth = await dbContext.SafehouseMonthlyMetrics
+            .AsNoTracking()
             .GroupBy(x => x.MonthStart)
             .Select(group => new
             {
@@ -33,6 +35,8 @@ public class PublicImpactController(ApplicationDbContext dbContext, ILogger<Publ
         var snapshots = snapshotEntities
             .Select(x =>
             {
+                // Invalid metric payloads should not break the public dashboard; we surface
+                // the snapshot with display guards instead of failing the whole response.
                 var metrics = DeserializeMetrics(x);
                 return new PublicImpactSnapshotResponse(
                     x.Id,
@@ -48,8 +52,11 @@ public class PublicImpactController(ApplicationDbContext dbContext, ILogger<Publ
             })
             .ToList();
 
-        var totalAllocated = await dbContext.DonationAllocations.SumAsync(x => x.AmountAllocated);
+        var totalAllocated = await dbContext.DonationAllocations
+            .AsNoTracking()
+            .SumAsync(x => x.AmountAllocated);
         var resourceUse = (await dbContext.DonationAllocations
+            .AsNoTracking()
             .GroupBy(x => x.ProgramArea)
             .Select(group => new
             {
@@ -65,6 +72,7 @@ public class PublicImpactController(ApplicationDbContext dbContext, ILogger<Publ
             .ToList();
 
         var capacityRows = await dbContext.Safehouses
+            .AsNoTracking()
             .OrderBy(x => x.Name)
             .Select(x => new PublicImpactCapacityRowDto(
                 x.Name,
@@ -80,17 +88,20 @@ public class PublicImpactController(ApplicationDbContext dbContext, ILogger<Publ
 
         var homeVisitMonth = latestValidSnapshotDate ??
             await dbContext.SafehouseMonthlyMetrics
+                .AsNoTracking()
                 .OrderByDescending(x => x.MonthStart)
                 .Select(x => (DateOnly?)x.MonthStart)
                 .FirstOrDefaultAsync();
 
         var homeVisitsThisMonth = homeVisitMonth.HasValue
             ? await dbContext.SafehouseMonthlyMetrics
+                .AsNoTracking()
                 .Where(x => x.MonthStart == homeVisitMonth.Value)
                 .SumAsync(x => x.HomeVisitationCount)
             : 0;
 
         var totalHomeVisitsRecorded = await dbContext.SafehouseMonthlyMetrics
+            .AsNoTracking()
             .SumAsync(x => x.HomeVisitationCount);
 
         return Ok(new PublicImpactDashboardResponse(

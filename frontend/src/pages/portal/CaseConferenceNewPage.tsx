@@ -2,12 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api';
-import { ApiError } from '../../api/client';
 import type { CaseConference, CaseConferenceRequest, HomeVisitation, Resident } from '../../api/types';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { SectionCard } from '../../components/ui/Cards';
 import { LoadingState } from '../../components/ui/PageState';
 import { useAuth } from '../../hooks/useAuth';
+import { compactFieldErrors, extractApiFieldErrors } from '../../lib/apiErrors';
 import { buildWorkerOptions, createConferenceForm } from './forms/homeVisitationDefaults';
 import { CaseConferenceRecordForm, type CaseConferenceFieldErrors } from './forms/CaseConferenceRecordForm';
 
@@ -138,27 +138,15 @@ function validateCaseConferenceForm(form: CaseConferenceRequest): CaseConference
 }
 
 function extractCaseConferenceFieldErrors(error: unknown): CaseConferenceFieldErrors {
-  if (!(error instanceof ApiError) || !error.details) return {};
-  try {
-    const parsed = JSON.parse(error.details) as { errors?: Record<string, string[]> };
-    const apiErrors = parsed.errors ?? {};
-    return compactFieldErrors<CaseConferenceFieldErrors>({
-      residentId: apiErrors.ResidentId?.[0],
-      conferenceDate: apiErrors.ConferenceDate?.[0],
-      leadWorker: apiErrors.LeadWorker?.[0],
-      attendees: apiErrors.Attendees?.[0],
-      purpose: apiErrors.Purpose?.[0],
-      decisionsMade: apiErrors.DecisionsMade?.[0],
-      followUpActions: apiErrors.FollowUpActions?.[0],
-      status: apiErrors.Status?.[0],
-    });
-  } catch {
-    return {};
-  }
-}
-
-function compactFieldErrors<T extends Record<string, string | undefined>>(errors: T): T {
-  return Object.fromEntries(
-    Object.entries(errors).filter(([, value]) => Boolean(value)),
-  ) as T;
+  const apiErrors = extractApiFieldErrors(error);
+  return compactFieldErrors<CaseConferenceFieldErrors>({
+    residentId: apiErrors.ResidentId?.[0],
+    conferenceDate: apiErrors.ConferenceDate?.[0],
+    leadWorker: apiErrors.LeadWorker?.[0],
+    attendees: apiErrors.Attendees?.[0],
+    purpose: apiErrors.Purpose?.[0],
+    decisionsMade: apiErrors.DecisionsMade?.[0],
+    followUpActions: apiErrors.FollowUpActions?.[0],
+    status: apiErrors.Status?.[0],
+  });
 }

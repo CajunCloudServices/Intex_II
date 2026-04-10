@@ -1,8 +1,7 @@
-import { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Pagination } from '../../components/ui/Pagination';
 import { api } from '../../api';
-import { ApiError } from '../../api/client';
 import type { CaseConference, CaseConferenceRequest, HomeVisitation, HomeVisitationRequest, Resident } from '../../api/types';
 import { FeedbackBanner } from '../../components/ui/FeedbackBanner';
 import { StaffPortalPageHeader } from '../../components/portal/StaffPortalPageHeader';
@@ -15,6 +14,7 @@ import { formatDate, normalizeText } from '../../lib/format';
 import { CaseConferenceRecordForm, type CaseConferenceFieldErrors } from './forms/CaseConferenceRecordForm';
 import { buildVisitLocationOptions, buildWorkerOptions, createConferenceForm, createVisitationForm, visitTypeOptions } from './forms/homeVisitationDefaults';
 import { HomeVisitationRecordForm, type HomeVisitationFieldErrors } from './forms/HomeVisitationRecordForm';
+import { compactFieldErrors, extractApiFieldErrors } from '../../lib/apiErrors';
 import { combineUnavailableSections, describeUnavailableSection, getRequestErrorMessage } from '../../lib/loadMessages';
 
 export function HomeVisitationsPage() {
@@ -49,7 +49,7 @@ export function HomeVisitationsPage() {
   const isAdmin = user?.roles.includes('Admin') ?? false;
   const canManageRecords = (user?.roles.includes('Admin') ?? false) || (user?.roles.includes('Staff') ?? false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     if (!user) return;
 
     // This page combines two related workflows on purpose: home visit notes and case
@@ -98,13 +98,11 @@ export function HomeVisitationsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     void loadData();
-  }, [user]);
-
-  if (!user) return null;
+  }, [loadData]);
 
   const normalizedSearch = normalizeText(deferredSearch);
   const residentIdFilter = residentFilter === 'All' ? null : Number(residentFilter);
@@ -176,6 +174,8 @@ export function HomeVisitationsPage() {
     () => [{ value: 'All', label: 'All residents' }, ...residents.map((resident) => ({ value: String(resident.id), label: resident.caseControlNumber }))],
     [residents],
   );
+
+  if (!user) return null;
 
   const resetVisitForm = () => {
     setCreatingVisit(false);
@@ -842,18 +842,8 @@ function validateCaseConferenceForm(form: CaseConferenceRequest): CaseConference
   return errors;
 }
 
-function extractAspNetErrors(error: unknown): Record<string, string[]> {
-  if (!(error instanceof ApiError) || !error.details) return {};
-  try {
-    const parsed = JSON.parse(error.details) as { errors?: Record<string, string[]> };
-    return parsed.errors && typeof parsed.errors === 'object' ? parsed.errors : {};
-  } catch {
-    return {};
-  }
-}
-
 function extractHomeVisitationFieldErrors(error: unknown): HomeVisitationFieldErrors {
-  const apiErrors = extractAspNetErrors(error);
+  const apiErrors = extractApiFieldErrors(error);
   return compactFieldErrors<HomeVisitationFieldErrors>({
     residentId: apiErrors.ResidentId?.[0],
     visitDate: apiErrors.VisitDate?.[0],
@@ -871,7 +861,7 @@ function extractHomeVisitationFieldErrors(error: unknown): HomeVisitationFieldEr
 }
 
 function extractCaseConferenceFieldErrors(error: unknown): CaseConferenceFieldErrors {
-  const apiErrors = extractAspNetErrors(error);
+  const apiErrors = extractApiFieldErrors(error);
   return compactFieldErrors<CaseConferenceFieldErrors>({
     residentId: apiErrors.ResidentId?.[0],
     conferenceDate: apiErrors.ConferenceDate?.[0],
@@ -882,10 +872,4 @@ function extractCaseConferenceFieldErrors(error: unknown): CaseConferenceFieldEr
     followUpActions: apiErrors.FollowUpActions?.[0],
     status: apiErrors.Status?.[0],
   });
-}
-
-function compactFieldErrors<T extends Record<string, string | undefined>>(errors: T): T {
-  return Object.fromEntries(
-    Object.entries(errors).filter(([, value]) => Boolean(value)),
-  ) as T;
 }
