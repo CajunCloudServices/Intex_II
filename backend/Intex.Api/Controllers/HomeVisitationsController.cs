@@ -23,14 +23,14 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
             query = query.Where(x => x.ResidentId == residentId.Value);
         }
 
-        return Ok(await query.ToListAsync());
+        return Ok((await query.ToListAsync()).Select(MapResponse));
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<HomeVisitationResponse>> GetById(int id)
     {
         var visitation = await BuildQuery().FirstOrDefaultAsync(x => x.Id == id);
-        return visitation is null ? NotFound() : Ok(visitation);
+        return visitation is null ? NotFound() : Ok(MapResponse(visitation));
     }
 
     [HttpPost]
@@ -59,7 +59,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
         await dbContext.SaveChangesAsync();
         await auditLogService.LogAsync("Create", nameof(HomeVisitation), entity.Id, $"Created home visitation for resident #{entity.ResidentId}.", User);
 
-        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, await BuildQuery().FirstAsync(x => x.Id == entity.Id));
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, MapResponse(await BuildQuery().FirstAsync(x => x.Id == entity.Id)));
     }
 
     [HttpPut("{id:int}")]
@@ -89,7 +89,7 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
 
         await dbContext.SaveChangesAsync();
         await auditLogService.LogAsync("Update", nameof(HomeVisitation), entity.Id, $"Updated home visitation for resident #{entity.ResidentId}.", User);
-        return Ok(await BuildQuery().FirstAsync(x => x.Id == id));
+        return Ok(MapResponse(await BuildQuery().FirstAsync(x => x.Id == id)));
     }
 
     [HttpDelete("{id:int}")]
@@ -114,25 +114,27 @@ public class HomeVisitationsController(ApplicationDbContext dbContext, IAuditLog
         return NoContent();
     }
 
-    private IQueryable<HomeVisitationResponse> BuildQuery() =>
+    private IQueryable<HomeVisitation> BuildQuery() =>
         dbContext.HomeVisitations
             .Include(x => x.Resident)
-            .OrderByDescending(x => x.VisitDate)
-            .Select(x => new HomeVisitationResponse(
-                x.Id,
-                x.ResidentId,
-                x.Resident != null ? x.Resident.CaseControlNumber : $"Resident {x.ResidentId}",
-                x.VisitDate,
-                x.SocialWorker,
-                x.VisitType,
-                x.LocationVisited,
-                x.FamilyMembersPresent,
-                x.Purpose,
-                x.Observations,
-                x.FamilyCooperationLevel,
-                x.SafetyConcernsNoted,
-                x.SafetyConcernDetails,
-                x.FollowUpNeeded,
-                x.FollowUpNotes,
-                x.VisitOutcome));
+            .OrderByDescending(x => x.VisitDate);
+
+    private static HomeVisitationResponse MapResponse(HomeVisitation x) =>
+        new(
+            x.Id,
+            x.ResidentId,
+            x.Resident?.CaseControlNumber ?? $"Resident {x.ResidentId}",
+            x.VisitDate,
+            x.SocialWorker,
+            x.VisitType,
+            x.LocationVisited,
+            x.FamilyMembersPresent,
+            x.Purpose,
+            x.Observations,
+            x.FamilyCooperationLevel,
+            x.SafetyConcernsNoted,
+            x.SafetyConcernDetails,
+            x.FollowUpNeeded,
+            x.FollowUpNotes,
+            x.VisitOutcome);
 }

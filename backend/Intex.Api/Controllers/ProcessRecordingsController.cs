@@ -23,14 +23,14 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
             query = query.Where(x => x.ResidentId == residentId.Value);
         }
 
-        return Ok(await query.ToListAsync());
+        return Ok((await query.ToListAsync()).Select(MapResponse));
     }
 
     [HttpGet("{id:int}")]
     public async Task<ActionResult<ProcessRecordingResponse>> GetById(int id)
     {
         var recording = await BuildQuery().FirstOrDefaultAsync(x => x.Id == id);
-        return recording is null ? NotFound() : Ok(recording);
+        return recording is null ? NotFound() : Ok(MapResponse(recording));
     }
 
     [HttpPost]
@@ -60,7 +60,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
         await dbContext.SaveChangesAsync();
         await auditLogService.LogAsync("Create", nameof(ProcessRecording), entity.Id, $"Created process recording for resident #{entity.ResidentId}.", User);
 
-        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, await BuildQuery().FirstAsync(x => x.Id == entity.Id));
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, MapResponse(await BuildQuery().FirstAsync(x => x.Id == entity.Id)));
     }
 
     [HttpPut("{id:int}")]
@@ -93,7 +93,7 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
 
         await dbContext.SaveChangesAsync();
         await auditLogService.LogAsync("Update", nameof(ProcessRecording), entity.Id, $"Updated process recording for resident #{entity.ResidentId}.", User);
-        return Ok(await BuildQuery().FirstAsync(x => x.Id == id));
+        return Ok(MapResponse(await BuildQuery().FirstAsync(x => x.Id == id)));
     }
 
     [HttpDelete("{id:int}")]
@@ -118,25 +118,27 @@ public class ProcessRecordingsController(ApplicationDbContext dbContext, IAuditL
         return NoContent();
     }
 
-    private IQueryable<ProcessRecordingResponse> BuildQuery() =>
+    private IQueryable<ProcessRecording> BuildQuery() =>
         dbContext.ProcessRecordings
             .Include(x => x.Resident)
-            .OrderByDescending(x => x.SessionDate)
-            .Select(x => new ProcessRecordingResponse(
-                x.Id,
-                x.ResidentId,
-                x.Resident != null ? x.Resident.CaseControlNumber : $"Resident {x.ResidentId}",
-                x.SessionDate,
-                x.SocialWorker,
-                x.SessionType,
-                x.SessionDurationMinutes,
-                x.EmotionalStateObserved,
-                x.EmotionalStateEnd,
-                x.SessionNarrative,
-                x.InterventionsApplied,
-                x.FollowUpActions,
-                x.ProgressNoted,
-                x.ConcernsFlagged,
-                x.ReferralMade,
-                x.RestrictedNotes));
+            .OrderByDescending(x => x.SessionDate);
+
+    private static ProcessRecordingResponse MapResponse(ProcessRecording x) =>
+        new(
+            x.Id,
+            x.ResidentId,
+            x.Resident?.CaseControlNumber ?? $"Resident {x.ResidentId}",
+            x.SessionDate,
+            x.SocialWorker,
+            x.SessionType,
+            x.SessionDurationMinutes,
+            x.EmotionalStateObserved,
+            x.EmotionalStateEnd,
+            x.SessionNarrative,
+            x.InterventionsApplied,
+            x.FollowUpActions,
+            x.ProgressNoted,
+            x.ConcernsFlagged,
+            x.ReferralMade,
+            x.RestrictedNotes);
 }
