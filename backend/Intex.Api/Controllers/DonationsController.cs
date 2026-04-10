@@ -7,6 +7,7 @@ using Intex.Api.Models.Options;
 using Intex.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -122,6 +123,7 @@ public class DonationsController(
 
     [HttpGet("predict-impact")]
     [AllowAnonymous]
+    [EnableRateLimiting("public-submit")]
     public async Task<ActionResult<DonationImpactPredictionResponse>> PredictImpact([FromQuery] decimal amount)
     {
         if (amount <= 0)
@@ -129,13 +131,17 @@ public class DonationsController(
             return BadRequest(new { message = "Amount must be greater than 0." });
         }
 
-        var monetaryAllocations = await dbContext.DonationAllocations
-            .Include(x => x.Donation)
+        var historicalTotalsList = await dbContext.DonationAllocations
             .Where(x => x.Donation!.DonationType == "Monetary")
+            .GroupBy(x => x.ProgramArea)
+            .Select(g => new { ProgramArea = g.Key, Total = g.Sum(a => a.AmountAllocated) })
             .ToListAsync();
+            
+        var historicalTotals = historicalTotalsList
+            .ToDictionary(x => x.ProgramArea, x => x.Total, StringComparer.OrdinalIgnoreCase);
 
         var options = donationImpactOptions.Value;
-        var selectedSplits = BuildSelectedAreaSplits(monetaryAllocations, options, amount);
+        var selectedSplits = BuildSelectedAreaSplits(historicalTotals, options, amount);
         var outcomes = BuildOutcomeRows(selectedSplits, options, amount);
 
         var averageCostPerVictim = options.AverageCostPerVictim <= 0 ? 250m : options.AverageCostPerVictim;
@@ -187,6 +193,7 @@ public class DonationsController(
 
     [HttpPost("public-submit")]
     [AllowAnonymous]
+    [EnableRateLimiting("public-submit")]
     public async Task<ActionResult<PublicDonationSubmissionResponse>> PublicSubmit(PublicDonationSubmissionRequest request)
     {
         var recurringInterval = string.IsNullOrWhiteSpace(request.RecurringInterval)
@@ -266,10 +273,15 @@ public class DonationsController(
                 dbContext.Supporters.Add(supporter);
                 await dbContext.SaveChangesAsync();
             }
-            else if (!string.Equals(supporter.DisplayName, donorName, StringComparison.Ordinal))
-            {
-                supporter.DisplayName = donorName;
-            }
+        }
+
+        var notesBase = recurringInterval is null
+            ? request.Notes
+            : $"Recurring interval: {recurringInterval}. {request.Notes}".Trim();
+
+        if (!authenticatedSupporterId.HasValue)
+        {
+            notesBase = $"[UNVERIFIED PUBLIC SUBMISSION] {notesBase}".Trim();
         }
 
         var donation = new Donation
@@ -283,9 +295,7 @@ public class DonationsController(
             EstimatedValue = request.Amount,
             ImpactUnit = "outcome units",
             IsRecurring = request.IsRecurring,
-            Notes = recurringInterval is null
-                ? request.Notes
-                : $"Recurring interval: {recurringInterval}. {request.Notes}".Trim(),
+            Notes = notesBase,
         };
 
         donation.Allocations = await BuildPublicDonationAllocationsAsync(request.Amount, donation.DonationDate);
@@ -394,12 +404,17 @@ public class DonationsController(
             return [];
         }
 
-        var monetaryAllocations = await dbContext.DonationAllocations
-            .Include(x => x.Donation)
+        var historicalTotalsList = await dbContext.DonationAllocations
             .Where(x => x.Donation!.DonationType == "Monetary")
+            .GroupBy(x => x.ProgramArea)
+            .Select(g => new { ProgramArea = g.Key, Total = g.Sum(a => a.AmountAllocated) })
             .ToListAsync();
+
+        var historicalTotals = historicalTotalsList
+            .ToDictionary(x => x.ProgramArea, x => x.Total, StringComparer.OrdinalIgnoreCase);
+
         var options = donationImpactOptions.Value;
-        var orderedAreas = BuildSelectedAreaSplits(monetaryAllocations, options, amount);
+        var orderedAreas = BuildSelectedAreaSplits(historicalTotals, options, amount);
 
         var allocations = new List<DonationAllocation>();
         var allocatedTotal = 0m;
@@ -431,7 +446,7 @@ public class DonationsController(
     }
 
     private static List<KeyValuePair<string, decimal>> BuildSelectedAreaSplits(
-        List<DonationAllocation> monetaryAllocations,
+        Dictionary<string, decimal> historicalTotals,
         DonationImpactOptions options,
         decimal amount)
     {
@@ -444,10 +459,6 @@ public class DonationsController(
         {
             return [];
         }
-
-        var historicalTotals = monetaryAllocations
-            .GroupBy(x => x.ProgramArea, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(g => g.Key, g => g.Sum(x => x.AmountAllocated), StringComparer.OrdinalIgnoreCase);
 
         var totalHistorical = historicalTotals.Values.Sum();
         var baseSplits = configuredAreas.ToDictionary(
